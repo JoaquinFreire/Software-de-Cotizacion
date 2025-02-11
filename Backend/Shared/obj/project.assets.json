@@ -1,11 +1,30 @@
 {
   "version": 3,
   "targets": {
-    "net8.0": {}
+    "net8.0": {
+      "Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Domain.dll": {}
+        }
+      }
+    }
   },
-  "libraries": {},
+  "libraries": {
+    "Domain/1.0.0": {
+      "type": "project",
+      "path": "../Domain/Domain.csproj",
+      "msbuildProject": "../Domain/Domain.csproj"
+    }
+  },
   "projectFileDependencyGroups": {
-    "net8.0": []
+    "net8.0": [
+      "Domain >= 1.0.0"
+    ]
   },
   "packageFolders": {
     "C:\\Users\\ernes\\.nuget\\packages\\": {}
@@ -31,7 +50,11 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\ernes\\Documents\\UNC_2024\\Software Cotizacion\\Software-de-Cotizacion\\Backend\\Domain\\Domain.csproj": {
+              "projectPath": "C:\\Users\\ernes\\Documents\\UNC_2024\\Software Cotizacion\\Software-de-Cotizacion\\Backend\\Domain\\Domain.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
