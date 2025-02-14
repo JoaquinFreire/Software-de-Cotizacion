@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Entities
 {
-    internal class User
+    public class User
     {
         public int id { get; set; }
         public string name { get; set; }
         public string lastname { get; set; }
+        public UserRole role { get; set; }
+
+        public User(string name, string lastname, UserRole role)
+        {
+            string Name = name;
+            string Lastname = lastname;
+            UserRole Role = role;
+        }
     }
 }
