@@ -18,3 +18,12 @@ C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Bac
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Infrastructure\obj\Debug\net8.0\refint\Infrastructure.dll
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Infrastructure\obj\Debug\net8.0\Infrastructure.pdb
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Infrastructure\obj\Debug\net8.0\ref\Infrastructure.dll
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Infrastructure\obj\Debug\net8.0\Infrastructure.csproj.AssemblyReference.cache
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Infrastructure\obj\Debug\net8.0\Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Infrastructure\obj\Debug\net8.0\Infrastructure.AssemblyInfoInputs.cache
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Infrastructure\obj\Debug\net8.0\Infrastructure.AssemblyInfo.cs
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Infrastructure\obj\Debug\net8.0\Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Infrastructure\obj\Debug\net8.0\Infrastructure.sourcelink.json
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Infrastructure\obj\Debug\net8.0\Infrastructure.dll
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Infrastructure\obj\Debug\net8.0\refint\Infrastructure.dll
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Infrastructure\obj\Debug\net8.0\Infrastructure.pdb
