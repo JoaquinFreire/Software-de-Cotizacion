@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Enums
+namespace Domain.Enums;
+
+public class BudgetStatus
 {
-    public class BudgetStatus
+    public enum status
     {
-        public enum status
-        {
-            In_process,
-            Rejected,
-            Accepted,
-            Finished//?
-        }
+        In_process,
+        Rejected,
+        Accepted,
+        Finished//?
     }
 }
+

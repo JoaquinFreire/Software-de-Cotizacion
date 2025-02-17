@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Interfaces;
-using Entities;
+using Domain.Repositories;
+using Domain.Entities;
 using System.Linq.Expressions;
 
 namespace Services

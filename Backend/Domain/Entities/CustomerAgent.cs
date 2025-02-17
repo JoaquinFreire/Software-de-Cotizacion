@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Entities
-{
-    internal class CustomerAgent
+namespace Domain.Entities;
+
+    public class CustomerAgent
     {
         public int id { get; set; }
         public string name { get; set; }
@@ -14,4 +14,4 @@ namespace Entities
         public string telephoneNumber { get; set; }
         public string email { get; set; }
     }
-}
+
