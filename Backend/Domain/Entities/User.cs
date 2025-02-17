@@ -1,5 +1,5 @@
-namespace Entities
-{
+namespace Domain.Entities;
+
     public class User
     {
         public int id { get; set; }
@@ -14,4 +14,4 @@ namespace Entities
             UserRole Role = role;
         }
     }
-}
+

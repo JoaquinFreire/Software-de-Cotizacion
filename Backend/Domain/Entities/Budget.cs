@@ -1,7 +1,7 @@
 using Enums;
-namespace Entities
-{
-    internal class Budget
+namespace Domain.Entities;
+
+public class Budget2
     {
         public int id { get; set; }
         public DateOnly creationDate { get; set; }
@@ -12,4 +12,3 @@ namespace Entities
         public Customer customer { get; set; }
         public WorkSpace workspace { get; set; }
     }
-}

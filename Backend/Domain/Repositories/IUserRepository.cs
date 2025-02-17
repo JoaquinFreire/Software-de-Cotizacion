@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Entities;
+using Domain.Entities;
 
-namespace Interfaces
+namespace Domain.Repositories;
+public interface IUserRepository
 {
-    public interface IUserRepository
-    {
-        void CreateUser(User user);
-        public interface DeleteUser { }
-        public interface UpdateUser { }
-    }
+    void CreateUser(User user);
+    public interface DeleteUser { }
+    public interface UpdateUser { }
 }
