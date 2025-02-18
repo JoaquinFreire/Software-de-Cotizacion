@@ -1,15 +1,31 @@
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using Enums;
+
 namespace Entities
 {
-    internal class Budget
+    public class Budget
     {
-        public int id { get; set; }
-        public DateOnly creationDate { get; set; }
-        public BudgetStatus status { get; set; }
-        public double totalPrice { get; set; }
-        public DateOnly last_edit { get; set; }
-        public User employee { get; set; }
-        public Customer customer { get; set; }
-        public WorkSpace workspace { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)] // <- Indica que es un objeto llave
+        public string Id { get; set; }
+
+        [BsonElement("creation_date")] // <- Nombre con el que se va a subir a Mongo
+        public DateOnly CreationDate { get; set; }
+
+        [BsonElement("status")]
+        public BudgetStatus Status { get; set; }
+
+        [BsonElement("last_edit")]
+        public DateOnly LastEdit { get; set; }
+
+        [BsonElement("employee")]
+        public User Employee { get; set; }
+
+        [BsonElement("customer")]
+        public Customer Customer { get; set; }
+
+        [BsonElement("workspace")]
+        public WorkSpace Workspace { get; set; }
     }
 }

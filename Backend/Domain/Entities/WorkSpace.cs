@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Entities
 {
-    internal class WorkSpace
+    public class WorkSpace
     {
         public int id { get; set; }
         public string name { get; set; }

@@ -1,16 +1,17 @@
-g System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Entities;
+using Enums;
 
-namespace Interfaces
+namespace Domain.Repositories
 {
-    internal interface IBudgetRepository
+    public interface IBudgetRepository
     {
-        public interface CreateBudget ;
-        public interface UpdateBudget ;
-        public interface DeleteBudget ;
-        public interface UpdateStatus ;
+        Task<List<Budget>> GetAllAsync();
+        Task<Budget> GetByIdAsync(string id);
+        Task AddAsync(Budget entity);
+        Task UpdateAsync(string id, Budget entity);
+        Task DeleteAsync(string id);
+        Task<List<Budget>> GetBudgetsByCustomerAsync(Customer Customer);
     }
 }

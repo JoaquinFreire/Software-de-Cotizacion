@@ -1,9 +1,22 @@
+using Infrastructure;
+using Infrastructure.Persistence.MongoDBContext;
+using Microsoft.Extensions.Options;
+
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Aseguramos que MongoDbSettings se registre correctamente
+
+builder.Services.Configure<MongoDbSettings>(configuration.GetSection("MongoDbSettings"));
+builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
+
+// Registramos los servicios de infraestructura
+builder.Services.AddInfrastructure(configuration);
 
 var app = builder.Build();
 
