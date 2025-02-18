@@ -7,7 +7,7 @@ using Domain.Entities;
 using Domain.Repositories;
 
 namespace Domain.UseCases;
-internal class CreateUser
+public class CreateUser
 {
     private readonly IUserRepository _userRepository;
     public CreateUser(IUserRepository userRepository)
