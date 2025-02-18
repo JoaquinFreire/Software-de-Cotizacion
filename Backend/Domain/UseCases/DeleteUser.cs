@@ -7,7 +7,7 @@ using Domain.Entities;
 using Domain.Repositories;
 
 namespace Domain.UseCases;
-internal class DeleteUser
+public class DeleteUser
 {
     private readonly IUserRepository _userRepository;
     public DeleteUser(IUserRepository userRepository)
