@@ -1166,32 +1166,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Ryzen 5\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\ernes\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Ryzen 5\\Documents\\Cotizacion\\Backend\\Domain\\Domain.csproj",
+      "projectUniqueName": "C:\\Users\\ernes\\Documents\\UNC_2024\\Software Cotizacion\\Software-de-Cotizacion\\Backend\\Domain\\Domain.csproj",
       "projectName": "Domain",
-      "projectPath": "C:\\Users\\Ryzen 5\\Documents\\Cotizacion\\Backend\\Domain\\Domain.csproj",
-      "packagesPath": "C:\\Users\\Ryzen 5\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Ryzen 5\\Documents\\Cotizacion\\Backend\\Domain\\obj\\",
+      "projectPath": "C:\\Users\\ernes\\Documents\\UNC_2024\\Software Cotizacion\\Software-de-Cotizacion\\Backend\\Domain\\Domain.csproj",
+      "packagesPath": "C:\\Users\\ernes\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\ernes\\Documents\\UNC_2024\\Software Cotizacion\\Software-de-Cotizacion\\Backend\\Domain\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\Ryzen 5\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\ernes\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {

@@ -1,1 +1,63 @@
+# 📦 .NET & Clean Architecture Git Ignore
+
+# 🔹 Build Artifacts
+bin/
+obj/
+
+# 🔹 Dependencies
+*.dll
+*.exe
+*.so
+*.dylib
+*.pdb
+
+# 🔹 User-Specific Files
+.vscode/
+.idea/
+*.user
+*.suo
+*.sln.docstates
+*.VC.db
+*.VC.opendb
+
+# 🔹 Temporary Files
+*.log
+*.tmp
+*.cache
+
+# 🔹 Visual Studio Specific
 .vs/
+*.csproj.user
+
+# 🔹 Rider Specific
+.idea/
+*.sln.iml
+
+# 🔹 Entity Framework Migrations
+Migrations/
+
+# 🔹 Local App Data
+appsettings.Development.json
+secrets.json
+
+# 🔹 Node & Frontend (si aplicable)
+node_modules/
+*.env
+
+# 🔹 Git Specific
+*.orig
+
+# 🔹 MySQL & Database Files
+*.mdf
+*.ldf
+*.sqlite
+*.db-shm
+*.db-wal
+
+# 🔹 Coverage & Testing
+coverage/
+TestResults/
+*.trx
+
+# 🔹 Auto-Generated Files
+*.generated.cs
