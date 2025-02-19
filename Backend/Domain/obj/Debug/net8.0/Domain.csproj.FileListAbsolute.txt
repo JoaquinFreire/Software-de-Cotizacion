@@ -18,4 +18,8 @@ C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Domain\obj\Debug\net8.0\Domain.sou
 C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Domain\obj\Debug\net8.0\Domain.dll
 C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Domain\obj\Debug\net8.0\refint\Domain.dll
 C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Domain\obj\Debug\net8.0\Domain.pdb
+<<<<<<< HEAD
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Domain\obj\Debug\net8.0\Domain.csproj.AssemblyReference.cache
+=======
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Domain\obj\Debug\net8.0\Domain.csproj.AssemblyReference.cache
+>>>>>>> main
