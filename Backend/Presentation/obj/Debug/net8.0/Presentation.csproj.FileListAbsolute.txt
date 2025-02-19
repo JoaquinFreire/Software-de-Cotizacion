@@ -40,3 +40,15 @@ C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Bac
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\obj\Debug\net8.0\Presentation.pdb
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\obj\Debug\net8.0\Presentation.genruntimeconfig.cache
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\obj\Debug\net8.0\ref\Presentation.dll
+C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\BCrypt.Net-Next.dll
+C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\DnsClient.dll
+C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\MongoDB.Bson.dll
+C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\MongoDB.Driver.dll
+C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\SharpCompress.dll
+C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\Snappier.dll
+C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\ZstdSharp.dll
+C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\MySqlConnector.dll
+C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\Pomelo.EntityFrameworkCore.MySql.dll
