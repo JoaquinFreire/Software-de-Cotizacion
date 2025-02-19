@@ -3,6 +3,7 @@ using MongoDB.Driver;
 using Microsoft.Extensions.Options;
 using Entities;
 using Domain.Repositories;
+using ZstdSharp.Unsafe;
 
 namespace Infrastructure.Persistence.Repositories
 {
@@ -10,6 +11,7 @@ namespace Infrastructure.Persistence.Repositories
     {
         private readonly IMongoCollection<Budget> _collection;
 
+        //Constructor que realiza la conexión con Mongo y se conecta a la base de datos y a la colección especificada
         public BudgetRepository(IOptions<MongoDbSettings> settings)
         {
             var mongosettings = settings.Value;
@@ -18,31 +20,37 @@ namespace Infrastructure.Persistence.Repositories
             _collection = database.GetCollection<Budget>(mongosettings.CollectionName);
         }
 
+        //Metodo para ver todas las cotizaciones
         public async Task<List<Budget>> GetAllAsync()
         {
             return await _collection.Find(_ => true).ToListAsync();
         }
 
+        //Metodo para buscar cotizaciones por id
         public async Task<Budget> GetByIdAsync(string id)
         {
             return await _collection.Find(b => b.Id == id).FirstOrDefaultAsync();
         }
 
+        //Metodo para agregar cotizaciones
         public async Task AddAsync(Budget entity)
         {
             await _collection.InsertOneAsync(entity);
         }
 
+        //Metodo para actualizar cotizaciones por medio del id
         public async Task UpdateAsync(string id, Budget entity)
         {
             await _collection.ReplaceOneAsync(b => b.Id == id, entity);
         }
 
+        //Metodo para eliminar cotizaciones por medio del id
         public async Task DeleteAsync(string id)
         {
             await _collection.DeleteOneAsync(b => b.Id == id);
         }
 
+        //Metodo para ver las todas las cotizaciones de un cliente
         public async Task<List<Budget>> GetBudgetsByCustomerAsync(Customer customer)
         {
             return await _collection.Find(b => b.Customer.id == customer.id).ToListAsync();
