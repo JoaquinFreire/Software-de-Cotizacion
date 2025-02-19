@@ -16,12 +16,3 @@ C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Bac
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Application\obj\Debug\net8.0\refint\Application.dll
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Application\obj\Debug\net8.0\Application.pdb
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Application\obj\Debug\net8.0\ref\Application.dll
-C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Application\obj\Debug\net8.0\Application.csproj.AssemblyReference.cache
-C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Application\obj\Debug\net8.0\Application.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Application\obj\Debug\net8.0\Application.AssemblyInfoInputs.cache
-C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Application\obj\Debug\net8.0\Application.AssemblyInfo.cs
-C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Application\obj\Debug\net8.0\Application.csproj.CoreCompileInputs.cache
-C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Application\obj\Debug\net8.0\Application.sourcelink.json
-C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Application\obj\Debug\net8.0\Application.dll
-C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Application\obj\Debug\net8.0\refint\Application.dll
-C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Application\obj\Debug\net8.0\Application.pdb

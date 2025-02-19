@@ -7,8 +7,8 @@ using Domain.Repositories;
 using Domain.Entities;
 using System.Linq.Expressions;
 
-namespace Services
-{
+namespace Domain.Services;
+
     public class SearchService<T> where T : class
     {
         private readonly IRepository<T> _repository;
@@ -26,4 +26,3 @@ namespace Services
             return await _repository.FindAsync(predicate);
         }
     }
-}
