@@ -14,6 +14,8 @@
           "Shared.dll": {}
         }
       },
+<<<<<<< HEAD
+=======
       "BCrypt.Net-Next/4.0.3": {
         "runtime": {
           "lib/net6.0/BCrypt.Net-Next.dll": {
@@ -22,6 +24,7 @@
           }
         }
       },
+>>>>>>> main
       "DnsClient/1.6.1": {
         "dependencies": {
           "Microsoft.Win32.Registry": "5.0.0"
@@ -33,6 +36,13 @@
           }
         }
       },
+<<<<<<< HEAD
+      "Microsoft.Extensions.Logging.Abstractions/2.0.0": {
+        "runtime": {
+          "lib/netstandard2.0/Microsoft.Extensions.Logging.Abstractions.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.0.0.17205"
+=======
       "Microsoft.EntityFrameworkCore/8.0.2": {
         "dependencies": {
           "Microsoft.EntityFrameworkCore.Abstractions": "8.0.2",
@@ -142,6 +152,7 @@
           "lib/net8.0/Microsoft.Extensions.Primitives.dll": {
             "assemblyVersion": "8.0.0.0",
             "fileVersion": "8.0.23.53103"
+>>>>>>> main
           }
         }
       },
@@ -167,7 +178,11 @@
       "MongoDB.Driver/3.2.0": {
         "dependencies": {
           "DnsClient": "1.6.1",
+<<<<<<< HEAD
+          "Microsoft.Extensions.Logging.Abstractions": "2.0.0",
+=======
           "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
+>>>>>>> main
           "MongoDB.Bson": "3.2.0",
           "SharpCompress": "0.30.1",
           "Snappier": "1.0.0",
@@ -217,9 +232,12 @@
       },
       "Domain/1.0.0": {
         "dependencies": {
+<<<<<<< HEAD
+=======
           "BCrypt.Net-Next": "4.0.3",
           "Microsoft.EntityFrameworkCore": "8.0.2",
           "MongoDB.Bson": "3.2.0",
+>>>>>>> main
           "MongoDB.Driver": "3.2.0"
         },
         "runtime": {
@@ -234,6 +252,8 @@
       "serviceable": false,
       "sha512": ""
     },
+<<<<<<< HEAD
+=======
     "BCrypt.Net-Next/4.0.3": {
       "type": "package",
       "serviceable": true,
@@ -241,6 +261,7 @@
       "path": "bcrypt.net-next/4.0.3",
       "hashPath": "bcrypt.net-next.4.0.3.nupkg.sha512"
     },
+>>>>>>> main
     "DnsClient/1.6.1": {
       "type": "package",
       "serviceable": true,
@@ -248,6 +269,14 @@
       "path": "dnsclient/1.6.1",
       "hashPath": "dnsclient.1.6.1.nupkg.sha512"
     },
+<<<<<<< HEAD
+    "Microsoft.Extensions.Logging.Abstractions/2.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-6ZCllUYGFukkymSTx3Yr0G/ajRxoNJp7/FqSxSB4fGISST54ifBhgu4Nc0ItGi3i6DqwuNd8SUyObmiC++AO2Q==",
+      "path": "microsoft.extensions.logging.abstractions/2.0.0",
+      "hashPath": "microsoft.extensions.logging.abstractions.2.0.0.nupkg.sha512"
+=======
     "Microsoft.EntityFrameworkCore/8.0.2": {
       "type": "package",
       "serviceable": true,
@@ -324,6 +353,7 @@
       "sha512": "sha512-bXJEZrW9ny8vjMF1JV253WeLhpEVzFo1lyaZu1vQ4ZxWUlVvknZ/+ftFgVheLubb4eZPSwwxBeqS1JkCOjxd8g==",
       "path": "microsoft.extensions.primitives/8.0.0",
       "hashPath": "microsoft.extensions.primitives.8.0.0.nupkg.sha512"
+>>>>>>> main
     },
     "Microsoft.NETCore.Platforms/5.0.0": {
       "type": "package",
