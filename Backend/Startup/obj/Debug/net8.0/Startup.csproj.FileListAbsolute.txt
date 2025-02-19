@@ -1,6 +1,0 @@
-C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Startup\obj\Debug\net8.0\Startup.csproj.AssemblyReference.cache
-C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Startup\obj\Debug\net8.0\Startup.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Startup\obj\Debug\net8.0\Startup.AssemblyInfoInputs.cache
-C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Startup\obj\Debug\net8.0\Startup.AssemblyInfo.cs
-C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Startup\obj\Debug\net8.0\Startup.csproj.CoreCompileInputs.cache
-C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Startup\obj\Debug\net8.0\Startup.sourcelink.json
