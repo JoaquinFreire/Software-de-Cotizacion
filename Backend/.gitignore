@@ -61,3 +61,4 @@ TestResults/
 
 # 🔹 Auto-Generated Files
 *.generated.cs
+.cache/
