@@ -8,7 +8,8 @@ using Domain.Entities;
 namespace Domain.Repositories;
 public interface IUserRepository
 {
-    void CreateUser(User user);
+    Task<User?> GetByLegajoAsync(string legajo);
+    /* void CreateUser(User user);
     public interface DeleteUser { }
-    public interface UpdateUser { }
+    public interface UpdateUser { } */
 }
