@@ -10,8 +10,7 @@ var configuration = builder.Configuration;
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Aseguramos que MongoDbSettings se registre correctamente
-
+// Agrega la configuración de Mongo
 builder.Services.Configure<MongoDbSettings>(configuration.GetSection("MongoDbSettings"));
 builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
 
