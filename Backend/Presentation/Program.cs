@@ -1,3 +1,6 @@
+using Infrastructure;
+using Infrastructure.Persistence.MongoDBContext;
+using Microsoft.Extensions.Options;
 using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Domain.UseCases;
@@ -5,6 +8,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 // using Infrastructure.Persistence; // AsegÃºrate de que esta referencia sea correcta
 
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
 
 // Configurar Entity Framework con MySQL (usando Pomelo)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -23,6 +27,13 @@ builder.Services.AddScoped<LoginUser>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Agrega la configuración de Mongo
+builder.Services.Configure<MongoDbSettings>(configuration.GetSection("MongoDbSettings"));
+builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
+
+// Registramos los servicios de infraestructura
+builder.Services.AddInfrastructure(configuration);
 
 var app = builder.Build();
 

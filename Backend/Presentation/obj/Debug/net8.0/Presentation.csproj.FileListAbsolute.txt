@@ -40,6 +40,19 @@ C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Bac
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\obj\Debug\net8.0\Presentation.pdb
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\obj\Debug\net8.0\Presentation.genruntimeconfig.cache
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\obj\Debug\net8.0\ref\Presentation.dll
+<<<<<<< HEAD
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Presentation\obj\Debug\net8.0\Presentation.csproj.AssemblyReference.cache
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Presentation\obj\Debug\net8.0\Presentation.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Presentation\obj\Debug\net8.0\Presentation.AssemblyInfoInputs.cache
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Presentation\obj\Debug\net8.0\Presentation.AssemblyInfo.cs
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Presentation\obj\Debug\net8.0\Presentation.csproj.CoreCompileInputs.cache
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Presentation\obj\Debug\net8.0\Presentation.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Presentation\obj\Debug\net8.0\Presentation.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Presentation\obj\Debug\net8.0\Presentation.sourcelink.json
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Presentation\obj\Debug\net8.0\Presentation.dll
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Presentation\obj\Debug\net8.0\refint\Presentation.dll
+C:\Users\Ryzen 5\Documents\Cotizacion\Backend\Presentation\obj\Debug\net8.0\Presentation.pdb
+=======
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\BCrypt.Net-Next.dll
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\DnsClient.dll
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
@@ -52,3 +65,4 @@ C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Bac
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\ZstdSharp.dll
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\MySqlConnector.dll
 C:\Users\ernes\Documents\UNC_2024\Software Cotizacion\Software-de-Cotizacion\Backend\Presentation\bin\Debug\net8.0\Pomelo.EntityFrameworkCore.MySql.dll
+>>>>>>> main
