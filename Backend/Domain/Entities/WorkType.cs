@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Entities
+namespace Domain.Entities
 {
-    internal class WorkType
+    public class WorkType
     {
         public int id { get; set; }
         public string type { get; set; }
