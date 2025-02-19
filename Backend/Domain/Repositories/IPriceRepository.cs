@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Interfaces
+namespace Domain.Repositories;
+public interface IPriceRepository
 {
-    internal interface IPriceRepository
-    {
-        public interface CreatePrice;
-        public interface UpdatePrice;
-        public interface DeletePrice;
-    }
+    public interface CreatePrice;
+    public interface UpdatePrice;
+    public interface DeletePrice;
 }
+

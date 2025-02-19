@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Entities;
-using Enums;
+using Domain.Entities;
 
 namespace Domain.Repositories
 {
@@ -15,3 +12,4 @@ namespace Domain.Repositories
         Task<List<Budget>> GetBudgetsByCustomerAsync(Customer Customer);
     }
 }
+

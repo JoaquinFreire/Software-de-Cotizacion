@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Interfaces
+namespace Domain.Repositories;
+internal interface IWorkingSpaceRepository
 {
-    internal interface IWorkingSpaceRepository
-    {
-        public interface CreateWorkingSpace;
-        public interface UpdateWorkingSpace;
-        public interface DeleteWorkingSpace;
-    }
+    public interface CreateWorkingSpace;
+    public interface UpdateWorkingSpace;
+    public interface DeleteWorkingSpace;
 }
+

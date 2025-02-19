@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Interfaces
+namespace Domain.Repositories;
+public interface ICustomerRepository
 {
-    internal interface ICustomerRepository
-    {
-        public interface CreateCustomer;
-        public interface UpdateCustomer;
-        public interface DeleteCustomer;
-    }
+    public interface CreateCustomer;
+    public interface UpdateCustomer;
+    public interface DeleteCustomer;
 }
+

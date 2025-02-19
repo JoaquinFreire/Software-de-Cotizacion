@@ -1,4 +1,4 @@
-namespace UseCases;
+namespace Domain.UseCases;
 
 public class UpdateUser
 {

@@ -3,8 +3,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Entities
-{
+namespace Domain.Entities;
+
     public class Customer
     {
         public int id { get; set; }
@@ -16,4 +16,4 @@ namespace Entities
         public string registration_date { get; set; }
         public CustomerAgent agent { get; set; }
     }
-}
+
