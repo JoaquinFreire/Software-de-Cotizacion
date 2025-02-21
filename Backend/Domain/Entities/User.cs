@@ -2,24 +2,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities;
 
+// Representa la tabla 'user' en la base de datos
 public class User
 {
-    public int id { get; set; }
-    public string name { get; set; }
-    public string lastname { get; set; }
-    public string Legajo { get; set; } = string.Empty;
-    public string password_hash { get; set; } = string.Empty;
-    public int role_id { get; set; }  // Clave foránea
-    public UserRole role { get; set; }  // Navegación
+    public int id { get; set; }  // ID del usuario
+    public string name { get; set; }  // Nombre
+    public string lastname { get; set; }  // Apellido
+    public string Legajo { get; set; } = string.Empty;  // Identificador único para login
+    public string password_hash { get; set; } = string.Empty;  // Contraseña encriptada
+    public int role_id { get; set; }  // Clave foránea hacia UserRole
+    public UserRole role { get; set; }  // Relación con UserRole (navegación)
 
-    public User() { }
-
-    /*     public User(string name, string lastname, UserRole role)
-    {
-        this.name = name;
-        this.lastname = lastname;
-        this.role = role;
-    } */
+    public User() { }  // Constructor vacío necesario para Entity Framework
 
 }
 
