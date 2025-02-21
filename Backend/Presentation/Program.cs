@@ -5,75 +5,84 @@ using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Domain.UseCases;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
 // using Infrastructure.Persistence; // Asegúrate de que esta referencia sea correcta
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
-// Configurar Entity Framework con MySQL (usando Pomelo)
+// Configura Entity Framework con MySQL usando Pomelo
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-// Configurar logging
+// Configura logging (limpia los proveedores existentes y agrega logging en consola)
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
-// Inyectar dependencias
+// Inyección de dependencias para los servicios del dominio
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<LoginUser>();
 
-// Agregar controladores y Swagger
+// Agrega soporte para controladores en la API
 builder.Services.AddControllers();
+
+var jwtKey =  configuration["Jwt:Key"];  // 🔹 Cambia esto por una clave segura
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = "anodal",
+            ValidAudience = "unc",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
+
+// Configura Swagger para la documentación de la API
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Elimina el endpoint del clima y otros valores generados por defecto
+    options.CustomOperationIds(apiDesc => apiDesc.ActionDescriptor.RouteValues["action"]);
+});
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000") // Permitir el frontend
+                  .AllowAnyMethod()  // Permitir cualquier método HTTP (GET, POST, etc.)
+                  .AllowAnyHeader(); // Permitir cualquier encabezado
+        });
+});
 
-// Agrega la configuraci�n de Mongo
-builder.Services.Configure<MongoDbSettings>(configuration.GetSection("MongoDbSettings"));
-builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
-
-// Registramos los servicios de infraestructura
-builder.Services.AddInfrastructure(configuration);
 
 var app = builder.Build();
 
-// Configurar middleware
+// Configuración de middleware
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwagger();  // Habilita la generación del JSON de Swagger
+    app.UseSwaggerUI(); // Habilita la interfaz web de Swagger
 }
 
-app.UseHttpsRedirection();
-app.UseRouting();
-app.UseAuthorization();
+app.UseHttpsRedirection(); // Redirige automáticamente HTTP a HTTPS
+app.UseRouting(); // Habilita el enrutamiento de las solicitudes
+app.UseCors("AllowFrontend");
 
-// Definir endpoint adicional
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.UseAuthentication(); // 🔹
+app.UseAuthorization(); // Habilita la autorización en la API
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
+// Mapea los controladores definidos en la aplicación
 app.MapControllers();
 
-app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+app.Run(); // Ejecuta la aplicación
