@@ -1,0 +1,105 @@
+/* Estilos generales */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+/* Contenedor principal */
+.login-container {
+    background: url('../images/fondo-login.jpg') no-repeat center center/cover; /* Reemplaza con la imagen real */
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Capa oscura sobre la imagen de fondo */
+.login-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+/* Caja del formulario */
+.login-box {
+    position: relative;
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    color: white;
+    width: 350px;
+}
+
+/* Logo y subtítulo */
+.logo {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.subtitle {
+    font-size: 25px;
+    margin-bottom: 20px;
+}
+
+/* Campos de entrada */
+input {
+    width: 90%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    background: #222;
+    color: white;
+}
+
+/* Botón de inicio de sesión */
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+    background: white;
+    color: black;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #ddd;
+}
+
+/* Mensaje de error */
+.error-message {
+    color: red;
+    margin-top: 10px;
+}
+
+/* Enlace para recuperar contraseña */
+.forgot-password {
+    margin-top: 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+/* Asegura que los labels sean bloques y estén alineados a la izquierda */
+.login-box label {
+    display: block;
+    text-align: left;
+    width: 90%;
+    margin: 10px auto 5px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
