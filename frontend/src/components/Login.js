@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import '../styles/login.css'; // Importamos el archivo de estilos
+import anodalLogo from '../images/anodal_logo.png';
+
 
 const Login = () => {
     const [legajo, setLegajo] = useState('');
@@ -20,14 +23,21 @@ const Login = () => {
     };
 
     return (
-        <div>
-            <h2>Login</h2>
-            <form onSubmit={handleLogin}>
-                <input type='text' placeholder='Legajo' value={legajo} onChange={(e) => setLegajo(e.target.value)} required />
-                <input type='password' placeholder='Contraseña' value={password} onChange={(e) => setPassword(e.target.value)} required />
-                <button type='submit'>Ingresar</button>
-            </form>
-            {error && <p>{error}</p>}
+        <div className="login-container">
+            <div className="login-overlay"></div>
+            <div className="login-box">
+                <img src={anodalLogo} alt="Logo de Anodal" />
+                <h2 className="subtitle">Cotizaciones</h2>
+                <form onSubmit={handleLogin}>
+                    <label className="label" htmlFor="legajo">Legajo</label>
+                    <input type='text' placeholder='Ingrese su legajo' id="legajo" value={legajo} onChange={(e) => setLegajo(e.target.value)} required />
+                    <label className="label" htmlFor="contraseña">Contraseña</label>
+                    <input type='password' placeholder='Ingrese su contraseña' id="contraseña" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                    <button type='submit'>Siguiente</button>
+                </form>
+                {error && <p className="error-message">{error}</p>}
+                <p className="forgot-password">Recuperar contraseña</p>
+            </div>
         </div>
     );
 };
