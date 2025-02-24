@@ -26,11 +26,10 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var user = await _loginUser.AuthenticateAsync(request.Legajo, request.Password);
-        if (user == null) return Unauthorized(new { message = "Credenciales inválidas" });
+        var (success, error, user) = await _loginUser.AuthenticateAsync(request.Legajo, request.Password);
+        if (!success) return Unauthorized(new { error });
 
         var token = GenerateJwtToken(user);
-
         return Ok(new { message = "Login exitoso", userId = user.id, token });
     }
 
