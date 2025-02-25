@@ -16,7 +16,7 @@ const Login = () => {
 
         try {
             const response = await axios.post('http://localhost:5187/api/auth/login', { legajo, password });
-            
+         
             if (response.data.token) {
                 localStorage.setItem('token', response.data.token); // Guardar token en localStorage
                 navigate('/dashboard'); // Redirigir al Dashboard
@@ -25,6 +25,7 @@ const Login = () => {
             }
         } catch (err) {
             setError('Credenciales inválidas. Inténtelo de nuevo.');
+
         }
     };
 
@@ -57,9 +58,10 @@ const Login = () => {
                             required
                         />
                     </div>
+
                     <button type="submit">Siguiente</button>
                 </form>
-                {error && <p className="error-message">{error}</p>}
+                {error && <p className="error-message">{error}</p>} {/* Mostrar errores aquí */}
                 <p className="forgot-password">Recuperar contraseña</p>
             </div>
         </div>
