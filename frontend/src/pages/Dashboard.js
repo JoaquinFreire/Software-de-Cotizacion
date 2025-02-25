@@ -1,50 +1,72 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import '../styles/dashboard.css';
+import anodalLogo from '../images/anodal_logo.png';
+import menuIcon from '../images/menuIcon.png';
 
 const Dashboard = () => {
-    const [user, setUser] = useState(null);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            navigate('/'); // Si no hay token, redirigir al login
-            return;
-        }
-
-        const fetchUserData = async () => {
-            try {
-                const response = await axios.get('http://localhost:5187/api/auth/me', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                setUser(response.data); // Guardar datos del usuario
-            } catch (error) {
-                console.error('Error al obtener usuario', error);
-                localStorage.removeItem('token'); // Eliminar token si es inválido
-                navigate('/'); // Redirigir al login
-            }
-        };
-
-        fetchUserData();
-    }, [navigate]);
-
+    const [menuOpen, setMenuOpen] = useState(false);
     const handleLogout = () => {
-        localStorage.removeItem('token'); // Elimina el token
+        console.log("y ella");localStorage.removeItem('token'); // Elimina el token
         navigate('/'); // Redirige al login
-    };
-
-    if (!user) return <p>Cargando...</p>;
     
+    };
     return (
-        <div>
-            <h2>Dashboard</h2>
-            {user ? (
-                <p>Hola {user.name}, tu rol es {user.role}.</p>
-            ) : (
-                <p>Cargando...</p>
-            )}
-            <button onClick={handleLogout}>Cerrar Sesión</button>
+        <div className="dashboard-container">
+            <header className="dashboard-header">
+                <img src={anodalLogo} alt="Logo Anodal" className="logo" />
+                <nav>
+                    <a href="#">Cotizar</a>
+                    <a href="#">Historial</a>
+                    <a href="#">Reportes</a>
+                    <a href="#">Actualizar</a>
+                </nav>
+                
+                <div className="menu">
+                    <button 
+                        className="menu-button" 
+                        onClick={() => setMenuOpen(!menuOpen)}
+                    >
+                        <img src={menuIcon} alt="Menú" className="menu-icon" />
+                    </button>
+                    
+                    {menuOpen && (
+                        <div className="dropdown-menu">
+                            <p className="user-text">Usuario</p>
+                            <div className="toggle-container">
+                                <span className="toggle-label">Modo Oscuro</span>
+                                <label className="switch">
+                                    <input type="checkbox" />
+                                    <span className="slider"></span>
+                                </label>
+                            </div>
+                            <button onClick={handleLogout}>Cerrar Sesión</button>
+                        </div>
+                    )}
+                </div>
+            </header>
+
+            <h2 className="title">Cotizaciones Pendientes</h2>
+
+            <div className="search-bar">
+                <input type="text" placeholder="Buscar..." className="search-input"/>
+                <button className="search-button">🔍</button>
+                <button className="new-quote">Nueva Cotización</button>
+            </div>
+
+            <div className="quote-container">
+                {[...Array(6)].map((_, index) => (
+                    <div key={index} className="quote-card">
+                        <p><strong>Cliente:</strong> Bruno Fontanari</p>
+                        <p><strong>Fecha:</strong> 19/02/2025</p>
+                        <p><strong>Dirección:</strong> Pj. Austral 41</p>
+                        <p><strong>Teléfono:</strong> 3543694696</p>
+                        <p><strong>Mail:</strong> Fontanaribruno21@gmail.com</p>
+                        <button className="go-button">Ir</button>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
