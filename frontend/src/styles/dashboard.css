@@ -22,40 +22,82 @@
 .title {
     text-align: center;
     color: cyan;
-    font-size: 24px;
+    font-size: 35px;
 }
 
 .search-bar {
     display: flex;
-    justify-content: center;
     align-items: center;
-    margin: 20px;
-    gap: 10px;
+    background-color: transparent;
+    padding: 5px;
+    border-radius: 5px;
+    justify-content: space-between; 
 }
 
-.search-input {
-    padding: 10px;
-    width: 250px;
-    border: none;
+.search-container {
+    margin-left: 50px;
+    width: 150%;
+    height: 30px;
+    display: flex;
+    align-items:center;
+    background-color: black;
+    border: 2px solid cyan;
     border-radius: 5px;
+    padding: 2px;
+    flex-grow: 1; /* Hace que el input ocupe el espacio disponible */
+}
+.search-input {
+    padding: 8px;
+    border: none;
+    outline: none;
+    background: black;
+    color: white;
+    flex-grow: 1;
+}
+
+.clear-button {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 5px;
+    width: 130px;
+    height: 35px;
+    margin-top: -2px;
 }
 
 .search-button {
-    background: black;
-    color: white;
+    background: cyan;
     border: none;
-    padding: 10px 12px;
-    border-radius: 5px;
+    padding: 8px;
     cursor: pointer;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 156px;
+    height: 35px;
+    margin-right: -5px;
+    margin-top: -2px;
+}
+
+.search-button img {
+    width: 16px;
+    height: 16px;
 }
 
 .new-quote {
-    background: cyan;
+    margin-top: -1px;
+    margin-right: 70px ; /* Lo empuja hacia la izquierda */
+    width: 60%;
+    height: 50%;
+    margin-left: 20px;
+    padding: 10px 5px;
     border: none;
-    padding: 10px 12px;
+    background-color: cyan;
+    color: black;
     border-radius: 5px;
     cursor: pointer;
-    font-weight: bold;
 }
 
 .quote-container {
@@ -67,7 +109,7 @@
 }
 
 .quote-card {
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.788);
     border: 1px solid cyan;
     padding: 15px;
     width: 80%;
@@ -76,20 +118,24 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    
 }
 
 .quote-card p {
     margin: 5px 0;
     flex: 1;
+    
 }
 
 .go-button {
     background: cyan;
     border: none;
+    width:12%;
     padding: 8px 12px;
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
+    margin-left: 10px;
 }
 
 .menu {
