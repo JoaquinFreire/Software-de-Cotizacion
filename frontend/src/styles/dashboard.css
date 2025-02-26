@@ -248,3 +248,7 @@ input:checked + .slider:before {
 .logout-button:hover {
     background: #cc0000;
 }
+nav .active {
+    color: red; /* Color resaltado para la página actual */
+    border-bottom: 2px solid red;
+  }
