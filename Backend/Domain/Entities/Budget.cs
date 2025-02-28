@@ -21,6 +21,6 @@ public class Budget
     [BsonElement("customer")]
     public Customer customer { get; set; }
     [BsonElement("workspace")]
-    public WorkSpace workspace { get; set; }
+    public WorkPlace workPlace { get; set; }
 
 }
