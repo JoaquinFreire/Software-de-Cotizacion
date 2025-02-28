@@ -24,6 +24,8 @@ namespace Domain.Entities
         [Column("last_edit", TypeName = "datetime")]
         public DateTime LastEdit { get; set; } = DateTime.UtcNow;
 
+        [Column("creation_date", TypeName = "datetime")]
+        public DateTime CreationDate { get; set; } = DateTime.UtcNow; // Agrega esta línea
 
         // Relación con entidades 
         public User? User { get; set; }
