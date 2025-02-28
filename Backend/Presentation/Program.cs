@@ -30,6 +30,8 @@ builder.Services.AddScoped<LoginUser>();
 builder.Services.AddScoped<IQuotationRepository, QuotationRepository>();
 builder.Services.AddScoped<CreateQuotation>();
 
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<CreateCustomer>();
 
 // Agrega soporte para controladores en la API
 builder.Services.AddControllers();

@@ -25,6 +25,11 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Quotation>()
             .Property(q => q.LastEdit)
             .HasColumnType("DATETIME");
+
+        modelBuilder.Entity<Quotation>()
+            .Property(q => q.CreationDate)
+            .HasColumnType("DATETIME");
+
         // Configura la relación entre User y UserRole
         modelBuilder.Entity<User>()
              .HasOne(u => u.role)
@@ -49,5 +54,9 @@ public class AppDbContext : DbContext
             .WithMany()
             .HasForeignKey(c => c.agentId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Customer>()
+            .Property(c => c.registration_date)
+            .HasColumnType("DATETIME");
     }
 }

@@ -11,38 +11,86 @@ public class QuotationController : ControllerBase
 {
     private readonly IQuotationRepository _quotationRepository;
     private readonly CreateQuotation _createQuotation;
+    private readonly ICustomerRepository _customerRepository;
 
-    public QuotationController(IQuotationRepository quotationRepository, CreateQuotation createQuotation)
+    public QuotationController(IQuotationRepository quotationRepository, CreateQuotation createQuotation, ICustomerRepository customerRepository)
     {
         _quotationRepository = quotationRepository;
         _createQuotation = createQuotation;
+        _customerRepository = customerRepository;
     }
 
     [HttpGet]
-public async Task<IEnumerable<Quotation>> GetAll()
-{
-    var quotations = await _quotationRepository.GetAllAsync();
-
-    foreach (var q in quotations)
+    public async Task<IEnumerable<Quotation>> GetAll()
     {
-        Console.WriteLine($"Quotation ID: {q.Id}, LastEdit: {q.LastEdit}");
-    }
+        var quotations = await _quotationRepository.GetAllAsync();
 
-    return quotations;
-}
+        foreach (var q in quotations)
+        {
+            Console.WriteLine($"Quotation ID: {q.Id}, LastEdit: {q.LastEdit}");
+        }
+
+        return quotations;
+    }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
         var quotation = await _quotationRepository.GetByIdAsync(id);
         if (quotation == null) return NotFound();
-        return Ok(quotation);
+        return Ok(new
+        {
+            quotation.Id,
+            quotation.CustomerId,
+            quotation.UserId,
+            quotation.WorkPlaceId,
+            quotation.Status,
+            quotation.TotalPrice,
+            LastEdit = quotation.LastEdit.ToString("yyyy-MM-ddTHH:mm:ssZ"), // Formatear DateTime a string
+            CreationDate = quotation.CreationDate.ToString("yyyy-MM-ddTHH:mm:ssZ"), // Formatear DateTime a string
+            Customer = new
+            {
+                quotation.Customer.id,
+                quotation.Customer.name,
+                quotation.Customer.lastname,
+                quotation.Customer.tel,
+                quotation.Customer.mail,
+                quotation.Customer.address,
+                RegistrationDate = quotation.Customer.registration_date.ToString("yyyy-MM-ddTHH:mm:ssZ"), // Formatear DateTime a string
+                quotation.Customer.agentId
+            },
+            WorkPlace = new
+            {
+                quotation.WorkPlace.id,
+                quotation.WorkPlace.name,
+                quotation.WorkPlace.address,
+                quotation.WorkPlace.workTypeId
+            }
+        });
     }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Quotation newQuotation)
     {
         if (newQuotation == null) return BadRequest("Datos inválidos.");
+
+        // Verificar si el cliente existe
+        var customer = await _customerRepository.GetByIdAsync(newQuotation.CustomerId);
+        if (customer == null)
+        {
+            // Crear un cliente por defecto si no existe
+            customer = new Customer
+            {
+                // Asigna valores predeterminados o los valores proporcionados en el cuerpo de la solicitud
+                name = "Default Name",
+                lastname = "Default LastName",
+                tel = "0000000000",
+                mail = "default@example.com",
+                address = "Default Address"
+            };
+            await _customerRepository.AddAsync(customer);
+            newQuotation.CustomerId = customer.id; // Asigna el ID del nuevo cliente a la cotización
+        }
 
         var createdQuotation = await _createQuotation.ExecuteAsync(
             newQuotation.CustomerId, 

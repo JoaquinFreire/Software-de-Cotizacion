@@ -14,24 +14,23 @@ public class QuotationRepository : IQuotationRepository
     }
 
     public async Task<IEnumerable<Quotation>> GetAllAsync()
-{
-    return await _context.Quotations
-        .Include(q => q.Customer)
-        .Include(q => q.User)
-        .Include(q => q.WorkPlace)
-        .Select(q => new Quotation
-        {
-            Id = q.Id,
-            CustomerId = q.CustomerId,
-            UserId = q.UserId,
-            WorkPlaceId = q.WorkPlaceId,
-            Status = q.Status,
-            TotalPrice = q.TotalPrice,
-            LastEdit = q.LastEdit // Forzar que se lea como DateTime
-        })
-        .ToListAsync();
-}
-
+    {
+        return await _context.Quotations
+            .Include(q => q.Customer)
+            .Include(q => q.User)
+            .Include(q => q.WorkPlace)
+            .Select(q => new Quotation
+            {
+                Id = q.Id,
+                CustomerId = q.CustomerId,
+                UserId = q.UserId,
+                WorkPlaceId = q.WorkPlaceId,
+                Status = q.Status,
+                TotalPrice = q.TotalPrice,
+                LastEdit = q.LastEdit // Forzar que se lea como DateTime
+            })
+            .ToListAsync();
+    }
 
     public async Task<Quotation?> GetByIdAsync(int id)
     {
@@ -45,10 +44,10 @@ public class QuotationRepository : IQuotationRepository
     public async Task AddAsync(Quotation quotation)
     {
         quotation.LastEdit = DateTime.UtcNow;  // 🔹 Asigna la fecha actual
+        quotation.CreationDate = DateTime.UtcNow;  // 🔹 Asigna la fecha de creación
         _context.Quotations.Add(quotation);
         await _context.SaveChangesAsync();
     }
-
 
     public async Task UpdateAsync(Quotation quotation)
     {
@@ -56,7 +55,6 @@ public class QuotationRepository : IQuotationRepository
         _context.Quotations.Update(quotation);
         await _context.SaveChangesAsync();
     }
-
 
     public async Task DeleteAsync(int id)
     {
