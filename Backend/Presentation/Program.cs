@@ -27,8 +27,21 @@ builder.Logging.AddConsole();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<LoginUser>();
 
+builder.Services.AddScoped<IQuotationRepository, QuotationRepository>();
+builder.Services.AddScoped<CreateQuotation>();
+
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<CreateCustomer>();
+
 // Agrega soporte para controladores en la API
 builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    });
 
 var jwtKey =  configuration["Jwt:Key"];  // 🔹 Cambia esto por una clave segura
 
