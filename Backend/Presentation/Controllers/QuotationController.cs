@@ -24,12 +24,6 @@ public class QuotationController : ControllerBase
     public async Task<IEnumerable<Quotation>> GetAll()
     {
         var quotations = await _quotationRepository.GetAllAsync();
-
-        foreach (var q in quotations)
-        {
-            Console.WriteLine($"Quotation ID: {q.Id}, LastEdit: {q.LastEdit}");
-        }
-
         return quotations;
     }
 
@@ -92,14 +86,22 @@ public class QuotationController : ControllerBase
             newQuotation.CustomerId = customer.id; // Asigna el ID del nuevo cliente a la cotización
         }
 
-        var createdQuotation = await _createQuotation.ExecuteAsync(
-            newQuotation.CustomerId, 
-            newQuotation.UserId, 
-            newQuotation.WorkPlaceId, 
-            newQuotation.TotalPrice
-        );
+        try
+        {
+            var createdQuotation = await _createQuotation.ExecuteAsync(
+                newQuotation.CustomerId, 
+                newQuotation.UserId, 
+                newQuotation.WorkPlaceId, 
+                newQuotation.TotalPrice
+            );
 
-        return CreatedAtAction(nameof(GetById), new { id = createdQuotation.Id }, createdQuotation);
+            return CreatedAtAction(nameof(GetById), new { id = createdQuotation.Id }, createdQuotation);
+        }
+        catch (Exception ex)
+        {
+            // Agregar más detalles de depuración
+            return StatusCode(500, $"Internal server error: {ex.Message}\n{ex.StackTrace}");
+        }
     }
 
     [HttpDelete("{id}")]

@@ -67,7 +67,7 @@ public class AuthController : ControllerBase
 
         if (user == null) return NotFound();
 
-        return Ok(new { name = user.name, role = user.role.role_name });
+        return Ok(new { userId = user.id, name = user.name, role = user.role.role_name });
     }
 
 }

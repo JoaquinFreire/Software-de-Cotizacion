@@ -34,7 +34,7 @@ const Navigation = ({ onLogout }) => {
                 <NavLink to="/dashboard">Inicio</NavLink>
                 <NavLink to="/historial">Historial</NavLink>
                 <NavLink to="/reportes">Reportes</NavLink>
-                <NavLink to="/actualizar">Admin</NavLink>
+                <NavLink to="/admin">Admin</NavLink>
             </nav>
 
             <div className="menu">
