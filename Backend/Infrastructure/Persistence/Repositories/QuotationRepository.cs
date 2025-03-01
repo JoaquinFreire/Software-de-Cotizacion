@@ -42,7 +42,7 @@ public class QuotationRepository : IQuotationRepository
     public async Task UpdateAsync(Quotation quotation)
     {
         quotation.LastEdit = DateTime.UtcNow;  // Actualizar timestamp
-        _context.Quotations.Update(quotation);
+        _context.Entry(quotation).State = EntityState.Modified;  // Actualizar estado
         await _context.SaveChangesAsync();
     }
 
