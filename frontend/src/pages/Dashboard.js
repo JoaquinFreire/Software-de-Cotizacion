@@ -41,6 +41,20 @@ const Dashboard = () => {
     }
   };
 
+  const handleStatusChange = async (id, newStatus) => {
+    const token = localStorage.getItem("token");
+    try {
+      await axios.put(`http://localhost:5187/api/quotations/${id}/status`, { status: newStatus }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setQuotations(quotations.map(quotation => 
+        quotation.Id === id ? { ...quotation, Status: newStatus } : quotation
+      ));
+    } catch (error) {
+      console.error("Error updating quotation status:", error);
+    }
+  };
+
   const handleShowModal = (id) => {
     setQuotationToDelete(id);
     setShowModal(true);
@@ -79,7 +93,14 @@ const Dashboard = () => {
             <div className="quote-details">
               <p>{quotation.Customer.name} {quotation.Customer.lastname}</p>
               <p>{new Date(quotation.CreationDate).toLocaleDateString()}</p>
-              <p>{quotation.Status}</p> {/* Mostrar el estado de la cotización */}
+              <p>
+                <select value={quotation.Status} onChange={(e) => handleStatusChange(quotation.Id, e.target.value)}>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="finished">Finished</option>
+                </select>
+              </p>
               <p>{quotation.Customer.tel}</p>
               <p>{quotation.Customer.mail}</p>
             </div>
