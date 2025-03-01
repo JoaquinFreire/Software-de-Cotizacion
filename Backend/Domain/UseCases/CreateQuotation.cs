@@ -21,7 +21,8 @@ namespace Domain.UseCases
                 CustomerId = customerId,
                 UserId = userId,
                 WorkPlaceId = workPlaceId,
-                TotalPrice = totalPrice
+                TotalPrice = totalPrice,
+                Status = "pending"
             };
 
             await _quotationRepository.AddAsync(newQuotation);
