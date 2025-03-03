@@ -398,10 +398,7 @@
           "Shared": "1.0.0"
         },
         "runtime": {
-          "Application.dll": {
-            "assemblyVersion": "1.0.0",
-            "fileVersion": "1.0.0.0"
-          }
+          "Application.dll": {}
         }
       },
       "Domain/1.0.0": {
@@ -412,10 +409,7 @@
           "MongoDB.Driver": "3.2.0"
         },
         "runtime": {
-          "Domain.dll": {
-            "assemblyVersion": "1.0.0",
-            "fileVersion": "1.0.0.0"
-          }
+          "Domain.dll": {}
         }
       },
       "Shared/1.0.0": {
@@ -423,10 +417,7 @@
           "Domain": "1.0.0"
         },
         "runtime": {
-          "Shared.dll": {
-            "assemblyVersion": "1.0.0",
-            "fileVersion": "1.0.0.0"
-          }
+          "Shared.dll": {}
         }
       }
     }
