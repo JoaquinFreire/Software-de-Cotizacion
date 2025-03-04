@@ -69,7 +69,6 @@ public class AuthController : ControllerBase
 
         return Ok(new { userId = user.id, name = user.name, role = user.role.role_name });
     }
-
 }
 
 public class LoginRequest

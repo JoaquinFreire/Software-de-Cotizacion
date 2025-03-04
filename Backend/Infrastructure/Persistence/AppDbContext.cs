@@ -18,10 +18,10 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<User>().ToTable("user");  // Enlaza la entidad con la tabla "user"
         modelBuilder.Entity<Quotation>().ToTable("quotation");
         modelBuilder.Entity<Customer>().ToTable("customer");
+        modelBuilder.Entity<CustomerAgent>().ToTable("customeragent");
         modelBuilder.Entity<WorkPlace>().ToTable("workplace");
 
-
-        // 🔹 Configurar LastEdit para que se almacene como DATE en la base de datos
+        // Configurar LastEdit para que se almacene como DATE en la base de datos
         modelBuilder.Entity<Quotation>()
             .Property(q => q.LastEdit)
             .HasColumnType("DATETIME");
@@ -42,12 +42,21 @@ public class AppDbContext : DbContext
             .WithMany()
             .HasForeignKey(w => w.workTypeId)
             .OnDelete(DeleteBehavior.Restrict);
+
         // Relación entre Quotation y Customer
         modelBuilder.Entity<Quotation>()
             .HasOne(q => q.Customer)
             .WithMany()
             .HasForeignKey(q => q.CustomerId)
             .HasPrincipalKey(c => c.id);
+
+        // Relación entre Quotation y User
+        modelBuilder.Entity<Quotation>()
+            .HasOne(q => q.User)
+            .WithMany()
+            .HasForeignKey(q => q.UserId)
+            .HasPrincipalKey(u => u.id);
+
         // Relación entre Customer y CustomerAgent
         modelBuilder.Entity<Customer>()
             .HasOne(c => c.agent)
@@ -57,6 +66,7 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Customer>()
             .Property(c => c.registration_date)
-            .HasColumnType("DATETIME");
+            .HasColumnType("DATETIME")
+            .HasDefaultValueSql("GETDATE()"); // Establecer valor predeterminado como fecha actual
     }
 }
