@@ -8,19 +8,19 @@ public class Budget
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public string id { get; set; }
-    [BsonElement("creation_date")]
-    public DateOnly creationDate { get; set; }
+    [BsonElement("fecha_documento")]
+    public DateTime creationDate { get; set; }
     [BsonElement("status")]
+    [BsonRepresentation(BsonType.String)]
     public BudgetStatus status { get; set; }
-    [BsonElement("total_price")]
-    public double totalPrice { get; set; }
-    [BsonElement("last_edit")]
-    public DateOnly last_edit { get; set; }
-    [BsonElement("employee")]
-    public User employee { get; set; }
-    [BsonElement("customer")]
+    /*[BsonElement("total_price")]
+    public double totalPrice { get; set; }*/
+    [BsonElement("encargado_cotizacion")]
+    public User user { get; set; }
+    [BsonElement("cliente")]
     public Customer customer { get; set; }
-    [BsonElement("workspace")]
+    [BsonElement("workSpace")]
     public WorkSpace workspace { get; set; }
-
+    [BsonElement("productos")]
+    public List<Budget_Product> Products { get; set; } = new List<Budget_Product>(); // Lista de productos
 }

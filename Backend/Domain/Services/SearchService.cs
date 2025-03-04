@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 namespace Domain.Services;
 
     public class SearchService<T> where T : class
-    {
+{
         private readonly IRepository<T> _repository;
 
         public SearchService(IRepository<T> repository)
@@ -21,8 +21,18 @@ namespace Domain.Services;
         {
             return await _repository.GetByIdAsync(id);
         }
-        public async Task<IEnumerable<T>>SearchByPropertyAsync(Expression<Func<T, bool>> predicate)
+        public async Task<T?> SearchByIdAsync(string id)
+        {
+            return await _repository.GetByIdAsync(id);
+        }
+    public async Task<IEnumerable<T>>SearchByPropertyAsync(Expression<Func<T, bool>> predicate)
         {
             return await _repository.FindAsync(predicate);
         }
-    }
+
+        public async Task<IEnumerable<T>> GetAllAsync()
+        {
+            return await _repository.GetAllAsync();
+        }
+
+}

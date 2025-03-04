@@ -6,13 +6,10 @@ using System.Threading.Tasks;
 
 namespace Domain.Enums;
 
-public class MaterialUnit
+public enum MaterialUnit
 {
-    public enum unit
-    {
         pieces,
         kg,
         m2
-    }
 }
 

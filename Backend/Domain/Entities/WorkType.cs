@@ -1,3 +1,4 @@
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,9 @@ namespace Domain.Entities
 {
     public class WorkType
     {
+        [BsonIgnore]
         public int id { get; set; }
+        [BsonElement("type")]
         public string type { get; set; }
     }
 }

@@ -8,16 +8,33 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using MongoDB.Driver;
+using Infrastructure.Persistence.Repositories;
+using Application.Services;
+using Application.DTOs;
+using Domain.Services;
+using Domain.Entities;
+using Microsoft.Extensions.DependencyInjection;
+
+
 
 // using Infrastructure.Persistence; // Asegúrate de que esta referencia sea correcta
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
+//Mongo
+builder.Services.AddInfrastructure(builder.Configuration);
+// Registrar el repositorio de MongoDB
+builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
+// Registrar el servicio de aplicación
+builder.Services.AddScoped<BudgetServices>();
+
+
 // Configura Entity Framework con MySQL usando Pomelo
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+    options.UseMySql(connectionString, Microsoft.EntityFrameworkCore.ServerVersion.AutoDetect(connectionString)));
 
 // Configura logging (limpia los proveedores existentes y agrega logging en consola)
 builder.Logging.ClearProviders();
