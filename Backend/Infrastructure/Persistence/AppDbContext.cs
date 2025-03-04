@@ -59,6 +59,13 @@ public class AppDbContext : DbContext
             .HasForeignKey(q => q.UserId)
             .HasPrincipalKey(u => u.id);
 
+        // Relación entre Quotation y WorkPlace
+        modelBuilder.Entity<Quotation>()
+            .HasOne(q => q.WorkPlace)
+            .WithMany()
+            .HasForeignKey(q => q.WorkPlaceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // Relación entre Customer y CustomerAgent
         modelBuilder.Entity<Customer>()
             .HasOne(c => c.agent)
