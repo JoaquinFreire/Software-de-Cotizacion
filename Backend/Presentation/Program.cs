@@ -9,8 +9,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-// using Infrastructure.Persistence; // Asegúrate de que esta referencia sea correcta
-
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
@@ -33,6 +31,9 @@ builder.Services.AddScoped<CreateQuotation>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICustomerAgentRepository, CustomerAgentRepository>();
 builder.Services.AddScoped<CreateCustomer>();
+
+builder.Services.AddScoped<IWorkTypeRepository, WorkTypeRepository>(); // Asegúrate de registrar IWorkTypeRepository
+builder.Services.AddScoped<IWorkPlaceRepository, WorkPlaceRepository>(); // Asegúrate de registrar IWorkPlaceRepository
 
 // Agrega soporte para controladores en la API
 builder.Services.AddControllers();
