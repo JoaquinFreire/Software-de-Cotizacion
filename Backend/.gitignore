@@ -62,3 +62,7 @@ TestResults/
 # 🔹 Auto-Generated Files
 *.generated.cs
 .cache/
+
+# Ignorar ensamblados y archivos de compilación
+Backend/**/bin/
+Backend/**/obj/
