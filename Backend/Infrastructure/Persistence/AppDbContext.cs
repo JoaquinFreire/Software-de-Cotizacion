@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
     public DbSet<Customer> Customers { get; set; }
     public DbSet<CustomerAgent> CustomerAgents { get; set; }
     public DbSet<WorkPlace> WorkPlaces { get; set; }
+    public DbSet<WorkType> WorkTypes { get; set; }  // Agrega WorkType
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -20,6 +21,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Customer>().ToTable("customer");
         modelBuilder.Entity<CustomerAgent>().ToTable("customeragent");
         modelBuilder.Entity<WorkPlace>().ToTable("workplace");
+        modelBuilder.Entity<WorkType>().ToTable("worktype");  // Asegúrate de que la tabla se llame "worktype"
 
         // Configurar LastEdit para que se almacene como DATE en la base de datos
         modelBuilder.Entity<Quotation>()

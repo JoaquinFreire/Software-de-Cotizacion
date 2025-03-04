@@ -19,6 +19,7 @@ namespace Infrastructure
             services.AddScoped<ICustomerAgentRepository, CustomerAgentRepository>();
             services.AddScoped<IQuotationRepository, QuotationRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IWorkTypeRepository, WorkTypeRepository>(); // Asegúrate de registrar IWorkTypeRepository
 
             return services;
         }
