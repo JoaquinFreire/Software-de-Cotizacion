@@ -22,11 +22,23 @@ namespace Domain.UseCases
                 UserId = userId,
                 WorkPlaceId = workPlaceId,
                 TotalPrice = totalPrice,
-                Status = "pending"
+                Status = "pending",
+                LastEdit = DateTime.UtcNow,
+                CreationDate = DateTime.UtcNow
             };
 
-            await _quotationRepository.AddAsync(newQuotation);
-            return newQuotation;
+            try
+            {
+                await _quotationRepository.AddAsync(newQuotation);
+                return newQuotation;
+            }
+            catch (Exception ex)
+            {
+                // Agrega más detalles de depuración
+                Console.WriteLine("Error creating quotation in use case: " + ex.Message);
+                Console.WriteLine("Stack Trace: " + ex.StackTrace);
+                throw;
+            }
         }
     }
 }
