@@ -15,6 +15,18 @@ public class WorkTypeRepository : IWorkTypeRepository
 
     public async Task<IEnumerable<WorkType>> GetAllAsync()
     {
-        return await _context.WorkTypes.ToListAsync();
+        try
+        {
+            var workTypes = await _context.WorkTypes.ToListAsync();
+            Console.WriteLine("WorkTypes in repository: " + workTypes.Count); // Verificar la cantidad de workTypes
+            return workTypes;
+        }
+        catch (Exception ex)
+        {
+            // Agrega más detalles de depuración
+            Console.WriteLine("Error in repository fetching work types: " + ex.Message);
+            Console.WriteLine("Stack Trace: " + ex.StackTrace);
+            throw;
+        }
     }
 }

@@ -15,10 +15,16 @@ const Quotation = () => {
     });
     const [newAgent, setNewAgent] = useState({
         name: '',
+        lastname: '',
         tel: '',
         mail: ''
     });
-    const [workPlaceId, setWorkPlaceId] = useState('');
+    const [workPlace, setWorkPlace] = useState({
+        name: '',
+        address: '',
+        workTypeId: ''
+    });
+    const [workTypes, setWorkTypes] = useState([]);
     const [totalPrice, setTotalPrice] = useState('');
     const [userId, setUserId] = useState('');
     const [customers, setCustomers] = useState([]);
@@ -36,8 +42,11 @@ const Quotation = () => {
                     headers: { Authorization: `Bearer ${token}` },
                     timeout: 5000 // Configurar tiempo de espera
                 });
+                console.log('User response:', response.data); // Verificar la respuesta del backend
                 setUserId(response.data.userId);
+                console.log('userId set to:', response.data.userId); // Verificar el valor de userId
             } catch (error) {
+                console.error('Error fetching user:', error);
                 navigate('/');
             }
         };
@@ -51,8 +60,20 @@ const Quotation = () => {
             }
         };
 
+        const fetchWorkTypes = async () => {
+            try {
+                const response = await axios.get('http://localhost:5187/api/worktypes'); // Asegúrate de que la URL sea correcta
+                console.log('WorkTypes response:', response.data); // Verificar la respuesta del backend
+                setWorkTypes(response.data);
+                console.log('workTypes set to:', response.data); // Verificar el valor de workTypes
+            } catch (error) {
+                console.error('Error fetching work types:', error);
+            }
+        };
+
         fetchUser();
         fetchCustomers();
+        fetchWorkTypes();
     }, [navigate]);
 
     const handleCustomerChange = (e) => {
@@ -77,6 +98,7 @@ const Quotation = () => {
                         const selectedAgent = response.data;
                         setNewAgent({
                             name: selectedAgent.name,
+                            lastname: selectedAgent.lastname,
                             tel: selectedAgent.tel,
                             mail: selectedAgent.mail
                         });
@@ -88,6 +110,7 @@ const Quotation = () => {
             } else {
                 setNewAgent({
                     name: '',
+                    lastname: '',
                     tel: '',
                     mail: ''
                 });
@@ -103,6 +126,7 @@ const Quotation = () => {
             });
             setNewAgent({
                 name: '',
+                lastname: '',
                 tel: '',
                 mail: ''
             });
@@ -121,9 +145,10 @@ const Quotation = () => {
         if (!customerId) {
             try {
                 let agentId = null;
-                if (newAgent.name || newAgent.tel || newAgent.mail) {
+                if (newAgent.name || newAgent.tel || newAgent.mail || newAgent.lastname) {
                     const agentResponse = await axios.post('http://localhost:5187/api/customer-agents', newAgent, {
-                        headers: { Authorization: `Bearer ${token}` }
+                        headers: { Authorization: `Bearer ${token}` },
+                        timeout: 10000 // Aumentar tiempo de espera
                     });
                     agentId = agentResponse.data.id;
                 }
@@ -132,7 +157,8 @@ const Quotation = () => {
                     ...newCustomer,
                     agentId: agentId
                 }, {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: { Authorization: `Bearer ${token}` },
+                    timeout: 10000 // Aumentar tiempo de espera
                 });
                 customerIdToUse = customerResponse.data.id;
             } catch (error) {
@@ -141,14 +167,25 @@ const Quotation = () => {
             }
         }
 
+        // Verificar que todos los campos requeridos estén presentes
+        if (!customerIdToUse || !userId || !workPlace.name || !workPlace.address || !workPlace.workTypeId || !totalPrice) {
+            console.error('Missing required fields');
+            console.log('customerIdToUse:', customerIdToUse);
+            console.log('userId:', userId);
+            console.log('workPlace:', workPlace);
+            console.log('totalPrice:', totalPrice);
+            return;
+        }
+
         try {
             const response = await axios.post('http://localhost:5187/api/quotations', {
                 CustomerId: customerIdToUse,
                 UserId: userId,
-                WorkPlaceId: workPlaceId,
+                WorkPlace: workPlace,
                 TotalPrice: totalPrice
             }, {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${token}` },
+                timeout: 10000 // Aumentar tiempo de espera
             });
             console.log('Quotation created:', response.data);
             navigate('/dashboard'); // Redirigir al dashboard después de crear la cotización
@@ -225,6 +262,13 @@ const Quotation = () => {
                         onChange={(e) => setNewAgent({ ...newAgent, name: e.target.value })}
                         disabled={!!customerId}
                     />
+                    <label>Agent Last Name:</label>
+                    <input
+                        type="text"
+                        value={newAgent.lastname}
+                        onChange={(e) => setNewAgent({ ...newAgent, lastname: e.target.value })}
+                        disabled={!!customerId}
+                    />
                     <label>Agent Phone:</label>
                     <input
                         type="text"
@@ -241,13 +285,34 @@ const Quotation = () => {
                     />
                 </div>
                 <div>
-                    <label>Work Place ID:</label>
+                    <h3>Work Place</h3>
+                    <label>Name:</label>
                     <input
                         type="text"
-                        value={workPlaceId}
-                        onChange={(e) => setWorkPlaceId(e.target.value)}
+                        value={workPlace.name}
+                        onChange={(e) => setWorkPlace({ ...workPlace, name: e.target.value })}
                         required
                     />
+                    <label>Address:</label>
+                    <input
+                        type="text"
+                        value={workPlace.address}
+                        onChange={(e) => setWorkPlace({ ...workPlace, address: e.target.value })}
+                        required
+                    />
+                    <label>Work Type:</label>
+                    <select
+                        value={workPlace.workTypeId}
+                        onChange={(e) => setWorkPlace({ ...workPlace, workTypeId: e.target.value })}
+                        required
+                    >
+                        <option value="">Select work type</option>
+                        {workTypes.map(workType => (
+                            <option key={workType.id} value={workType.id}>
+                                {workType.type}
+                            </option>
+                        ))}
+                    </select>
                 </div>
                 <div>
                     <label>Total Price:</label>
