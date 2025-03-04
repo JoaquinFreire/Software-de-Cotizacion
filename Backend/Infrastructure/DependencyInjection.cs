@@ -15,7 +15,10 @@ namespace Infrastructure
             //Agregamos la configuración de mongo como servicio singleton
             services.AddSingleton(mongoDbSettings);
 
-            services.AddSingleton<IBudgetRepository, BudgetRepository>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<ICustomerAgentRepository, CustomerAgentRepository>();
+            services.AddScoped<IQuotationRepository, QuotationRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
 
             return services;
         }

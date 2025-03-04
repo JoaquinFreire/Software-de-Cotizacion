@@ -12,12 +12,14 @@ public class QuotationController : ControllerBase
     private readonly IQuotationRepository _quotationRepository;
     private readonly CreateQuotation _createQuotation;
     private readonly ICustomerRepository _customerRepository;
+    private readonly IUserRepository _userRepository;
 
-    public QuotationController(IQuotationRepository quotationRepository, CreateQuotation createQuotation, ICustomerRepository customerRepository)
+    public QuotationController(IQuotationRepository quotationRepository, CreateQuotation createQuotation, ICustomerRepository customerRepository, IUserRepository userRepository)
     {
         _quotationRepository = quotationRepository;
         _createQuotation = createQuotation;
         _customerRepository = customerRepository;
+        _userRepository = userRepository;
     }
 
     [HttpGet]
@@ -85,6 +87,10 @@ public class QuotationController : ControllerBase
             await _customerRepository.AddAsync(customer);
             newQuotation.CustomerId = customer.id; // Asigna el ID del nuevo cliente a la cotización
         }
+
+        // Verificar si el usuario existe
+        var user = await _userRepository.GetByIdAsync(newQuotation.UserId);
+        if (user == null) return BadRequest("Usuario no válido.");
 
         try
         {

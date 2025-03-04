@@ -3,7 +3,7 @@ using Infrastructure.Persistence.MongoDBContext;
 using Microsoft.Extensions.Options;
 using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Domain.UseCases;
+using Domain.UseCases;  
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -31,6 +31,7 @@ builder.Services.AddScoped<IQuotationRepository, QuotationRepository>();
 builder.Services.AddScoped<CreateQuotation>();
 
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ICustomerAgentRepository, CustomerAgentRepository>();
 builder.Services.AddScoped<CreateCustomer>();
 
 // Agrega soporte para controladores en la API
@@ -43,7 +44,7 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
     });
 
-var jwtKey =  configuration["Jwt:Key"];  // 🔹 Cambia esto por una clave segura
+var jwtKey = configuration["Jwt:Key"];  // 🔹 Cambia esto por una clave segura
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -77,7 +78,6 @@ builder.Services.AddCors(options =>
                   .AllowAnyHeader(); // Permitir cualquier encabezado
         });
 });
-
 
 var app = builder.Build();
 
