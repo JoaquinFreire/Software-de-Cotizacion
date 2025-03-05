@@ -42,7 +42,7 @@ const Quotation = () => {
             try {
                 const response = await axios.get('http://localhost:5187/api/auth/me', {
                     headers: { Authorization: `Bearer ${token}` },
-                    timeout: 5000 // Configurar tiempo de espera
+                    timeout: 20000 // Configurar tiempo de espera
                 });
                 console.log('User response:', response.data); // Verificar la respuesta del backend
                 setUserId(response.data.userId);
