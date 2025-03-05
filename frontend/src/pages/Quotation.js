@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Navigation from "../components/Navigation";
+import FooterLogo from "../components/FooterLogo"; // Importar el componente FooterLogo
+import "../styles/quotation.css"; // Importar los estilos
 
 const Quotation = () => {
     const [customerId, setCustomerId] = useState('');
@@ -202,12 +204,12 @@ const Quotation = () => {
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
-            <h1>New Quotation</h1>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Customer:</label>
+            <h2 className="title">Nueva Cotización</h2>
+            <form className="quotation-form" onSubmit={handleSubmit}>
+                <div className="form-group">
+                    <label>Cotizaciones:</label>
                     <select value={customerId} onChange={handleCustomerChange}>
-                        <option value="">Select existing customer</option>
+                        <option value="">Seleccionar cotizaciones existentes</option>
                         {customers.map(customer => (
                             <option key={customer.id} value={customer.id}>
                                 {customer.name} {customer.lastname}
@@ -215,23 +217,23 @@ const Quotation = () => {
                         ))}
                     </select>
                 </div>
-                <div>
-                    <h3>Or create a new customer</h3>
-                    <label>Name:</label>
+                <div className="form-group">
+                    <h3>Crear nueva cotización</h3>
+                    <label>Nombre:</label>
                     <input
                         type="text"
                         value={newCustomer.name}
                         onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
                         disabled={!!customerId}
                     />
-                    <label>Last Name:</label>
+                    <label>Apellido:</label>
                     <input
                         type="text"
                         value={newCustomer.lastname}
                         onChange={(e) => setNewCustomer({ ...newCustomer, lastname: e.target.value })}
                         disabled={!!customerId}
                     />
-                    <label>Phone:</label>
+                    <label>Teléfono:</label>
                     <input
                         type="text"
                         value={newCustomer.tel}
@@ -245,7 +247,7 @@ const Quotation = () => {
                         onChange={(e) => setNewCustomer({ ...newCustomer, mail: e.target.value })}
                         disabled={!!customerId}
                     />
-                    <label>Address:</label>
+                    <label>Dirección:</label>
                     <input
                         type="text"
                         value={newCustomer.address}
@@ -253,6 +255,7 @@ const Quotation = () => {
                         disabled={!!customerId}
                     />
                 </div>
+
                 <div>
                     <h3>Customer Agent</h3>
                     <label>Agent Name:</label>
@@ -314,8 +317,8 @@ const Quotation = () => {
                         ))}
                     </select>
                 </div>
-                <div>
-                    <label>Total Price:</label>
+                <div className="form-group">
+                    <label>Precio total:</label>
                     <input
                         type="number"
                         value={totalPrice}
@@ -323,8 +326,9 @@ const Quotation = () => {
                         required
                     />
                 </div>
-                <button type="submit">Create Quotation</button>
+                <button className="submit-button" type="submit">Siguiente</button>
             </form>
+            <FooterLogo /> {/* Incluir el componente FooterLogo */}
         </div>
     );
 };

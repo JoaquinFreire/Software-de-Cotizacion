@@ -1,6 +1,8 @@
+import React from 'react';
 import { useNavigate } from "react-router-dom";
-import "../styles/dashboard.css";
 import Navigation from "../components/Navigation";
+import FooterLogo from "../components/FooterLogo"; // Importar el componente FooterLogo
+import "../styles/admin.css"; // Importar los estilos
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -11,8 +13,11 @@ const Admin = () => {
   };
 
   return (
-    <div className="dashboard-container">
+    <div className="admin-container">
       <Navigation onLogout={handleLogout} />
+      <h2 className="title">Administración</h2>
+      {/* Contenido de la página de administración */}
+      <FooterLogo /> {/* Incluir el componente FooterLogo */}
     </div>
   );
 };

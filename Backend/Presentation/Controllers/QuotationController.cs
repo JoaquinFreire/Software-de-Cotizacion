@@ -128,18 +128,6 @@ public class QuotationController : ControllerBase
         }
     }
 
-    [HttpPut("{id}/status")]
-    public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateStatusRequest request)
-    {
-        var quotation = await _quotationRepository.GetByIdAsync(id);
-        if (quotation == null) return NotFound();
-
-        quotation.Status = request.Status;
-        await _quotationRepository.UpdateAsync(quotation);
-
-        return NoContent();
-    }
-
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

@@ -11,6 +11,16 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
+    
+}
+.nav-links {
+    background-color: rgba(0, 0, 0, 0.7); /* Fondo más oscuro */
+    padding: 20px 30px;
+    border-radius: 20px;
+    display: flex;
+    margin-right: 175px;
+   
+
 }
 
 .dashboard-header nav a {
@@ -19,10 +29,16 @@
     text-decoration: none;
 }
 
+.dashboard-header nav a.active {
+    color: #00FFFF; /* Color celeste para la página actual */
+    border-bottom: 2px solid #00FFFF; /* Línea inferior celeste */
+}
+
 .title {
     text-align: center;
     color: cyan;
     font-size: 35px;
+    margin-bottom: 20px;
 }
 
 .search-bar {
@@ -32,6 +48,7 @@
     padding: 5px;
     border-radius: 5px;
     justify-content: space-between; 
+    margin-bottom: 20px;
 }
 
 .search-container {
@@ -46,6 +63,7 @@
     padding: 2px;
     flex-grow: 1; /* Hace que el input ocupe el espacio disponible */
 }
+
 .search-input {
     padding: 8px;
     border: none;
@@ -64,6 +82,7 @@
     width: 130px;
     height: 35px;
     margin-top: -2px;
+    margin-right: -5px;
 }
 
 .search-button {
@@ -104,57 +123,102 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
-    margin-top: 20px;
+    gap: 20px;
 }
 
 .quote-card {
-    background: rgba(0, 0, 0, 0.788);
+    background: rgba(0, 0, 0, 0.8);
     border: 1px solid cyan;
-    padding: 15px;
+    padding: 20px;
     width: 80%;
     border-radius: 10px;
     color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s;
+}
+
+.quote-card:hover {
+    transform: scale(1.02);
 }
 
 .quote-details {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    
+}
+
+.quote-details p {
+    margin: 5px 0;
+}
+
+.quote-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.quote-date, .quote-tel, .quote-mail {
+    font-size: 14px;
 }
 
 .quote-actions {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 10px;
+    align-items: center; /* Alinear los elementos verticalmente */
 }
 
-.quote-card p {
-    margin: 5px 0;
-    flex: 1;
-}
-
-.go-button, .update-button, .delete-button {
-    padding: 8px 12px;
+.go-button, .update-button, .delete-button, .status-select, .status-button {
+    padding: 7px 18px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
+    font-size: 14px;
+    height: 40px; /* Ajustar la altura */
 }
 
 .go-button {
     background: cyan;
+    color: black;
 }
 
 .update-button {
     background: #008CBA; /* Blue */
+    color: white;
 }
 
 .delete-button {
     background: #f44336; /* Red */
+    color: white;
+}
+
+.status-button {
+    background: yellow;
+    color: black;
+}
+
+.status-select {
+    background: #ffeb3b; /* Yellow */
+    color: black;
+    width: 110%;
+    height: 40px; /* Ajustar la altura */
+}
+
+.status-select option[value="pending"] {
+    font-weight: bold;
+}
+
+.success-message {
+    background: green;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    margin: 10px 0;
 }
 
 .menu {
@@ -267,7 +331,8 @@ input:checked + .slider:before {
 .logout-button:hover {
     background: #cc0000;
 }
+
 nav .active {
     color: red; /* Color resaltado para la página actual */
     border-bottom: 2px solid red;
-  }
+}
