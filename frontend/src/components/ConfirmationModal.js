@@ -9,11 +9,11 @@ const ConfirmationModal = ({ show, onClose, onConfirm }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h2>Confirm Deletion</h2>
-        <p>Are you sure you want to delete this quotation?</p>
+        <h2>Se eliminara la cotizacion</h2>
+        <p>¿Esta seguro de su eliminacion?</p>
         <div className="modal-actions">
-          <button className="cancel-button" onClick={onClose}>Cancel</button>
-          <button className="confirm-button" onClick={onConfirm}>Confirm</button>
+          <button className="cancel-button" onClick={onClose}>Cancelar</button>
+          <button className="confirm-button" onClick={onConfirm}>Confirmar</button>
         </div>
       </div>
     </div>
