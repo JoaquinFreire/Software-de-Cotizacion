@@ -31,7 +31,7 @@ const Historial = () => {
     };
 
     return (
-        <div className="historial-container">
+        <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
             <h2 className="title">Historial de Cotizaciones</h2>
             <div className="quote-container">
