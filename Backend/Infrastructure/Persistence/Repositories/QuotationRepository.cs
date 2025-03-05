@@ -33,28 +33,58 @@ public class QuotationRepository : IQuotationRepository
 
     public async Task AddAsync(Quotation quotation)
     {
-        quotation.LastEdit = DateTime.UtcNow;  // Asigna la fecha actual
-        quotation.CreationDate = DateTime.UtcNow;  // Asigna la fecha de creación
-        _context.Quotations.Add(quotation);
-        await _context.SaveChangesAsync();
+        try
+        {
+            quotation.LastEdit = DateTime.UtcNow;  // Asigna la fecha actual
+            quotation.CreationDate = DateTime.UtcNow;  // Asigna la fecha de creación
+            await _context.Quotations.AddAsync(quotation);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            // Agrega más detalles de depuración
+            Console.WriteLine("Error adding quotation: " + ex.Message);
+            Console.WriteLine("Stack Trace: " + ex.StackTrace);
+            throw;
+        }
     }
 
     public async Task UpdateAsync(Quotation quotation)
     {
-        quotation.LastEdit = DateTime.UtcNow;  // Actualizar timestamp
-        _context.Entry(quotation).State = EntityState.Modified;  // Actualizar estado
-        await _context.SaveChangesAsync();
+        try
+        {
+            quotation.LastEdit = DateTime.UtcNow;  // Actualizar timestamp
+            _context.Entry(quotation).State = EntityState.Modified;  // Actualizar estado
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            // Agrega más detalles de depuración
+            Console.WriteLine("Error updating quotation: " + ex.Message);
+            Console.WriteLine("Stack Trace: " + ex.StackTrace);
+            throw;
+        }
     }
 
     public async Task DeleteAsync(int id)
     {
-        var quotation = await GetByIdAsync(id);
-        if (quotation == null)
+        try
         {
-            throw new KeyNotFoundException($"Quotation with ID {id} not found.");
-        }
+            var quotation = await GetByIdAsync(id);
+            if (quotation == null)
+            {
+                throw new KeyNotFoundException($"Quotation with ID {id} not found.");
+            }
 
-        _context.Quotations.Remove(quotation);
-        await _context.SaveChangesAsync();
+            _context.Quotations.Remove(quotation);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            // Agrega más detalles de depuración
+            Console.WriteLine("Error deleting quotation: " + ex.Message);
+            Console.WriteLine("Stack Trace: " + ex.StackTrace);
+            throw;
+        }
     }
 }

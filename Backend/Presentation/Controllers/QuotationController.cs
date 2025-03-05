@@ -12,12 +12,16 @@ public class QuotationController : ControllerBase
     private readonly IQuotationRepository _quotationRepository;
     private readonly CreateQuotation _createQuotation;
     private readonly ICustomerRepository _customerRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly IWorkPlaceRepository _workPlaceRepository; // Cambiado a IWorkPlaceRepository
 
-    public QuotationController(IQuotationRepository quotationRepository, CreateQuotation createQuotation, ICustomerRepository customerRepository)
+    public QuotationController(IQuotationRepository quotationRepository, CreateQuotation createQuotation, ICustomerRepository customerRepository, IUserRepository userRepository, IWorkPlaceRepository workPlaceRepository) // Cambiado a IWorkPlaceRepository
     {
         _quotationRepository = quotationRepository;
         _createQuotation = createQuotation;
         _customerRepository = customerRepository;
+        _userRepository = userRepository;
+        _workPlaceRepository = workPlaceRepository; // Asignado
     }
 
     [HttpGet]
@@ -75,7 +79,6 @@ public class QuotationController : ControllerBase
             // Crear un cliente por defecto si no existe
             customer = new Customer
             {
-                // Asigna valores predeterminados o los valores proporcionados en el cuerpo de la solicitud
                 name = "Default Name",
                 lastname = "Default LastName",
                 tel = "0000000000",
@@ -84,6 +87,26 @@ public class QuotationController : ControllerBase
             };
             await _customerRepository.AddAsync(customer);
             newQuotation.CustomerId = customer.id; // Asigna el ID del nuevo cliente a la cotización
+        }
+
+        // Verificar si el usuario existe
+        var user = await _userRepository.GetByIdAsync(newQuotation.UserId);
+        if (user == null) return BadRequest("Usuario no válido.");
+
+        // Verificar si el WorkPlace existe en la base de datos
+        var workPlace = await _workPlaceRepository.GetByIdAsync(newQuotation.WorkPlaceId);
+        if (workPlace == null)
+        {
+            // Si no existe, crearlo primero
+            workPlace = new WorkPlace
+            {
+                name = newQuotation.WorkPlace?.name ?? "Unnamed Workplace",
+                address = newQuotation.WorkPlace?.address ?? "No Address",
+                workTypeId = newQuotation.WorkPlace?.workTypeId ?? 1 // Asigna un workTypeId válido
+            };
+
+            await _workPlaceRepository.AddAsync(workPlace);
+            newQuotation.WorkPlaceId = workPlace.id; // Asigna el nuevo ID al quotation
         }
 
         try
@@ -99,7 +122,8 @@ public class QuotationController : ControllerBase
         }
         catch (Exception ex)
         {
-            // Agregar más detalles de depuración
+            Console.WriteLine("Error creating quotation: " + ex.Message);
+            Console.WriteLine("Stack Trace: " + ex.StackTrace);
             return StatusCode(500, $"Internal server error: {ex.Message}\n{ex.StackTrace}");
         }
     }
@@ -110,4 +134,9 @@ public class QuotationController : ControllerBase
         await _quotationRepository.DeleteAsync(id);
         return NoContent();
     }
+}
+
+public class UpdateStatusRequest
+{
+    public string? Status { get; set; }
 }
