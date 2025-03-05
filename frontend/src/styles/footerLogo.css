@@ -1,0 +1,12 @@
+.footer-logo {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    z-index: 1000;
+}
+
+.footer-logo img {
+    width: 40px;
+    height: auto;
+     /* Ajustar la opacidad si es necesario */
+}

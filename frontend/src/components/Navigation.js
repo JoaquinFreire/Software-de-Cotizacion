@@ -30,7 +30,7 @@ const Navigation = ({ onLogout }) => {
     return (
         <header className="dashboard-header">
             <img src={anodalLogo} alt="Logo Anodal" className="logo" />
-            <nav>
+            <nav className="nav-links">
                 <NavLink to="/dashboard">Inicio</NavLink>
                 <NavLink to="/historial">Historial</NavLink>
                 <NavLink to="/reportes">Reportes</NavLink>

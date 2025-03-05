@@ -1,0 +1,1 @@
+/*<Mosaic color="#15edff" size="large" text="Cargando" textColor="#000000" />*/

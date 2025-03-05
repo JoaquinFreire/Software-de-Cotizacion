@@ -1,0 +1,60 @@
+.dashboard-container {
+    background: url('../images/fondo-login.jpg') no-repeat center center/cover;
+    min-height: 100vh;
+    padding: 20px;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.title {
+    text-align: center;
+    color: cyan;
+    font-size: 35px;
+    margin-bottom: 20px;
+}
+
+.quotation-form {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid cyan;
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: cyan;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background: black;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.submit-button {
+    background: cyan;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    display: block;
+    width: 100%;
+    text-align: center;
+}
