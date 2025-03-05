@@ -1,3 +1,4 @@
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -9,13 +10,20 @@ namespace Domain.Entities
 {
     public class WorkPlace
     {
+        [BsonIgnore]
         public int id { get; set; }
-        public string? name { get; set; }
-        public string? address { get; set; }
+        [BsonElement("name")]
+        public string name { get; set; }
+        [BsonElement("address")]
+        public string address { get; set; }
+        [BsonElement("workType")]
+        public WorkType workTypeAlt { get; set; }
         // Clave foránea para WorkType
 
         [Column("id_worktype")]
+        [BsonIgnore]
         public int workTypeId { get; set; }
+        [BsonIgnore]
         public WorkType? WorkType { get; set; } 
     }
 }

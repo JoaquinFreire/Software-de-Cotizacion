@@ -1,3 +1,4 @@
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -11,7 +12,9 @@ namespace Domain.Entities
     [Table("user_role")]  // 🔹 Indica el nombre exacto de la tabla en MySQL
     public class UserRole
     {
+        [BsonIgnore]
         public int id { get; set; }  // ID del rol
+        [BsonIgnore]
         public string? role_name { get; set; }  // Nombre del rol (Ej: "manager", "coordinator")
     }
 }
