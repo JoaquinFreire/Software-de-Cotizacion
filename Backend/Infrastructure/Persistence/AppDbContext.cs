@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
     public DbSet<Customer> Customers { get; set; }
     public DbSet<CustomerAgent> CustomerAgents { get; set; }
     public DbSet<WorkPlace> WorkPlaces { get; set; }
+    public DbSet<WorkType> WorkTypes { get; set; }  // Agrega WorkType
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -18,10 +19,11 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<User>().ToTable("user");  // Enlaza la entidad con la tabla "user"
         modelBuilder.Entity<Quotation>().ToTable("quotation");
         modelBuilder.Entity<Customer>().ToTable("customer");
+        modelBuilder.Entity<CustomerAgent>().ToTable("customeragent");
         modelBuilder.Entity<WorkPlace>().ToTable("workplace");
+        modelBuilder.Entity<WorkType>().ToTable("worktype");  // Asegúrate de que la tabla se llame "worktype"
 
-
-        // 🔹 Configurar LastEdit para que se almacene como DATE en la base de datos
+        // Configurar LastEdit para que se almacene como DATE en la base de datos
         modelBuilder.Entity<Quotation>()
             .Property(q => q.LastEdit)
             .HasColumnType("DATETIME");
@@ -42,12 +44,28 @@ public class AppDbContext : DbContext
             .WithMany()
             .HasForeignKey(w => w.workTypeId)
             .OnDelete(DeleteBehavior.Restrict);
+
         // Relación entre Quotation y Customer
         modelBuilder.Entity<Quotation>()
             .HasOne(q => q.Customer)
             .WithMany()
             .HasForeignKey(q => q.CustomerId)
             .HasPrincipalKey(c => c.id);
+
+        // Relación entre Quotation y User
+        modelBuilder.Entity<Quotation>()
+            .HasOne(q => q.User)
+            .WithMany()
+            .HasForeignKey(q => q.UserId)
+            .HasPrincipalKey(u => u.id);
+
+        // Relación entre Quotation y WorkPlace
+        modelBuilder.Entity<Quotation>()
+            .HasOne(q => q.WorkPlace)
+            .WithMany()
+            .HasForeignKey(q => q.WorkPlaceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // Relación entre Customer y CustomerAgent
         modelBuilder.Entity<Customer>()
             .HasOne(c => c.agent)
@@ -57,6 +75,7 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Customer>()
             .Property(c => c.registration_date)
-            .HasColumnType("DATETIME");
+            .HasColumnType("DATETIME")
+            .HasDefaultValueSql("GETDATE()"); // Establecer valor predeterminado como fecha actual
     }
 }
