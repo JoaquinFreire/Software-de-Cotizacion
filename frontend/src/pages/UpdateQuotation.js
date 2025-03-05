@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Navigation from "../components/Navigation";
-import FooterLogo from "../components/FooterLogo"; // Importar el componente FooterLogo
+import Charger from "../components/charger"; // Importar el componente Charger
 import "../styles/quotation.css"; // Importar los estilos
 
-const Quotation = () => {
+const UpdateQuotation = () => {
+    const { id } = useParams();
     const [customerId, setCustomerId] = useState('');
     const [newCustomer, setNewCustomer] = useState({
         name: '',
@@ -18,6 +19,8 @@ const Quotation = () => {
     const [totalPrice, setTotalPrice] = useState('');
     const [userId, setUserId] = useState('');
     const [customers, setCustomers] = useState([]);
+    const [loading, setLoading] = useState(false); // Estado para el logo de cargando
+    const [successMessage, setSuccessMessage] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -47,9 +50,29 @@ const Quotation = () => {
             }
         };
 
+        const fetchQuotation = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5187/api/quotations/${id}`);
+                const quotation = response.data;
+                setCustomerId(quotation.CustomerId);
+                setNewCustomer({
+                    name: quotation.Customer.name,
+                    lastname: quotation.Customer.lastname,
+                    tel: quotation.Customer.tel,
+                    mail: quotation.Customer.mail,
+                    address: quotation.Customer.address
+                });
+                setWorkPlaceId(quotation.WorkPlaceId);
+                setTotalPrice(quotation.TotalPrice);
+            } catch (error) {
+                console.error('Error fetching quotation:', error);
+            }
+        };
+
         fetchUser();
         fetchCustomers();
-    }, [navigate]);
+        fetchQuotation();
+    }, [navigate, id]);
 
     const handleCustomerChange = (e) => {
         const selectedCustomerId = e.target.value;
@@ -77,6 +100,7 @@ const Quotation = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true); // Mostrar el logo de cargando
         const token = localStorage.getItem('token');
         if (!token) {
             navigate('/');
@@ -92,12 +116,13 @@ const Quotation = () => {
                 customerIdToUse = customerResponse.data.id;
             } catch (error) {
                 console.error('Error creating customer:', error);
+                setLoading(false); // Ocultar el logo de cargando
                 return;
             }
         }
 
         try {
-            const response = await axios.post('http://localhost:5187/api/quotations', {
+            await axios.put(`http://localhost:5187/api/quotations/${id}`, {
                 CustomerId: customerIdToUse,
                 UserId: userId,
                 WorkPlaceId: workPlaceId,
@@ -105,10 +130,15 @@ const Quotation = () => {
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            console.log('Quotation created:', response.data);
-            navigate('/dashboard'); // Redirigir al dashboard después de crear la cotización
+            setSuccessMessage("Cotización actualizada con éxito.");
+            setTimeout(() => {
+                setLoading(false); // Ocultar el logo de cargando después de 5 segundos
+                setSuccessMessage("");
+                navigate('/dashboard'); // Redirigir al dashboard después de actualizar la cotización
+            }, 5000);
         } catch (error) {
-            console.error('Error creating quotation:', error);
+            console.error('Error updating quotation:', error);
+            setLoading(false); // Ocultar el logo de cargando
         }
     };
 
@@ -120,7 +150,8 @@ const Quotation = () => {
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
-            <h2 className="title">Nueva Cotización</h2>
+            <h2 className="title">Actualizar Cotización</h2>
+            {successMessage && <div className="success-message">{successMessage}</div>}
             <form className="quotation-form" onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label>Cotizaciones:</label>
@@ -134,41 +165,36 @@ const Quotation = () => {
                     </select>
                 </div>
                 <div className="form-group">
-                    <h3>Crear nueva cotización</h3>
+                    <h3>Actualizar cotización</h3>
                     <label>Nombre:</label>
                     <input
                         type="text"
                         value={newCustomer.name}
                         onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
-                        disabled={!!customerId}
                     />
                     <label>Apellido:</label>
                     <input
                         type="text"
                         value={newCustomer.lastname}
                         onChange={(e) => setNewCustomer({ ...newCustomer, lastname: e.target.value })}
-                        disabled={!!customerId}
                     />
                     <label>Teléfono:</label>
                     <input
                         type="text"
                         value={newCustomer.tel}
                         onChange={(e) => setNewCustomer({ ...newCustomer, tel: e.target.value })}
-                        disabled={!!customerId}
                     />
                     <label>Email:</label>
                     <input
                         type="email"
                         value={newCustomer.mail}
                         onChange={(e) => setNewCustomer({ ...newCustomer, mail: e.target.value })}
-                        disabled={!!customerId}
                     />
                     <label>Dirección:</label>
                     <input
                         type="text"
                         value={newCustomer.address}
                         onChange={(e) => setNewCustomer({ ...newCustomer, address: e.target.value })}
-                        disabled={!!customerId}
                     />
                 </div>
                 <div className="form-group">
@@ -189,11 +215,12 @@ const Quotation = () => {
                         required
                     />
                 </div>
-                <button className="submit-button" type="submit">Siguiente</button>
+                <button className="submit-button" type="submit" disabled={loading}>
+                    {loading ? <Charger color="#15edff" size="large" text="Cargando" textColor="#000000" /> : "Actualizar"}
+                </button>
             </form>
-            <FooterLogo /> {/* Incluir el componente FooterLogo */}
         </div>
     );
 };
 
-export default Quotation;
+export default UpdateQuotation;
