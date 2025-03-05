@@ -256,7 +256,7 @@ const Quotation = () => {
                     />
                 </div>
 
-                <div>
+                <div className='form-group'>
                     <h3>Customer Agent</h3>
                     <label>Agent Name:</label>
                     <input
@@ -287,7 +287,7 @@ const Quotation = () => {
                         disabled={!!customerId}
                     />
                 </div>
-                <div>
+                <div className='form-group'>
                     <h3>Work Place</h3>
                     <label>Name:</label>
                     <input
