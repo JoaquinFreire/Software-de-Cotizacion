@@ -19,9 +19,9 @@ namespace Domain.Entities
         [Required]
         public string lastname { get; set; }
         [BsonElement("telephoneNumber")]
-        public string telephoneNumber { get; set; }
+        public string tel { get; set; }
         [BsonElement("email")]
-        public string email { get; set; }
+        public string mail { get; set; }
     }
 }
 

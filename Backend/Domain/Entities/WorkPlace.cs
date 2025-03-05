@@ -13,17 +13,16 @@ namespace Domain.Entities
         [BsonIgnore]
         public int id { get; set; }
         [BsonElement("name")]
-        public string name { get; set; }
+        public string? name { get; set; }
         [BsonElement("address")]
-        public string address { get; set; }
-        [BsonElement("workType")]
-        public WorkType workTypeAlt { get; set; }
-        // Clave foránea para WorkType
+        public string? address { get; set; }
 
         [Column("id_worktype")]
         [BsonIgnore]
         public int workTypeId { get; set; }
-        [BsonIgnore]
-        public WorkType? WorkType { get; set; } 
+
+        [ForeignKey("workTypeId")]
+        [BsonElement("workType")]
+        public WorkType? workTypeAlt { get; set; } // Cambiado a workTypeAlt
     }
 }

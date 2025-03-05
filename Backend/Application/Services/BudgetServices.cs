@@ -53,8 +53,8 @@ namespace Application.Services
                     {
                         name = budgetDto.customer.agent.name,
                         lastname = budgetDto.customer.agent.lastname,
-                        telephoneNumber = budgetDto.customer.agent.telephoneNumber,
-                        email = budgetDto.customer.agent.email
+                        tel = budgetDto.customer.agent.telephoneNumber,
+                        mail = budgetDto.customer.agent.email
                     }
                 },
                 workPlace = new WorkPlace
