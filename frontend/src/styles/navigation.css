@@ -1,4 +1,3 @@
-
 /* Estilos para la barra de navegación */
 .dashboard-header {
     display: flex;
@@ -20,8 +19,13 @@
 .nav-linksF {
     position: fixed; /* Fijo en la pantalla */
     top: 2rem; /* Ajusta según sea necesario */
-    right: 17.2rem; /* Ajusta según sea necesario */
+    left: 50%; /* Centrado horizontalmente */
+    width: 25%; /* Ancho completo */
+    transform: translateX(-50%); /* Centrado horizontalmente */
     background-color: rgba(0, 0, 0, 0.815); /* Fondo más oscuro */
+    display: flex;
+    justify-content: space-between;
+
 }
 
 .dashboard-header nav a {
