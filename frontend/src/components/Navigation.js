@@ -15,7 +15,7 @@ const Navigation = ({ onLogout }) => {
     // Inicializar el estado de isFilterActive con el valor almacenado en localStorage
     const [isFilterActive, setIsFilterActive] = useState(() => {
         const savedFilterState = localStorage.getItem("blueLightFilter");
-        return savedFilterState === null || savedFilterState === "true";
+        return savedFilterState === "true";
     });
 
     const [isScrolled, setIsScrolled] = useState(false); // Estado para manejar el scroll
@@ -36,10 +36,16 @@ const Navigation = ({ onLogout }) => {
     }, []);
 
     useEffect(() => {
-        if (isFilterActive) {
-            document.body.classList.add("filtro");
-        } else {
+        const currentPath = window.location.pathname;
+        if (currentPath === "/") {
             document.body.classList.remove("filtro");
+            setIsFilterActive(false);
+        } else {
+            if (isFilterActive) {
+                document.body.classList.add("filtro");
+            } else {
+                document.body.classList.remove("filtro");
+            }
         }
         localStorage.setItem("blueLightFilter", isFilterActive);
     }, [isFilterActive]);
