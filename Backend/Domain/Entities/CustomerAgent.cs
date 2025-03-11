@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson.Serialization.Attributes;
+using System.Text.Json.Serialization;
 
 namespace Domain.Entities
 {
     public class CustomerAgent
     {
-        [BsonIgnore]
+        [BsonIgnore][JsonIgnore]
         public int id { get; set; }
         [BsonElement("name")]
         public string name { get; set; }

@@ -1,10 +1,11 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
+using System.Text.Json.Serialization;
 
 namespace Domain.Entities
 {
     public class ProductCategory
     {
-        [BsonIgnore]
+        [BsonIgnore][JsonIgnore]
         public int Id { get; set; }
 
         [BsonElement("nombre")]

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Domain.Entities
@@ -12,9 +13,9 @@ namespace Domain.Entities
     [Table("user_role")]  // 🔹 Indica el nombre exacto de la tabla en MySQL
     public class UserRole
     {
-        [BsonIgnore]
+        [BsonIgnore][JsonIgnore]
         public int id { get; set; }  // ID del rol
-        [BsonIgnore]
+        [BsonIgnore][JsonIgnore]
         public string? role_name { get; set; }  // Nombre del rol (Ej: "manager", "coordinator")
     }
 }
