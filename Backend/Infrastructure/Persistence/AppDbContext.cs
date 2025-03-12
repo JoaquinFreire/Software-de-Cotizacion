@@ -40,7 +40,7 @@ public class AppDbContext : DbContext
                         .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<WorkPlace>()
-            .HasOne(w => w.WorkType)
+            .HasOne(w => w.WorkType) // Cambiado a workTypeAlt .Atencion acá   
             .WithMany()
             .HasForeignKey(w => w.workTypeId)
             .OnDelete(DeleteBehavior.Restrict);

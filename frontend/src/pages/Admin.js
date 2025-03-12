@@ -13,7 +13,7 @@ const Admin = () => {
   };
 
   return (
-    <div className="admin-container">
+    <div className="dashboard-container">
       <Navigation onLogout={handleLogout} />
       <h2 className="title">Administración</h2>
       {/* Contenido de la página de administración */}

@@ -6,14 +6,10 @@ using System.Threading.Tasks;
 
 namespace Domain.Enums;
 
-public class BudgetStatus
+public enum BudgetStatus
 {
-    public enum status
-    {
-        In_process,
-        Rejected,
-        Accepted,
-        Finished//?
-    }
+    InProcess,
+    Rejected,
+    Accepted,
+    Finished
 }
-

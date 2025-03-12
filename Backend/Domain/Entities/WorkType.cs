@@ -11,6 +11,6 @@ namespace Domain.Entities
     public class WorkType
     {
         public int id { get; set; }
-        public string type { get; set; }
+        public string? type { get; set; }
     }
 }

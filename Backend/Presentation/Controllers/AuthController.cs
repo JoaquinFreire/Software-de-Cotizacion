@@ -35,7 +35,7 @@ public class AuthController : ControllerBase
 
     private string GenerateJwtToken(Domain.Entities.User user)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
@@ -49,7 +49,7 @@ public class AuthController : ControllerBase
             _configuration["Jwt:Issuer"],
             _configuration["Jwt:Audience"],
             claims,
-            expires: System.DateTime.UtcNow.AddHours(1),
+            expires: System.DateTime.UtcNow.AddHours(5),
             signingCredentials: credentials
         );
 

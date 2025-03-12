@@ -1,4 +1,4 @@
-﻿using Domain.Repositories;
+﻿﻿using Domain.Repositories;
 using Infrastructure.Persistence.Repositories;
 using Infrastructure.Persistence.MongoDBContext;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +14,8 @@ namespace Infrastructure
             var mongoDbSettings = configuration.GetSection("MongoDbSettings").Get<MongoDbSettings>();
             //Agregamos la configuración de mongo como servicio singleton
             services.AddSingleton(mongoDbSettings);
+            services.AddSingleton<IBudgetRepository, BudgetRepository>();
+
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<ICustomerAgentRepository, CustomerAgentRepository>();
             services.AddScoped<IQuotationRepository, QuotationRepository>();
