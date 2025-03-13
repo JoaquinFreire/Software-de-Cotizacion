@@ -25,7 +25,6 @@
     background-color: rgba(0, 0, 0, 0.815); /* Fondo más oscuro */
     display: flex;
     justify-content: space-between;
-
 }
 
 .dashboard-header nav a {

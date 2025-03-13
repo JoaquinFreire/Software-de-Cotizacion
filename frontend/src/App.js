@@ -24,7 +24,6 @@ function App() {
             document.body.classList.add("filtro");
         }
     }, []);
-
     return (
         <Router>
             <Routes>

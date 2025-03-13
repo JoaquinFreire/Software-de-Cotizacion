@@ -49,5 +49,4 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
     </div>
   );
 };
-
 export default QuotationList;
