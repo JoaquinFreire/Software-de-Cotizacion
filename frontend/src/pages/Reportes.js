@@ -13,7 +13,7 @@ const Reportes = () => {
   };
 
   return (
-    <div className="reportes-container">
+    <div className="dashboard-container">
       <Navigation onLogout={handleLogout} />
       <h2 className="title">Reportes</h2>
       {/* Contenido de la página de reportes */}

@@ -42,7 +42,7 @@ const Quotation = () => {
             try {
                 const response = await axios.get('http://localhost:5187/api/auth/me', {
                     headers: { Authorization: `Bearer ${token}` },
-                    timeout: 5000 // Configurar tiempo de espera
+                    timeout: 20000 // Configurar tiempo de espera
                 });
                 console.log('User response:', response.data); // Verificar la respuesta del backend
                 setUserId(response.data.userId);
@@ -256,7 +256,7 @@ const Quotation = () => {
                     />
                 </div>
 
-                <div>
+                <div className='form-group'>
                     <h3>Customer Agent</h3>
                     <label>Agent Name:</label>
                     <input
@@ -287,7 +287,7 @@ const Quotation = () => {
                         disabled={!!customerId}
                     />
                 </div>
-                <div>
+                <div className='form-group'>
                     <h3>Work Place</h3>
                     <label>Name:</label>
                     <input
