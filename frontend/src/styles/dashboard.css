@@ -22,7 +22,6 @@
     position: relative;
     z-index: 4;
 
-
 }
 
 .dashboard-header nav a {
@@ -120,7 +119,6 @@
     border-radius: 5px;
     cursor: pointer;
 }
-
 
 .menu {
     position: relative;

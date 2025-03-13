@@ -9,6 +9,11 @@ import logo_busqueda from "../images/logo_busqueda.png";
 
 const Historial = () => {
     const [quotations, setQuotations] = useState([]);
+    const [filteredQuotations, setFilteredQuotations] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [showModal, setShowModal] = useState(false);
+    const [quotationToDelete, setQuotationToDelete] = useState(null);
+    const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
     const [filteredQuotations, setFilteredQuotations] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -58,6 +63,49 @@ const Historial = () => {
                 quotation.Id === id ? { ...quotation, Status: newStatus } : quotation
             ));
             setFilteredQuotations(filteredQuotations.map(quotation =>
+                quotation.Id === id ? { ...quotation, Status: newStatus } : quotation
+            ));
+            setSuccessMessage("Estado de la cotización actualizado con éxito.");
+            setTimeout(() => setSuccessMessage(""), 3000);
+        } catch (error) {
+            console.error("Error updating quotation status:", error);
+        }
+    };
+
+    const handleSearch = (e) => {
+        const term = e.target.value.toLowerCase();
+        setSearchTerm(term);
+        setFilteredQuotations(quotations.filter(quotation =>
+            `${quotation.Customer.name} ${quotation.Customer.lastname}`.toLowerCase().includes(term)
+        ));
+    };
+
+    const handleDelete = async () => {
+        const token = localStorage.getItem("token");
+        try {
+            await axios.delete(`http://localhost:5187/api/quotations/${quotationToDelete}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setQuotations(quotations.filter((quotation) => quotation.Id !== quotationToDelete));
+            setFilteredQuotations(filteredQuotations.filter((quotation) => quotation.Id !== quotationToDelete));
+            setShowModal(false);
+            setSuccessMessage("Cotización eliminada con éxito.");
+            setTimeout(() => setSuccessMessage(""), 3000);
+        } catch (error) {
+            console.error("Error deleting quotation:", error);
+        }
+    };
+
+    const handleStatusChange = async (id, newStatus) => {
+        const token = localStorage.getItem("token");
+        try {
+            await axios.put(`http://localhost:5187/api/quotations/${id}/status`, { status: newStatus }, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setQuotations(quotations.map(quotation => 
+                quotation.Id === id ? { ...quotation, Status: newStatus } : quotation
+            ));
+            setFilteredQuotations(filteredQuotations.map(quotation => 
                 quotation.Id === id ? { ...quotation, Status: newStatus } : quotation
             ));
             setSuccessMessage("Estado de la cotización actualizado con éxito.");

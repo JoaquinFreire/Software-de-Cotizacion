@@ -6,12 +6,13 @@ import menuIcon from "../images/menuIcon.png";
 import "../styles/navigation.css";
 import "../styles/scrollbar.css"; // Importar los estilos de la barra de desplazamiento
 
+import "../styles/navigation.css"; 
+import "../styles/scrollbar.css"; // Importar los estilos de la barra de desplazamiento
+
 const Navigation = ({ onLogout }) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [userName, setUserName] = useState(); // Estado para el nombre del usuario
     const [userRol, setUserRol] = useState(); // Estado para el nombre del usuario
-
-
     // Inicializar el estado de isFilterActive con el valor almacenado en localStorage
     const [isFilterActive, setIsFilterActive] = useState(() => {
         const savedFilterState = localStorage.getItem("blueLightFilter");
@@ -49,6 +50,7 @@ const Navigation = ({ onLogout }) => {
         }
         localStorage.setItem("blueLightFilter", isFilterActive);
     }, [isFilterActive]);
+
     useEffect(() => {
         const fetchUser = async () => {
             try {

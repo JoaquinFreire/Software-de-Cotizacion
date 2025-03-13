@@ -14,7 +14,6 @@ const Login = () => {
         document.body.classList.remove("filtro");
         localStorage.setItem("blueLightFilter", "false");
     }, []);
-    
     const handleLogin = async (e) => {
         e.preventDefault();
         setError(''); // Limpiar errores previos

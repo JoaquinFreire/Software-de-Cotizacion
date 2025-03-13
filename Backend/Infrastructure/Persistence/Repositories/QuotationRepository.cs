@@ -19,6 +19,7 @@ public class QuotationRepository : IQuotationRepository
             .Include(q => q.Customer)
             .Include(q => q.User)
             .Include(q => q.WorkPlace)
+            .ThenInclude(w => w.workTypeAlt) // Cambiado a workTypeAlt
             .ToListAsync();
     }
 
@@ -28,6 +29,7 @@ public class QuotationRepository : IQuotationRepository
             .Include(q => q.Customer)
             .Include(q => q.User)
             .Include(q => q.WorkPlace)
+            .ThenInclude(w => w.workTypeAlt) // Cambiado a workTypeAlt
             .FirstOrDefaultAsync(q => q.Id == id);
     }
 
