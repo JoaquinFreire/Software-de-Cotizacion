@@ -8,6 +8,6 @@ namespace Application.DTOs
 {
     public class WorkTypeDTO
     {
-        public string type { get; set; }
+        public string? type { get; set; }
     }
 }

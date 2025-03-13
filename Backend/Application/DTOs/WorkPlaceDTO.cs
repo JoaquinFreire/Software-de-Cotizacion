@@ -9,8 +9,8 @@ namespace Application.DTOs
 {
     public class WorkPlaceDTO
     {
-        public string name { get; set; }
-        public string address { get; set; }
-        public WorkTypeDTO workType { get; set; }
+        public string? name { get; set; }
+        public string? address { get; set; }
+        public WorkTypeDTO? workType { get; set; }
     }
 }
