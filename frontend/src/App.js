@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Historial from './pages/Historial';
@@ -17,6 +18,12 @@ const PublicRoute = ({ element }) => {
 };
 
 function App() {
+    useEffect(() => {
+        const savedFilterState = localStorage.getItem("blueLightFilter");
+        if (savedFilterState === null || savedFilterState === "true") {
+            document.body.classList.add("filtro");
+        }
+    }, []);
     return (
         <Router>
             <Routes>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/login.css'; // Archivo de estilos
@@ -10,6 +10,11 @@ const Login = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+    useEffect(() => {
+        document.body.classList.remove("filtro");
+        localStorage.setItem("blueLightFilter", "false");
+    }, []);
+    
     const handleLogin = async (e) => {
         e.preventDefault();
         setError(''); // Limpiar errores previos

@@ -19,7 +19,9 @@
     border-radius: 20px;
     display: flex;
     margin-right: 175px;
-   
+    position: relative;
+    z-index: 4;
+
 
 }
 
@@ -119,107 +121,6 @@
     cursor: pointer;
 }
 
-.quote-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-}
-
-.quote-card {
-    background: rgba(0, 0, 0, 0.8);
-    border: 1px solid cyan;
-    padding: 20px;
-    width: 80%;
-    border-radius: 10px;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s;
-}
-
-.quote-card:hover {
-    transform: scale(1.02);
-}
-
-.quote-details {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    
-}
-
-.quote-details p {
-    margin: 5px 0;
-}
-
-.quote-name {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.quote-date, .quote-tel, .quote-mail {
-    font-size: 14px;
-}
-
-.quote-actions {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: center; /* Alinear los elementos verticalmente */
-}
-
-.go-button, .update-button, .delete-button, .status-select, .status-button {
-    padding: 7px 18px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 14px;
-    height: 40px; /* Ajustar la altura */
-}
-
-.go-button {
-    background: cyan;
-    color: black;
-}
-
-.update-button {
-    background: #008CBA; /* Blue */
-    color: white;
-}
-
-.delete-button {
-    background: #f44336; /* Red */
-    color: white;
-}
-
-.status-button {
-    background: yellow;
-    color: black;
-}
-
-.status-select {
-    background: #ffeb3b; /* Yellow */
-    color: black;
-    width: 110%;
-    height: 40px; /* Ajustar la altura */
-}
-
-.status-select option[value="pending"] {
-    font-weight: bold;
-}
-
-.success-message {
-    background: green;
-    color: white;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: center;
-    margin: 10px 0;
-}
 
 .menu {
     position: relative;
@@ -258,7 +159,7 @@
     margin-bottom: 8px;
 }
 
-/* Modo Oscuro */
+/* Filtro */
 .toggle-container {
     display: flex;
     align-items: center;
@@ -335,4 +236,20 @@ input:checked + .slider:before {
 nav .active {
     color: red; /* Color resaltado para la página actual */
     border-bottom: 2px solid red;
+}
+.filtro::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 120, 0, 0.25);
+    pointer-events: none; /* Permite interactuar con los elementos debajo */
+    z-index: 9999; /* Se asegura de que esté en la parte superior */
+}
+.nav-linksF {
+    position: fixed; /* Fijo en la pantalla */
+    top: 2.5rem; /* Ajusta según sea necesario */
+    right: 15rem; /* Ajusta según sea necesario */
 }
