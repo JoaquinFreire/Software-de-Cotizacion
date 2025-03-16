@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Domain.Repositories;
+using Application.Services;
 
 [ApiController]
 [Route("api/auth")]
@@ -15,12 +16,14 @@ public class AuthController : ControllerBase
     private readonly LoginUser _loginUser;
     private readonly IUserRepository _userRepository;
     private readonly IConfiguration _configuration;
+    private readonly UserServices _userServices;
 
-    public AuthController(LoginUser loginUser, IUserRepository userRepository, IConfiguration configuration)
+    public AuthController(LoginUser loginUser, IUserRepository userRepository, IConfiguration configuration, UserServices userServices)
     {
         _loginUser = loginUser;
         _userRepository = userRepository;
         _configuration = configuration;
+        _userServices = userServices;
     }
 
     [HttpPost("login")]
@@ -58,18 +61,24 @@ public class AuthController : ControllerBase
 
     [HttpGet("me")]
     [Authorize] // Solo permite acceso si el usuario está autenticado
-    public async Task<IActionResult> GetUserData()  // 🔹 Ahora es un método async
-    {
-        var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-        if (userId == null) return Unauthorized();
+        public async Task<IActionResult> GetUserData()  // 🔹 Ahora es un método async
+        {
+            var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+           /* if (userId == null) return Unauthorized();
 
-        var user = await _userRepository.GetByIdAsync(int.Parse(userId)); // 🔹 Ahora se puede usar await
+            var user = await _userRepository.GetByIdAsync(int.Parse(userId)); // 🔹 Ahora se puede usar await
 
-        if (user == null) return NotFound();
+            if (user == null) return NotFound();
 
-        return Ok(new { userId = user.id, name = user.name, role = user.role.role_name });
+            return Ok(new { userId = user.id, name = user.name, role = user.role.role_name });*/
+
+            if (userId == null) return Unauthorized();
+            var user = await _userServices.GetUserData(int.Parse(userId));
+            if (user == null) return NotFound();
+
+            return Ok(new { user, userId = user.id });
+        }
     }
-}
 
 public class LoginRequest
 {
