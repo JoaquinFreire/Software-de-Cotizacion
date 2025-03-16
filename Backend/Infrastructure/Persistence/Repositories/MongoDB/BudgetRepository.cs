@@ -16,6 +16,7 @@ namespace Infrastructure.Persistence.Repositories
         {
             var mongosettings = settings.Value;
             var client = new MongoClient(mongosettings.ConnectionString);
+            Console.WriteLine($"Conectado a la base de datos: {mongosettings.DatabaseName}");
             var database = client.GetDatabase(mongosettings.DatabaseName);
             _collection = database.GetCollection<Budget>(mongosettings.CollectionName);
         }

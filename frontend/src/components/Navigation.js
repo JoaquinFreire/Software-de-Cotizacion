@@ -56,8 +56,9 @@ const Navigation = ({ onLogout }) => {
                 const response = await axios.get("http://localhost:5187/api/auth/me", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                setUserName(response.data.name); // Asigna el nombre del usuario logueado
-                setUserRol(response.data.role);
+                console.log("Usuario:", response.data);
+                setUserName(response.data.user.name); // Asigna el nombre del usuario logueado
+                setUserRol(response.data.user.role);
             } catch (error) {
                 console.error("Error obteniendo usuario:", error);
                 setUserName("Usuario desconocido");
@@ -75,7 +76,9 @@ const Navigation = ({ onLogout }) => {
 
     return (
         <header className="dashboard-header">
+            <NavLink to="/dashboard">
             <img src={anodalLogo} alt="Logo Anodal" className="logo" />
+            </NavLink>
             <nav className={`nav-links ${isScrolled ? "nav-linksF" : ""}`}>
                 <NavLink to="/dashboard">Inicio</NavLink>
                 <NavLink to="/historial">Historial</NavLink>

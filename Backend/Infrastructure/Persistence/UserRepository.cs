@@ -21,6 +21,12 @@ public class UserRepository : IUserRepository
             .Include(u => u.role)  // 🔹 Asegura que el usuario tenga su rol cargado
             .FirstOrDefaultAsync(u => u.Legajo == legajo);
     }
+    public async Task<User?> GetUserDate(int id)
+    {
+        return await _context.Users
+            .Include(u => u.role)  
+            .FirstOrDefaultAsync(u => u.id == id);
+    }
     public async Task<User?> GetByIdAsync(int id)  // 🔹 Implementación del nuevo método
     {
         return await _context.Users

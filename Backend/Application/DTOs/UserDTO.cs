@@ -8,7 +8,10 @@ namespace Application.DTOs
 {
     public class UserDTO
     {
+        public int id { get; set; }
         public string? name { get; set; }
         public string? lastName { get; set; }
+        public string? legajo { get; set; }
+        public string? role { get; set; }
     }
 }
