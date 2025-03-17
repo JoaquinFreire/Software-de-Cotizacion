@@ -52,7 +52,7 @@ public class AuthController : ControllerBase
             _configuration["Jwt:Issuer"],
             _configuration["Jwt:Audience"],
             claims,
-            expires: System.DateTime.UtcNow.AddHours(1),
+            expires: System.DateTime.UtcNow.AddMinutes(30),
             signingCredentials: credentials
         );
 
@@ -61,24 +61,30 @@ public class AuthController : ControllerBase
 
     [HttpGet("me")]
     [Authorize] // Solo permite acceso si el usuario está autenticado
-        public async Task<IActionResult> GetUserData()  // 🔹 Ahora es un método async
-        {
-            var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-           /* if (userId == null) return Unauthorized();
+    public async Task<IActionResult> GetUserData()  // 🔹 Ahora es un método async
+    {
+        var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null) return Unauthorized();
+        var user = await _userServices.GetUserData(int.Parse(userId));
+        if (user == null) return NotFound();
 
-            var user = await _userRepository.GetByIdAsync(int.Parse(userId)); // 🔹 Ahora se puede usar await
-
-            if (user == null) return NotFound();
-
-            return Ok(new { userId = user.id, name = user.name, role = user.role.role_name });*/
-
-            if (userId == null) return Unauthorized();
-            var user = await _userServices.GetUserData(int.Parse(userId));
-            if (user == null) return NotFound();
-
-            return Ok(new { user, userId = user.id });
-        }
+        return Ok(new { user, userId = user.id });
     }
+
+    [HttpPost("extend-session")]
+    [Authorize]
+    public async Task<IActionResult> ExtendSession()
+    {
+        var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null) return Unauthorized();
+
+        var user = await _userRepository.GetByIdAsync(int.Parse(userId));
+        if (user == null) return NotFound();
+
+        var token = GenerateJwtToken(user);
+        return Ok(new { token });
+    }
+}
 
 public class LoginRequest
 {
