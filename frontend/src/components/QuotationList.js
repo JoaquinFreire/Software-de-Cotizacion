@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import ConfirmationModal from "./ConfirmationModal";
 import "../styles/quotationList.css"; // Importar los estilos
 
-const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setShowModal, setQuotationToDelete, successMessage }) => {
+const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setShowModal, setQuotationToDelete, successMessage, onDeleteSuccess }) => {
   const navigate = useNavigate();
 
   const handleShowModal = (id) => {
@@ -14,6 +14,11 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
   const handleCloseModal = () => {
     setShowModal(false);
     setQuotationToDelete(null);
+  };
+
+  const handleDeleteConfirm = async () => {
+    await onDelete();
+    onDeleteSuccess(); // Llamar a la función de éxito después de eliminar
   };
 
   return (
@@ -44,7 +49,7 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
       <ConfirmationModal
         show={showModal}
         onClose={handleCloseModal}
-        onConfirm={() => onDelete()}
+        onConfirm={handleDeleteConfirm} // Usar la nueva función de confirmación
       />
     </div>
   );

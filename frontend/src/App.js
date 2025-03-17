@@ -10,14 +10,13 @@ import Admin from './pages/Admin';
 import Quotation from './pages/Quotation';
 import UpdateQuotation from './pages/UpdateQuotation';
 import SessionModal from './components/SessionModal';
+import { QuotationProvider } from './context/QuotationContext'; // Importar el proveedor de contexto
 
-// Ruta privada: Solo permite el acceso si hay un token válido
 const PrivateRoute = ({ element }) => {
     const token = localStorage.getItem('token');
     return token ? element : <Navigate to="/" />;
 };
 
-// Ruta pública: Si el usuario ya tiene un token, lo redirige al dashboard
 const PublicRoute = ({ element }) => {
     const token = localStorage.getItem('token');
     return token ? <Navigate to="/dashboard" /> : element;
@@ -142,25 +141,20 @@ function App() {
     };
 
     return (
-        <Router>
-            <Routes>
-                <Route path="/" element={<PublicRoute element={<Login />} />} />
-                <Route path="/dashboard" element={<PrivateRoute element={<Dashboard />} />} />
-                <Route path="/historial" element={<PrivateRoute element={<Historial />} />} />
-                <Route path="/reportes" element={<PrivateRoute element={<Reportes />} />} />
-                <Route path="/admin" element={<PrivateRoute element={<Admin />} />} />
-                <Route path="/new-quotation" element={<PrivateRoute element={<Quotation />} />} />
-                <Route path="/update-quotation/:id" element={<PrivateRoute element={<UpdateQuotation />} />} />
-            </Routes>
-            
-            {/* Modal que aparece cuando la sesión está por expirar */}
-            <SessionModal 
-                show={showSessionModal} 
-                onExtend={handleExtendSession} 
-                onLogout={handleLogout} 
-                onCancel={handleCancel} 
-            />
-        </Router>
+        <QuotationProvider>
+            <Router>
+                <Routes>
+                    <Route path="/" element={<PublicRoute element={<Login />} />} />
+                    <Route path="/dashboard" element={<PrivateRoute element={<Dashboard />} />} />
+                    <Route path="/historial" element={<PrivateRoute element={<Historial />} />} />
+                    <Route path="/reportes" element={<PrivateRoute element={<Reportes />} />} />
+                    <Route path="/admin" element={<PrivateRoute element={<Admin />} />} />
+                    <Route path="/new-quotation" element={<PrivateRoute element={<Quotation />} />} />
+                    <Route path="/update-quotation/:id" element={<PrivateRoute element={<UpdateQuotation />} />} />
+                </Routes>
+                <SessionModal show={showSessionModal} onExtend={handleExtendSession} onLogout={handleLogout} onCancel={handleCancel} />
+            </Router>
+        </QuotationProvider>
     );
 }
 

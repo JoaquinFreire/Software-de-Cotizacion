@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Navigation from "../components/Navigation";
 import FooterLogo from "../components/FooterLogo"; // Importar el componente FooterLogo
 import "../styles/quotation.css"; // Importar los estilos
+import { QuotationContext } from "../context/QuotationContext"; // Importar el contexto
 
 const Quotation = () => {
+    const { setQuotations } = useContext(QuotationContext); // Obtener la función para actualizar las cotizaciones
     const [customerId, setCustomerId] = useState('');
     const [newCustomer, setNewCustomer] = useState({
         name: '',
@@ -190,6 +192,7 @@ const Quotation = () => {
                 timeout: 10000 // Aumentar tiempo de espera
             });
             console.log('Quotation created:', response.data);
+            setQuotations(prevQuotations => [...prevQuotations, response.data]); // Agregar la nueva cotización al contexto
             navigate('/dashboard'); // Redirigir al dashboard después de crear la cotización
         } catch (error) {
             console.error('Error creating quotation:', error);

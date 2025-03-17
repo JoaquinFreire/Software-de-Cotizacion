@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import Navigation from "../components/Navigation";
@@ -6,9 +6,10 @@ import FooterLogo from "../components/FooterLogo";
 import QuotationList from "../components/QuotationList"; // Importar el componente QuotationList
 import "../styles/historial.css";
 import logo_busqueda from "../images/logo_busqueda.png";
+import { QuotationContext } from "../context/QuotationContext";
 
 const Historial = () => {
-    const [quotations, setQuotations] = useState([]);
+    const { quotations, setQuotations } = useContext(QuotationContext);
     const navigate = useNavigate();
     const [filteredQuotations, setFilteredQuotations] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -17,35 +18,26 @@ const Historial = () => {
     const [successMessage, setSuccessMessage] = useState("");
 
     useEffect(() => {
-        const fetchQuotations = async () => {
-            const token = localStorage.getItem("token");
-            try {
-                const response = await axios.get("http://localhost:5187/api/quotations", {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                setQuotations(response.data);
-                setFilteredQuotations(response.data);
-            } catch (error) {
-                console.error("Error fetching quotations:", error);
-            }
-        };
+        setFilteredQuotations(quotations);
+    }, [quotations]);
 
-        fetchQuotations();
-    }, []);
     const handleDelete = async () => {
         const token = localStorage.getItem("token");
         try {
             await axios.delete(`http://localhost:5187/api/quotations/${quotationToDelete}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setQuotations(quotations.filter((quotation) => quotation.Id !== quotationToDelete));
-            setFilteredQuotations(filteredQuotations.filter((quotation) => quotation.Id !== quotationToDelete));
             setShowModal(false);
             setSuccessMessage("Cotización eliminada con éxito.");
             setTimeout(() => setSuccessMessage(""), 3000);
         } catch (error) {
             console.error("Error deleting quotation:", error);
         }
+    };
+
+    const handleDeleteSuccess = () => {
+        setQuotations(quotations.filter((quotation) => quotation.Id !== quotationToDelete));
+        setFilteredQuotations(filteredQuotations.filter((quotation) => quotation.Id !== quotationToDelete));
     };
 
     const handleStatusChange = async (id, newStatus) => {
@@ -85,25 +77,23 @@ const Historial = () => {
             <Navigation onLogout={handleLogout} />
             <h2 className="title">Historial de Cotizaciones</h2>
             <div className="quote-container">
-                {quotations.map((quotation) => (
-                    <div key={quotation.Id} className="quote-card">
-                        <div className="search-bar">
-                            <div className="search-container">
-                                <input
-                                    type="text"
-                                    placeholder="Buscar por nombre..."
-                                    className="search-input"
-                                    value={searchTerm}
-                                    onChange={handleSearch}
-                                />
-                                <button className="clear-button" onClick={() => setSearchTerm("")}>✖</button>
-                                <button className="search-button">
-                                    <img src={logo_busqueda} alt="Buscar" />
-                                </button>
-                            </div>
+                <div className="quote-card">
+                    <div className="search-bar">
+                        <div className="search-container">
+                            <input
+                                type="text"
+                                placeholder="Buscar por nombre..."
+                                className="search-input"
+                                value={searchTerm}
+                                onChange={handleSearch}
+                            />
+                            <button className="clear-button" onClick={() => setSearchTerm("")}>✖</button>
+                            <button className="search-button">
+                                <img src={logo_busqueda} alt="Buscar" />
+                            </button>
                         </div>
                     </div>
-                ))}
+                </div>
             </div>
             <QuotationList
                 quotations={filteredQuotations}
@@ -113,6 +103,7 @@ const Historial = () => {
                 setShowModal={setShowModal}
                 setQuotationToDelete={setQuotationToDelete}
                 successMessage={successMessage}
+                onDeleteSuccess={handleDeleteSuccess} // Pasar la función de éxito
             />
             <FooterLogo /> {/* Incluir el componente FooterLogo */}
         </div>
