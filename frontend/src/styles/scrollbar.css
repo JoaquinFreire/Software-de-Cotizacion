@@ -1,19 +1,23 @@
-/* Personalizar la barra de desplazamiento */
+/* Firefox */
+html {
+    scrollbar-width: thin; /* Ancho fino */
+    scrollbar-color: #038394 #28c3d8; /* Colores personalizados */
+}
+
+/* Chrome, Edge, Safari */
 ::-webkit-scrollbar {
-    width: 12px; /* Ancho de la barra de desplazamiento */
+    width: 12px; /* Ancho de la barra */
 }
 
 ::-webkit-scrollbar-track {
-    background: #bd0303; /* Color de fondo de la pista de la barra de desplazamiento */
+    background: #2111b1; /* Color del fondo */
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #810d0d; /* Color de la barra de desplazamiento */
+    background: #b0ccf1; /* Color del thumb */
     border-radius: 10px; /* Bordes redondeados */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #cc0707; /* Color de la barra de desplazamiento al pasar el ratón por encima */
+    background: #8ca6db; /* Color al pasar el mouse */
 }
-
-/* Puedes editar los estilos anteriores para personalizar la barra de desplazamiento a tu gusto */
