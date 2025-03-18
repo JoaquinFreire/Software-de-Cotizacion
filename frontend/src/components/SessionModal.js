@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/sessionModal.css';
 
-const SessionModal = ({ show, onExtend, onLogout, onCancel }) => {
+const SessionModal = ({ show, onExtend, onLogout }) => {
     if (!show) return null;
 
     return (
@@ -12,7 +12,6 @@ const SessionModal = ({ show, onExtend, onLogout, onCancel }) => {
                 <div className="session-modal-actions">
                     <button onClick={onExtend}>Extender Sesión</button>
                     <button onClick={onLogout}>Cerrar Sesión</button>
-                    <button onClick={onCancel}>Cancelar</button>
                 </div>
             </div>
         </div>

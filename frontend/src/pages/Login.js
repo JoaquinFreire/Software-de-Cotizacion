@@ -24,6 +24,7 @@ const Login = () => {
             localStorage.setItem('token', response.data.token); // Guardar el token
             console.log("Usuario:", response);
             navigate('/dashboard'); // Redirigir si el login es exitoso
+            window.location.reload(); // Recargar la página del dashboard
         } catch (err) {
             if (err.response && err.response.data.error) {
                 setError(err.response.data.error); // Mostrar el error específico
