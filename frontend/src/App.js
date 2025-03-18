@@ -27,6 +27,8 @@ function App() {
     const [showSessionModal, setShowSessionModal] = useState(false);
     // Estado para almacenar el identificador del intervalo
     const [intervalId, setIntervalId] = useState(null);
+    /* const [sessionExpired, setSessionExpired] = useState(false); */
+    
 
     useEffect(() => {
         // Aplica un filtro visual si está activado en el localStorage
@@ -58,10 +60,13 @@ function App() {
                 const id = setInterval(() => {
                     const currentTime = Date.now();
                     const timeLeft = expirationTime - currentTime;
-
+                    console.log('Time left:', timeLeft);
                     if (timeLeft <= 0) {
+                        console.log('Session expired!');
                         // Si ya expiró, cierra sesión
                         handleLogout();
+                        /* setSessionExpired(true); */ // Force re-render
+                        return <Navigate to="/" />;
                     } else if (timeLeft <= warningTime) {
                         // Si está dentro del período de advertencia, muestra el modal
                         setShowSessionModal(true);
@@ -134,12 +139,6 @@ function App() {
         window.location.href = '/';
     };
 
-    // Cancela el modal sin hacer nada
-    const handleCancel = () => {
-        setShowSessionModal(false);
-        clearInterval(intervalId);
-    };
-
     return (
         <QuotationProvider>
             <Router>
@@ -152,7 +151,7 @@ function App() {
                     <Route path="/new-quotation" element={<PrivateRoute element={<Quotation />} />} />
                     <Route path="/update-quotation/:id" element={<PrivateRoute element={<UpdateQuotation />} />} />
                 </Routes>
-                <SessionModal show={showSessionModal} onExtend={handleExtendSession} onLogout={handleLogout} onCancel={handleCancel} />
+                <SessionModal show={showSessionModal} onExtend={handleExtendSession} onLogout={handleLogout} />
             </Router>
         </QuotationProvider>
     );
