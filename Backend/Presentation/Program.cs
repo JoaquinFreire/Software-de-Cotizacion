@@ -10,14 +10,20 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Application.Services;
 using Infrastructure.Persistence.Repositories;
+using AutoMapper;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var configuration = builder.Configuration;
 
 builder.Services.Configure<MongoDbSettings>(
-    builder.Configuration.GetSection("MongoDbSettings"));
+builder.Configuration.GetSection("MongoDbSettings"));
+
 builder.Services.AddScoped<UserServices>();
+
+builder.Services.AddAutoMapper(typeof(BudgetProfile));
 
 //Mongo
 builder.Services.AddInfrastructure(builder.Configuration);
