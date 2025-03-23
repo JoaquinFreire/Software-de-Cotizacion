@@ -81,12 +81,11 @@ cd software-de-cotizacion
 🔜 Próximos pasos: Implementación de MongoDB para almacenamiento de formularios dinámicos.
 🧑‍💻 Autores
 
-👨‍💻 [Tu Nombre]
 👨‍💻 [Fontanari Bruno]
 👨‍💻 [Freire Joaquín]
 👨‍💻 [Morales Leonardo]
 
-📍 Universidad Nacional de Córdoba - 2024
+📍 Universidad Nacional de Córdoba - 2025
 
 
 📜 Licencia
