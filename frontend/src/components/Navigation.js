@@ -56,7 +56,6 @@ const Navigation = ({ onLogout }) => {
                 const response = await axios.get("http://localhost:5187/api/auth/me", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                console.log("Usuario:", response.data);
                 setUserName(response.data.user.name); // Asigna el nombre del usuario logueado
                 setUserRol(response.data.user.role);
             } catch (error) {

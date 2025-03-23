@@ -8,6 +8,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Domain.Repositories;
 using Application.Services;
+using DotNetEnv;
 
 [ApiController]
 [Route("api/auth")]
@@ -15,14 +16,12 @@ public class AuthController : ControllerBase
 {
     private readonly LoginUser _loginUser;
     private readonly IUserRepository _userRepository;
-    private readonly IConfiguration _configuration;
     private readonly UserServices _userServices;
 
-    public AuthController(LoginUser loginUser, IUserRepository userRepository, IConfiguration configuration, UserServices userServices)
+    public AuthController(LoginUser loginUser, IUserRepository userRepository, UserServices userServices)
     {
         _loginUser = loginUser;
         _userRepository = userRepository;
-        _configuration = configuration;
         _userServices = userServices;
     }
 
@@ -33,26 +32,30 @@ public class AuthController : ControllerBase
         if (!success) return Unauthorized(new { error });
 
         var token = GenerateJwtToken(user);
-        return Ok(new { message = "Login exitoso", userId = user.id, token });
+        return Ok(new { message = "Login exitoso", userIdw = user.id, token });
     }
 
     private string GenerateJwtToken(Domain.Entities.User user)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+        string jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? throw new Exception("JWT_SECRET_KEY no está definida.");
+        string jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "default-issuer";
+        string jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "default-audience";
+    
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, user.id.ToString()),
-            new Claim(ClaimTypes.Name, user.name),
-            new Claim(ClaimTypes.Role, user.role.role_name)
+            new Claim(ClaimTypes.NameIdentifier, user.id.ToString()), // Se asigna el ID del usuario
+            new Claim(ClaimTypes.Name, user.name), // Se asigna el nombre del usuario
+            new Claim(ClaimTypes.Role, user.role.role_name ?? "user") // Si el rol no está definido, se asigna "user"
         };
 
         var token = new JwtSecurityToken(
-            _configuration["Jwt:Issuer"],
-            _configuration["Jwt:Audience"],
+            jwtIssuer,
+            jwtAudience,
             claims,
-            expires: System.DateTime.UtcNow.AddMinutes(3),
+            expires: System.DateTime.UtcNow.AddMinutes(30), // El token expira en 30 minutos
             signingCredentials: credentials
         );
 
@@ -61,7 +64,7 @@ public class AuthController : ControllerBase
 
     [HttpGet("me")]
     [Authorize] // Solo permite acceso si el usuario está autenticado
-    public async Task<IActionResult> GetUserData()  // 🔹 Ahora es un método async
+    public async Task<IActionResult> GetUserData()
     {
         var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
         if (userId == null) return Unauthorized();

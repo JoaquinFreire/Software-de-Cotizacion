@@ -13,9 +13,9 @@ namespace Domain.Entities
         public int Id { get; set; }
 
         [BsonElement("nombre")]
-        public string Name { get; set; } // Nombre del tipo (ej: "Abertura corrediza")
+        public string? Name { get; set; } // Nombre del tipo (ej: "Abertura corrediza")
 
         [BsonElement("categoria")]
-        public ProductCategory Category { get; set; } // Categoría general (ej: "Aberturas")
+        public ProductCategory? Category { get; set; } // Categoría general (ej: "Aberturas")
     }
 }

@@ -1,11 +1,13 @@
 using Domain.Entities;
 using Domain.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 [ApiController]
 [Route("api/customers")]
+[Authorize]
 public class CustomerController : ControllerBase
 {
     private readonly ICustomerRepository _customerRepository;

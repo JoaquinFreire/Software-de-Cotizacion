@@ -56,8 +56,15 @@ const Quotation = () => {
         };
 
         const fetchCustomers = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                navigate('/');
+                return;
+            }
             try {
-                const response = await axios.get('http://localhost:5187/api/customers');
+                const response = await axios.get('http://localhost:5187/api/customers', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
                 setCustomers(response.data);
             } catch (error) {
                 console.error('Error fetching customers:', error);
@@ -65,8 +72,15 @@ const Quotation = () => {
         };
 
         const fetchWorkTypes = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                navigate('/');
+                return;
+            }
             try {
-                const response = await axios.get('http://localhost:5187/api/worktypes'); // Asegúrate de que la URL sea correcta
+                const response = await axios.get('http://localhost:5187/api/worktypes', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
                 console.log('WorkTypes response:', response.data); // Verificar la respuesta del backend
                 setWorkTypes(response.data);
                 console.log('workTypes set to:', response.data); // Verificar el valor de workTypes
@@ -97,8 +111,15 @@ const Quotation = () => {
 
             if (selectedCustomer.agentId) {
                 const fetchAgent = async () => {
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        navigate('/');
+                        return;
+                    }
                     try {
-                        const response = await axios.get(`http://localhost:5187/api/customer-agents/${selectedCustomer.agentId}`);
+                        const response = await axios.get(`http://localhost:5187/api/customer-agents/${selectedCustomer.agentId}`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
                         const selectedAgent = response.data;
                         setNewAgent({
                             name: selectedAgent.name,

@@ -10,26 +10,46 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Application.Services;
 using Infrastructure.Persistence.Repositories;
+using DotNetEnv;
+Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-var configuration = builder.Configuration;
+// Cargar variables de entorno
+var mongoConnectionString = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING");
+var mongoDatabaseName = Environment.GetEnvironmentVariable("MONGO_DATABASE_NAME");
+var mongoCollectionName = Environment.GetEnvironmentVariable("MONGO_COLLECTION_NAME");
 
-builder.Services.Configure<MongoDbSettings>(
-    builder.Configuration.GetSection("MongoDbSettings"));
-builder.Services.AddScoped<UserServices>();
+var mysqlConnectionString = Environment.GetEnvironmentVariable("MYSQL_CONNECTION_STRING");
+var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+
+/* var configuration = builder.Configuration; */
+
+// Configuración de MongoDB con las variables de entorno
+builder.Services.Configure<MongoDbSettings>(options =>
+{
+    options.ConnectionString = mongoConnectionString ?? throw new InvalidOperationException("MONGO_CONNECTION_STRING is not set in the environment variables.");
+    options.DatabaseName = mongoDatabaseName ?? throw new InvalidOperationException("MONGO_DATABASE_NAME is not set in the environment variables."); 
+    options.CollectionName = mongoCollectionName ?? throw new InvalidOperationException("MONGO_COLLECTION_NAME is not set in the environment variables.");
+});
+
+builder.Services.AddScoped<UserServices>(); // Registrar el servicio de aplicación
+
+
 
 //Mongo
+// Registrar MongoDB en la infraestructura
 builder.Services.AddInfrastructure(builder.Configuration);
 // Registrar el repositorio de MongoDB
 builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
-// Registrar el servicio de aplicación
 builder.Services.AddScoped<BudgetServices>();
 
-// Configura Entity Framework con MySQL usando Pomelo
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// Configura Entity Framework con MySQL usando Pomelo y la conexión de entorno
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+    options.UseMySql(mysqlConnectionString, ServerVersion.AutoDetect(mysqlConnectionString)));
 
 // Configura logging (limpia los proveedores existentes y agrega logging en consola)
 builder.Logging.ClearProviders();
@@ -49,8 +69,11 @@ builder.Services.AddScoped<CreateCustomer>();
 builder.Services.AddScoped<IWorkTypeRepository, WorkTypeRepository>(); // Asegúrate de registrar IWorkTypeRepository
 builder.Services.AddScoped<IWorkPlaceRepository, WorkPlaceRepository>(); // Asegúrate de registrar IWorkPlaceRepository
 
+builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
+builder.Services.AddScoped<IMaterialTypeRepository, MaterialTypeRepository>();
+builder.Services.AddScoped<IMaterialCategoryRepository, MaterialCategoryRepository>();
+
 // Agrega soporte para controladores en la API
-builder.Services.AddControllers();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -59,8 +82,8 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
     });
 
-var jwtKey = configuration["Jwt:Key"];  // 🔹 Cambia esto por una clave segura
-
+// Configuración de autenticación con JWT usando variables de entorno
+Console.WriteLine($"JWT_SECRET_KEY: {jwtSecretKey}");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -70,9 +93,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = "anodal",
-            ValidAudience = "unc",
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey))
         };
     });
 

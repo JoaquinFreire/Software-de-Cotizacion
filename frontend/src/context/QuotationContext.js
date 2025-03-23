@@ -10,14 +10,18 @@ export const QuotationProvider = ({ children }) => {
     useEffect(() => {
         const fetchQuotations = async () => {
             const token = localStorage.getItem("token");
+            if (!token) {
+                setLoading(false); // Detener el estado de carga si no hay token
+                return;
+            }
             try {
                 const response = await axios.get("http://localhost:5187/api/quotations", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setQuotations(response.data);
-                setLoading(false);
             } catch (error) {
                 console.error("Error fetching quotations:", error);
+            } finally {
                 setLoading(false);
             }
         };
