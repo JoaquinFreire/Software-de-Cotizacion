@@ -1,11 +1,13 @@
 using Domain.Entities;
 using Domain.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 [ApiController]
 [Route("api/worktypes")] // Asegúrate de que la ruta sea correcta
+[Authorize]
 public class WorkTypeController : ControllerBase
 {
     private readonly IWorkTypeRepository _workTypeRepository;

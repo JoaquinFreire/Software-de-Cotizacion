@@ -22,7 +22,6 @@ const Login = () => {
         try {
             const response = await axios.post('http://localhost:5187/api/auth/login', { legajo, password });
             localStorage.setItem('token', response.data.token); // Guardar el token
-            console.log("Usuario:", response);
             navigate('/dashboard'); // Redirigir si el login es exitoso
             window.location.reload(); // Recargar la página del dashboard
         } catch (err) {

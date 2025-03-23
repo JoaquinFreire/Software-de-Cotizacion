@@ -49,7 +49,7 @@ function App() {
                 // Si ya expiró, cierra la sesión
                 handleLogout();
             } else {
-                const warningTime = 2 * 60 * 1000; // Tiempo de advertencia (2 minutos antes de la expiración)
+                const warningTime = 10 * 60 * 1000; // Tiempo de advertencia (5 minutos antes de la expiración)
 
                 if (timeLeft <= warningTime) {
                     // Si el tiempo restante es menor al de advertencia, muestra el modal
@@ -59,10 +59,8 @@ function App() {
                 // Crea un intervalo que revisa cada segundo el tiempo restante
                 const id = setInterval(() => {
                     const currentTime = Date.now();
-                    const timeLeft = expirationTime - currentTime;
-                    console.log('Time left:', timeLeft);
-                    if (timeLeft <= 0) {
-                        console.log('Session expired!');
+                    const timeLeft = expirationTime - currentTime;      
+                    if (timeLeft <= 0) {      
                         // Si ya expiró, cierra sesión
                         handleLogout();
                         /* setSessionExpired(true); */ // Force re-render

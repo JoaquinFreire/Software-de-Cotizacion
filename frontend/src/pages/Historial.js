@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import Navigation from "../components/Navigation";
 import FooterLogo from "../components/FooterLogo";
 import QuotationList from "../components/QuotationList"; // Importar el componente QuotationList
-import "../styles/historial.css";
 import logo_busqueda from "../images/logo_busqueda.png";
 import { QuotationContext } from "../context/QuotationContext";
 
