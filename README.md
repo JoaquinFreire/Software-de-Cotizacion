@@ -74,7 +74,6 @@ cd software-de-cotizacion
 
 
 
-
 📌 Estado del Proyecto
 
 🟢 En desarrollo: Actualmente trabajando en la funcionalidad de creación de cotizaciones y la interfaz de usuario.
