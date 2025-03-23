@@ -70,7 +70,8 @@ cd software-de-cotizacion
         npm start
 
 🔥 Endpoints Principales
-![image](https://github.com/user-attachments/assets/a75cdc1c-8a27-4184-8414-bfa4755b9a99)
+- 
+![image](https://github.com/user-attachments/assets/d20ee9ca-0753-47f8-9531-99eab2cd47b6)
 
 
 
