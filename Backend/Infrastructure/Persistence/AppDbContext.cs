@@ -11,6 +11,10 @@ public class AppDbContext : DbContext
     public DbSet<CustomerAgent> CustomerAgents { get; set; }
     public DbSet<WorkPlace> WorkPlaces { get; set; }
     public DbSet<WorkType> WorkTypes { get; set; }  // Agrega WorkType
+    public DbSet<Material> Materials { get; set; }
+    public DbSet<MaterialType> MaterialTypes { get; set; }
+    public DbSet<MaterialCategory> MaterialCategories { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,6 +26,9 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<CustomerAgent>().ToTable("customeragent");
         modelBuilder.Entity<WorkPlace>().ToTable("workplace");
         modelBuilder.Entity<WorkType>().ToTable("worktype");  // Asegúrate de que la tabla se llame "worktype"
+        modelBuilder.Entity<Material>().ToTable("material");
+        modelBuilder.Entity<MaterialType>().ToTable("material_type");
+        modelBuilder.Entity<MaterialCategory>().ToTable("material_category");
 
         // Configurar LastEdit para que se almacene como DATE en la base de datos
         modelBuilder.Entity<Quotation>()
@@ -77,5 +84,19 @@ public class AppDbContext : DbContext
             .Property(c => c.registration_date)
             .HasColumnType("DATETIME")
             .HasDefaultValueSql("GETDATE()"); // Establecer valor predeterminado como fecha actual
+
+        // Materiales
+        modelBuilder.Entity<Material>()
+            .HasOne(m => m.type)
+            .WithMany()
+            .HasForeignKey(m => m.type_id);
+
+        modelBuilder.Entity<MaterialType>()
+            .HasOne(mt => mt.category)
+            .WithMany()
+            .HasForeignKey(mt => mt.category_id);
+        modelBuilder.Entity<Material>()
+            .Property(m => m.unit)
+            .HasConversion<int>(); // Guarda el enum como INT en la base de datos
     }
 }

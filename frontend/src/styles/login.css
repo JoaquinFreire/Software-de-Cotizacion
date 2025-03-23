@@ -8,7 +8,7 @@ body, html {
 
 /* Contenedor principal */
 .login-container {
-    background: url('../images/fondo-login.jpg') no-repeat center center/cover; /* Reemplaza con la imagen real */
+     /* Reemplaza con la imagen real */
     height: 100vh;
     display: flex;
     justify-content: center;
@@ -97,7 +97,7 @@ button:hover {
 .login-box label {
     display: block;
     text-align: left;
-    width: 90%;
+    width: 95%;
     margin: 10px auto 5px;
     font-size: 16px;
     font-weight: bold;
@@ -167,7 +167,7 @@ body, html {
 
 /* Campos de entrada */
 input {
-    width: 100%;
+    width: 90%;
     padding: 12px;
     border: none;
     border-radius: 5px;

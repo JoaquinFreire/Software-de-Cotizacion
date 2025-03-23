@@ -1,12 +1,14 @@
 using Domain.Entities;
 using Domain.Repositories;
 using Domain.UseCases;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 [ApiController]
 [Route("api/quotations")]
+[Authorize]
 public class QuotationController : ControllerBase
 {
     private readonly IQuotationRepository _quotationRepository;
@@ -70,7 +72,7 @@ public class QuotationController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Quotation newQuotation)
     {
-        if (newQuotation == null) return BadRequest("Datos inválidos.");
+        if (newQuotation == null || newQuotation.TotalPrice <= 0) return BadRequest("Datos inválidos.");
 
         // Verificar si el cliente existe
         var customer = await _customerRepository.GetByIdAsync(newQuotation.CustomerId);
@@ -104,7 +106,6 @@ public class QuotationController : ControllerBase
                 address = newQuotation.WorkPlace?.address ?? "No Address",
                 workTypeId = newQuotation.WorkPlace?.workTypeId ?? 1 // Asigna un workTypeId válido
             };
-
             await _workPlaceRepository.AddAsync(workPlace);
             newQuotation.WorkPlaceId = workPlace.id; // Asigna el nuevo ID al quotation
         }
