@@ -10,7 +10,7 @@ namespace Application.DTOs
     {
         public string? name { get; set; }
         public string? lastname { get; set; }
-        public string? telephoneNumber { get; set; }
-        public string? email { get; set; }
+        public string? tel { get; set; }
+        public string? mail { get; set; }
     }
 }

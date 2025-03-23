@@ -10,21 +10,21 @@ namespace Domain.Entities
 {
     public class Budget_Product
     {
-        [BsonElement("nombre_producto")]
+        [BsonElement("productName")]
         public string? Name { get; set; }
-        [BsonElement("tipo")]
+        [BsonElement("type")]
         public ProductType? Type { get; set; } // Tipo específico del producto
-        [BsonElement("cantidad")]
+        [BsonElement("quantity")]
         public int? Quantity { get; set; }
-        [BsonElement("tipo_aluminio")]
+        [BsonElement("aluminiumType")]
         public Material? AlumMaterial { get; set; }  //Tiene que almacenar el tipo de aluminio
-        [BsonElement("tipo_vidrio")]
+        [BsonElement("glassType")]
         public Material? GlassMaterial { get; set; }  //Tiene que almacenar el tipo de vidrio
-        [BsonElement("ancho")]
+        [BsonElement("width")]
         public double? width { get; set; }
-        [BsonElement("altura")]
+        [BsonElement("height")]
         public double? height { get; set; }
-        [BsonElement("Accesorio")]
+        [BsonElement("Accesories")]
         public List<Budget_Accesory> Accesory { get; set; } = new List<Budget_Accesory>();
     }
 }
