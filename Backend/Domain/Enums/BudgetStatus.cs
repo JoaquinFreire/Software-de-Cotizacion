@@ -8,9 +8,9 @@ namespace Domain.Enums;
 
 public enum BudgetStatus
 {
-        In_process,
+        Pending,
         Rejected,
         Accepted,
-        Finished//? 
+        Finished
 }
 

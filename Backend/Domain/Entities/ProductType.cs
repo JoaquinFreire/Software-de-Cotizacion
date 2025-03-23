@@ -11,11 +11,10 @@ namespace Domain.Entities
     {
         [BsonIgnore]
         public int Id { get; set; }
-
-        [BsonElement("nombre")]
+        [BsonElement("name")]
         public string? Name { get; set; } // Nombre del tipo (ej: "Abertura corrediza")
 
-        [BsonElement("categoria")]
+        [BsonElement("category")]
         public ProductCategory? Category { get; set; } // Categoría general (ej: "Aberturas")
     }
 }
