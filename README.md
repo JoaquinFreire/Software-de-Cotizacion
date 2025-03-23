@@ -80,11 +80,8 @@ cd software-de-cotizacion
         npm start
 
 🔥 Endpoints Principales
-Método	Endpoint	Descripción	Autenticación
-POST	/api/auth/login	Inicia sesión y devuelve JWT	❌ No
-GET	/api/auth/me	Obtiene datos del usuario	✅ Sí
-POST	/api/auth/extend-session	Renueva el token JWT	✅ Sí
-POST	/api/quotes/create	Crea una nueva cotización	✅ Sí
+![image](https://github.com/user-attachments/assets/a75cdc1c-8a27-4184-8414-bfa4755b9a99)
+
 
 
 
