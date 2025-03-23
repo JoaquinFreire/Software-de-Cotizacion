@@ -1,11 +1,13 @@
 using Domain.Entities;
 using Domain.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 [ApiController]
 [Route("api/customer-agents")]
+[Authorize]
 public class CustomerAgentController : ControllerBase
 {
     private readonly ICustomerAgentRepository _customerAgentRepository;

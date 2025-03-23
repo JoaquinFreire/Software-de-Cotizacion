@@ -8,6 +8,6 @@ namespace Domain.Entities
         public int Id { get; set; }
 
         [BsonElement("nombre")]
-        public string Name { get; set; } // Nombre de la categoría (ej: "Aberturas")
+        public string? Name { get; set; } // Nombre de la categoría (ej: "Aberturas")
     }
 }
