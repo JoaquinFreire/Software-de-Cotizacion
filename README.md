@@ -39,18 +39,8 @@ Se enfoca en la gestión de clientes, materiales y precios, asegurando **precisi
 
 ## 📂 Estructura del Proyecto
 
-📦 Software-de-Cotizacion │── 📂 Backend │ ├── 📂 Domain # Entidades, repositorios, validaciones y lógica de negocio │ 
---------------------------------------------├── 📂 Application # Servicios de aplicación │ 
---------------------------------------------├── 📂 Infrastructure # Acceso a base de datos (MySQL y MongoDB en el futuro) │ 
---------------------------------------------├── 📂 Presentation # Controladores y endpoints │ 
---------------------------------------------├── appsettings.json # Configuración de la API (reemplazado por .env) │ 
---------------------------------------------└── Program.cs # Punto de entrada de la aplicación │ 
---------------------------│── 📂 Frontend │ ├── 📂 src │ ├── 📂 components │ 
-----------------------------------------------------------├── 📂 pages │ 
-----------------------------------------------------------├── index.js │ 
-----------------------------------------------------------├── package.json │ 
-----------------------------------------------------------└── .env │ 
-                          └── README.md # Este archivo 📌
+![image](https://github.com/user-attachments/assets/2e951e7a-66df-4315-b6cb-bb8e4103de96)
+
 
 ## ⚙️ Instalación y Configuración
 
