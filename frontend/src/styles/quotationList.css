@@ -27,11 +27,6 @@
     margin: 5px 0;
 }
 
-.quote-name {
-    font-size: 18px;
-    font-weight: bold;
-}
-
 .quote-date, .quote-tel, .quote-mail {
     font-size: 14px;
 }
@@ -51,11 +46,12 @@
 .go-button, .update-button, .delete-button, .status-select, .status-button {
     padding: 7px 18px;
     border: none;
-    border-radius: 5px;
+    border-radius: 5%; /* cambio */
     cursor: pointer;
-    font-weight: bold;
-    font-size: 14px;
-    height: 40px; /* Ajustar la altura */
+    font-weight: 700;
+    font-size: 16px;
+    height: 50px; /* Ajustar la altura */
+    margin: 0;
 }
 .go-button {
     background: cyan;
@@ -80,11 +76,11 @@
     background: #ffeb3b; /* Yellow */
     color: black;
     width: 110%;
-    height: 40px; /* Ajustar la altura */
+    height: 50px; /* Ajustar la altura */
 }
 
 .status-select option[value="pending"] {
-    font-weight: bold;
+    font-weight: 700;
 }
 .success-message {
     background: green;

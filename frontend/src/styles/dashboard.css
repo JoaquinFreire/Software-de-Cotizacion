@@ -5,7 +5,6 @@
     padding: 0;
     margin: 0;
     color: white;
-    font-family: Arial, sans-serif;
 }
 
 .dashboard-header {
@@ -218,13 +217,13 @@ nav .active {
     border-bottom: 2px solid red;
 }
 .filtro::after {
-    content: "";
+    content: "";    
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(255, 120, 0, 0.25);
+    background: rgba(255, 124, 9, 0.144);
     pointer-events: none; /* Permite interactuar con los elementos debajo */
     z-index: 9999; /* Se asegura de que esté en la parte superior */
 }
