@@ -11,6 +11,5 @@ namespace Application.DTOs
     {
         public int? Quantity { get; set; }
         public string? Name { get; set; }
-        public MaterialType? Type { get; set; }
     }
 }

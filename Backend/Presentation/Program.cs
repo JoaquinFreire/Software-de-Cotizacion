@@ -10,9 +10,11 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Application.Services;
 using Infrastructure.Persistence.Repositories;
+using AutoMapper;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 using DotNetEnv;
 Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,7 +40,12 @@ builder.Services.Configure<MongoDbSettings>(options =>
 
 builder.Services.AddScoped<UserServices>(); // Registrar el servicio de aplicación
 
+builder.Services.Configure<MongoDbSettings>(
+builder.Configuration.GetSection("MongoDbSettings"));
 
+builder.Services.AddScoped<UserServices>();
+
+builder.Services.AddAutoMapper(typeof(BudgetProfile));
 
 //Mongo
 // Registrar MongoDB en la infraestructura
