@@ -1,4 +1,4 @@
-/* using Application.Services;
+using Application.Services;
 using Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Request;
@@ -19,10 +19,10 @@ namespace Presentation.Controllers
         [HttpPost("CreateBudget")]
         public async Task<IActionResult> CreateBudget([FromBody] CreateBudgetRequest request)
         {
-            if (request == null || request.Budget == null || request.Products == null)
+            if (request == null || request.Budget == null || request.Budget.Products == null)
                 return BadRequest("Datos inválidos.");
 
-            await _budgetService.CreateBudgetAsync(request.Budget, request.Products, request.Accesories);
+            await _budgetService.CreateBudgetAsync(request.Budget);
             return Ok("Presupuesto creado correctamente.");
         }
 
@@ -47,4 +47,3 @@ namespace Presentation.Controllers
         }
     }
 }
- LEOCAM */

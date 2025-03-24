@@ -13,7 +13,7 @@ namespace Domain.Entities
         public int? Quantity { get; set; }
         [BsonElement("nombre")]
         public string? Name { get; set; }
-        [BsonElement("tipo")]
+        [BsonIgnore]
         public MaterialType Type { get; set; }
     }
 }
