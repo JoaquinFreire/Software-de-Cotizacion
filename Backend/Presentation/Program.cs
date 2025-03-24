@@ -1,4 +1,5 @@
 using Infrastructure;
+// Ensure the namespace containing MongoDbSettings is included
 using Infrastructure.Persistence.MongoDBContext;
 using Microsoft.Extensions.Options;
 using Domain.Repositories;
@@ -18,10 +19,7 @@ Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Cargar variables de entorno
-var mongoConnectionString = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING");
-var mongoDatabaseName = Environment.GetEnvironmentVariable("MONGO_DATABASE_NAME");
-var mongoCollectionName = Environment.GetEnvironmentVariable("MONGO_COLLECTION_NAME");
+
 
 var mysqlConnectionString = Environment.GetEnvironmentVariable("MYSQL_CONNECTION_STRING");
 var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
@@ -30,6 +28,11 @@ var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
 
 /* var configuration = builder.Configuration; */
 
+
+// Cargar variables de entorno
+var mongoConnectionString = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING");
+var mongoDatabaseName = Environment.GetEnvironmentVariable("MONGO_DATABASE_NAME");
+var mongoCollectionName = Environment.GetEnvironmentVariable("MONGO_COLLECTION_NAME");
 // Configuración de MongoDB con las variables de entorno
 builder.Services.Configure<MongoDbSettings>(options =>
 {
@@ -40,8 +43,6 @@ builder.Services.Configure<MongoDbSettings>(options =>
 
 builder.Services.AddScoped<UserServices>(); // Registrar el servicio de aplicación
 
-builder.Services.Configure<MongoDbSettings>(
-builder.Configuration.GetSection("MongoDbSettings"));
 
 builder.Services.AddScoped<UserServices>();
 
@@ -49,7 +50,6 @@ builder.Services.AddAutoMapper(typeof(BudgetProfile));
 
 //Mongo
 // Registrar MongoDB en la infraestructura
-builder.Services.AddInfrastructure(builder.Configuration);
 // Registrar el repositorio de MongoDB
 builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
 builder.Services.AddScoped<BudgetServices>();
@@ -90,7 +90,6 @@ builder.Services.AddControllers()
     });
 
 // Configuración de autenticación con JWT usando variables de entorno
-Console.WriteLine($"JWT_SECRET_KEY: {jwtSecretKey}");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

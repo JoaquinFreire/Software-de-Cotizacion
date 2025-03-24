@@ -1,9 +1,9 @@
-﻿using Infrastructure.Persistence.MongoDBContext;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 using Microsoft.Extensions.Options;
 using Domain.Entities;
 using Domain.Repositories;
 using ZstdSharp.Unsafe;
+using DotNetEnv;
 
 namespace Infrastructure.Persistence.Repositories
 {
@@ -12,13 +12,17 @@ namespace Infrastructure.Persistence.Repositories
         private readonly IMongoCollection<Budget> _collection;
 
         //Constructor que realiza la conexión con Mongo y se conecta a la base de datos y a la colección especificada
-        public BudgetRepository(IOptions<MongoDbSettings> settings)
+        public BudgetRepository()
         {
-            var mongosettings = settings.Value;
-            var client = new MongoClient(mongosettings.ConnectionString);
-            Console.WriteLine($"Conectado a la base de datos: {mongosettings.DatabaseName}");
-            var database = client.GetDatabase(mongosettings.DatabaseName);
-            _collection = database.GetCollection<Budget>(mongosettings.CollectionName);
+            // Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "default-issuer";
+            string connectionString = Env.GetString("MONGO_CONNECTION_STRING");
+            string databaseName = Env.GetString("MONGO_DATABASE_NAME");
+            string collectionName = Env.GetString("MONGO_COLLECTION_NAME");
+
+            // var mongosettings = settings.Value; // Se obtienen las configuraciones de MongoDB
+            var client = new MongoClient(connectionString); // Se crea un cliente de MongoDB
+            var database = client.GetDatabase(databaseName); // Se conecta a la base de datos
+            _collection = database.GetCollection<Budget>(collectionName); // Se conecta a la colección
         }
 
         //Metodo para ver todas las cotizaciones
