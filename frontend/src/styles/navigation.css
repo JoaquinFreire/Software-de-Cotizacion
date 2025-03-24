@@ -6,6 +6,8 @@
     margin-right: 185px;
     position: relative;
     z-index: 4;
+    justify-content: space-between;
+    width: 25%
 }
 
 .nav-linksF {
