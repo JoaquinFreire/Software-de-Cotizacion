@@ -11,8 +11,8 @@ const Login = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        document.body.classList.remove("filtro");
-        localStorage.setItem("blueLightFilter", "false");
+        document.body.classList.remove("filtro"); // Remover la clase de filtro de luz azul
+        localStorage.setItem("blueLightFilter", "false"); // Desactivar el filtro de luz azul
     }, []);
     
     const handleLogin = async (e) => {
@@ -24,11 +24,11 @@ const Login = () => {
             localStorage.setItem('token', response.data.token); // Guardar el token
             navigate('/dashboard'); // Redirigir si el login es exitoso
             window.location.reload(); // Recargar la página del dashboard
-        } catch (err) {
-            if (err.response && err.response.data.error) {
+        } catch (err) { // Manejar errores de la API o de conexión con el servidor
+            if (err.response && err.response.data.error) { // Verificar si el error proviene de la API y mostrarlo en caso afirmativo
                 setError(err.response.data.error); // Mostrar el error específico
             } else {
-                setError('Error en la conexión con el servidor');
+                setError('Error en la conexión con el servidor'); // Mostrar un error genérico si no se puede obtener el error específico
             }
         }
     };
