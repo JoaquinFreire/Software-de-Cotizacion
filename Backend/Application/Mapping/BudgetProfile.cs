@@ -36,8 +36,8 @@ public class BudgetProfile : Profile
         // Mapeo Budget_ProductDTO a Budget_Product
         CreateMap<Budget_ProductDTO, Budget_Product>()
             .ForMember(d => d.Type, o => o.MapFrom(s => s.Type))
-            .ForMember(d => d.AlumMaterial, o => o.MapFrom(s => s.AlumMaterial))
-            .ForMember(d => d.GlassMaterial, o => o.MapFrom(s => s.GlassMaterial));
+            .ForMember(d => d.AlumComplement, o => o.MapFrom(s => s.AlumComplement))
+            .ForMember(d => d.GlassComplement, o => o.MapFrom(s => s.GlassComplement));
 
         // Mapeo ProductTypeDTO a ProductType
         CreateMap<ProductTypeDTO, ProductType>();
@@ -46,13 +46,12 @@ public class BudgetProfile : Profile
         CreateMap<ProductCategoryDTO, ProductCategory>()
             .ForMember(d => d.Id, o => o.Ignore());
 
-        //Mapeo MaterialTypeDTO a MaterialType
-        CreateMap<MaterialTypeDTO, MaterialType>()
-            .ForMember(d => d.category, o => o.Ignore())
+        //Mapeo ComplementTypeDTO a ComplementType
+        CreateMap<ComplementTypeDTO, ComplementType>()
             .ForMember(d => d.id, o => o.Ignore());
 
-        //Mapeo MaterialDTO a Material
-        CreateMap<MaterialDTO, Material>()
+        //Mapeo ComplementDTO a Complement
+        CreateMap<ComplementDTO, Complement>()
             .ForMember(d => d.price, o => o.Ignore());
 
         // Mapea Budget_AccesoryDTO → Budget_Accesory
