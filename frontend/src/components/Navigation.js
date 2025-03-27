@@ -10,7 +10,7 @@ const Navigation = ({ onLogout }) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [userName, setUserName] = useState(); // Estado para el nombre del usuario
     const [userRol, setUserRol] = useState(); // Estado para el nombre del usuario
-
+    const [adminMenuOpen, setAdminMenuOpen] = useState(false); // Estado para el submenú de Admin
 
     // Inicializar el estado de isFilterActive con el valor almacenado en localStorage
     const [isFilterActive, setIsFilterActive] = useState(() => {
@@ -82,7 +82,23 @@ const Navigation = ({ onLogout }) => {
                 <NavLink to="/dashboard">Inicio</NavLink>
                 <NavLink to="/historial">Historial</NavLink>
                 <NavLink to="/reportes">Reportes</NavLink>
-                <NavLink to="/admin">Admin</NavLink>
+                <div className="menu admin-menu">
+                    <button
+                        className="menu-button2"
+                        onClick={() => setAdminMenuOpen(!adminMenuOpen)}
+                    >
+                        Admin
+                    </button>
+                    {adminMenuOpen && (
+                        <div className="dropdown-menu">
+                            <NavLink to="/admin/usuarios">Administrar Usuarios</NavLink>
+                            <NavLink to="/admin/materiales">Administrar Materiales</NavLink>
+                            <NavLink to="/admin/descuentos">Administrar Descuentos</NavLink>
+                            <NavLink to="/admin">Administrar</NavLink>
+                            <NavLink to="/admin/lineas">Administrar Líneas</NavLink>
+                        </div>
+                    )}
+                </div>
             </nav>
 
             <div className="menu">

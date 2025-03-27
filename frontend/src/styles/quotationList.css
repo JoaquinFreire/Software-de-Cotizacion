@@ -50,8 +50,10 @@
     cursor: pointer;
     font-weight: 700;
     font-size: 16px;
-    height: 50px; /* Ajustar la altura */
+    height: 55px; /* Ajustar la altura */
     margin: 0;
+    font-family: 'Poppins', sans-serif;
+    line-height: 1;
 }
 .go-button {
     background: cyan;
@@ -76,7 +78,6 @@
     background: #ffeb3b; /* Yellow */
     color: black;
     width: 110%;
-    height: 50px; /* Ajustar la altura */
 }
 
 .status-select option[value="pending"] {

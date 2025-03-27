@@ -1,23 +1,23 @@
 /* Firefox */
 html {
-    scrollbar-width: thin; /* Ancho fino */
-    scrollbar-color: #038394 #28c3d8; /* Colores personalizados */
+    scrollbar-width: normal; /* Ancho fino */
+    scrollbar-color: #3f3d3d #1d1d1d; /* Colores personalizados */
 }
 
 /* Chrome, Edge, Safari */
 ::-webkit-scrollbar {
-    width: 12px; /* Ancho de la barra */
+    width: normal; /* Ancho de la barra */
 }
 
 ::-webkit-scrollbar-track {
-    background: #2111b1; /* Color del fondo */
+    background: #1d1d1d; /* Color del fondo */
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #b0ccf1; /* Color del thumb */
+    background: #3f3d3d; /* Color del thumb */
     border-radius: 10px; /* Bordes redondeados */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #8ca6db; /* Color al pasar el mouse */
+    background: #6e6e6e; /* Color al pasar el mouse */
 }

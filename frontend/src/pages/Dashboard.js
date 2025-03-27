@@ -91,7 +91,9 @@ const Dashboard = () => {
             <img src={logo_busqueda} alt="Buscar" />
           </button>
         </div>
+        
         <button className="new-quote" onClick={() => navigate("/new-quotation")}>Nueva Cotización</button>
+        {/* <NavLink className="new-quote" to="/new-quotation">Nueva Cotización</NavLink> */}
       </div>
 
       {successMessage && <div className="success-message">{successMessage}</div>}

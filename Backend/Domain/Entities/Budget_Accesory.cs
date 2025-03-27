@@ -14,6 +14,6 @@ namespace Domain.Entities
         [BsonElement("nombre")]
         public string? Name { get; set; }
         [BsonIgnore]
-        public MaterialType Type { get; set; }
+        public ComplementType? Type { get; set; }
     }
 }

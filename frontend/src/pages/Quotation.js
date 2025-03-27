@@ -29,18 +29,15 @@ const Quotation = () => {
         workTypeId: ''
     });
     const [workTypes, setWorkTypes] = useState([]);
-  /*   const [totalPrice, setTotalPrice] = useState(''); */
     const [userId, setUserId] = useState('');
     const [customers, setCustomers] = useState([]);
-    const [materials, setMaterials] = useState([]);
-    const [materialCategories, setMaterialCategories] = useState([]);
-    const [materialTypes, setMaterialTypes] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedType, setSelectedType] = useState('');
-    const [selectedMaterial, setSelectedMaterial] = useState('');
-    const [materialQuantity, setMaterialQuantity] = useState(1);
-    const [selectedMaterials, setSelectedMaterials] = useState([]);
+    const [selectedComplement, setSelectedComplement] = useState('');
+    const [complementQuantity, setComplementQuantity] = useState(1);
+    const [selectedComplements, setSelectedComplements] = useState([]);
     const [subtotal, setSubtotal] = useState(0);
+    const [complements, setComplements] = useState([]);
+    const [complementTypes, setComplementTypes] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -97,31 +94,29 @@ const Quotation = () => {
                 console.error('Error fetching work types:', error);
             }
         };
-
-        const fetchMaterialsData = async () => {
+        const fetchComplementsData = async () => {
             const token = localStorage.getItem('token');
             if (!token) {
                 navigate('/');
                 return;
             }
             try {
-                const [categoriesResponse, typesResponse, materialsResponse] = await Promise.all([
-                    axios.get('http://localhost:5187/api/material-categories', { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get('http://localhost:5187/api/material-types', { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get('http://localhost:5187/api/materials', { headers: { Authorization: `Bearer ${token}` } })
+                const [typesResponse, complementsResponse] = await Promise.all([
+                    axios.get('http://localhost:5187/api/complement-types', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get('http://localhost:5187/api/complements', { headers: { Authorization: `Bearer ${token}` } })
                 ]);
-                setMaterialCategories(categoriesResponse.data);
-                setMaterialTypes(typesResponse.data);
-                setMaterials(materialsResponse.data);
+                setComplementTypes(typesResponse.data);
+                setComplements(complementsResponse.data);
             } catch (error) {
-                console.error('Error fetching materials data:', error);
+                console.error('Error fetching complements data:', error);
             }
         };
 
         fetchUser();
         fetchCustomers();
         fetchWorkTypes();
-        fetchMaterialsData();
+        /* fetchMaterialsData(); */
+        fetchComplementsData();
     }, [navigate]);
 
     const handleCustomerChange = (e) => {
@@ -255,50 +250,50 @@ const Quotation = () => {
         navigate("/");
     };
 
-    const handleAddMaterial = () => {
-        if (!selectedMaterial || materialQuantity <= 0) return;
+    const handleAddComplement = () => {
+        if (!selectedComplement || complementQuantity <= 0) return;
 
-        const material = materials.find(m => m.id === parseInt(selectedMaterial));
-        if (!material) return;
+        const complement = complements.find(m => m.id === parseInt(selectedComplement));
+        if (!complement) return;
 
-        setSelectedMaterials(prev => {
-            const existingMaterial = prev.find(m => m.id === material.id);
-            if (existingMaterial) {
-                // Actualizar cantidad y total si el material ya existe
-                const updatedMaterials = prev.map(m =>
-                    m.id === material.id
+        setSelectedComplements(prev => {
+            const existingComplement = prev.find(m => m.id === complement.id);
+            if (existingComplement) {
+                // Actualizar cantidad y total si el complement ya existe
+                const updatedComplements = prev.map(c =>
+                    c.id === complement.id
                         ? {
-                            ...m,
-                            quantity: m.quantity + materialQuantity,
-                            total: (m.quantity + materialQuantity) * m.price
+                            ...c,
+                            quantity: c.quantity + complementQuantity,
+                            total: (c.quantity + complementQuantity) * c.price
                         }
-                        : m
+                        : c
                 );
-                setSubtotal(updatedMaterials.reduce((sum, m) => sum + m.total, 0));
-                return updatedMaterials;
+                setSubtotal(updatedComplements.reduce((sum, c) => sum + c.total, 0));
+                return updatedComplements;
             } else {
-                // Agregar nuevo material si no existe
-                const newMaterial = {
-                    id: material.id,
-                    name: material.name,
-                    price: material.price,
-                    quantity: materialQuantity,
-                    total: material.price * materialQuantity
+                // Agregar nuevo complement si no existe
+                const newComplement = {
+                    id: complement.id,
+                    name: complement.name,
+                    price: complement.price,
+                    quantity: complementQuantity,
+                    total: complement.price * complementQuantity
                 };
-                setSubtotal(prevSubtotal => prevSubtotal + newMaterial.total);
-                return [...prev, newMaterial];
+                setSubtotal(prevSubtotal => prevSubtotal + newComplement.total);
+                return [...prev, newComplement];
             }
         });
 
-        setSelectedMaterial('');
-        setMaterialQuantity(1);
+        setSelectedComplement('');
+        setComplementQuantity(1);
     };
 
-    const handleRemoveMaterial = (id) => {
-        setSelectedMaterials(prev => {
-            const updatedMaterials = prev.filter(m => m.id !== id);
-            setSubtotal(updatedMaterials.reduce((sum, m) => sum + m.total, 0));
-            return updatedMaterials;
+    const handleRemoveComplement = (id) => {
+        setSelectedComplements(prev => {
+            const updatedComplements = prev.filter(c => c.id !== id);
+            setSubtotal(updatedComplements.reduce((sum, c) => sum + c.total, 0));
+            return updatedComplements;
         });
     };
 
@@ -419,48 +414,47 @@ const Quotation = () => {
                     </select>
                 </div>
                 <div className="form-group">
-                    <h3>Materiales</h3>
-                    <label>Categoría:</label>
+                    <h3>Complementos</h3>
+                    {/* <label>Categoría:</label>
                     <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
                         <option value="">Seleccionar categoría</option>
-                        {materialCategories.map(category => (
+                        {complementCategories.map(category => (
                             <option key={category.id} value={category.id}>{category.name}</option>
                         ))}
-                    </select>
+                    </select> */}
                     <label>Tipo:</label>
                     <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
                         <option value="">Seleccionar tipo</option>
-                        {materialTypes
-                            .filter(type => type.category_id === parseInt(selectedCategory))
+                        {complementTypes
                             .map(type => (
                                 <option key={type.id} value={type.id}>{type.name}</option>
                             ))}
                     </select>
-                    <label>Material:</label>
-                    <select value={selectedMaterial} onChange={(e) => setSelectedMaterial(e.target.value)}>
-                        <option value="">Seleccionar material</option>
-                        {materials
-                            .filter(material => material.type_id === parseInt(selectedType))
-                            .map(material => (
-                                <option key={material.id} value={material.id}>{material.name} - ${material.price}</option>
+                    <label>Complemento:</label>
+                    <select value={selectedComplement} onChange={(e) => setSelectedComplement(e.target.value)}>
+                        <option value="">Seleccionar complemento</option>
+                        {complements
+                            .filter(complement => complement.type_id === parseInt(selectedType))
+                            .map(complement => (
+                                <option key={complement.id} value={complement.id}>{complement.name} - ${complement.price}</option>
                             ))}
                     </select>
                     <label>Cantidad:</label>
                     <input
                         type="number"
-                        value={materialQuantity}
-                        onChange={(e) => setMaterialQuantity(parseInt(e.target.value))}
+                        value={complementQuantity}
+                        onChange={(e) => setComplementQuantity(parseInt(e.target.value))}
                         min="1"
                     />
-                    <button type="button" onClick={handleAddMaterial}>Agregar Material</button>
+                    <button type="button" onClick={handleAddComplement}>Agregar complemento</button>
                 </div>
                 <div className="form-group">
-                    <h3>Materiales Seleccionados</h3>
+                    <h3>Complementos Seleccionados</h3>
                     <ul>
-                        {selectedMaterials.map(material => (
-                            <li key={material.id}>
-                                {material.name} - {material.quantity} x ${material.price} = ${material.total}
-                                <button type="button" onClick={() => handleRemoveMaterial(material.id)}>Eliminar</button>
+                        {selectedComplements.map(complement => (
+                            <li key={complement.id}>
+                                {complement.name} - {complement.quantity} x ${complement.price} = ${complement.total}
+                                <button type="button" onClick={() => handleRemoveComplement(complement.id)}>Eliminar</button>
                             </li>
                         ))}
                     </ul>
