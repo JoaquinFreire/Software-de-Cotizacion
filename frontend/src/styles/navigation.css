@@ -3,18 +3,21 @@
     padding: 20px 30px;
     border-radius: 20px;
     display: flex;
-    margin-right: 185px;
+    margin: 0 auto;
     position: relative;
     z-index: 4;
     justify-content: space-between;
-    width: 25%
+    width: 25%;
+    margin-right: 14rem;
+    margin-left: 0;
 }
 
 .nav-linksF {
     position: fixed; /* Fijo en la pantalla */
     top: 2rem; /* Ajusta según sea necesario */
     left: 50%; /* Centrado horizontalmente */
-    width: 25%; /* Ancho completo */
+    width: 35%; /* Ancho del 25% */
+    min-width: 35%; /* Ancho completo */
     transform: translateX(-50%); /* Centrado horizontalmente */
     background-color: rgba(0, 0, 0, 0.815); /* Fondo más oscuro */
     display: flex;
@@ -62,6 +65,47 @@
     min-width: 160px;
     text-align: left;
     z-index: 100;
+}
+
+.admin-menu .dropdown-menu {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    min-width: 200px;
+    z-index: 100;
+}
+
+.admin-menu .dropdown-menu a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 8px 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.admin-menu .dropdown-menu a:hover {
+    background-color: #00FFFF;
+    color: black;
+}
+.menu-button2 {
+ margin: 0;
+ padding: 0 10px 0px 0;
+ background: none;
+ color: white;
+ font-weight: 200;
+ margin: 0;
+}
+.menu-button2:hover {
+    background: none;
+   }
+.dropdown-menu button {
+    font-family: 'Poppins', sans-serif;
 }
 
 /* Usuario */
@@ -125,21 +169,4 @@ input:checked + .slider {
 
 input:checked + .slider:before {
     transform: translateX(14px);
-}
-
-/* Botón de cerrar sesión */
-.logout-button {
-    width: 100%;
-    background: #ff4d4d;
-    border: none;
-    color: white;
-    padding: 8px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 14px;
-    margin-top: 8px;
-}
-
-.logout-button:hover {
-    background: #cc0000;
 }

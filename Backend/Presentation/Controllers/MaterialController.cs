@@ -1,4 +1,4 @@
-using Domain.Entities;
+/* using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -67,3 +67,4 @@ public class MaterialController : ControllerBase
         return NoContent();
     }
 }
+ */

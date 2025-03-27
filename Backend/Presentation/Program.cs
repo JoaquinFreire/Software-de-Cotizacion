@@ -76,9 +76,8 @@ builder.Services.AddScoped<CreateCustomer>();
 builder.Services.AddScoped<IWorkTypeRepository, WorkTypeRepository>(); // Asegúrate de registrar IWorkTypeRepository
 builder.Services.AddScoped<IWorkPlaceRepository, WorkPlaceRepository>(); // Asegúrate de registrar IWorkPlaceRepository
 
-builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
-builder.Services.AddScoped<IMaterialTypeRepository, MaterialTypeRepository>();
-builder.Services.AddScoped<IMaterialCategoryRepository, MaterialCategoryRepository>();
+builder.Services.AddScoped<IComplementRepository, ComplementRepository>();
+builder.Services.AddScoped<IComplementTypeRepository, ComplementTypeRepository>();
 
 // Agrega soporte para controladores en la API
 builder.Services.AddControllers()

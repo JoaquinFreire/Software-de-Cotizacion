@@ -20,6 +20,7 @@
     color: cyan;
     font-size: 35px;
     margin-bottom: 20px;
+    margin-top: 2rem;
 }
 
 .search-bar {
@@ -98,137 +99,17 @@
     border-radius: 5px;
     cursor: pointer;
     margin-top: 0;
+    font-family: 'Poppins', sans-serif;
 }
 
-
-.menu {
-    position: relative;
-}
-
-.menu-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 5px;
-}
-
-.menu-icon {
-    width: 40px;
-    height: 40px;
-}
-
-/* Dropdown */
-.dropdown-menu {
-    position: absolute;
-    top: 50px;
-    right: 0;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    border-radius: 10px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
-    padding: 10px;
-    min-width: 160px;
-    text-align: left;
-    z-index: 100;
-}
-
-/* Usuario */
-.user-text {
-    font-weight: bold;
-    margin-bottom: 8px;
-}
-
-/* Filtro */
-.toggle-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
-
-.toggle-label {
-    font-size: 14px;
-}
-
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 34px;
-    height: 20px;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: 0.4s;
-    border-radius: 20px;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 14px;
-    width: 14px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: 0.4s;
-    border-radius: 50%;
-}
-
-input:checked + .slider {
-    background-color: #2196F3;
-}
-
-input:checked + .slider:before {
-    transform: translateX(14px);
-}
-
-/* Botón de cerrar sesión */
-.logout-button {
-    width: 100%;
-    background: #ff4d4d;
-    border: none;
-    color: white;
-    padding: 8px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 14px;
-    margin-top: 8px;
-}
-
-.logout-button:hover {
-    background: #cc0000;
-}
-
-nav .active {
-    color: red; /* Color resaltado para la página actual */
-    border-bottom: 2px solid red;
-}
 .filtro::after {
     content: "";    
     position: fixed;
     top: 0;
-    left: 0;
+    left: 0;    
     width: 100vw;
     height: 100vh;
-    background: rgba(255, 124, 9, 0.144);
+    background: rgba(255, 189, 9, 0.144);
     pointer-events: none; /* Permite interactuar con los elementos debajo */
     z-index: 9999; /* Se asegura de que esté en la parte superior */
-}
-.nav-linksF {
-    position: fixed; /* Fijo en la pantalla */
-    top: 2.5rem; /* Ajusta según sea necesario */
-    right: 15rem; /* Ajusta según sea necesario */
 }
