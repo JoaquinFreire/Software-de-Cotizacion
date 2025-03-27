@@ -1,4 +1,4 @@
-using Domain.Entities;
+/* using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -19,3 +19,4 @@ public class MaterialTypeRepository : IMaterialTypeRepository
     }
 }
 
+ */

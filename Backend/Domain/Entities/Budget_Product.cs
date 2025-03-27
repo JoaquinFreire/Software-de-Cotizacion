@@ -17,9 +17,9 @@ namespace Domain.Entities
         [BsonElement("quantity")]
         public int? Quantity { get; set; }
         [BsonElement("aluminiumType")]
-        public Material? AlumMaterial { get; set; }  //Tiene que almacenar el tipo de aluminio
+        public Complement? AlumComplement { get; set; }  //Tiene que almacenar el tipo de aluminio
         [BsonElement("glassType")]
-        public Material? GlassMaterial { get; set; }  //Tiene que almacenar el tipo de vidrio
+        public Complement? GlassComplement { get; set; }  //Tiene que almacenar el tipo de vidrio
         [BsonElement("width")]
         public double? width { get; set; }
         [BsonElement("height")]

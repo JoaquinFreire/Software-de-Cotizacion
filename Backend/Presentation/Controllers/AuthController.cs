@@ -29,7 +29,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var (success, error, user) = await _loginUser.AuthenticateAsync(request.Legajo, request.Password);
-        if (!success) return Unauthorized(new { error });
+        if (!success) return Unauthorized(new { error }); // Devuelve un error 401
 
         var token = GenerateJwtToken(user);
         return Ok(new { message = "Login exitoso", userIdw = user.id, token });

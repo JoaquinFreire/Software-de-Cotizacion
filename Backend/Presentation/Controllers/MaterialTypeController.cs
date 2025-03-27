@@ -1,4 +1,4 @@
-using Domain.Repositories;
+/* using Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,3 +21,4 @@ public class MaterialTypeController : ControllerBase
         return Ok(materialTypes);
     }
 }
+ */

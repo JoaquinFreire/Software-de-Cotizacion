@@ -1,4 +1,4 @@
-using MongoDB.Bson.Serialization.Attributes;
+/* using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,3 +20,4 @@ namespace Domain.Entities
         public MaterialCategory? category { get; set; } // Relación
     }
 }
+ */

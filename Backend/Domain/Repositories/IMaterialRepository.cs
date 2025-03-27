@@ -1,4 +1,4 @@
-using Domain.Entities;
+/* using Domain.Entities;
 
 namespace Domain.Repositories;
 
@@ -10,3 +10,4 @@ public interface IMaterialRepository
     Task UpdateAsync(Material material);
     Task DeleteAsync(int id);
 }
+ */

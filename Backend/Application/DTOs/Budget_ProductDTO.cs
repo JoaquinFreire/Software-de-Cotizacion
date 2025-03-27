@@ -13,8 +13,8 @@ namespace Application.DTOs
         public string? Name { get; set; }
         public ProductTypeDTO? Type { get; set; }
         public int? Quantity { get; set; }
-        public MaterialDTO? AlumMaterial { get; set; }
-        public MaterialDTO? GlassMaterial { get; set; }
+        public ComplementDTO? AlumComplement { get; set; }
+        public ComplementDTO? GlassComplement { get; set; }
         public double? width { get; set; }
         public double? height { get; set; }
         public List<Budget_AccesoryDTO> Accesory { get; set; } = new List<Budget_AccesoryDTO>();
