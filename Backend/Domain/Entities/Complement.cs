@@ -11,8 +11,9 @@ public class Complement
     public string? name { get; set; }
     [BsonIgnore]
     public double price { get; set; }
+    [BsonIgnore]
     public int type_id { get; set; }
-    [BsonElement("type")]
+    [BsonIgnore]
     public ComplementType? type { get; set; }
     [BsonIgnore]
     public MaterialUnit unit { get; set; }
