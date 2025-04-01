@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
-    public class Opening_LineDTO
+    public class Opening_TypeDTO
     {
-        public string? name { get; set; }
+        public string? Name { get; set; }
     }
 }

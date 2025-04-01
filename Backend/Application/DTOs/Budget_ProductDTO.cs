@@ -10,8 +10,9 @@ namespace Application.DTOs
 {
     public class Budget_ProductDTO
     {
-        public string? Name { get; set; }
-        public ProductTypeDTO? Type { get; set; }
+        //public string? Name { get; set; }
+        //public ProductTypeDTO? Type { get; set; }
+        public Opening_TypeDTO? OpeningType { get; set; }
         public int? Quantity { get; set; }
         public ComplementDTO? AlumComplement { get; set; }
         public ComplementDTO? GlassComplement { get; set; }

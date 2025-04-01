@@ -10,10 +10,12 @@ namespace Domain.Entities
 {
     public class Budget_Product
     {
-        [BsonElement("productName")]
-        public string? Name { get; set; }
-        [BsonElement("type")]
-        public ProductType? Type { get; set; } // Tipo específico del producto
+        //[BsonElement("productName")]
+        //public string? Name { get; set; }
+        //[BsonElement("type")]
+        //public ProductType? Type { get; set; } // Tipo específico del producto
+        [BsonElement("Product")]
+        public Opening_Type? OpeningType { get; set; }
         [BsonElement("quantity")]
         public int? Quantity { get; set; }
         [BsonElement("aluminiumType")]
