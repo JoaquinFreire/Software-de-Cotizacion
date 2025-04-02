@@ -7,11 +7,15 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Opening_Line
+    public class Opening_Type
     {
         [BsonIgnore]
         public int id { get; set; }
-        [BsonElement("nombre")]
-        public string name { get; set; }
+        [BsonElement("name")]
+        public string? Name { get; set; }
+        [BsonIgnore]
+        public double? Weight { get; set; }
+        [BsonIgnore]
+        public double? Predefined_Size { get; set; }
     }
 }
