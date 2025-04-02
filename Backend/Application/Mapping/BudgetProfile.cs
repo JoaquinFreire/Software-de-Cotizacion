@@ -42,24 +42,12 @@ public class BudgetProfile : Profile
             .ForMember(d => d.Predefined_Size, o => o.Ignore());
 
         //Mapeo ComplementDTO a Complement
-        CreateMap<ComplementDTO, Complement>()
-            .ForMember(d => d.price, o => o.Ignore())
-            .ForMember(d => d.type, o => o.Ignore());
+        CreateMap<ComplementDTO, Complement>();
+
+        //Mapeo AlumTreatmentDTO a AlumTreatment
+        CreateMap<AlumTreatmentDTO, AlumTreatment>();
 
         // Mapea Budget_AccesoryDTO → Budget_Accesory
-        CreateMap<Budget_AccesoryDTO, Budget_Accesory>()
-            .ForMember(d => d.Type, o => o.Ignore());
-
-        // Mapeo ProductTypeDTO a ProductType
-        //CreateMap<ProductTypeDTO, ProductType>();
-
-        // Mapeo ProductCategoryDTO a ProductCategory
-        //CreateMap<ProductCategoryDTO, ProductCategory>()
-        //  .ForMember(d => d.Id, o => o.Ignore());
-
-        //Mapeo ComplementTypeDTO a ComplementType
-        //CreateMap<ComplementTypeDTO, ComplementType>()
-        //  .ForMember(d => d.id, o => o.Ignore());
-
+        CreateMap<Budget_AccesoryDTO, Budget_Accesory>();
     }
 }

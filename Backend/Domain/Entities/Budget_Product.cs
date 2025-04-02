@@ -20,6 +20,8 @@ namespace Domain.Entities
         public int? Quantity { get; set; }
         [BsonElement("aluminiumType")]
         public Complement? AlumComplement { get; set; }  //Tiene que almacenar el tipo de aluminio
+        [BsonElement("AluminiumTreatment")]
+        public AlumTreatment? AlumTreatment { get; set; }  //Tiene que almacenar el tratamiento de aluminio
         [BsonElement("glassType")]
         public Complement? GlassComplement { get; set; }  //Tiene que almacenar el tipo de vidrio
         [BsonElement("width")]
