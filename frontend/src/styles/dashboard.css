@@ -17,7 +17,7 @@
 
 .title {
     text-align: center;
-    color: cyan;
+    color: rgb(61, 189, 189);
     font-size: 35px;
     margin-bottom: 20px;
 }
@@ -86,6 +86,7 @@
     width: 16px;
     height: 16px;
 }
+
 
 .new-quote { 
     width: 30%;

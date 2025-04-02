@@ -64,7 +64,7 @@ button {
     margin-top: 10px;
     border: none;
     border-radius: 5px;
-    background: white;
+    background: cyan; /* Fixed color */
     color: black;
     font-size: 16px;
     cursor: pointer;
@@ -72,7 +72,7 @@ button {
 }
 
 button:hover {
-    background: #ddd;
+    background: cyan; /* Keep the same color on hover */
 }
 
 /* Mensaje de error */
@@ -180,15 +180,16 @@ button {
     margin-top: 10px;
     border: none;
     border-radius: 5px;
-    background: cyan;
+    background: cyan; /* Fixed color */
     color: black;
     font-size: 16px;
     cursor: pointer;
     font-weight: bold;
+    top: 10px;
 }
 
 button:hover {
-    background: #00bcd4;
+    background: cyan; /* Keep the same color on hover */
 }
 
 /* Mensaje de error */
@@ -206,4 +207,45 @@ button:hover {
 
 .forgot-password:hover {
     text-decoration: underline;
+}
+
+/* Contenedor de la contraseña */
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-container input {
+    flex: 1;
+}
+
+/* Botón para alternar visibilidad de la contraseña */
+.toggle-password {
+    position: absolute;
+    right: 10px; 
+    background: none; /* No background color */
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: auto; 
+    width: auto; 
+}
+
+.toggle-password:hover {
+    background: none; /* No background color on hover */
+}
+
+.toggle-password img {
+    width: 16px; 
+    height: 16px;
+    pointer-events: none; 
+    background: none; /* Ensure no background color for the icon */
+}
+
+.toggle-password img:hover {
+    background: none; /* No background color on hover for the icon */
 }
