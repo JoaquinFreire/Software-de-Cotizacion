@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
-    public class Opening_LineDTO
+    public class AlumTreatmentDTO
     {
-        public string? name { get; set; }
+        public string? Name { get; set; }
+        public double? Price { get; set; }
     }
 }
