@@ -10,5 +10,6 @@ namespace Application.DTOs
     {
         public string? name { get; set; }
         public string? lastName { get; set; }
+        public string? telephoneNumber { get; set; }
     }
 }

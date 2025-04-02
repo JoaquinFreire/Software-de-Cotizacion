@@ -13,6 +13,8 @@ public class User
     public string name { get; set; }  // Nombre
     [BsonElement("lastName")]
     public string lastname { get; set; }  // Apellido
+    //[BsonElement("telephoneNumber")]
+    //public string telephoneNumber { get; set; }  // Número de teléfono
     [BsonIgnore]
     public string Legajo { get; set; } = string.Empty;  // Identificador único para login
     [BsonIgnore]

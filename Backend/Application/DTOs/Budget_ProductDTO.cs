@@ -15,6 +15,7 @@ namespace Application.DTOs
         public Opening_TypeDTO? OpeningType { get; set; }
         public int? Quantity { get; set; }
         public ComplementDTO? AlumComplement { get; set; }
+        public AlumTreatmentDTO? AlumTreatment { get; set; }
         public ComplementDTO? GlassComplement { get; set; }
         public double? width { get; set; }
         public double? height { get; set; }

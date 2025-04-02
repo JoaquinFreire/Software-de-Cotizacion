@@ -9,11 +9,9 @@ namespace Domain.Entities
 {
     public class Budget_Accesory
     {
+        [BsonElement("accesory")]
+        public Complement? Accesory { get; set; }
         [BsonElement("cantidad")]
         public int? Quantity { get; set; }
-        [BsonElement("nombre")]
-        public string? Name { get; set; }
-        [BsonIgnore]
-        public ComplementType? Type { get; set; }
     }
 }
