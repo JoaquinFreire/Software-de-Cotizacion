@@ -50,14 +50,17 @@ public class QuotationController : ControllerBase
             CreationDate = quotation.CreationDate.ToString("yyyy-MM-ddTHH:mm:ssZ"), // Formatear DateTime a string
             Customer = new
             {
-                quotation.Customer.id,
-                quotation.Customer.name,
-                quotation.Customer.lastname,
-                quotation.Customer.tel,
-                quotation.Customer.mail,
-                quotation.Customer.address,
-                RegistrationDate = quotation.Customer.registration_date.ToString("yyyy-MM-ddTHH:mm:ssZ"), // Formatear DateTime a string
-                quotation.Customer.agentId
+                Customer = quotation.Customer == null ? null : new
+                {
+                    quotation.Customer.id,
+                    quotation.Customer.name,
+                    quotation.Customer.lastname,
+                    quotation.Customer.tel,
+                    quotation.Customer.mail,
+                    quotation.Customer.address,
+                    RegistrationDate = quotation.Customer.registration_date.ToString("yyyy-MM-ddTHH:mm:ssZ"), // Formatear DateTime a string
+                    quotation.Customer.agentId
+                }
             },
             WorkPlace = new
             {
@@ -135,7 +138,7 @@ public class QuotationController : ControllerBase
         var quotation = await _quotationRepository.GetByIdAsync(id);
         if (quotation == null) return NotFound();
 
-        quotation.Status = request.Status;
+        quotation.Status = request.Status ?? quotation.Status;
         await _quotationRepository.UpdateAsync(quotation);
 
         return NoContent();

@@ -13,7 +13,7 @@ public class BudgetProfile : Profile
         //Mapeo UserDTO a User
         CreateMap<BudgetUserDTO, User>()
             .ForMember(d => d.id, o => o.Ignore())
-            .ForMember(d => d.Legajo, o => o.Ignore())
+            .ForMember(d => d.legajo, o => o.Ignore())
             .ForMember(d => d.password_hash, o => o.Ignore())
             .ForMember(d => d.role_id, o => o.Ignore())
             .ForMember(d => d.role, o => o.Ignore());

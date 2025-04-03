@@ -12,6 +12,6 @@ namespace Domain.Entities
         [BsonIgnore]
         public int id { get; set; }
         [BsonElement("nombre")]
-        public string name { get; set; }
+        public string? name { get; set; }
     }
 }

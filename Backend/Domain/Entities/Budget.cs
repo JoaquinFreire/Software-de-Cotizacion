@@ -7,7 +7,7 @@ public class Budget
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
-    public string id { get; set; }
+    public string? id { get; set; }
     [BsonElement("file_date")]
     public DateTime? creationDate { get; set; } = DateTime.UtcNow;
     [BsonElement("status")]
