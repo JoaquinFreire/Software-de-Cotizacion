@@ -5,14 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs
+namespace Application.DTOs;
+
+public class UserDTO
 {
-    public class UserDTO
-    {
-        public int id { get; set; }
-        public string? name { get; set; }
-        public string? lastName { get; set; }
-        public string? legajo { get; set; }
-        public string? role { get; set; }
-    }
+    public int id { get; set; }
+    public string? name { get; set; }
+    public string? lastName { get; set; }
+    public string? legajo { get; set; }
+    public string? role { get; set; }
+    public string? mail { get; set; } // Nueva propiedad
+    public int? status { get; set; } // Nueva propiedad
 }

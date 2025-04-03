@@ -11,8 +11,6 @@ public class AppDbContext : DbContext
     public DbSet<CustomerAgent> CustomerAgents { get; set; }
     public DbSet<WorkPlace> WorkPlaces { get; set; }
     public DbSet<WorkType> WorkTypes { get; set; }  // Agrega WorkType
-/*     public DbSet<Material> Materials { get; set; }
-    public DbSet<MaterialType> MaterialTypes { get; set; } */
     public DbSet<Complement> Complements { get; set; }
     public DbSet<ComplementType> ComplementTypes { get; set; }
 
@@ -26,8 +24,6 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<CustomerAgent>().ToTable("customeragent");
         modelBuilder.Entity<WorkPlace>().ToTable("workplace");
         modelBuilder.Entity<WorkType>().ToTable("worktype");  // Asegúrate de que la tabla se llame "worktype"
-/*         modelBuilder.Entity<Material>().ToTable("material");
-        modelBuilder.Entity<MaterialType>().ToTable("material_type"); */
         modelBuilder.Entity<Complement>().ToTable("complement");
         modelBuilder.Entity<ComplementType>().ToTable("complement_type");
 

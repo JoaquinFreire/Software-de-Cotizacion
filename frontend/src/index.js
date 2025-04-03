@@ -2,12 +2,17 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './styles/globals.css';
 import App from './App';
-
+import { QuotationProvider } from './context/QuotationContext';
+import { UserProvider } from './context/UserContext'; // Importar el UserProvider
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <UserProvider>
+      <QuotationProvider>
+        <App />
+      </QuotationProvider>
+    </UserProvider>
   </React.StrictMode>
 );
 
