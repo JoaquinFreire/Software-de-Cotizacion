@@ -10,17 +10,21 @@ public class User
     [BsonIgnore]
     public int id { get; set; }  // ID del usuario
     [BsonElement("name")]
-    public string name { get; set; }  // Nombre
+    public string name { get; set; } = string.Empty;  // Nombre
     [BsonElement("lastName")]
-    public string lastname { get; set; }  // Apellido
+    public string lastName { get; set; } = string.Empty;  // Apellido //cambie acá n por N
     [BsonIgnore]
-    public string Legajo { get; set; } = string.Empty;  // Identificador único para login
+    public string legajo { get; set; } = string.Empty; //le saqué la L mayus // Identificador único para login
     [BsonIgnore]
     public string password_hash { get; set; } = string.Empty;  // Contraseña encriptada
     [BsonIgnore]
     public int role_id { get; set; }  // Clave foránea hacia UserRole
     [BsonIgnore]
-    public UserRole role { get; set; }  // Relación con UserRole (navegación)
+    public UserRole role { get; set; } = new UserRole();  // Relación con UserRole (navegación)
+    [BsonElement("mail")]
+    public string mail { get; set; } = string.Empty; // Nueva columna
+    [BsonElement("status")]
+    public int status { get; set; } = 1; // Nueva columna (0 = inactivo, 1 = activo)
 
     public User() { }  // Constructor vacío necesario para Entity Framework
 }

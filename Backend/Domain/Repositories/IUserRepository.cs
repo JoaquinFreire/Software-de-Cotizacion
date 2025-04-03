@@ -10,7 +10,8 @@ public interface IUserRepository
 {
      Task<User?> GetByLegajoAsync(string legajo);  // Obtiene un usuario por legajo
      Task<User?> GetByIdAsync(int id); // 🔹 método para obtener usuario por ID
-    /* void CreateUser(User user);
-    public interface DeleteUser { }
-    public interface UpdateUser { } */
+     Task<IEnumerable<User>> GetAllAsync(); // Obtener todos los usuarios
+    Task AddAsync(User user); // Agregar un nuevo usuario
+    Task UpdateAsync(User user); // Actualizar un usuario existente
+    Task DeleteAsync(int id); // Eliminar un usuario por ID
 }

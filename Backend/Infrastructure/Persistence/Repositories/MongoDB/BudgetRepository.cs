@@ -58,7 +58,7 @@ namespace Infrastructure.Persistence.Repositories
         //Metodo para ver las todas las cotizaciones de un cliente
         public async Task<List<Budget>> GetBudgetsByCustomerAsync(Customer customer)
         {
-            return await _collection.Find(b => b.customer.id == customer.id).ToListAsync();
+            return await _collection.Find(b => b.customer != null && b.customer.id == customer.id).ToListAsync();
         }
     }
 }
