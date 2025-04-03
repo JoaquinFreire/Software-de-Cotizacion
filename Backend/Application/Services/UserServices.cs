@@ -20,14 +20,18 @@ namespace Application.Services
         public async Task<UserDTO> GetUserData(int userId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null) return null;
+            if (user == null) 
+                throw new ArgumentException($"User with ID {userId} not found.");
 
             return new UserDTO
             {
-                id=user.id,
+                id = user.id,
                 name = user.name,
-                legajo = user.Legajo,
-                role = user.role.role_name
+                lastName = user.lastName,
+                legajo = user.legajo,
+                role = user.role.role_name,
+                mail = user.mail, // Nueva propiedad
+                status = user.status // Nueva propiedad
             };
         }
     }

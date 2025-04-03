@@ -31,6 +31,7 @@ public class AuthController : ControllerBase
         var (success, error, user) = await _loginUser.AuthenticateAsync(request.Legajo, request.Password);
         if (!success) return Unauthorized(new { error }); // Devuelve un error 401
 
+        if (user == null) return Unauthorized(new { error = "User not found" });
         var token = GenerateJwtToken(user);
         return Ok(new { message = "Login exitoso", userIdw = user.id, token });
     }
@@ -71,7 +72,13 @@ public class AuthController : ControllerBase
         var user = await _userServices.GetUserData(int.Parse(userId));
         if (user == null) return NotFound();
 
-        return Ok(new { user, userId = user.id });
+        return Ok(new
+        {
+            user,
+            userId = user.id,
+ /*            mail = user.mail, // Nueva propiedad
+            status = user.status // Nueva propiedad */
+        });
     }
 
     [HttpPost("extend-session")]

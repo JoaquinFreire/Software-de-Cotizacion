@@ -1,0 +1,85 @@
+.create-user-button {
+    background-color: cyan;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.users-table th,
+.users-table td {
+    border: 1px solid cyan;
+    padding: 10px;
+    text-align: left;
+}
+
+.users-table th {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: cyan;
+}
+
+.users-table td {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.edit-button,
+.status-button,
+.details-button {
+    background-color: cyan;
+    color: black;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: black;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    color: white;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.modal-content input,
+.modal-content select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+}
