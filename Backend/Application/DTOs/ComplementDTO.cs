@@ -11,7 +11,6 @@ namespace Application.DTOs
     public class ComplementDTO
     {
         public string? name { get; set; }
-        public ComplementTypeDTO? type { get; set; }
-        //public double? price { get; set; }
+        public double price { get; set; }
     }
 }

@@ -9,7 +9,7 @@ namespace Application.DTOs
 {
     public class Budget_AccesoryDTO
     {
+        public ComplementDTO? Accesory { get; set; }
         public int? Quantity { get; set; }
-        public string? Name { get; set; }
     }
 }
