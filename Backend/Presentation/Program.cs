@@ -10,6 +10,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Application.Services;
+using Application.UseCases;
+using DinkToPdf;
+using DinkToPdf.Contracts;
+using System.IO;
 using Infrastructure.Persistence.Repositories;
 using AutoMapper;
 using System.Text.Json.Serialization;
@@ -17,7 +21,12 @@ using Microsoft.AspNetCore.Mvc;
 using DotNetEnv;
 Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
 
+
 var builder = WebApplication.CreateBuilder(args);
+
+var context = new CustomAssemblyLoadContext();
+var path = Path.Combine(Directory.GetCurrentDirectory(), "libwkhtmltox.dll");
+context.LoadUnmanagedLibrary(path);
 
 
 
@@ -53,6 +62,10 @@ builder.Services.AddAutoMapper(typeof(BudgetProfile));
 // Registrar el repositorio de MongoDB
 builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
 builder.Services.AddScoped<BudgetServices>();
+
+//CONVERTIDOR PDF
+builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+builder.Services.AddScoped<IBudgetPdfGenerator, GeneratePdfBudgetUseCase>();
 
 // Configura Entity Framework con MySQL usando Pomelo y la conexión de entorno
 builder.Services.AddDbContext<AppDbContext>(options =>
