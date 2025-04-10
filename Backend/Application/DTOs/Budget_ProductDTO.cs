@@ -19,6 +19,7 @@ namespace Application.DTOs
         public ComplementDTO? GlassComplement { get; set; }
         public double? width { get; set; }
         public double? height { get; set; }
+        public double? price { get; set; }
         public List<Budget_AccesoryDTO> Accesory { get; set; } = new List<Budget_AccesoryDTO>();
     }
 }
