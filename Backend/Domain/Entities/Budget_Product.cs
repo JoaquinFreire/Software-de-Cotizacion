@@ -28,6 +28,8 @@ namespace Domain.Entities
         public double? width { get; set; }
         [BsonElement("height")]
         public double? height { get; set; }
+        [BsonElement("price")]
+        public double? price { get; set; } // Precio unitario del producto
         [BsonElement("Accesories")]
         public List<Budget_Accesory> Accesory { get; set; } = new List<Budget_Accesory>();
     }
