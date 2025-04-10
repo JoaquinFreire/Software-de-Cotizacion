@@ -38,8 +38,8 @@ public class BudgetProfile : Profile
             .ForMember(d => d.GlassComplement, o => o.MapFrom(s => s.GlassComplement));
 
         CreateMap<Opening_TypeDTO, Opening_Type>()
-            .ForMember(d => d.Weight, o => o.Ignore())
-            .ForMember(d => d.Predefined_Size, o => o.Ignore());
+            .ForMember(d => d.weight, o => o.Ignore())
+            .ForMember(d => d.predefined_size, o => o.Ignore());
 
         //Mapeo ComplementDTO a Complement
         CreateMap<ComplementDTO, Complement>();

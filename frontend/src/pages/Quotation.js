@@ -38,6 +38,14 @@ const Quotation = () => {
     const [subtotal, setSubtotal] = useState(0);
     const [complements, setComplements] = useState([]);
     const [complementTypes, setComplementTypes] = useState([]);
+    const [openingTypes, setOpeningTypes] = useState([]); // Estado para los tipos de abertura
+    const [selectedOpenings, setSelectedOpenings] = useState([]); // Estado para las aberturas seleccionadas
+    const [openingForm, setOpeningForm] = useState({
+        typeId: '',
+        width: '',
+        height: '',
+        quantity: 1
+    });
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -112,11 +120,28 @@ const Quotation = () => {
             }
         };
 
+        const fetchOpeningTypes = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                navigate('/');
+                return;
+            }
+            try {
+                const response = await axios.get('http://localhost:5187/api/opening-types', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setOpeningTypes(response.data);
+            } catch (error) {
+                console.error('Error fetching opening types:', error);
+            }
+        };
+
         fetchUser();
         fetchCustomers();
         fetchWorkTypes();
         /* fetchMaterialsData(); */
         fetchComplementsData();
+        fetchOpeningTypes();
     }, [navigate]);
 
     const handleCustomerChange = (e) => {
@@ -166,9 +191,7 @@ const Quotation = () => {
                 });
             }
         } else {
-            setNewCustomer({
-                name: '',
-                lastname: '',
+            setNewCustomer({name: '', lastname: '',
                 tel: '',
                 mail: '',
                 address: '',
@@ -297,6 +320,32 @@ const Quotation = () => {
         });
     };
 
+    const handleAddOpening = () => {
+        const { typeId, width, height, quantity } = openingForm;
+        if (!typeId || !width || !height || quantity <= 0) return;
+
+        const openingType = openingTypes.find(type => type.id === parseInt(typeId));
+        if (!openingType) return;
+
+        setSelectedOpenings(prev => [
+            ...prev,
+            {
+                id: Date.now(),
+                typeId,
+                typeName: openingType.name,
+                width: parseFloat(width),
+                height: parseFloat(height),
+                quantity: parseInt(quantity)
+            }
+        ]);
+
+        setOpeningForm({ typeId: '', width: '', height: '', quantity: 1 });
+    };
+
+    const handleRemoveOpening = (id) => {
+        setSelectedOpenings(prev => prev.filter(opening => opening.id !== id));
+    };
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
@@ -415,13 +464,6 @@ const Quotation = () => {
                 </div>
                 <div className="form-group">
                     <h3>Complementos</h3>
-                    {/* <label>Categoría:</label>
-                    <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
-                        <option value="">Seleccionar categoría</option>
-                        {complementCategories.map(category => (
-                            <option key={category.id} value={category.id}>{category.name}</option>
-                        ))}
-                    </select> */}
                     <label>Tipo:</label>
                     <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
                         <option value="">Seleccionar tipo</option>
@@ -459,6 +501,54 @@ const Quotation = () => {
                         ))}
                     </ul>
                     <p>Subtotal: ${subtotal}</p>
+                </div>
+                <div className="form-group">
+                    <h3>Tipos de Abertura</h3>
+                    <label>Tipo de Abertura:</label>
+                    <select
+                        value={openingForm.typeId}
+                        onChange={(e) => setOpeningForm({ ...openingForm, typeId: e.target.value })}
+                    >
+                        <option value="">Seleccionar tipo de abertura</option>
+                        {openingTypes.map(type => (
+                            <option key={type.id} value={type.id}>{type.name}</option>
+                        ))}
+                    </select>
+                    <label>Ancho (m):</label>
+                    <input
+                        type="number"
+                        value={openingForm.width}
+                        onChange={(e) => setOpeningForm({ ...openingForm, width: e.target.value })}
+                        min="0"
+                        step="0.01"
+                    />
+                    <label>Alto (m):</label>
+                    <input
+                        type="number"
+                        value={openingForm.height}
+                        onChange={(e) => setOpeningForm({ ...openingForm, height: e.target.value })}
+                        min="0"
+                        step="0.01"
+                    />
+                    <label>Cantidad:</label>
+                    <input
+                        type="number"
+                        value={openingForm.quantity}
+                        onChange={(e) => setOpeningForm({ ...openingForm, quantity: e.target.value })}
+                        min="1"
+                    />
+                    <button type="button" onClick={handleAddOpening}>Agregar Abertura</button>
+                </div>
+                <div className="form-group">
+                    <h3>Aberturas Seleccionadas</h3>
+                    <ul>
+                        {selectedOpenings.map(opening => (
+                            <li key={opening.id}>
+                                {opening.typeName} - {opening.width}m x {opening.height}m - {opening.quantity} unidades
+                                <button type="button" onClick={() => handleRemoveOpening(opening.id)}>Eliminar</button>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
                 <button className="submit-button" type="submit">Siguiente</button>
             </form>

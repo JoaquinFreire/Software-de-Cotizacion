@@ -12,10 +12,10 @@ namespace Domain.Entities
         [BsonIgnore]
         public int id { get; set; }
         [BsonElement("name")]
-        public string? Name { get; set; }
+        public string? name { get; set; }
         [BsonIgnore]
-        public double? Weight { get; set; }
+        public double? weight { get; set; }
         [BsonIgnore]
-        public double? Predefined_Size { get; set; }
+        public double? predefined_size { get; set; }
     }
 }

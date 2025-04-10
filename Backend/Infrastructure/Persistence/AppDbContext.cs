@@ -13,6 +13,12 @@ public class AppDbContext : DbContext
     public DbSet<WorkType> WorkTypes { get; set; }  // Agrega WorkType
     public DbSet<Complement> Complements { get; set; }
     public DbSet<ComplementType> ComplementTypes { get; set; }
+    public DbSet<Opening_Type> Opening_Types { get; set; }
+    public DbSet<AlumTreatment> AlumTreatments { get; set; }
+    public DbSet<Price> Prices { get; set; }
+    public DbSet<GlassType> GlassTypes { get; set; }
+
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -23,9 +29,13 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Customer>().ToTable("customer");
         modelBuilder.Entity<CustomerAgent>().ToTable("customeragent");
         modelBuilder.Entity<WorkPlace>().ToTable("workplace");
-        modelBuilder.Entity<WorkType>().ToTable("worktype");  // Asegúrate de que la tabla se llame "worktype"
+        modelBuilder.Entity<WorkType>().ToTable("worktype");  
         modelBuilder.Entity<Complement>().ToTable("complement");
         modelBuilder.Entity<ComplementType>().ToTable("complement_type");
+        modelBuilder.Entity<Opening_Type>().ToTable("opening_type");
+        modelBuilder.Entity<AlumTreatment>().ToTable("alumTreatment");
+        modelBuilder.Entity<Price>().ToTable("price");
+        modelBuilder.Entity<GlassType>().ToTable("glass_type");
 
         // Configurar LastEdit para que se almacene como DATE en la base de datos
         modelBuilder.Entity<Quotation>()
