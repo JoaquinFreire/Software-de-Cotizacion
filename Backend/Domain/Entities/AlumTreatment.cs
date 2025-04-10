@@ -10,10 +10,10 @@ namespace Domain.Entities
     public class AlumTreatment
     {
         [BsonIgnore]
-        public int Id { get; set; }
+        public int id { get; set; }
         [BsonElement("treatment")]
-        public string? Name { get; set; }
+        public string? name { get; set; }
         [BsonElement("price")]
-        public double Price { get; set; }
+        public string? pricePercentage { get; set; }
     }
 }

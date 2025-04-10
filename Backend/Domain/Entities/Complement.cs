@@ -8,7 +8,7 @@ public class Complement
     [BsonIgnore]
     public int id { get; set; }
     [BsonElement("name")]
-    public string? Name { get; set; }
+    public string? name { get; set; }
     [BsonElement("precio")]
     public double price { get; set; }
     [BsonIgnore]

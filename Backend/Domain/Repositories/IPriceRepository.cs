@@ -1,14 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Domain.Entities;
 
-namespace Domain.Repositories;
-public interface IPriceRepository
+namespace Domain.Repositories
 {
-    public interface CreatePrice;
-    public interface UpdatePrice;
-    public interface DeletePrice;
+    public interface IPriceRepository
+    {
+        Task<IEnumerable<Price>> GetAllAsync();
+        Task<Price?> GetByIdAsync(int id);
+        Task AddAsync(Price price);
+        Task UpdateAsync(Price price);
+        Task DeleteAsync(int id);
+    }
 }
-

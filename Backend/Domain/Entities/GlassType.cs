@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Domain.Entities
 {
-    public class Price
+    public class GlassType
     {
         public int id { get; set; }
         public string? name { get; set; }

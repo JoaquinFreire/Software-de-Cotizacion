@@ -15,6 +15,7 @@ using AutoMapper;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using DotNetEnv;
+using Application.UseCases.OpeningType;
 Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
 
 var builder = WebApplication.CreateBuilder(args);
@@ -78,6 +79,19 @@ builder.Services.AddScoped<IWorkPlaceRepository, WorkPlaceRepository>(); // Aseg
 
 builder.Services.AddScoped<IComplementRepository, ComplementRepository>();
 builder.Services.AddScoped<IComplementTypeRepository, ComplementTypeRepository>();
+
+builder.Services.AddScoped<IOpeningTypeRepository, OpeningTypeRepository>();
+/* builder.Services.AddScoped<CreateOpeningType>();
+builder.Services.AddScoped<DeleteOpeningType>();
+builder.Services.AddScoped<UpdateOpeningType>();
+builder.Services.AddScoped<GetAllOpeningTypes>();
+builder.Services.AddScoped<GetOpeningTypeById>(); */
+
+builder.Services.AddScoped<IAlumTreatmentRepository, AlumTreatmentRepository>();    
+
+builder.Services.AddScoped<IPriceRepository, PriceRepository>();
+
+builder.Services.AddScoped<IGlassTypeRepository, GlassTypeRepository>();
 
 // Agrega soporte para controladores en la API
 builder.Services.AddControllers()
