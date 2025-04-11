@@ -16,6 +16,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using DotNetEnv;
 using Application.UseCases.OpeningType;
+using Application.UseCases;
 Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
 
 var builder = WebApplication.CreateBuilder(args);

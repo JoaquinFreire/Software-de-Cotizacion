@@ -44,8 +44,12 @@ const Quotation = () => {
         typeId: '',
         width: '',
         height: '',
-        quantity: 1
+        quantity: 1,
+        treatmentId: '',
+        glassTypeId: ''
     });
+    const [treatments, setTreatments] = useState([]); // Estado para tratamientos
+    const [glassTypes, setGlassTypes] = useState([]); // Estado para tipos de vidrio
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -136,12 +140,46 @@ const Quotation = () => {
             }
         };
 
+        const fetchTreatments = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                navigate('/');
+                return;
+            }
+            try {
+                const response = await axios.get('http://localhost:5187/api/alum-treatments', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setTreatments(response.data);
+            } catch (error) {
+                console.error('Error fetching treatments:', error);
+            }
+        };
+
+        const fetchGlassTypes = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                navigate('/');
+                return;
+            }
+            try {
+                const response = await axios.get('http://localhost:5187/api/glass-types', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setGlassTypes(response.data);
+            } catch (error) {
+                console.error('Error fetching glass types:', error);
+            }
+        };
+
         fetchUser();
         fetchCustomers();
         fetchWorkTypes();
         /* fetchMaterialsData(); */
         fetchComplementsData();
         fetchOpeningTypes();
+        fetchTreatments();
+        fetchGlassTypes();
     }, [navigate]);
 
     const handleCustomerChange = (e) => {
@@ -191,7 +229,8 @@ const Quotation = () => {
                 });
             }
         } else {
-            setNewCustomer({name: '', lastname: '',
+            setNewCustomer({
+                name: '', lastname: '',
                 tel: '',
                 mail: '',
                 address: '',
@@ -274,37 +313,29 @@ const Quotation = () => {
     };
 
     const handleAddComplement = () => {
-        if (!selectedComplement || complementQuantity <= 0) return;
+        if (!selectedComplement || complementQuantity <= 0) {
+            console.error('Complemento o cantidad inválidos');
+            return;
+        }
 
-        const complement = complements.find(m => m.id === parseInt(selectedComplement));
-        if (!complement) return;
+        const complement = complements.find(c => c.id === parseInt(selectedComplement));
+        if (!complement) {
+            console.error('Complemento no encontrado');
+            return;
+        }
 
         setSelectedComplements(prev => {
-            const existingComplement = prev.find(m => m.id === complement.id);
+            const existingComplement = prev.find(c => c.id === complement.id);
             if (existingComplement) {
-                // Actualizar cantidad y total si el complement ya existe
-                const updatedComplements = prev.map(c =>
+                // Actualizar cantidad y total si el complemento ya existe
+                return prev.map(c =>
                     c.id === complement.id
-                        ? {
-                            ...c,
-                            quantity: c.quantity + complementQuantity,
-                            total: (c.quantity + complementQuantity) * c.price
-                        }
+                        ? { ...c, quantity: c.quantity + complementQuantity, total: (c.quantity + complementQuantity) * c.price }
                         : c
                 );
-                setSubtotal(updatedComplements.reduce((sum, c) => sum + c.total, 0));
-                return updatedComplements;
             } else {
-                // Agregar nuevo complement si no existe
-                const newComplement = {
-                    id: complement.id,
-                    name: complement.name,
-                    price: complement.price,
-                    quantity: complementQuantity,
-                    total: complement.price * complementQuantity
-                };
-                setSubtotal(prevSubtotal => prevSubtotal + newComplement.total);
-                return [...prev, newComplement];
+                // Agregar nuevo complemento si no existe
+                return [...prev, { ...complement, quantity: complementQuantity, total: complement.price * complementQuantity }];
             }
         });
 
@@ -321,25 +352,64 @@ const Quotation = () => {
     };
 
     const handleAddOpening = () => {
-        const { typeId, width, height, quantity } = openingForm;
-        if (!typeId || !width || !height || quantity <= 0) return;
+        const { typeId, width, height, quantity, treatmentId, glassTypeId } = openingForm;
+
+        // Validar que todos los campos estén completos
+        if (!typeId || !width || !height || quantity <= 0 || !treatmentId || !glassTypeId) {
+            console.error('Todos los campos son obligatorios');
+            return;
+        }
 
         const openingType = openingTypes.find(type => type.id === parseInt(typeId));
-        if (!openingType) return;
+        const treatment = treatments.find(t => t.id === parseInt(treatmentId));
+        const glassType = glassTypes.find(g => g.id === parseInt(glassTypeId));
 
-        setSelectedOpenings(prev => [
-            ...prev,
-            {
-                id: Date.now(),
-                typeId,
-                typeName: openingType.name,
-                width: parseFloat(width),
-                height: parseFloat(height),
-                quantity: parseInt(quantity)
-            }
-        ]);
+        if (!openingType || !treatment || !glassType) {
+            console.error('Datos inválidos para la abertura');
+            console.log('typeId:', typeId, 'treatmentId:', treatmentId, 'glassTypeId:', glassTypeId);
+            console.log('openingType:', openingType, 'treatment:', treatment, 'glassType:', glassType);
+            return;
+        }
 
-        setOpeningForm({ typeId: '', width: '', height: '', quantity: 1 });
+        // Verificar si ya existe una abertura con los mismos valores
+        const existingOpening = selectedOpenings.find(opening =>
+            opening.typeId === typeId &&
+            opening.width === parseFloat(width) &&
+            opening.height === parseFloat(height) &&
+            opening.treatmentId === treatmentId &&
+            opening.glassTypeId === glassTypeId
+        );
+
+        if (existingOpening) {
+            // Si ya existe, actualizar la cantidad
+            setSelectedOpenings(prev =>
+                prev.map(opening =>
+                    opening.id === existingOpening.id
+                        ? { ...opening, quantity: opening.quantity + parseInt(quantity) }
+                        : opening
+                )
+            );
+        } else {
+            // Si no existe, agregar una nueva abertura
+            setSelectedOpenings(prev => [
+                ...prev,
+                {
+                    id: Date.now(),
+                    typeId,
+                    typeName: openingType.name,
+                    width: parseFloat(width),
+                    height: parseFloat(height),
+                    quantity: parseInt(quantity),
+                    treatmentId,
+                    treatmentName: treatment.name,
+                    glassTypeId,
+                    glassTypeName: glassType.name
+                }
+            ]);
+        }
+
+        // Reiniciar el formulario
+        setOpeningForm({ typeId: '', width: '', height: '', quantity: 1, treatmentId: '', glassTypeId: '' });
     };
 
     const handleRemoveOpening = (id) => {
@@ -537,6 +607,26 @@ const Quotation = () => {
                         onChange={(e) => setOpeningForm({ ...openingForm, quantity: e.target.value })}
                         min="1"
                     />
+                    <label>Tratamiento:</label>
+                    <select
+                        value={openingForm.treatmentId}
+                        onChange={(e) => setOpeningForm({ ...openingForm, treatmentId: e.target.value })}
+                    >
+                        <option value="">Seleccionar tratamiento</option>
+                        {treatments.map(treatment => (
+                            <option key={treatment.id} value={treatment.id}>{treatment.name}</option>
+                        ))}
+                    </select>
+                    <label>Tipo de Vidrio:</label>
+                    <select
+                        value={openingForm.glassTypeId}
+                        onChange={(e) => setOpeningForm({ ...openingForm, glassTypeId: e.target.value })}
+                    >
+                        <option value="">Seleccionar tipo de vidrio</option>
+                        {glassTypes.map(glass => (
+                            <option key={glass.id} value={glass.id}>{glass.name}</option>
+                        ))}
+                    </select>
                     <button type="button" onClick={handleAddOpening}>Agregar Abertura</button>
                 </div>
                 <div className="form-group">
@@ -545,6 +635,7 @@ const Quotation = () => {
                         {selectedOpenings.map(opening => (
                             <li key={opening.id}>
                                 {opening.typeName} - {opening.width}m x {opening.height}m - {opening.quantity} unidades
+                                - Tratamiento: {opening.treatmentName} - Vidrio: {opening.glassTypeName}
                                 <button type="button" onClick={() => handleRemoveOpening(opening.id)}>Eliminar</button>
                             </li>
                         ))}
