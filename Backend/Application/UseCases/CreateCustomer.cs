@@ -2,7 +2,7 @@ using Domain.Entities;
 using Domain.Repositories;
 using System.Threading.Tasks;
 
-namespace Domain.UseCases
+namespace Application.UseCases
 {
     public class CreateCustomer
     {
