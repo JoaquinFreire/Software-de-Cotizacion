@@ -1,0 +1,15 @@
+-- EJEMPLO LINEA 3 - Calcular el precio de una Línea según su tamaño y
+-- Precio del alumunio - 450 pesos por kg
+-- Ingresa en formulario 5x7
+-- Sacar perímetro de esa abertura = 5cm+5cm+7cm+7cm = 24cm
+-- Se calcula el peso 40,5g x 24cm = 972g
+-- Se calcula el precio 972g x 450pxk = 437,400
+-- Se le agrega el 10%(desperdicios) = 97,2 
+-- Se calcula el precio del 10% 97,2 x 450 = 43,740
+-- Sumar el precio 437,4 + 43,74 = 481,14
+-- Se le suma el 15%(tratamiento, ) = 481,14 x 1.15 = 553,311
+-- Precio del vidrio. 230(pesos) x m2
+-- Teniendo el perímetro, se multiplica por predefined_size. 24 x 12cm = 288cm2
+-- Tamaño del vidrio = diferencia de tamaño de la linea menos 288cm2
+-- Hacemos el área 5 x 7 = 35m2 ++ 3500cm2 - 288cm2 = 3212cm2
+-- Precio del vidrio = 230 * 32,12m2 = 7.387,6
