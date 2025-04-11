@@ -8,6 +8,8 @@ namespace Application.DTOs
 {
     public class Opening_TypeDTO
     {
-        public string? Name { get; set; }
+        public string? name { get; set; }
+        public double? weight { get; set; }
+        public double? predefined_size { get; set; }
     }
 }
