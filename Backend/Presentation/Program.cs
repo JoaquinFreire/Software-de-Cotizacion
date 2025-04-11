@@ -10,17 +10,22 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Application.Services;
+using Application.UseCases;
+using System.IO;
 using Infrastructure.Persistence.Repositories;
 using AutoMapper;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using DotNetEnv;
 using Application.UseCases.OpeningType;
+using QuestPDF.Infrastructure;
 Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+//Inscripción a QuestPDF
+QuestPDF.Settings.License = LicenseType.Community;
 
 var mysqlConnectionString = Environment.GetEnvironmentVariable("MYSQL_CONNECTION_STRING");
 var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
@@ -48,6 +53,9 @@ builder.Services.AddScoped<UserServices>(); // Registrar el servicio de aplicaci
 builder.Services.AddScoped<UserServices>();
 
 builder.Services.AddAutoMapper(typeof(BudgetProfile));
+
+//Convertidor PDF
+builder.Services.AddScoped<IBudgetPdfGenerator, PdfBudgetUseCase>();
 
 //Mongo
 // Registrar MongoDB en la infraestructura
