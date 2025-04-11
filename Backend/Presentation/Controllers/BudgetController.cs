@@ -1,5 +1,6 @@
 using Application.Services;
 using Application.DTOs;
+using Application.UseCases;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Request;
 
@@ -10,10 +11,12 @@ namespace Presentation.Controllers
     public class BudgetController : ControllerBase
     {
         private readonly BudgetServices _budgetService;
+        private readonly IBudgetPdfGenerator _pdfGenerator;
 
-        public BudgetController(BudgetServices budgetService)
+        public BudgetController(BudgetServices budgetService, IBudgetPdfGenerator pdfGenerator)
         {
             _budgetService = budgetService;
+            _pdfGenerator = pdfGenerator;
         }
 
         [HttpPost("CreateBudget")]
@@ -23,7 +26,11 @@ namespace Presentation.Controllers
                 return BadRequest("Datos inválidos.");
 
             await _budgetService.CreateBudgetAsync(request.Budget);
-            return Ok("Presupuesto creado correctamente.");
+            //return Ok("Presupuesto creado correctamente.");
+
+            // Generar PDF
+            var pdfBytes = _pdfGenerator.Execute(request.Budget);
+            return File(pdfBytes, "application/pdf", "Presupuesto.pdf");
         }
 
         [HttpGet("Test")]
@@ -45,5 +52,13 @@ namespace Presentation.Controllers
             var budgets = await _budgetService.GetAllBudgetsAsync();
             return Ok(budgets);
         }
+
+        [HttpPost("GenerarPdf")]
+        public IActionResult GenerarPdf([FromBody] BudgetDTO budgetDTO)
+        {
+            var pdfBytes = _pdfGenerator.Execute(budgetDTO);
+            return File(pdfBytes, "application/pdf", "Presupuesto.pdf");
+        }
+
     }
 }

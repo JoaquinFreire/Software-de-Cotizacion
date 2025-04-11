@@ -11,6 +11,7 @@ namespace Application.DTOs
 {
     public class BudgetDTO
     {
+        public string id { get; set; } = string.Empty;
         public DateTime? creationDate { get; set; } = DateTime.UtcNow;
         public BudgetStatus? status { get; set; } = BudgetStatus.Pending;
         public BudgetUserDTO? user { get; set; }
