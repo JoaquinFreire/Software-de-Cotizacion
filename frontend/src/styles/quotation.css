@@ -55,3 +55,46 @@
     width: 100%;
     text-align: center;
 }
+
+.embla {
+    overflow: hidden;
+    position: relative;
+}
+
+.embla__container {
+    display: flex;
+}
+
+.embla__slide {
+    flex: 0 0 100%;
+    min-width: 0;
+}
+
+.embla__buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.embla__button {
+    background: cyan;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0 5px;
+    transition: background 0.3s ease;
+}
+
+.embla__button:disabled {
+    background: gray;
+    cursor: not-allowed;
+}
+
+.embla__button:hover:not(:disabled) {
+    background: darkcyan;
+}
+

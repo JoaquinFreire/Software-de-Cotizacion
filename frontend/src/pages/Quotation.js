@@ -1,60 +1,68 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { QuotationContext } from "../context/QuotationContext";
+import "../styles/quotation.css"; 
 import Navigation from "../components/Navigation";
-import FooterLogo from "../components/FooterLogo"; // Importar el componente FooterLogo
-import "../styles/quotation.css"; // Importar los estilos
-import { QuotationContext } from "../context/QuotationContext"; // Importar el contexto
+import FooterLogo from "../components/FooterLogo"; 
+import ClientAgent from "../components/ClientAgent";
+import WorkPlace from "../components/WorkPlace";
+import OpeningType from "../components/OpeningType";
+import Complements from "../components/Complements";
+import useEmblaCarousel from 'embla-carousel-react'
 
 const Quotation = () => {
-    const { setQuotations } = useContext(QuotationContext); // Obtener la función para actualizar las cotizaciones
-    const [customerId, setCustomerId] = useState('');
-    const [newCustomer, setNewCustomer] = useState({
-        name: '',
-        lastname: '',
-        tel: '',
-        mail: '',
-        address: '',
-        agentId: null
-    });
-    const [newAgent, setNewAgent] = useState({
-        name: '',
-        lastname: '',
-        tel: '',
-        mail: ''
-    });
-    const [workPlace, setWorkPlace] = useState({
-        name: '',
-        address: '',
-        workTypeId: ''
-    });
-    const [workTypes, setWorkTypes] = useState([]);
-    const [userId, setUserId] = useState('');
-    const [customers, setCustomers] = useState([]);
-    const [selectedType, setSelectedType] = useState('');
-    const [selectedComplement, setSelectedComplement] = useState('');
-    const [complementQuantity, setComplementQuantity] = useState(1);
-    const [selectedComplements, setSelectedComplements] = useState([]);
-    const [subtotal, setSubtotal] = useState(0);
-    const [complements, setComplements] = useState([]);
-    const [complementTypes, setComplementTypes] = useState([]);
+    const [emblaRef, emblaApi] = useEmblaCarousel(); // Inicializar el carrusel de Embla
+    const [canScrollPrev, setCanScrollPrev] = useState(false); // Estado para controlar el desplazamiento previo
+    const [canScrollNext, setCanScrollNext] = useState(false); // Estado para controlar el desplazamiento siguiente
+    
+    const {setQuotations} = useContext(QuotationContext); // Obtener la función setQuotations del contexto
+
+    const [customers, setCustomers] = useState([]); // Estado para almacenar la lista de clientes
+    const [customerId, setCustomerId] = useState(); // Estado para almacenar el ID del cliente seleccionado
+    const [newCustomer, setNewCustomer] = useState({name: '', lastname: '', tel: '', mail: '', address: '', agentId: null}); // Estado para almacenar los datos del nuevo cliente
+
+    const [newAgent, setNewAgent] = useState({ name: '', lastname: '', tel: '', mail: '' }); // Estado para almacenar los datos del nuevo agente
+    const [workPlace, setWorkPlace] = useState({ name: '', address: '', workTypeId: '' }); // Estado para almacenar los datos del lugar de trabajo
+    const [workTypes, setWorkTypes] = useState([]); // Estado para almacenar los tipos de trabajo
+
+    const [userId, setUserId] = useState(''); // Estado para almacenar el ID del usuario
+
+    const [selectedComplement, setSelectedComplement] = useState(''); // Estado para almacenar el complemento seleccionado
+    const [complementTypes, setComplementTypes] = useState([]); // Estado para almacenar los tipos de complemento
+    const [complementQuantity, setComplementQuantity] = useState(1); // Estado para almacenar la cantidad del complemento seleccionado
+    const [selectedComplements, setSelectedComplements] = useState([]); // Estado para almacenar los complementos seleccionados
+    const [complements, setComplements] = useState([]); // Estado para almacenar la lista de complementos
+
     const [openingTypes, setOpeningTypes] = useState([]); // Estado para los tipos de abertura
     const [selectedOpenings, setSelectedOpenings] = useState([]); // Estado para las aberturas seleccionadas
-    const [openingForm, setOpeningForm] = useState({
-        typeId: '',
-        width: '',
-        height: '',
-        quantity: 1,
-        treatmentId: '',
-        glassTypeId: ''
-    });
-    const [treatments, setTreatments] = useState([]); // Estado para tratamientos
-    const [glassTypes, setGlassTypes] = useState([]); // Estado para tipos de vidrio
-    const navigate = useNavigate();
+    const [openingForm, setOpeningForm] = useState({typeId: '', width: '', height: '', quantity: 1, treatmentId: '', glassTypeId: ''}); // Estado para el formulario de abertura
 
+    const [treatments, setTreatments] = useState([]); // Estado para almacenar los tratamientos
+    const [glassTypes, setGlassTypes] = useState([]); // Estado para almacenar los tipos de vidrio
+    
+    const navigate = useNavigate(); // Hook para la navegación
+
+    // Funciones para manejar el desplazamiento del carrusel
+    const handlePrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]); 
+    const handleNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
+    const onSelect = useCallback(() => {
+        if (!emblaApi) return;
+        setCanScrollPrev(emblaApi.canScrollPrev());
+        setCanScrollNext(emblaApi.canScrollNext());
+    }, [emblaApi]); // Callback para manejar la selección del carrusel
+    useEffect(() => {
+        if (!emblaApi) return;
+        emblaApi.on('select', onSelect);
+        onSelect();
+    }, [emblaApi, onSelect]); // Efecto para inicializar el carrusel y manejar la selección
+
+
+    // Efecto para obtener los datos del usuario, clientes, tipos de trabajo, complementos y tratamientos al cargar el componente
     useEffect(() => {
         const fetchUser = async () => {
             const token = localStorage.getItem('token');
+            // Verificar si el token existe y redirigir si no es válido
             if (!token) {
                 navigate('/');
                 return;
@@ -64,14 +72,13 @@ const Quotation = () => {
                     headers: { Authorization: `Bearer ${token}` },
                     timeout: 20000 // Configurar tiempo de espera
                 });
-                console.log('User response:', response.data); // Verificar la respuesta del backend
                 setUserId(response.data.userId);
-                console.log('userId set to:', response.data.userId); // Verificar el valor de userId
             } catch (error) {
                 console.error('Error fetching user:', error);
                 navigate('/');
             }
         };
+
 
         const fetchCustomers = async () => {
             const token = localStorage.getItem('token');
@@ -99,13 +106,12 @@ const Quotation = () => {
                 const response = await axios.get('http://localhost:5187/api/worktypes', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                console.log('WorkTypes response:', response.data); // Verificar la respuesta del backend
                 setWorkTypes(response.data);
-                console.log('workTypes set to:', response.data); // Verificar el valor de workTypes
             } catch (error) {
                 console.error('Error fetching work types:', error);
             }
         };
+
         const fetchComplementsData = async () => {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -175,17 +181,16 @@ const Quotation = () => {
         fetchUser();
         fetchCustomers();
         fetchWorkTypes();
-        /* fetchMaterialsData(); */
         fetchComplementsData();
         fetchOpeningTypes();
         fetchTreatments();
         fetchGlassTypes();
     }, [navigate]);
 
+    // Función para manejar el cambio de cliente seleccionado
     const handleCustomerChange = (e) => {
         const selectedCustomerId = e.target.value;
         setCustomerId(selectedCustomerId);
-
         if (selectedCustomerId) {
             const selectedCustomer = customers.find(customer => customer.id === parseInt(selectedCustomerId));
             setNewCustomer({
@@ -196,7 +201,7 @@ const Quotation = () => {
                 address: selectedCustomer.address,
                 agentId: selectedCustomer.agentId
             });
-
+            // Si el cliente tiene un agente asignado, buscar los datos del agente
             if (selectedCustomer.agentId) {
                 const fetchAgent = async () => {
                     const token = localStorage.getItem('token');
@@ -221,30 +226,16 @@ const Quotation = () => {
                 };
                 fetchAgent();
             } else {
-                setNewAgent({
-                    name: '',
-                    lastname: '',
-                    tel: '',
-                    mail: ''
-                });
+                setNewAgent({ name: '', lastname: '', tel: '', mail: ''});
             }
         } else {
-            setNewCustomer({
-                name: '', lastname: '',
-                tel: '',
-                mail: '',
-                address: '',
-                agentId: null
-            });
-            setNewAgent({
-                name: '',
-                lastname: '',
-                tel: '',
-                mail: ''
+            setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null});
+            setNewAgent({ name: '', lastname: '', tel: '', mail: ''
             });
         }
     };
 
+    // Función para manejar el envío del formulario
     const handleSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('token');
@@ -252,8 +243,7 @@ const Quotation = () => {
             navigate('/');
             return;
         }
-        let customerIdToUse = customerId;
-
+        let customerIdToUse = customerId; // Usar el ID del cliente seleccionado o crear uno nuevo si no se seleccionó ninguno
         if (!customerId) {
             try {
                 let agentId = null;
@@ -279,22 +269,17 @@ const Quotation = () => {
             }
         }
 
-        // Verificar que todos los campos requeridos estén presentes
-        if (!customerIdToUse || !userId || !workPlace.name || !workPlace.address || !workPlace.workTypeId || subtotal <= 0) {
-            console.error('Missing required fields');
-            console.log('customerIdToUse:', customerIdToUse);
-            console.log('userId:', userId);
-            console.log('workPlace:', workPlace);
-            console.log('subtotal:', subtotal);
+        // Validar que todos los campos estén completos antes de enviar la cotización
+        if (!customerIdToUse || !userId || !workPlace.name || !workPlace.address || !workPlace.workTypeId) {
             return;
         }
 
+        // Crear la cotización
         try {
             const response = await axios.post('http://localhost:5187/api/quotations', {
                 CustomerId: customerIdToUse,
                 UserId: userId,
                 WorkPlace: workPlace,
-                TotalPrice: subtotal // Subir el subtotal como TotalPrice
             }, {
                 headers: { Authorization: `Bearer ${token}` },
                 timeout: 10000 // Aumentar tiempo de espera
@@ -306,51 +291,13 @@ const Quotation = () => {
             console.error('Error creating quotation:', error);
         }
     };
-
+    // Función para manejar el cierre de sesión
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/");
     };
 
-    const handleAddComplement = () => {
-        if (!selectedComplement || complementQuantity <= 0) {
-            console.error('Complemento o cantidad inválidos');
-            return;
-        }
-
-        const complement = complements.find(c => c.id === parseInt(selectedComplement));
-        if (!complement) {
-            console.error('Complemento no encontrado');
-            return;
-        }
-
-        setSelectedComplements(prev => {
-            const existingComplement = prev.find(c => c.id === complement.id);
-            if (existingComplement) {
-                // Actualizar cantidad y total si el complemento ya existe
-                return prev.map(c =>
-                    c.id === complement.id
-                        ? { ...c, quantity: c.quantity + complementQuantity, total: (c.quantity + complementQuantity) * c.price }
-                        : c
-                );
-            } else {
-                // Agregar nuevo complemento si no existe
-                return [...prev, { ...complement, quantity: complementQuantity, total: complement.price * complementQuantity }];
-            }
-        });
-
-        setSelectedComplement('');
-        setComplementQuantity(1);
-    };
-
-    const handleRemoveComplement = (id) => {
-        setSelectedComplements(prev => {
-            const updatedComplements = prev.filter(c => c.id !== id);
-            setSubtotal(updatedComplements.reduce((sum, c) => sum + c.total, 0));
-            return updatedComplements;
-        });
-    };
-
+    // Función para agregar una abertura
     const handleAddOpening = () => {
         const { typeId, width, height, quantity, treatmentId, glassTypeId } = openingForm;
 
@@ -360,14 +307,15 @@ const Quotation = () => {
             return;
         }
 
+        // Validar que los valores de ancho y alto sean números positivos
         const openingType = openingTypes.find(type => type.id === parseInt(typeId));
+        // Validar que el tipo de abertura exista
         const treatment = treatments.find(t => t.id === parseInt(treatmentId));
+        // Validar que el tratamiento exista
         const glassType = glassTypes.find(g => g.id === parseInt(glassTypeId));
 
+        // Validar que el tipo de vidrio exista
         if (!openingType || !treatment || !glassType) {
-            console.error('Datos inválidos para la abertura');
-            console.log('typeId:', typeId, 'treatmentId:', treatmentId, 'glassTypeId:', glassTypeId);
-            console.log('openingType:', openingType, 'treatment:', treatment, 'glassType:', glassType);
             return;
         }
 
@@ -412,240 +360,76 @@ const Quotation = () => {
         setOpeningForm({ typeId: '', width: '', height: '', quantity: 1, treatmentId: '', glassTypeId: '' });
     };
 
+    // Función para eliminar una abertura
     const handleRemoveOpening = (id) => {
         setSelectedOpenings(prev => prev.filter(opening => opening.id !== id));
     };
+
 
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
             <h2 className="title">Nueva Cotización</h2>
             <form className="quotation-form" onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label>Cotizaciones:</label>
-                    <select value={customerId} onChange={handleCustomerChange}>
-                        <option value="">Seleccionar cotizaciones existentes</option>
-                        {customers.map(customer => (
-                            <option key={customer.id} value={customer.id}>
-                                {customer.name} {customer.lastname}
-                            </option>
-                        ))}
-                    </select>
+                <div className="embla" ref={emblaRef}>
+                    <div className="embla__container">
+                        <div className="embla__slide"><ClientAgent
+                            customerId={customerId}
+                            customers={customers}
+                            newCustomer={newCustomer}
+                            setNewCustomer={setNewCustomer}
+                            newAgent={newAgent}
+                            setNewAgent={setNewAgent}
+                            handleCustomerChange={handleCustomerChange}
+                        /></div>
+                        <div className="embla__slide"><WorkPlace
+                            workPlace={workPlace}
+                            setWorkPlace={setWorkPlace}
+                            workTypes={workTypes}
+                        /></div>
+                        <div className="embla__slide"><OpeningType
+                            openingForm={openingForm}
+                            setOpeningForm={setOpeningForm}
+                            openingTypes={openingTypes}
+                            treatments={treatments}
+                            glassTypes={glassTypes}
+                            selectedOpenings={selectedOpenings}
+                            handleAddOpening={handleAddOpening}
+                            handleRemoveOpening={handleRemoveOpening}
+                        /></div>
+                        <div className="embla__slide">
+                            <Complements
+                                complementTypes={complementTypes}
+                                complements={complements}
+                                selectedComplements={selectedComplements}
+                                setSelectedComplements={setSelectedComplements}
+                            />
+                        </div>
+                    </div>
                 </div>
-                <div className="form-group">
-                    <h3>Crear nueva cotización</h3>
-                    <label>Nombre:</label>
-                    <input
-                        type="text"
-                        value={newCustomer.name}
-                        onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                    <label>Apellido:</label>
-                    <input
-                        type="text"
-                        value={newCustomer.lastname}
-                        onChange={(e) => setNewCustomer({ ...newCustomer, lastname: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                    <label>Teléfono:</label>
-                    <input
-                        type="text"
-                        value={newCustomer.tel}
-                        onChange={(e) => setNewCustomer({ ...newCustomer, tel: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                    <label>Email:</label>
-                    <input
-                        type="email"
-                        value={newCustomer.mail}
-                        onChange={(e) => setNewCustomer({ ...newCustomer, mail: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                    <label>Dirección:</label>
-                    <input
-                        type="text"
-                        value={newCustomer.address}
-                        onChange={(e) => setNewCustomer({ ...newCustomer, address: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                </div>
-
-                <div className='form-group'>
-                    <h3>Customer Agent</h3>
-                    <label>Agent Name:</label>
-                    <input
-                        type="text"
-                        value={newAgent.name}
-                        onChange={(e) => setNewAgent({ ...newAgent, name: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                    <label>Agent Last Name:</label>
-                    <input
-                        type="text"
-                        value={newAgent.lastname}
-                        onChange={(e) => setNewAgent({ ...newAgent, lastname: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                    <label>Agent Phone:</label>
-                    <input
-                        type="text"
-                        value={newAgent.tel}
-                        onChange={(e) => setNewAgent({ ...newAgent, tel: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                    <label>Agent Email:</label>
-                    <input
-                        type="email"
-                        value={newAgent.mail}
-                        onChange={(e) => setNewAgent({ ...newAgent, mail: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                </div>
-                <div className='form-group'>
-                    <h3>Work Place</h3>
-                    <label>Name:</label>
-                    <input
-                        type="text"
-                        value={workPlace.name}
-                        onChange={(e) => setWorkPlace({ ...workPlace, name: e.target.value })}
-                        required
-                    />
-                    <label>Address:</label>
-                    <input
-                        type="text"
-                        value={workPlace.address}
-                        onChange={(e) => setWorkPlace({ ...workPlace, address: e.target.value })}
-                        required
-                    />
-                    <label>Work Type:</label>
-                    <select
-                        value={workPlace.workTypeId}
-                        onChange={(e) => setWorkPlace({ ...workPlace, workTypeId: e.target.value })}
-                        required
+                <div className="embla__buttons">
+                    <button
+                        type="button"
+                        className="embla__button embla__button--prev"
+                        onClick={handlePrev}
+                        disabled={!canScrollPrev}
                     >
-                        <option value="">Select work type</option>
-                        {workTypes.map(workType => (
-                            <option key={workType.id} value={workType.id}>
-                                {workType.type}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className="form-group">
-                    <h3>Complementos</h3>
-                    <label>Tipo:</label>
-                    <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
-                        <option value="">Seleccionar tipo</option>
-                        {complementTypes
-                            .map(type => (
-                                <option key={type.id} value={type.id}>{type.name}</option>
-                            ))}
-                    </select>
-                    <label>Complemento:</label>
-                    <select value={selectedComplement} onChange={(e) => setSelectedComplement(e.target.value)}>
-                        <option value="">Seleccionar complemento</option>
-                        {complements
-                            .filter(complement => complement.type_id === parseInt(selectedType))
-                            .map(complement => (
-                                <option key={complement.id} value={complement.id}>{complement.name} - ${complement.price}</option>
-                            ))}
-                    </select>
-                    <label>Cantidad:</label>
-                    <input
-                        type="number"
-                        value={complementQuantity}
-                        onChange={(e) => setComplementQuantity(parseInt(e.target.value))}
-                        min="1"
-                    />
-                    <button type="button" onClick={handleAddComplement}>Agregar complemento</button>
-                </div>
-                <div className="form-group">
-                    <h3>Complementos Seleccionados</h3>
-                    <ul>
-                        {selectedComplements.map(complement => (
-                            <li key={complement.id}>
-                                {complement.name} - {complement.quantity} x ${complement.price} = ${complement.total}
-                                <button type="button" onClick={() => handleRemoveComplement(complement.id)}>Eliminar</button>
-                            </li>
-                        ))}
-                    </ul>
-                    <p>Subtotal: ${subtotal}</p>
-                </div>
-                <div className="form-group">
-                    <h3>Tipos de Abertura</h3>
-                    <label>Tipo de Abertura:</label>
-                    <select
-                        value={openingForm.typeId}
-                        onChange={(e) => setOpeningForm({ ...openingForm, typeId: e.target.value })}
+                        Prev
+                    </button>
+                    <button
+                        type="button"
+                        className="embla__button embla__button--next"
+                        onClick={handleNext}
+                        disabled={!canScrollNext}
                     >
-                        <option value="">Seleccionar tipo de abertura</option>
-                        {openingTypes.map(type => (
-                            <option key={type.id} value={type.id}>{type.name}</option>
-                        ))}
-                    </select>
-                    <label>Ancho (m):</label>
-                    <input
-                        type="number"
-                        value={openingForm.width}
-                        onChange={(e) => setOpeningForm({ ...openingForm, width: e.target.value })}
-                        min="0"
-                        step="0.01"
-                    />
-                    <label>Alto (m):</label>
-                    <input
-                        type="number"
-                        value={openingForm.height}
-                        onChange={(e) => setOpeningForm({ ...openingForm, height: e.target.value })}
-                        min="0"
-                        step="0.01"
-                    />
-                    <label>Cantidad:</label>
-                    <input
-                        type="number"
-                        value={openingForm.quantity}
-                        onChange={(e) => setOpeningForm({ ...openingForm, quantity: e.target.value })}
-                        min="1"
-                    />
-                    <label>Tratamiento:</label>
-                    <select
-                        value={openingForm.treatmentId}
-                        onChange={(e) => setOpeningForm({ ...openingForm, treatmentId: e.target.value })}
-                    >
-                        <option value="">Seleccionar tratamiento</option>
-                        {treatments.map(treatment => (
-                            <option key={treatment.id} value={treatment.id}>{treatment.name}</option>
-                        ))}
-                    </select>
-                    <label>Tipo de Vidrio:</label>
-                    <select
-                        value={openingForm.glassTypeId}
-                        onChange={(e) => setOpeningForm({ ...openingForm, glassTypeId: e.target.value })}
-                    >
-                        <option value="">Seleccionar tipo de vidrio</option>
-                        {glassTypes.map(glass => (
-                            <option key={glass.id} value={glass.id}>{glass.name}</option>
-                        ))}
-                    </select>
-                    <button type="button" onClick={handleAddOpening}>Agregar Abertura</button>
+                        Next
+                    </button>
                 </div>
-                <div className="form-group">
-                    <h3>Aberturas Seleccionadas</h3>
-                    <ul>
-                        {selectedOpenings.map(opening => (
-                            <li key={opening.id}>
-                                {opening.typeName} - {opening.width}m x {opening.height}m - {opening.quantity} unidades
-                                - Tratamiento: {opening.treatmentName} - Vidrio: {opening.glassTypeName}
-                                <button type="button" onClick={() => handleRemoveOpening(opening.id)}>Eliminar</button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                <button className="submit-button" type="submit">Siguiente</button>
+                <button className="submit-button" type="submit">Cotizar</button>
             </form>
             <FooterLogo /> {/* Incluir el componente FooterLogo */}
         </div>
+
     );
 };
-
 export default Quotation;
