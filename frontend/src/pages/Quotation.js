@@ -243,54 +243,69 @@ const Quotation = () => {
             navigate('/');
             return;
         }
-        let customerIdToUse = customerId; // Usar el ID del cliente seleccionado o crear uno nuevo si no se seleccionó ninguno
+
+        let customerIdToUse = customerId;
+
+        // Crear un nuevo cliente si no se seleccionó uno existente
         if (!customerId) {
             try {
-                let agentId = null;
-                if (newAgent.name || newAgent.tel || newAgent.mail || newAgent.lastname) {
-                    const agentResponse = await axios.post('http://localhost:5187/api/customer-agents', newAgent, {
-                        headers: { Authorization: `Bearer ${token}` },
-                        timeout: 10000 // Aumentar tiempo de espera
-                    });
-                    agentId = agentResponse.data.id;
-                }
+                const newCustomerPayload = {
+                    name: newCustomer.name || "Default Name",
+                    lastname: newCustomer.lastname || "Default LastName",
+                    tel: newCustomer.tel || "0000000000",
+                    mail: newCustomer.mail || "default@example.com",
+                    address: newCustomer.address || "Default Address",
+                };
 
-                const customerResponse = await axios.post('http://localhost:5187/api/customers', {
-                    ...newCustomer,
-                    agentId: agentId
-                }, {
+                console.log('Creating new customer with payload:', newCustomerPayload);
+
+                const customerResponse = await axios.post('http://localhost:5187/api/customers', newCustomerPayload, {
                     headers: { Authorization: `Bearer ${token}` },
-                    timeout: 10000 // Aumentar tiempo de espera
                 });
+
+                console.log('Customer response:', customerResponse);
+
                 customerIdToUse = customerResponse.data.id;
+                console.log('New customer created with ID:', customerIdToUse);
             } catch (error) {
-                console.error('Error creating customer or agent:', error);
+                console.error('Error creating customer:', error.response?.data || error.message);
                 return;
             }
         }
 
-        // Validar que todos los campos estén completos antes de enviar la cotización
+        // Validar que todos los campos requeridos estén presentes
         if (!customerIdToUse || !userId || !workPlace.name || !workPlace.address || !workPlace.workTypeId) {
+            console.error('Missing required fields');
+            console.log('customerIdToUse:', customerIdToUse);
+            console.log('userId:', userId);
+            console.log('workPlace:', workPlace);
             return;
         }
 
-        // Crear la cotización
         try {
-            const response = await axios.post('http://localhost:5187/api/quotations', {
+            const payload = {
                 CustomerId: customerIdToUse,
                 UserId: userId,
                 WorkPlace: workPlace,
-            }, {
+                TotalPrice: 1000, // Valor predeterminado para TotalPrice
+            };
+
+            console.log('Payload being sent:', payload);
+
+            const response = await axios.post('http://localhost:5187/api/quotations', payload, {
                 headers: { Authorization: `Bearer ${token}` },
-                timeout: 10000 // Aumentar tiempo de espera
             });
-            console.log('Quotation created:', response.data);
-            setQuotations(prevQuotations => [...prevQuotations, response.data]); // Agregar la nueva cotización al contexto
-            navigate('/dashboard'); // Redirigir al dashboard después de crear la cotización
+
+            console.log('Response status:', response.status);
+            console.log('Quotation created successfully:', response.data);
+
+            setQuotations((prevQuotations) => [...prevQuotations, response.data]);
+            navigate('/dashboard');
         } catch (error) {
-            console.error('Error creating quotation:', error);
+            console.error('Error creating quotation:', error.response?.data || error.message);
         }
     };
+
     // Función para manejar el cierre de sesión
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -429,7 +444,6 @@ const Quotation = () => {
             </form>
             <FooterLogo /> {/* Incluir el componente FooterLogo */}
         </div>
-
     );
 };
 export default Quotation;
