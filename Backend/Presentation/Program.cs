@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 using DotNetEnv;
 using Application.UseCases.OpeningType;
 using QuestPDF.Infrastructure;
+using Application.DTOs.CreateBudget;
 Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
 
 
@@ -56,6 +57,12 @@ builder.Services.AddAutoMapper(typeof(BudgetProfile));
 
 //Convertidor PDF
 builder.Services.AddScoped<IBudgetPdfGenerator, PdfBudgetUseCase>();
+
+// Configura MediatR para manejar comandos y consultas
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(CreateBudgetCommand).Assembly);
+});
 
 //Mongo
 // Registrar MongoDB en la infraestructura

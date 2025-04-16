@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Application.DTOs;
+using Application.DTOs.CreateBudget;
 using Domain.Entities;
 
 public class BudgetProfile : Profile
@@ -7,10 +7,11 @@ public class BudgetProfile : Profile
     public BudgetProfile()
     {
         // Mapeo BudgetDTO a Budget
-        CreateMap<BudgetDTO, Budget>();
+        CreateMap<CreateBudgetDTO, Budget>()
+            .ForMember(d => d.workPlace, o => o.MapFrom(s => s.workPlace));
 
         //Mapeo UserDTO a User
-        CreateMap<BudgetUserDTO, User>()
+        CreateMap<CreateBudgetUserDTO, User>()
             .ForMember(d => d.id, o => o.Ignore())
             .ForMember(d => d.legajo, o => o.Ignore())
             .ForMember(d => d.password_hash, o => o.Ignore())
@@ -18,36 +19,38 @@ public class BudgetProfile : Profile
             .ForMember(d => d.role, o => o.Ignore());
 
         //Mapeo CustomerDTO a Customer
-        CreateMap<CustomerDTO, Customer>()
+        CreateMap<CreateBudgetCustomerDTO, Customer>()
             .ForMember(d => d.agentId, o => o.Ignore())
             .ForMember(d => d.registration_date, o => o.Ignore());
 
         //Mapeo CustomerAgentDTO a CustomerAgent
-        CreateMap<CustomerAgentDTO, CustomerAgent>();
+        CreateMap<CreateBudgetCustomerAgentDTO, CustomerAgent>();
 
         //Mapeo WorkPlaceDTO a WorkPlace
-        CreateMap<WorkPlaceDTO, WorkPlace>()
+        CreateMap<CreateBudgetWorkPlaceDTO, WorkPlace>()
             .ForMember(d => d.workTypeId, o => o.Ignore());
 
         //Mapeo WorkTypeDTO a WorkType
-        CreateMap<WorkTypeDTO, WorkType>();
+        CreateMap<CreateBudgetWorkTypeDTO, WorkType>();
 
         // Mapeo Budget_ProductDTO a Budget_Product
-        CreateMap<Budget_ProductDTO, Budget_Product>()
-            .ForMember(d => d.AlumComplement, o => o.MapFrom(s => s.AlumComplement))
-            .ForMember(d => d.GlassComplement, o => o.MapFrom(s => s.GlassComplement));
+        CreateMap<CreateBudgetProductDTO, Budget_Product>()
+            .ForMember(d => d.GlassComplement, o => o.MapFrom(s => s.GlassComplement))
+            .ForMember(d => d.AlumTreatment, o => o.MapFrom(s => s.AlumTreatment));
 
-        CreateMap<Opening_TypeDTO, Opening_Type>()
+        CreateMap<CreateBudgetOpeningTypeDTO, Opening_Type>()
             .ForMember(d => d.weight, o => o.Ignore())
             .ForMember(d => d.predefined_size, o => o.Ignore());
 
         //Mapeo ComplementDTO a Complement
-        CreateMap<ComplementDTO, Complement>();
+        CreateMap<CreateBudgetComplementDTO, Complement>();
 
         //Mapeo AlumTreatmentDTO a AlumTreatment
-        CreateMap<AlumTreatmentDTO, AlumTreatment>();
+        CreateMap<CreateBudgetAlumTreatmentDTO, AlumTreatment>();
 
         // Mapea Budget_AccesoryDTO → Budget_Accesory
-        CreateMap<Budget_AccesoryDTO, Budget_Accesory>();
+        CreateMap<CreateBudgetAccesoryDTO, Budget_Accesory>()
+           .ForMember(d => d.Quantity, o => o.MapFrom(s => s.Quantity))
+           .ForMember(d => d.Accesory, o => o.MapFrom(s => s.Accesory));
     }
 }
