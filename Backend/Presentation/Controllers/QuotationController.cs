@@ -64,10 +64,10 @@ public class QuotationController : ControllerBase
             },
             WorkPlace = new
             {
-                quotation.WorkPlace.id,
-                quotation.WorkPlace.name,
-                quotation.WorkPlace.address,
-                quotation.WorkPlace.workTypeId
+                quotation.WorkPlace?.id,
+                quotation.WorkPlace?.name,
+                quotation.WorkPlace?.address,
+                quotation.WorkPlace?.workTypeId
             }
         });
     }
