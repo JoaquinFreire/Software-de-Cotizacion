@@ -3,13 +3,14 @@ using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using QuestPDF.Drawing;
 using QuestPDF.Previewer;
-using Application.DTOs;
+using Application.DTOs.CreateBudget;
 using System.Security.Cryptography.X509Certificates;
+using QuestPDF.Companion;
 
-public class BudgetPdfDocument : IDocument
+public class CreateBudgetPdfDocument : IDocument
 {
-    private readonly BudgetDTO _budget;
-    public BudgetPdfDocument(BudgetDTO budget)
+    private readonly CreateBudgetDTO _budget;
+    public CreateBudgetPdfDocument(CreateBudgetDTO budget)
     {
         _budget = budget;
     }
@@ -28,6 +29,7 @@ public class BudgetPdfDocument : IDocument
             page.Content().Element(ComposeContent);
             page.Footer().Element(ComposeFooter);
         });
+        //this.ShowInCompanion();
     }
 
     void ComposeHeader(IContainer container)
@@ -66,12 +68,12 @@ public class BudgetPdfDocument : IDocument
                 //Info Cotización
                 row.RelativeItem().Column(col1 =>
                 {
-                    col1.Item().Text($"Cotización N°: {_budget.id}").FontSize(16).Bold();
+                    col1.Item().Text($"Cotización N°: ").FontSize(16).Bold();
                 });
                 row.RelativeItem().Column(col2 =>
                 {
-                    col2.Item().AlignRight().Text($"Fecha: {_budget.creationDate?.ToString("dd/MM/yyyy")}");
-                    col2.Item().AlignRight().Text($"Válido hasta: {_budget.ExpirationDate?.ToString("dd/MM/yyyy")}");
+                    col2.Item().AlignRight().Text($"Fecha: {DateTime.Now.ToString("dd/MM/yyyy")}");
+                    col2.Item().AlignRight().Text($"Válido hasta: {DateTime.Now.AddDays(7).ToString("dd/MM/yyyy")}");
                 });
 
                 col.Item().PaddingVertical(10);
@@ -119,7 +121,6 @@ public class BudgetPdfDocument : IDocument
                     columns.RelativeColumn();      // Producto
                     columns.ConstantColumn(45);    // Cantidad
                     columns.ConstantColumn(90);    // Dimensiones
-                    columns.RelativeColumn();      // Aluminio
                     columns.RelativeColumn();      // Vidrio
                     columns.RelativeColumn();      // Tratamiento
                     columns.ConstantColumn(70);    // Precio/u
@@ -131,7 +132,6 @@ public class BudgetPdfDocument : IDocument
                     header.Cell().Text("Producto").Bold();
                     header.Cell().Text("Cant.").Bold();
                     header.Cell().Text("Dimensiones").Bold();
-                    header.Cell().Text("Aluminio").Bold();
                     header.Cell().Text("Vidrio").Bold();
                     header.Cell().Text("Tratamiento").Bold();
                     header.Cell().Text("Precio/u").Bold();
@@ -144,10 +144,9 @@ public class BudgetPdfDocument : IDocument
                     table.Cell().PaddingVertical(5).Text(p.OpeningType?.name ?? "-");
                     table.Cell().PaddingVertical(5).Text($"{p.Quantity}");
                     table.Cell().PaddingVertical(5).Text($"{p.width}x{p.height} cm");
-                    table.Cell().PaddingVertical(5).Text(p.AlumComplement?.name ?? "-");
                     table.Cell().PaddingVertical(5).Text(p.GlassComplement?.name ?? "-");
                     table.Cell().PaddingVertical(5).Text(p.AlumTreatment?.name ?? "-");
-                    table.Cell().PaddingVertical(5).Text($"${p.price}");
+                    table.Cell().PaddingVertical(5).Text($"abc");
 
                     // Subtabla de accesorios (una fila extra)
                     table.Cell().ColumnSpan(6).PaddingBottom(10).PaddingLeft(10).Element(cell =>
@@ -164,7 +163,7 @@ public class BudgetPdfDocument : IDocument
                                     {
                                         row.RelativeItem().Text($"• {a.Accesory?.name ?? "-"}");
                                         row.ConstantItem(50).AlignRight().Text($"x{a.Quantity}");
-                                        row.ConstantItem(100).AlignRight().Text($"${a.Accesory?.price:F2}");
+                                        row.ConstantItem(100).AlignRight().Text("Precio de accesorio");//Precio de accesorio(?)
                                     });
                                 }
                             });
@@ -179,7 +178,7 @@ public class BudgetPdfDocument : IDocument
                     table.Cell().Text("");
 
                     // Subtotal del producto (alineado a la derecha)
-                    table.Cell().ColumnSpan(7).AlignRight().PaddingBottom(15).Text(text =>
+                    table.Cell().ColumnSpan(6).AlignRight().PaddingBottom(15).Text(text =>
                     {
                         text.Span("Subtotal: ").Bold();
                     });
@@ -190,10 +189,10 @@ public class BudgetPdfDocument : IDocument
             col.Item().PaddingTop(10).AlignRight().Text(text =>
             {
                 text.Span("Total: ").Bold().FontSize(16);
-                text.Span($"${_budget.Total:F2}").FontSize(14);
+                //text.Span($"${_budget.Total:F2}").FontSize(14);
             });
-            col.Item().AlignRight().Text($"Dólar Ref: ${_budget.DollarReference:F2}");
-            col.Item().AlignRight().Text($"Mano de Obra: ${_budget.LabourReference:F2}");
+            col.Item().AlignRight().Text($"Dólar Ref:");//Agregar metodo para obtener el dolar referencia
+            col.Item().AlignRight().Text($"Mano de Obra:");//Agregar metodo para obtener la mano de obra referencia
             col.Item().PaddingTop(10).Text($"Observaciones: {_budget.Comment}");
         });
     }
