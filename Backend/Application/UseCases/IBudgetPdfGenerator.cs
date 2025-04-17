@@ -1,9 +1,9 @@
-﻿using Application.DTOs;
+﻿using Application.DTOs.CreateBudget;
 
 namespace Application.UseCases
 {
     public interface IBudgetPdfGenerator
     {
-        byte[] Execute(BudgetDTO budget);
+        byte[] Execute(CreateBudgetDTO budget);
     }
 }

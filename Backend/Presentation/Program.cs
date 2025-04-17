@@ -58,6 +58,7 @@ builder.Services.AddAutoMapper(typeof(BudgetProfile));
 //Convertidor PDF
 builder.Services.AddScoped<IBudgetPdfGenerator, PdfBudgetUseCase>();
 
+
 // Configura MediatR para manejar comandos y consultas
 builder.Services.AddMediatR(cfg =>
 {
