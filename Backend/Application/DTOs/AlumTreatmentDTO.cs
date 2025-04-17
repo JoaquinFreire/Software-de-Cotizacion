@@ -8,6 +8,7 @@ namespace Application.DTOs
 {
     public class AlumTreatmentDTO
     {
+        public int id { get; set; }
         public string? name { get; set; }
         public string? pricePercentage { get; set; }
     }
