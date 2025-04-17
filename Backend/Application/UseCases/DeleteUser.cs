@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.Repositories;
 
-namespace Domain.UseCases;
+namespace Application.UseCases;
 public class DeleteUser
 {
     private readonly IUserRepository _userRepository;
