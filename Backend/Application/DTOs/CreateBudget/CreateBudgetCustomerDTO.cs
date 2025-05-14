@@ -13,6 +13,7 @@ namespace Application.DTOs.CreateBudget
         public string? tel { get; set; }
         public string? mail { get; set; }
         public string? address { get; set; }
+        public string? dni { get; set; }
         public CreateBudgetCustomerAgentDTO? agent { get; set; }
     }
 }

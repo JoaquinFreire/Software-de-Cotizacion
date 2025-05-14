@@ -31,6 +31,14 @@ public class CustomerController : ControllerBase
         return Ok(customer);
     }
 
+    [HttpGet("dni/{dni}")]
+    public async Task<IActionResult> GetByDni(string dni)
+    {
+        var customer = await _customerRepository.GetByDniAsync(dni);
+        if (customer == null) return NotFound();
+        return Ok(customer);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Customer newCustomer)
     {

@@ -11,6 +11,7 @@ namespace Domain.Repositories
     {
         Task<IEnumerable<Customer>> GetAllAsync();
         Task<Customer?> GetByIdAsync(int id);
+        Task<Customer?> GetByDniAsync(string dni);
         Task AddAsync(Customer customer);
         Task UpdateAsync(Customer customer);
         Task DeleteAsync(int id);

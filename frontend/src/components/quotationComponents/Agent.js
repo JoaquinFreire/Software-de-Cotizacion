@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const Agent = ({ customerId, newAgent, setNewAgent }) => {
+const Agent = ({ customerId, newAgent, setNewAgent, setIsAgentComplete }) => {
     const [agent, setAgent] = useState(null); // Estado para almacenar el agente del cliente seleccionado
 
     useEffect(() => {
@@ -25,6 +25,14 @@ const Agent = ({ customerId, newAgent, setNewAgent }) => {
 
         fetchAgent();
     }, [customerId]);
+
+    useEffect(() => {
+        if (newAgent.name && newAgent.lastname && newAgent.tel && newAgent.mail) {
+            setIsAgentComplete(true);
+        } else {
+            setIsAgentComplete(false);
+        }
+    }, [newAgent, setIsAgentComplete]);
 
     return (
         <div className="agent-container">
