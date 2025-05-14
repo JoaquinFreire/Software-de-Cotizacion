@@ -23,6 +23,11 @@ public class CustomerRepository : ICustomerRepository
         return await _context.Customers.FindAsync(id);
     }
 
+    public async Task<Customer?> GetByDniAsync(string dni)
+    {
+        return await _context.Customers.FirstOrDefaultAsync(c => c.dni == dni);
+    }
+
     public async Task AddAsync(Customer customer)
     {
         _context.Customers.Add(customer);

@@ -1,78 +1,95 @@
-import React, { useState } from 'react';
-import "../../styles/quotation.css"; // Asegurarnos de que los estilos estén disponibles
+import React, { useEffect, useState } from 'react';
+import "../../styles/quotation.css";
 
-const Customer = ({ customers, customerId, setCustomerId, newCustomer, setNewCustomer, handleCustomerChange }) => {
-    const [isNewCustomer, setIsNewCustomer] = useState(false); // Alternar entre cliente nuevo y existente
+const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
+    const [dni, setDni] = useState(''); // Estado para almacenar el DNI ingresado
+    const [loading, setLoading] = useState(false); // Estado para indicar si se está buscando el cliente
+    const [isCustomerFound, setIsCustomerFound] = useState(false); // Estado para indicar si el cliente fue encontrado
 
-    const selectedCustomer = customers.find((customer) => customer.id === parseInt(customerId));
+    const handleDniChange = async (e) => {
+        const enteredDni = e.target.value;
+        setDni(enteredDni);
 
-    const handleOptionChange = (isNew) => {
-        setIsNewCustomer(isNew);
-        if (!isNew) {
-            setCustomerId(''); // Limpiar cliente seleccionado si se cambia a "Nuevo Cliente"
+        if (enteredDni.trim() === '') {
             setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null });
+            setIsCustomerComplete(false);
+            setIsCustomerFound(false);
+            return;
+        }
+
+        setLoading(true); // Mostrar mensaje de búsqueda
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:5187/api/customers/dni/${enteredDni}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (response.ok) {
+                const customer = await response.json();
+                setNewCustomer({
+                    name: customer.name,
+                    lastname: customer.lastname,
+                    tel: customer.tel,
+                    mail: customer.mail,
+                    address: customer.address,
+                    agentId: customer.agentId,
+                });
+                setIsCustomerComplete(true);
+                setIsCustomerFound(true);
+            } else {
+                setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null });
+                setIsCustomerComplete(false);
+                setIsCustomerFound(false);
+            }
+        } catch (error) {
+            console.error('Error searching customer by DNI:', error);
+        } finally {
+            setLoading(false); // Ocultar mensaje de búsqueda
         }
     };
+
+    const handleInputChange = (field, value) => {
+        if (isCustomerFound) return; // Evitar cambios si el cliente fue encontrado
+        setNewCustomer((prev) => ({ ...prev, [field]: value }));
+    };
+
+    useEffect(() => {
+        const isComplete =
+            newCustomer.name.trim() &&
+            newCustomer.lastname.trim() &&
+            newCustomer.tel.trim() &&
+            newCustomer.mail.trim() &&
+            newCustomer.address.trim();
+        setIsCustomerComplete(isComplete);
+    }, [newCustomer, setIsCustomerComplete]);
 
     return (
         <div>
             <h3>Cliente</h3>
-            <div className="form-group customer-options">
-                <label className={`customer-option ${!isNewCustomer ? 'active' : ''}`}>
-                    <input
-                        type="radio"
-                        name="customerOption"
-                        value="existing"
-                        checked={!isNewCustomer}
-                        onChange={() => handleOptionChange(false)}
-                    />
-                    Seleccionar Cliente Existente
-                </label>
-                <label className={`customer-option ${isNewCustomer ? 'active' : ''}`}>
-                    <input
-                        type="radio"
-                        name="customerOption"
-                        value="new"
-                        checked={isNewCustomer}
-                        onChange={() => handleOptionChange(true)}
-                    />
-                    Completar Cliente
-                </label>
+            <div className="form-group">
+                <label>Buscar Cliente por DNI:</label>
+                <input
+                    type="text"
+                    value={dni}
+                    onChange={handleDniChange}
+                    placeholder="Ingrese el DNI del cliente"
+                />
             </div>
-
-            {!isNewCustomer ? (
-                <div>
-                    <div className="form-group">
-                        <label>Seleccionar Cliente:</label>
-                        <select value={customerId} onChange={handleCustomerChange}>
-                            <option value="">Seleccione un cliente</option>
-                            {customers.map((customer) => (
-                                <option key={customer.id} value={customer.id}>
-                                    {customer.name} {customer.lastname}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    {selectedCustomer && (
-                        <div className="customer-details">
-                            <h4>Datos del Cliente</h4>
-                            <p><strong>Nombre:</strong> {selectedCustomer.name}</p>
-                            <p><strong>Apellido:</strong> {selectedCustomer.lastname}</p>
-                            <p><strong>Teléfono:</strong> {selectedCustomer.tel}</p>
-                            <p><strong>Email:</strong> {selectedCustomer.mail}</p>
-                            <p><strong>Dirección:</strong> {selectedCustomer.address}</p>
-                        </div>
-                    )}
-                </div>
+            {loading ? (
+                <p>Buscando cliente...</p>
             ) : (
                 <div>
-                    <h4>Completar Datos del Cliente</h4>
+                    <h4>{isCustomerFound ? "Cliente Encontrado" : "Crear Nuevo Cliente"}</h4>
+                    <div className="form-group">
+                        <label>DNI:</label>
+                        <input type="text" value={dni} disabled />
+                    </div>
                     <div className="form-group">
                         <label>Nombre:</label>
                         <input
                             type="text"
                             value={newCustomer.name}
-                            onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
+                            onChange={(e) => handleInputChange('name', e.target.value)}
+                            disabled={isCustomerFound} // Deshabilitar si el cliente fue encontrado
                         />
                     </div>
                     <div className="form-group">
@@ -80,7 +97,8 @@ const Customer = ({ customers, customerId, setCustomerId, newCustomer, setNewCus
                         <input
                             type="text"
                             value={newCustomer.lastname}
-                            onChange={(e) => setNewCustomer({ ...newCustomer, lastname: e.target.value })}
+                            onChange={(e) => handleInputChange('lastname', e.target.value)}
+                            disabled={isCustomerFound} // Deshabilitar si el cliente fue encontrado
                         />
                     </div>
                     <div className="form-group">
@@ -88,7 +106,8 @@ const Customer = ({ customers, customerId, setCustomerId, newCustomer, setNewCus
                         <input
                             type="text"
                             value={newCustomer.tel}
-                            onChange={(e) => setNewCustomer({ ...newCustomer, tel: e.target.value })}
+                            onChange={(e) => handleInputChange('tel', e.target.value)}
+                            disabled={isCustomerFound} // Deshabilitar si el cliente fue encontrado
                         />
                     </div>
                     <div className="form-group">
@@ -96,7 +115,8 @@ const Customer = ({ customers, customerId, setCustomerId, newCustomer, setNewCus
                         <input
                             type="email"
                             value={newCustomer.mail}
-                            onChange={(e) => setNewCustomer({ ...newCustomer, mail: e.target.value })}
+                            onChange={(e) => handleInputChange('mail', e.target.value)}
+                            disabled={isCustomerFound} // Deshabilitar si el cliente fue encontrado
                         />
                     </div>
                     <div className="form-group">
@@ -104,7 +124,8 @@ const Customer = ({ customers, customerId, setCustomerId, newCustomer, setNewCus
                         <input
                             type="text"
                             value={newCustomer.address}
-                            onChange={(e) => setNewCustomer({ ...newCustomer, address: e.target.value })}
+                            onChange={(e) => handleInputChange('address', e.target.value)}
+                            disabled={isCustomerFound} // Deshabilitar si el cliente fue encontrado
                         />
                     </div>
                 </div>
