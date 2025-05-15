@@ -43,6 +43,16 @@ const Quotation = () => {
     const [complementTypes, setComplementTypes] = useState([]);
     const [complements, setComplements] = useState([]);
 
+    // Estado para controlar el envío y feedback
+    const [submitting, setSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState(null);
+
+    // Estado para el usuario (puedes obtenerlo de localStorage o como corresponda)
+    const [userId, setUserId] = useState(() => {
+        // Ejemplo: si guardas el id en localStorage
+        return localStorage.getItem('userId') || '';
+    });
+
     // Función para manejar el desplazamiento del carrusel
     const handlePrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
     const handleNext = useCallback(() => {
@@ -138,11 +148,107 @@ const Quotation = () => {
         navigate("/");
     };
 
+    // Función para enviar la cotización
+    const handleSubmitQuotation = async (e) => {
+        e.preventDefault();
+        setSubmitting(true);
+        setSubmitError(null);
+
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setSubmitError("No autenticado");
+                setSubmitting(false);
+                return;
+            }
+
+            // 1. Crear cliente si no existe (no tiene id)
+            let customerId = newCustomer.agentId ? newCustomer.agentId : null;
+            if (!customerId) {
+                // Buscar por DNI para evitar duplicados
+                const dni = newCustomer.dni || ""; // Si tienes el dni en newCustomer
+                let customerResponse = null;
+                if (dni) {
+                    customerResponse = await fetch(`http://localhost:5187/api/customers/dni/${dni}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                }
+                if (customerResponse && customerResponse.ok) {
+                    const customerData = await customerResponse.json();
+                    customerId = customerData.id;
+                } else {
+                    // Crear cliente
+                    const createResponse = await fetch('http://localhost:5187/api/customers', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            ...newCustomer,
+                            dni: dni
+                        })
+                    });
+                    if (!createResponse.ok) throw new Error('Error creando cliente');
+                    const createdCustomer = await createResponse.json();
+                    customerId = createdCustomer.id;
+                }
+            }
+
+            // 2. Crear WorkPlace si es necesario (puedes mejorar esta lógica según tu modelo)
+            let workPlaceId = workPlace.id;
+            if (!workPlaceId) {
+                const createWorkPlace = await fetch('http://localhost:5187/api/workplaces', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify(workPlace)
+                });
+                if (!createWorkPlace.ok) throw new Error('Error creando espacio de trabajo');
+                const createdWP = await createWorkPlace.json();
+                workPlaceId = createdWP.id;
+            }
+
+            // 3. Calcular el precio total (puedes ajustar esto según tu lógica)
+            // Aquí solo sumamos los precios de los complementos seleccionados como ejemplo
+            const totalComplements = selectedComplements.reduce((acc, c) => acc + (c.price * c.quantity), 0);
+            // Puedes sumar también los precios de aberturas si tienes esa lógica
+
+            // 4. Crear la cotización
+            const quotationPayload = {
+                CustomerId: customerId,
+                UserId: userId,
+                WorkPlaceId: workPlaceId,
+                TotalPrice: totalComplements, // Ajusta según tu lógica real
+                // Puedes agregar más campos si tu backend lo requiere
+            };
+
+            const quotationResponse = await fetch('http://localhost:5187/api/quotations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(quotationPayload)
+            });
+
+            if (!quotationResponse.ok) throw new Error('Error creando cotización');
+            // Si quieres redirigir o mostrar mensaje de éxito:
+            setSubmitting(false);
+            navigate('/dashboard');
+        } catch (err) {
+            setSubmitError(err.message || 'Error al crear la cotización');
+            setSubmitting(false);
+        }
+    };
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
             <h2 className="title">Nueva Cotización</h2>
-            <form className="quotation-form">
+            <form className="quotation-form" onSubmit={handleSubmitQuotation}>
                 <div className="embla-buttons-container">
                     <button
                         type="button"
@@ -207,6 +313,18 @@ const Quotation = () => {
                                 selectedComplements={selectedComplements}
                                 setSelectedComplements={setSelectedComplements}
                             />
+                            <div style={{ marginTop: 24 }}>
+                                <button
+                                    type="submit"
+                                    className="submit-button"
+                                    disabled={submitting}
+                                >
+                                    {submitting ? "Enviando..." : "Cotizar"}
+                                </button>
+                                {submitError && (
+                                    <div style={{ color: 'red', marginTop: 8 }}>{submitError}</div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
