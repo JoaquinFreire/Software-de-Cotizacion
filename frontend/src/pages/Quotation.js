@@ -25,6 +25,24 @@ const Quotation = () => {
     });
     const [isCustomerComplete, setIsCustomerComplete] = useState(false);
 
+    const [workPlace, setWorkPlace] = useState({ name: '', address: '', workTypeId: '' });
+    const [workTypes, setWorkTypes] = useState([]);
+    const [openingForm, setOpeningForm] = useState({
+        typeId: '',
+        width: '',
+        height: '',
+        quantity: 1,
+        treatmentId: '',
+        glassTypeId: '',
+    });
+    const [selectedOpenings, setSelectedOpenings] = useState([]);
+    const [openingTypes, setOpeningTypes] = useState([]);
+    const [treatments, setTreatments] = useState([]);
+    const [glassTypes, setGlassTypes] = useState([]);
+    const [selectedComplements, setSelectedComplements] = useState([]);
+    const [complementTypes, setComplementTypes] = useState([]);
+    const [complements, setComplements] = useState([]);
+
     // Función para manejar el desplazamiento del carrusel
     const handlePrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
     const handleNext = useCallback(() => {
@@ -53,6 +71,66 @@ const Quotation = () => {
             setCarouselHeight(`${activeSlide.scrollHeight}px`);
         }
     }, [currentIndex]);
+
+    // Cargar tipos de trabajo
+    useEffect(() => {
+        const fetchWorkTypes = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const response = await fetch('http://localhost:5187/api/worktypes', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setWorkTypes(data);
+                }
+            } catch (error) {
+                console.error('Error fetching work types:', error);
+            }
+        };
+        fetchWorkTypes();
+    }, []);
+
+    // Cargar tipos de abertura, tratamientos y tipos de vidrio
+    useEffect(() => {
+        const fetchOpeningData = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const [openingTypesRes, treatmentsRes, glassTypesRes] = await Promise.all([
+                    fetch('http://localhost:5187/api/opening-types', { headers: { Authorization: `Bearer ${token}` } }),
+                    fetch('http://localhost:5187/api/alum-treatments', { headers: { Authorization: `Bearer ${token}` } }),
+                    fetch('http://localhost:5187/api/glass-types', { headers: { Authorization: `Bearer ${token}` } }),
+                ]);
+                if (openingTypesRes.ok) setOpeningTypes(await openingTypesRes.json());
+                if (treatmentsRes.ok) setTreatments(await treatmentsRes.json());
+                if (glassTypesRes.ok) setGlassTypes(await glassTypesRes.json());
+            } catch (error) {
+                console.error('Error fetching opening data:', error);
+            }
+        };
+        fetchOpeningData();
+    }, []);
+
+    // Cargar tipos de complementos y complementos
+    useEffect(() => {
+        const fetchComplementsData = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const [typesRes, complementsRes] = await Promise.all([
+                    fetch('http://localhost:5187/api/complement-types', { headers: { Authorization: `Bearer ${token}` } }),
+                    fetch('http://localhost:5187/api/complements', { headers: { Authorization: `Bearer ${token}` } }),
+                ]);
+                if (typesRes.ok) setComplementTypes(await typesRes.json());
+                if (complementsRes.ok) setComplements(await complementsRes.json());
+            } catch (error) {
+                console.error('Error fetching complements data:', error);
+            }
+        };
+        fetchComplementsData();
+    }, []);
 
     // Función para manejar el cierre de sesión
     const handleLogout = () => {
@@ -106,28 +184,28 @@ const Quotation = () => {
                         </div>
                         <div className="embla__slide">
                             <WorkPlace
-                                workPlace={{}}
-                                setWorkPlace={() => {}}
-                                workTypes={[]}
+                                workPlace={workPlace}
+                                setWorkPlace={setWorkPlace}
+                                workTypes={workTypes}
                             />
                         </div>
                         <div className="embla__slide">
                             <OpeningType
-                                openingForm={{}}
-                                setOpeningForm={() => {}}
-                                openingTypes={[]}
-                                treatments={[]}
-                                glassTypes={[]}
-                                selectedOpenings={[]}
-                                setSelectedOpenings={() => {}}
+                                openingForm={openingForm}
+                                setOpeningForm={setOpeningForm}
+                                openingTypes={openingTypes}
+                                treatments={treatments}
+                                glassTypes={glassTypes}
+                                selectedOpenings={selectedOpenings}
+                                setSelectedOpenings={setSelectedOpenings}
                             />
                         </div>
                         <div className="embla__slide">
                             <Complements
-                                complementTypes={[]}
-                                complements={[]}
-                                selectedComplements={[]}
-                                setSelectedComplements={() => {}}
+                                complementTypes={complementTypes}
+                                complements={complements}
+                                selectedComplements={selectedComplements}
+                                setSelectedComplements={setSelectedComplements}
                             />
                         </div>
                     </div>
