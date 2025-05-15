@@ -55,3 +55,212 @@
     width: 100%;
     text-align: center;
 }
+
+.embla {
+    overflow: hidden;
+    position: relative;
+    transition: height 0.3s ease; /* Transición suave para el cambio de altura */
+}
+
+.embla__container {
+    display: flex;
+}
+
+.embla__slide {
+    flex: 0 0 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.embla-buttons-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.embla__button {
+    background: cyan;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+.embla__button:disabled {
+    background: gray;
+    cursor: not-allowed;
+}
+
+.embla__button:hover:not(:disabled) {
+    background: darkcyan;
+}
+
+.customer-options {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.customer-option {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid cyan;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    text-align: center;
+    flex: 1;
+    margin: 0 5px;
+}
+
+.customer-option.active {
+    background: cyan;
+    color: black;
+    transform: scale(1.05);
+}
+
+.customer-option input {
+    display: none;
+}
+
+.customer-details {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid cyan;
+    padding: 15px;
+    border-radius: 5px;
+    color: white;
+    margin-top: 15px;
+}
+
+.customer-details h4 {
+    margin-bottom: 10px;
+    color: cyan;
+}
+
+.workplace-container, .agent-container {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid cyan;
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-top: 15px;
+}
+
+.workplace-container h3, .agent-container h3 {
+    color: cyan;
+    margin-bottom: 15px;
+}
+
+.agent-details, .form-group {
+    margin-bottom: 15px;
+}
+
+.agent-details h4 {
+    color: cyan;
+    margin-bottom: 10px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background: black;
+    color: white;
+    margin-bottom: 10px;
+}
+
+input::placeholder, select::placeholder {
+    color: gray;
+}
+
+.opening-container {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid cyan;
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    margin-top: 15px;
+}
+
+.opening-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.opening-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid cyan;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.remove-opening-button {
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+.remove-opening-button:hover {
+    background: darkred;
+}
+
+.complements-container {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid cyan;
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    margin-top: 15px;
+}
+
+.complements-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.complement-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid cyan;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.remove-complement-button {
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+.remove-complement-button:hover {
+    background: darkred;
+}
+
