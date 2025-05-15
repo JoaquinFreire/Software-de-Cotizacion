@@ -141,12 +141,12 @@ public class BudgetPdfDocument : IDocument
                 foreach (var p in _budget.Products)
                 {
                     // Fila principal del producto
-                    table.Cell().PaddingVertical(5).Text(p.OpeningType?.Name ?? "-");
+                    table.Cell().PaddingVertical(5).Text(p.OpeningType?.name ?? "-");
                     table.Cell().PaddingVertical(5).Text($"{p.Quantity}");
                     table.Cell().PaddingVertical(5).Text($"{p.width}x{p.height} cm");
                     table.Cell().PaddingVertical(5).Text(p.AlumComplement?.name ?? "-");
                     table.Cell().PaddingVertical(5).Text(p.GlassComplement?.name ?? "-");
-                    table.Cell().PaddingVertical(5).Text(p.AlumTreatment?.Name ?? "-");
+                    table.Cell().PaddingVertical(5).Text(p.AlumTreatment?.name ?? "-");
                     table.Cell().PaddingVertical(5).Text($"${p.price}");
 
                     // Subtabla de accesorios (una fila extra)

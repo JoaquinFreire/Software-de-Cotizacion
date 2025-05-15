@@ -23,7 +23,7 @@ public class User
     public UserRole role { get; set; } = new UserRole();  // Relación con UserRole (navegación)
     [BsonElement("mail")]
     public string mail { get; set; } = string.Empty; // Nueva columna
-    [BsonElement("status")]
+    [BsonIgnore]
     public int status { get; set; } = 1; // Nueva columna (0 = inactivo, 1 = activo)
 
     public User() { }  // Constructor vacío necesario para Entity Framework

@@ -9,10 +9,10 @@ public class Budget
     [BsonRepresentation(BsonType.ObjectId)]
     public string? id { get; set; }
     [BsonElement("file_date")]
-    public DateTime? creationDate { get; set; }
+    public DateTime? creationDate { get; set; } = DateTime.UtcNow;
     [BsonElement("status")]
     [BsonRepresentation(BsonType.String)]
-    public BudgetStatus? status { get; set; }
+    public BudgetStatus? status { get; set; } = BudgetStatus.Pending;
     [BsonElement("quotator")]
     public User? user { get; set; }
     [BsonElement("customer")]

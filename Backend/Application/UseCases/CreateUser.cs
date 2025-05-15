@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.Repositories;
 
-namespace Domain.UseCases;
+namespace Application.UseCases;
 public class CreateUser
 {
     private readonly IUserRepository _userRepository;
@@ -15,11 +15,5 @@ public class CreateUser
         _userRepository = userRepository;
     }
 
-    /* public Entities.User Execute(string name, string lastname, UserRole role)
-    {
-        var user = new Entities.User(name, lastname, role);
-        _userRepository.CreateUser(user);
-        return user;
-    } */
 }
 

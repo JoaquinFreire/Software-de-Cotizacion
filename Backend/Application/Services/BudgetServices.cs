@@ -3,6 +3,7 @@ using Domain.Entities;
 using Domain.Enums;
 using Domain.Repositories;
 using AutoMapper;
+using Application.DTOs.CreateBudget;
 
 
 namespace Application.Services
@@ -28,9 +29,8 @@ namespace Application.Services
             return await _budgetRepository.GetAllAsync();
         }
 
-        public async Task CreateBudgetAsync(BudgetDTO budgetDto)
+        public async Task CreateBudgetAsync(Budget budget)
         {
-            var budget = _mapper.Map<Budget>(budgetDto);
             await _budgetRepository.AddAsync(budget);
         }
 
