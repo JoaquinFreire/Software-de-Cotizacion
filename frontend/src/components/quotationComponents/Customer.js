@@ -24,6 +24,7 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
                     mail: customer.mail,
                     address: customer.address,
                     agentId: customer.agentId,
+                    dni: customer.dni // <-- Asegúrate de incluir el dni aquí
                 });
                 setIsCustomerComplete(true);
                 setIsCustomerFound(true);
