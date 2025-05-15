@@ -73,63 +73,74 @@ public class QuotationController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Quotation newQuotation)
+    public async Task<IActionResult> Create([FromBody] QuotationFullRequest request)
     {
-        if (newQuotation == null || newQuotation.TotalPrice <= 0) return BadRequest("Datos inválidos.");
+        // LOG DEL REQUEST RECIBIDO
+        Console.WriteLine("Request recibido en /api/quotations:");
+        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(request));
 
-        // Verificar si el cliente existe
-        var customer = await _customerRepository.GetByIdAsync(newQuotation.CustomerId);
-        if (customer == null)
+        if (request == null || request.totalPrice <= 0) return BadRequest("Datos inválidos.");
+
+        // 1. Cliente
+        Customer customer = null;
+        if (request.customer != null && !string.IsNullOrWhiteSpace(request.customer.dni))
         {
-            // Crear un cliente por defecto si no existe
-            customer = new Customer
+            customer = await _customerRepository.GetByDniAsync(request.customer.dni);
+            if (customer == null)
             {
-                name = "Default Name",
-                lastname = "Default LastName",
-                tel = "0000000000",
-                mail = "default@example.com",
-                address = "Default Address"
-            };
-            await _customerRepository.AddAsync(customer);
-            newQuotation.CustomerId = customer.id; // Asigna el ID del nuevo cliente a la cotización
+                customer = new Customer
+                {
+                    name = request.customer.name,
+                    lastname = request.customer.lastname,
+                    tel = request.customer.tel,
+                    mail = request.customer.mail,
+                    address = request.customer.address,
+                    dni = request.customer.dni,
+                    agentId = request.customer.agentId
+                };
+                await _customerRepository.AddAsync(customer);
+            }
+        }
+        else
+        {
+            return BadRequest("Datos de cliente inválidos.");
         }
 
-        // Verificar si el usuario existe
-        var user = await _userRepository.GetByIdAsync(newQuotation.UserId);
-        if (user == null) return BadRequest("Usuario no válido.");
-
-        // Verificar si el WorkPlace existe en la base de datos
-        var workPlace = await _workPlaceRepository.GetByIdAsync(newQuotation.WorkPlaceId);
-        if (workPlace == null)
+        // 2. WorkPlace
+        WorkPlace workPlace = null;
+        if (request.workPlace != null)
         {
-            // Si no existe, crearlo primero
+            // Puedes buscar por nombre y dirección para evitar duplicados, o simplemente crear uno nuevo
             workPlace = new WorkPlace
             {
-                name = newQuotation.WorkPlace?.name ?? "Unnamed Workplace",
-                address = newQuotation.WorkPlace?.address ?? "No Address",
-                workTypeId = newQuotation.WorkPlace?.workTypeId ?? 1 // Asigna un workTypeId válido
+                name = request.workPlace.name,
+                address = request.workPlace.address,
+                workTypeId = int.TryParse(request.workPlace.workTypeId.ToString(), out var wtid) ? wtid : 1
             };
             await _workPlaceRepository.AddAsync(workPlace);
-            newQuotation.WorkPlaceId = workPlace.id; // Asigna el nuevo ID al quotation
+        }
+        else
+        {
+            return BadRequest("Datos de espacio de trabajo inválidos.");
         }
 
-        try
+        // 3. Crear la cotización
+        var quotation = new Quotation
         {
-            var createdQuotation = await _createQuotation.ExecuteAsync(
-                newQuotation.CustomerId, 
-                newQuotation.UserId, 
-                newQuotation.WorkPlaceId, 
-                newQuotation.TotalPrice
-            );
+            CustomerId = customer.id,
+            UserId = int.TryParse(request.userId?.ToString(), out var uid) ? uid : 0,
+            WorkPlaceId = workPlace.id,
+            TotalPrice = request.totalPrice,
+            Status = "pending",
+            LastEdit = DateTime.UtcNow,
+            CreationDate = DateTime.UtcNow
+        };
+        await _quotationRepository.AddAsync(quotation);
 
-            return CreatedAtAction(nameof(GetById), new { id = createdQuotation.Id }, createdQuotation);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Error creating quotation: " + ex.Message);
-            Console.WriteLine("Stack Trace: " + ex.StackTrace);
-            return StatusCode(500, $"Internal server error: {ex.Message}\n{ex.StackTrace}");
-        }
+        // 4. (Opcional) Guardar aberturas y complementos relacionados si tienes tablas intermedias
+        // Aquí deberías agregar la lógica para guardar en tablas intermedias si tu modelo lo requiere
+
+        return CreatedAtAction(nameof(GetById), new { id = quotation.Id }, quotation);
     }
 
     [HttpPut("{id}/status")]
@@ -155,4 +166,40 @@ public class QuotationController : ControllerBase
 public class UpdateStatusRequest
 {
     public string? Status { get; set; }
+}
+
+public class QuotationFullRequest
+{
+    public Customer customer { get; set; }
+    public WorkPlaceDto workPlace { get; set; }
+    public List<OpeningDto> openings { get; set; }
+    public List<ComplementDto> complements { get; set; }
+    public string userId { get; set; }
+    public decimal totalPrice { get; set; }
+}
+
+public class WorkPlaceDto
+{
+    public string name { get; set; }
+    public string address { get; set; }
+    public int workTypeId { get; set; }
+}
+
+public class OpeningDto
+{
+    public int typeId { get; set; }
+    public double width { get; set; }
+    public double height { get; set; }
+    public int quantity { get; set; }
+    public int treatmentId { get; set; }
+    public int glassTypeId { get; set; }
+    // Puedes agregar más campos si necesitas
+}
+
+public class ComplementDto
+{
+    public int id { get; set; }
+    public int quantity { get; set; }
+    public decimal price { get; set; }
+    // Puedes agregar más campos si necesitas
 }

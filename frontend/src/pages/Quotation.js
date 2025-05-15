@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'; // Eliminado axios y useContext
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import "../styles/quotation.css";
 import Navigation from "../components/Navigation";
 import FooterLogo from "../components/FooterLogo";
@@ -10,8 +11,22 @@ import OpeningType from "../components/quotationComponents/Opening";
 import Complements from "../components/quotationComponents/Complements";
 import useEmblaCarousel from 'embla-carousel-react';
 
+// Utilidad para decodificar el JWT y extraer el userId
+function getUserIdFromToken() {
+    const token = localStorage.getItem('token');
+    if (!token) return '';
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        // Ajusta la clave según cómo guardes el userId en el JWT
+        // Ejemplo: payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]
+        return payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] || '';
+    } catch {
+        return '';
+    }
+}
+
 const Quotation = () => {
-    const [emblaRef, emblaApi] = useEmblaCarousel({ draggable: false }); // Deshabilitar desplazamiento táctil
+    const [emblaRef, emblaApi] = useEmblaCarousel({ draggable: false });
     const [canScrollPrev, setCanScrollPrev] = useState(false);
     const [canScrollNext, setCanScrollNext] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -21,7 +36,7 @@ const Quotation = () => {
     const navigate = useNavigate();
 
     const [newCustomer, setNewCustomer] = useState({
-        name: '', lastname: '', tel: '', mail: '', address: '', agentId: null,
+        name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: ''
     });
     const [isCustomerComplete, setIsCustomerComplete] = useState(false);
 
@@ -43,20 +58,15 @@ const Quotation = () => {
     const [complementTypes, setComplementTypes] = useState([]);
     const [complements, setComplements] = useState([]);
 
-    // Estado para controlar el envío y feedback
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState(null);
 
-    // Estado para el usuario (puedes obtenerlo de localStorage o como corresponda)
-    const [userId, setUserId] = useState(() => {
-        // Ejemplo: si guardas el id en localStorage
-        return localStorage.getItem('userId') || '';
-    });
+    const [userId] = useState(() => getUserIdFromToken());
 
-    // Función para manejar el desplazamiento del carrusel
+    // Carousel navigation
     const handlePrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
     const handleNext = useCallback(() => {
-        if (currentIndex === 0 && !isCustomerComplete) return; // Bloquear avance solo en la sección de cliente
+        if (currentIndex === 0 && !isCustomerComplete) return;
         emblaApi && emblaApi.scrollNext();
     }, [emblaApi, currentIndex, isCustomerComplete]);
 
@@ -73,7 +83,6 @@ const Quotation = () => {
         onSelect();
     }, [emblaApi, onSelect]);
 
-    // Ajustar la altura del carrusel dinámicamente según el contenido actual
     useEffect(() => {
         if (!carouselContainerRef.current) return;
         const activeSlide = carouselContainerRef.current.querySelector(`.embla__slide:nth-child(${currentIndex + 1})`);
@@ -88,13 +97,10 @@ const Quotation = () => {
             const token = localStorage.getItem('token');
             if (!token) return;
             try {
-                const response = await fetch('http://localhost:5187/api/worktypes', {
+                const response = await axios.get('http://localhost:5187/api/worktypes', {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                if (response.ok) {
-                    const data = await response.json();
-                    setWorkTypes(data);
-                }
+                setWorkTypes(response.data);
             } catch (error) {
                 console.error('Error fetching work types:', error);
             }
@@ -109,13 +115,13 @@ const Quotation = () => {
             if (!token) return;
             try {
                 const [openingTypesRes, treatmentsRes, glassTypesRes] = await Promise.all([
-                    fetch('http://localhost:5187/api/opening-types', { headers: { Authorization: `Bearer ${token}` } }),
-                    fetch('http://localhost:5187/api/alum-treatments', { headers: { Authorization: `Bearer ${token}` } }),
-                    fetch('http://localhost:5187/api/glass-types', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get('http://localhost:5187/api/opening-types', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get('http://localhost:5187/api/alum-treatments', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get('http://localhost:5187/api/glass-types', { headers: { Authorization: `Bearer ${token}` } }),
                 ]);
-                if (openingTypesRes.ok) setOpeningTypes(await openingTypesRes.json());
-                if (treatmentsRes.ok) setTreatments(await treatmentsRes.json());
-                if (glassTypesRes.ok) setGlassTypes(await glassTypesRes.json());
+                setOpeningTypes(openingTypesRes.data);
+                setTreatments(treatmentsRes.data);
+                setGlassTypes(glassTypesRes.data);
             } catch (error) {
                 console.error('Error fetching opening data:', error);
             }
@@ -130,11 +136,11 @@ const Quotation = () => {
             if (!token) return;
             try {
                 const [typesRes, complementsRes] = await Promise.all([
-                    fetch('http://localhost:5187/api/complement-types', { headers: { Authorization: `Bearer ${token}` } }),
-                    fetch('http://localhost:5187/api/complements', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get('http://localhost:5187/api/complement-types', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get('http://localhost:5187/api/complements', { headers: { Authorization: `Bearer ${token}` } }),
                 ]);
-                if (typesRes.ok) setComplementTypes(await typesRes.json());
-                if (complementsRes.ok) setComplements(await complementsRes.json());
+                setComplementTypes(typesRes.data);
+                setComplements(complementsRes.data);
             } catch (error) {
                 console.error('Error fetching complements data:', error);
             }
@@ -142,13 +148,13 @@ const Quotation = () => {
         fetchComplementsData();
     }, []);
 
-    // Función para manejar el cierre de sesión
+    // Logout
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/");
     };
 
-    // Función para enviar la cotización
+    // Enviar cotización (solo un POST a quotations)
     const handleSubmitQuotation = async (e) => {
         e.preventDefault();
         setSubmitting(true);
@@ -162,80 +168,50 @@ const Quotation = () => {
                 return;
             }
 
-            // 1. Crear cliente si no existe (no tiene id)
-            let customerId = newCustomer.agentId ? newCustomer.agentId : null;
-            if (!customerId) {
-                // Buscar por DNI para evitar duplicados
-                const dni = newCustomer.dni || ""; // Si tienes el dni en newCustomer
-                let customerResponse = null;
-                if (dni) {
-                    customerResponse = await fetch(`http://localhost:5187/api/customers/dni/${dni}`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                }
-                if (customerResponse && customerResponse.ok) {
-                    const customerData = await customerResponse.json();
-                    customerId = customerData.id;
-                } else {
-                    // Crear cliente
-                    const createResponse = await fetch('http://localhost:5187/api/customers', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                            ...newCustomer,
-                            dni: dni
-                        })
-                    });
-                    if (!createResponse.ok) throw new Error('Error creando cliente');
-                    const createdCustomer = await createResponse.json();
-                    customerId = createdCustomer.id;
-                }
+            // Validar userId y dni
+            if (!userId || !newCustomer.dni) {
+                setSubmitError("Debe estar autenticado y el cliente debe tener DNI.");
+                console.log(userId, newCustomer.dni);
+                setSubmitting(false);
+                return;
             }
 
-            // 2. Crear WorkPlace si es necesario (puedes mejorar esta lógica según tu modelo)
-            let workPlaceId = workPlace.id;
-            if (!workPlaceId) {
-                const createWorkPlace = await fetch('http://localhost:5187/api/workplaces', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: JSON.stringify(workPlace)
-                });
-                if (!createWorkPlace.ok) throw new Error('Error creando espacio de trabajo');
-                const createdWP = await createWorkPlace.json();
-                workPlaceId = createdWP.id;
-            }
-
-            // 3. Calcular el precio total (puedes ajustar esto según tu lógica)
-            // Aquí solo sumamos los precios de los complementos seleccionados como ejemplo
+            // Calcular precio total (puedes ajustar esta lógica)
             const totalComplements = selectedComplements.reduce((acc, c) => acc + (c.price * c.quantity), 0);
-            // Puedes sumar también los precios de aberturas si tienes esa lógica
 
-            // 4. Crear la cotización
+            // Limpiar customer para no enviar campos innecesarios
+            const { name, lastname, tel, mail, address, agentId, dni } = newCustomer;
+
+            // Payload completo para el backend
             const quotationPayload = {
-                CustomerId: customerId,
-                UserId: userId,
-                WorkPlaceId: workPlaceId,
-                TotalPrice: totalComplements, // Ajusta según tu lógica real
-                // Puedes agregar más campos si tu backend lo requiere
+                customer: {
+                    name,
+                    lastname,
+                    tel,
+                    mail,
+                    address,
+                    agentId,
+                    dni
+                },
+                userId: userId,
+                workPlace: {
+                    ...workPlace,
+                    workTypeId: Number(workPlace.workTypeId)
+                },
+                openings: selectedOpenings,
+                complements: selectedComplements,
+                totalPrice: totalComplements
             };
 
-            const quotationResponse = await fetch('http://localhost:5187/api/quotations', {
-                method: 'POST',
+            console.log("Payload enviado a /api/quotations:", quotationPayload);
+
+            await axios.post('http://localhost:5187/api/quotations', quotationPayload, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify(quotationPayload)
+                }
             });
 
-            if (!quotationResponse.ok) throw new Error('Error creando cotización');
-            // Si quieres redirigir o mostrar mensaje de éxito:
             setSubmitting(false);
             navigate('/dashboard');
         } catch (err) {
@@ -262,7 +238,7 @@ const Quotation = () => {
                         type="button"
                         className="embla__button embla__button--next"
                         onClick={handleNext}
-                        disabled={!canScrollNext || (currentIndex === 0 && !isCustomerComplete)} // Bloquear solo en cliente
+                        disabled={!canScrollNext || (currentIndex === 0 && !isCustomerComplete)}
                     >
                         Adelante
                     </button>
