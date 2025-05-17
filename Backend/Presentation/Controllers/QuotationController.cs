@@ -78,10 +78,35 @@ public class QuotationController : ControllerBase
         // LOG DEL REQUEST RECIBIDO
         Console.WriteLine("Request recibido en /api/quotations:");
         Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(request));
+        Console.WriteLine("Contenido de customer.agent:");
+        Console.WriteLine(request.customer.agent == null ? "AGENTE ES NULL" : System.Text.Json.JsonSerializer.Serialize(request.customer.agent));
 
         if (request == null || request.totalPrice <= 0) return BadRequest("Datos inválidos.");
 
-        // 1. Cliente
+        // 1. Agente (si viene en el payload)
+        int? agentId = null;
+        if (request.customer.agent != null)
+        {
+            Console.WriteLine("Creando agente...");
+            var agent = new CustomerAgent
+            {
+                name = request.customer.agent.name,
+                lastname = request.customer.agent.lastname,
+                tel = request.customer.agent.tel,
+                mail = request.customer.agent.mail
+            };
+            var dbContext = HttpContext.RequestServices.GetService(typeof(AppDbContext)) as AppDbContext;
+            dbContext.CustomerAgents.Add(agent);
+            await dbContext.SaveChangesAsync();
+            agentId = agent.id;
+            Console.WriteLine($"Agente creado con id: {agentId}");
+        }
+        else
+        {
+            Console.WriteLine("No se recibió agente en el payload.");
+        }
+
+        // 2. Cliente
         Customer customer = null;
         if (request.customer != null && !string.IsNullOrWhiteSpace(request.customer.dni))
         {
@@ -96,9 +121,14 @@ public class QuotationController : ControllerBase
                     mail = request.customer.mail,
                     address = request.customer.address,
                     dni = request.customer.dni,
-                    agentId = request.customer.agentId
+                    agentId = agentId // Asocia el agente creado
                 };
                 await _customerRepository.AddAsync(customer);
+                Console.WriteLine($"Cliente creado con id: {customer.id} y agentId: {customer.agentId}");
+            }
+            else
+            {
+                Console.WriteLine($"Cliente ya existe con id: {customer.id} y agentId: {customer.agentId}");
             }
         }
         else

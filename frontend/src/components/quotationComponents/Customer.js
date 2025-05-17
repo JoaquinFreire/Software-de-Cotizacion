@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import "../../styles/quotation.css";
 
 const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
-    const [dni, setDni] = useState('');
     const [loading, setLoading] = useState(false);
     const [isCustomerFound, setIsCustomerFound] = useState(false);
     const debounceTimeout = useRef(null);
@@ -24,17 +23,17 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
                     mail: customer.mail,
                     address: customer.address,
                     agentId: customer.agentId,
-                    dni: customer.dni // <-- Asegúrate de incluir el dni aquí
+                    dni: customer.dni
                 });
                 setIsCustomerComplete(true);
                 setIsCustomerFound(true);
             } else {
-                setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null });
+                setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: dniValue });
                 setIsCustomerComplete(false);
                 setIsCustomerFound(false);
             }
         } catch (error) {
-            setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null });
+            setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: dniValue });
             setIsCustomerComplete(false);
             setIsCustomerFound(false);
         } finally {
@@ -44,12 +43,12 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
 
     const handleDniChange = (e) => {
         const enteredDni = e.target.value;
-        setDni(enteredDni);
+        setNewCustomer((prev) => ({ ...prev, dni: enteredDni }));
 
         if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
 
         if (enteredDni.trim() === '') {
-            setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null });
+            setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: '' });
             setIsCustomerComplete(false);
             setIsCustomerFound(false);
             return;
@@ -67,6 +66,7 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
 
     useEffect(() => {
         const isComplete =
+            newCustomer.dni &&
             newCustomer.name.trim() &&
             newCustomer.lastname.trim() &&
             newCustomer.tel.trim() &&
@@ -82,9 +82,11 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
                 <label>Buscar Cliente por DNI:</label>
                 <input
                     type="text"
-                    value={dni}
+                    value={newCustomer.dni || ''}
                     onChange={handleDniChange}
                     placeholder="Ingrese el DNI del cliente"
+                    maxLength={10} // <-- ajusta según tu base
+                    disabled={isCustomerFound}
                 />
             </div>
             {loading ? (
@@ -94,7 +96,11 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
                     <h4>{isCustomerFound ? "Cliente Encontrado" : "Crear Nuevo Cliente"}</h4>
                     <div className="form-group">
                         <label>DNI:</label>
-                        <input type="text" value={dni} disabled />
+                        <input
+                            type="text"
+                            value={newCustomer.dni || ''}
+                            disabled
+                        />
                     </div>
                     <div className="form-group">
                         <label>Nombre:</label>
