@@ -9,6 +9,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.9",
     "embla-carousel-react": "^8.6.0",
+    "expo-skeleton-loading": "^1.0.9",
     "jspdf": "^3.0.0",
     "jwt-decode": "^4.0.0",
     "react": "^19.0.0",
