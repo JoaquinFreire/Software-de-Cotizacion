@@ -22,6 +22,8 @@ namespace Domain.Entities
         public string mail { get; set; } = string.Empty;
         [BsonElement("address")]
         public string address { get; set; } = string.Empty;
+        [BsonElement("dni")]
+        public string dni { get; set; } = string.Empty;
         [BsonIgnore]
         [Column(TypeName = "datetime")]
         public DateTime registration_date { get; set; } = DateTime.UtcNow; // Inicializar con la fecha actual
