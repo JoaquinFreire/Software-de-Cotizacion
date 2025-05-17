@@ -10,6 +10,7 @@ import WorkPlace from "../components/quotationComponents/WorkPlace";
 import OpeningType from "../components/quotationComponents/Opening";
 import Complements from "../components/quotationComponents/Complements";
 import useEmblaCarousel from 'embla-carousel-react';
+import { QuotationContext } from "../context/QuotationContext";
 
 // Utilidad para decodificar el JWT y extraer el userId
 function getUserIdFromToken() {
@@ -34,11 +35,13 @@ const Quotation = () => {
     const carouselContainerRef = useRef(null);
 
     const navigate = useNavigate();
+    const { setQuotations } = React.useContext(QuotationContext);
 
     const [newCustomer, setNewCustomer] = useState({
         name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: ''
     });
     const [isCustomerComplete, setIsCustomerComplete] = useState(false);
+    const [newAgent, setNewAgent] = useState({ name: '', lastname: '', tel: '', mail: '' });
 
     const [workPlace, setWorkPlace] = useState({ name: '', address: '', workTypeId: '' });
     const [workTypes, setWorkTypes] = useState([]);
@@ -155,8 +158,7 @@ const Quotation = () => {
     };
 
     // Enviar cotización (solo un POST a quotations)
-    const handleSubmitQuotation = async (e) => {
-        e.preventDefault();
+    const handleSubmitQuotation = async () => {
         setSubmitting(true);
         setSubmitError(null);
 
@@ -171,7 +173,7 @@ const Quotation = () => {
             // Validar userId y dni
             if (!userId || !newCustomer.dni) {
                 setSubmitError("Debe estar autenticado y el cliente debe tener DNI.");
-                console.log(userId, newCustomer.dni);
+                console.log(userId, newCustomer.dni, newCustomer);
                 setSubmitting(false);
                 return;
             }
@@ -180,19 +182,27 @@ const Quotation = () => {
             const totalComplements = selectedComplements.reduce((acc, c) => acc + (c.price * c.quantity), 0);
 
             // Limpiar customer para no enviar campos innecesarios
-            const { name, lastname, tel, mail, address, agentId, dni } = newCustomer;
+            const { name, lastname, tel, mail, address, dni, agentId } = newCustomer;
 
-            // Payload completo para el backend
+            // Solo incluir agent si el cliente es nuevo y los datos están completos
+            let agent = undefined;
+            const isNewCustomer = !agentId; // Si no tiene agentId, es nuevo
+            if (
+                isNewCustomer &&
+                newAgent.name.trim() &&
+                newAgent.lastname.trim() &&
+                newAgent.tel.trim() &&
+                newAgent.mail.trim()
+            ) {
+                agent = { ...newAgent };
+            }
+
+            const customerPayload = agent
+                ? { name, lastname, tel, mail, address, dni, agent }
+                : { name, lastname, tel, mail, address, dni };
+
             const quotationPayload = {
-                customer: {
-                    name,
-                    lastname,
-                    tel,
-                    mail,
-                    address,
-                    agentId,
-                    dni
-                },
+                customer: customerPayload,
                 userId: userId,
                 workPlace: {
                     ...workPlace,
@@ -205,12 +215,17 @@ const Quotation = () => {
 
             console.log("Payload enviado a /api/quotations:", quotationPayload);
 
-            await axios.post('http://localhost:5187/api/quotations', quotationPayload, {
+            const response = await axios.post('http://localhost:5187/api/quotations', quotationPayload, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 }
             });
+
+            // Actualizar cotizaciones en el contexto
+            if (response && response.data) {
+                setQuotations(prev => [...prev, response.data]);
+            }
 
             setSubmitting(false);
             navigate('/dashboard');
@@ -220,11 +235,18 @@ const Quotation = () => {
         }
     };
 
+    // Evitar submit con Enter salvo en el último paso
+    const handleFormKeyDown = (e) => {
+        if (e.key === 'Enter' && currentIndex !== 4) {
+            e.preventDefault();
+        }
+    };
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
             <h2 className="title">Nueva Cotización</h2>
-            <form className="quotation-form" onSubmit={handleSubmitQuotation}>
+            <form className="quotation-form" onKeyDown={handleFormKeyDown}>
                 <div className="embla-buttons-container">
                     <button
                         type="button"
@@ -259,8 +281,8 @@ const Quotation = () => {
                         <div className="embla__slide">
                             <Agent
                                 customerId={newCustomer.agentId}
-                                newAgent={{}}
-                                setNewAgent={() => {}}
+                                newAgent={newAgent}
+                                setNewAgent={setNewAgent}
                                 setIsAgentComplete={() => {}}
                             />
                         </div>
@@ -291,9 +313,10 @@ const Quotation = () => {
                             />
                             <div style={{ marginTop: 24 }}>
                                 <button
-                                    type="submit"
+                                    type="button"
                                     className="submit-button"
                                     disabled={submitting}
+                                    onClick={handleSubmitQuotation}
                                 >
                                     {submitting ? "Enviando..." : "Cotizar"}
                                 </button>
