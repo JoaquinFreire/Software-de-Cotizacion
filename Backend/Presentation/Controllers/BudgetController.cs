@@ -1,8 +1,10 @@
 using Application.Services;
-using Application.DTOs;
+using Application.DTOs.CreateBudget;
 using Application.UseCases;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Request;
+using AutoMapper;
+using MediatR;
 
 namespace Presentation.Controllers
 {
@@ -12,11 +14,15 @@ namespace Presentation.Controllers
     {
         private readonly BudgetServices _budgetService;
         private readonly IBudgetPdfGenerator _pdfGenerator;
+        private readonly IMapper _mapper;
+        private readonly IMediator _mediator;
 
-        public BudgetController(BudgetServices budgetService, IBudgetPdfGenerator pdfGenerator)
+        public BudgetController(BudgetServices budgetService, IBudgetPdfGenerator pdfGenerator, IMapper mapper, IMediator mediator)
         {
             _budgetService = budgetService;
             _pdfGenerator = pdfGenerator;
+            _mapper = mapper;
+            _mediator = mediator;
         }
 
         [HttpPost("CreateBudget")]
@@ -25,13 +31,16 @@ namespace Presentation.Controllers
             if (request == null || request.Budget == null || request.Budget.Products == null)
                 return BadRequest("Datos inválidos.");
 
-            await _budgetService.CreateBudgetAsync(request.Budget);
-            //return Ok("Presupuesto creado correctamente.");
+            // Mapear el DTO a un DTO que el servicio pueda usar (si es necesario)
+            var budgetDTO = _mapper.Map<CreateBudgetDTO>(request.Budget);
 
-            // Generar PDF
-            var pdfBytes = _pdfGenerator.Execute(request.Budget);
-            return File(pdfBytes, "application/pdf", "Presupuesto.pdf");
+            var command = new CreateBudgetCommand(budgetDTO);
+
+            var budgetId = await _mediator.Send(command);
+
+            return Ok("Presupuesto creado correctamente.");
         }
+
 
         [HttpGet("Test")]
         public IActionResult Test()
@@ -53,12 +62,16 @@ namespace Presentation.Controllers
             return Ok(budgets);
         }
 
-        [HttpPost("GenerarPdf")]
-        public IActionResult GenerarPdf([FromBody] BudgetDTO budgetDTO)
-        {
-            var pdfBytes = _pdfGenerator.Execute(budgetDTO);
-            return File(pdfBytes, "application/pdf", "Presupuesto.pdf");
-        }
+        //[HttpPost("GenerarPdf")]
+        //public IActionResult GenerarPdf([FromBody] BudgetDTO budgetDTO)
+        //{
+        //    var pdfBytes = _pdfGenerator.Execute(budgetDTO);
+        //    return File(pdfBytes, "application/pdf", "Presupuesto.pdf");
+        //}
+
+        // Generar PDF
+        //var pdfBytes = _pdfGenerator.Execute(request.Budget);
+        //return File(pdfBytes, "application/pdf", "Presupuesto.pdf");
 
     }
 }

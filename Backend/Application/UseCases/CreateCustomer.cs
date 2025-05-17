@@ -13,7 +13,7 @@ namespace Application.UseCases
             _customerRepository = customerRepository;
         }
 
-        public async Task<Customer> ExecuteAsync(string name, string lastName, string phone, string email, string address)
+        public async Task<Customer> ExecuteAsync(string name, string lastName, string phone, string email, string address, string dni)
         {
             var newCustomer = new Customer
             {
@@ -21,7 +21,8 @@ namespace Application.UseCases
                 lastname = lastName,
                 tel = phone,
                 mail = email,
-                address = address
+                address = address,
+                dni = dni
             };
 
             await _customerRepository.AddAsync(newCustomer);

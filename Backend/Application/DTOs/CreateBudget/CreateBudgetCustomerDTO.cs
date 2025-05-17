@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs
+namespace Application.DTOs.CreateBudget
 {
-    public class CustomerDTO
+    public class CreateBudgetCustomerDTO
     {
         public string? name { get; set; }
         public string? lastname { get; set; }
@@ -14,7 +14,6 @@ namespace Application.DTOs
         public string? mail { get; set; }
         public string? address { get; set; }
         public string? dni { get; set; }
-        public CustomerAgentDTO? agent { get; set; }
-
+        public CreateBudgetCustomerAgentDTO? agent { get; set; }
     }
 }
