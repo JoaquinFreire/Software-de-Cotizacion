@@ -9,7 +9,7 @@ namespace Application.DTOs.CreateBudget
 {
     public class CreateBudgetDTO
     {
-        public CreateBudgetUserDTO? user { get; set; }
+        public CreateBudgetUserDTO? user { get; set; } // TODO: Sacar los "?" por public required - Para Leo
         public CreateBudgetCustomerDTO? customer { get; set; }
         public CreateBudgetWorkPlaceDTO? workPlace { get; set; }
         public List<CreateBudgetProductDTO> Products { get; set; } = new List<CreateBudgetProductDTO>(); // Lista de productos

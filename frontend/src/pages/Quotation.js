@@ -235,6 +235,124 @@ const Quotation = () => {
         }
     };
 
+    // Nuevo: Enviar cotización SOLO a MongoDB
+    const [mongoSubmitMsg, setMongoSubmitMsg] = useState(null);
+
+    // Nuevo: obtener datos del usuario logueado
+    const [loggedUser, setLoggedUser] = useState(null);
+
+    useEffect(() => {
+        const fetchLoggedUser = async () => {
+            const token = localStorage.getItem('token');
+            if (!token || !userId) return;
+            try {
+                const response = await axios.get(`http://localhost:5187/api/users/${userId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setLoggedUser(response.data);
+            } catch (error) {
+                setLoggedUser(null);
+            }
+        };
+        fetchLoggedUser();
+    }, [userId]);
+
+    const handleSubmitMongo = async () => {
+        setSubmitting(true);
+        setMongoSubmitMsg(null);
+        setSubmitError(null);
+
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setSubmitError("No autenticado");
+                setSubmitting(false);
+                return;
+            }
+
+            // Usar datos del usuario logueado si están disponibles
+            const userPayload = loggedUser
+                ? {
+                    name: loggedUser.name || "",
+                    lastName: loggedUser.lastName || "",
+                    mail: loggedUser.mail || ""
+                }
+                : {
+                    name: "",
+                    lastName: "",
+                    mail: ""
+                };
+
+            // Construir el objeto customer
+            let customerPayload = {
+                name: newCustomer.name,
+                lastname: newCustomer.lastname,
+                tel: newCustomer.tel,
+                mail: newCustomer.mail,
+                address: newCustomer.address,
+                dni: newCustomer.dni,
+            };
+            // Si hay agente, agregarlo
+            if (
+                newAgent &&
+                newAgent.name &&
+                newAgent.lastname &&
+                newAgent.tel &&
+                newAgent.mail
+            ) {
+                customerPayload.agent = { ...newAgent };
+            }
+
+            // workType: buscar el objeto seleccionado (no solo el nombre)
+            const selectedWorkType = workTypes.find(wt => wt.id === Number(workPlace.workTypeId));
+            const workPlacePayload = {
+                name: workPlace.name,
+                address: workPlace.address,
+                workType: selectedWorkType
+                    ? { type: selectedWorkType.name }
+                    : { type: "" }
+            };
+
+            // Construir el array de productos
+            const productsPayload = selectedOpenings.map(opening => ({
+                OpeningType: openingTypes.find(type => type.id === Number(opening.typeId)) || null,
+                Quantity: opening.quantity,
+                AlumTreatment: treatments.find(t => t.id === Number(opening.treatmentId)) || null,
+                GlassComplement: glassTypes.find(g => g.id === Number(opening.glassTypeId)) || null,
+                width: opening.width,
+                height: opening.height,
+                Accesory: [] // Si tienes accesorios, agrégalos aquí
+            }));
+
+            // Puedes agregar un campo comment si tienes observaciones
+            const comment = "ejemplo"; // O toma de algún campo de observaciones
+
+            // Construir el objeto final
+            const mongoPayload = {
+                budget: {
+                    user: userPayload,
+                    customer: customerPayload,
+                    workPlace: workPlacePayload,
+                    products: productsPayload,
+                    comment: comment
+                }
+            };
+
+            // Enviar al endpoint de Mongo
+            const response = await axios.post('http://localhost:5187/api/Mongo/CreateBudget', mongoPayload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            setMongoSubmitMsg("Cotización subida a Mongo correctamente.");
+            setSubmitting(false);
+        } catch (err) {
+            setSubmitError(err.message || 'Error al crear la cotización en Mongo');
+            setSubmitting(false);
+        }
+    };
+
     // Evitar submit con Enter salvo en el último paso
     const handleFormKeyDown = (e) => {
         if (e.key === 'Enter' && currentIndex !== 4) {
@@ -320,8 +438,20 @@ const Quotation = () => {
                                 >
                                     {submitting ? "Enviando..." : "Cotizar"}
                                 </button>
+                                <button
+                                    type="button"
+                                    className="submit-button"
+                                    style={{ marginLeft: 8, background: "#4caf50" }}
+                                    disabled={submitting}
+                                    onClick={handleSubmitMongo}
+                                >
+                                    {submitting ? "Enviando..." : "Cotizar en Mongo"}
+                                </button>
                                 {submitError && (
                                     <div style={{ color: 'red', marginTop: 8 }}>{submitError}</div>
+                                )}
+                                {mongoSubmitMsg && (
+                                    <div style={{ color: 'green', marginTop: 8 }}>{mongoSubmitMsg}</div>
                                 )}
                             </div>
                         </div>
