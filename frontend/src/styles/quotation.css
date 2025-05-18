@@ -264,3 +264,74 @@ input::placeholder, select::placeholder {
     background: darkred;
 }
 
+body.light-mode .quotation-form,
+body.light-mode .workplace-container,
+body.light-mode .agent-container,
+body.light-mode .opening-container,
+body.light-mode .complements-container,
+body.light-mode .customer-details {
+    background: #fff !important;
+    color: #222 !important;
+    border: 1px solid #00bcd4 !important;
+}
+
+body.light-mode .title {
+    color: #00bcd4 !important;
+}
+
+body.light-mode .form-group label,
+body.light-mode .workplace-container h3,
+body.light-mode .agent-container h3,
+body.light-mode .customer-details h4 {
+    color: #00bcd4 !important;
+}
+
+body.light-mode input,
+body.light-mode select {
+    color: #222 !important;
+}
+
+body.light-mode input::placeholder,
+body.light-mode select::placeholder {
+    color: #888 !important;
+}
+
+body.light-mode .submit-button,
+body.light-mode .embla__button {
+    background: #00bcd4 !important;
+    color: #fff !important;
+}
+
+body.light-mode .embla__button:disabled {
+    background: #bdbdbd !important;
+}
+
+body.light-mode .customer-option {
+    background: #f6f8fa !important;
+    color: #222 !important;
+    border: 1px solid #00bcd4 !important;
+}
+
+body.light-mode .customer-option.active {
+    background: #00bcd4 !important;
+    color: #fff !important;
+}
+
+body.light-mode .opening-item,
+body.light-mode .complement-item {
+    background: #f6f8fa !important;
+    color: #222 !important;
+    border: 1px solid #00bcd4 !important;
+}
+
+body.light-mode .remove-opening-button,
+body.light-mode .remove-complement-button {
+    background: #f44336 !important;
+    color: #fff !important;
+}
+
+body.light-mode .remove-opening-button:hover,
+body.light-mode .remove-complement-button:hover {
+    background: #b71c1c !important;
+}
+
