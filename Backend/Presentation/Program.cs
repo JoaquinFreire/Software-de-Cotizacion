@@ -4,13 +4,12 @@ using Infrastructure.Persistence.MongoDBContext;
 using Microsoft.Extensions.Options;
 using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Domain.UseCases;  
+using Domain.UseCases;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Application.Services;
-using Application.UseCases;
 using System.IO;
 using Infrastructure.Persistence.Repositories;
 using AutoMapper;
@@ -20,6 +19,7 @@ using DotNetEnv;
 using Application.UseCases.OpeningType;
 using QuestPDF.Infrastructure;
 using Application.DTOs.CreateBudget;
+using Application.UseCases.Budget;
 Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
 
 
