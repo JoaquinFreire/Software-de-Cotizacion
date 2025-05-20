@@ -121,6 +121,10 @@
     justify-content: space-between;
     margin-bottom: 10px;
 }
+.theme-toggle-btn {
+    margin: 0;
+    padding: 0;
+}
 
 .toggle-label {
     font-size: 14px;

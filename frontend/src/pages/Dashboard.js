@@ -11,32 +11,18 @@ import Skeleton from "react-loading-skeleton";
 import 'react-loading-skeleton/dist/skeleton.css';
 
 const Dashboard = () => {
-    const { quotations, setQuotations } = useContext(QuotationContext);
+    const { quotations, setQuotations, loading } = useContext(QuotationContext);
     const [filteredQuotations, setFilteredQuotations] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [quotationToDelete, setQuotationToDelete] = useState(null);
     const [successMessage, setSuccessMessage] = useState("");
-    const [loading, setLoading] = useState(true);
-    const [isInitialLoad, setIsInitialLoad] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (isInitialLoad) {
-            setLoading(true);
-            const timer = setTimeout(() => {
-                const pending = quotations.filter((q) => q.Status === "pending");
-                setFilteredQuotations(pending);
-                setLoading(false);
-                setIsInitialLoad(false);
-            }, 2000);
-            return () => clearTimeout(timer);
-        } else {
-            // Solo actualiza filtrado sin mostrar loading
-            const pending = quotations.filter((q) => q.Status === "pending");
-            setFilteredQuotations(pending);
-        }
-    }, [quotations, isInitialLoad]);
+        const pending = quotations.filter((q) => q.Status === "pending");
+        setFilteredQuotations(pending);
+    }, [quotations]);
 
     const handleDelete = async () => {
         const token = localStorage.getItem("token");
@@ -145,12 +131,36 @@ const Dashboard = () => {
                     {[...Array(3)].map((_, i) => (
                         <div key={i} className="quote-card">
                             <div className="quote-details">
-                                <p><Skeleton width="60%" /></p>
-                                <p><Skeleton width="50%" /></p>
-                                <p><Skeleton width="70%" /></p>
+                                <p>
+                                    <Skeleton width="70%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2}/>
+                                </p>
+                                <p>
+                                    <Skeleton width="70%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2}/>
+                                </p>
+                                <p>
+                                    <Skeleton width="70%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2}/>
+                                </p>
+                                <p>
+                                    <Skeleton width="70%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2}/>
+                                </p>
                             </div>
-                            <div className="quote-actions">
-                                <Skeleton width="100px" height="30px" />
+                            <div className="quote-actions" style={{ display: 'flex', gap: 10 }}>
+                                <Skeleton
+                                    width="100px" height="30px" baseColor="#00ffff"
+                                    highlightColor="#f2f8f8" duration={1.2}
+                                />
+                                <Skeleton
+                                    width="100px" height="30px" baseColor="#00bcd4"
+                                    highlightColor="#f2f8f8" duration={1.2}
+                                />
+                                <Skeleton
+                                    width="100px" height="30px" baseColor="#f44336"
+                                    highlightColor="#f2f8f8" duration={1.2}
+                                />
+                                <Skeleton
+                                    width="100px" height="30px" baseColor="#ffeb3b"
+                                    highlightColor="#f2f8f8" duration={1.2}
+                                />
                             </div>
                         </div>
                     ))}

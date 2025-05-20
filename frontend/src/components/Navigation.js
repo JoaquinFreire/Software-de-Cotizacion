@@ -21,6 +21,10 @@ const Navigation = ({ onLogout }) => {
 
     const [isScrolled, setIsScrolled] = useState(false); // Estado para manejar el scroll
 
+    // Modo claro/oscuro
+    const getSystemTheme = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    const [theme, setTheme] = useState(() => localStorage.getItem("theme") || getSystemTheme());
+
     useEffect(() => {
         const handleScroll = () => {
             if (window.scrollY > 100) { // Ajusta el valor según sea necesario
@@ -51,10 +55,23 @@ const Navigation = ({ onLogout }) => {
         localStorage.setItem("blueLightFilter", isFilterActive);
     }, [isFilterActive]);
 
+    useEffect(() => {
+        if (theme === "light") {
+            document.body.classList.add("light-mode");
+        } else {
+            document.body.classList.remove("light-mode");
+        }
+        localStorage.setItem("theme", theme);
+    }, [theme]);
+
     const handleToggleFilter = () => {
         const newState = !isFilterActive;
         setIsFilterActive(newState);
         localStorage.setItem("blueLightFilter", newState);
+    };
+
+    const handleToggleTheme = () => {
+        setTheme(prev => prev === "light" ? "dark" : "light");
     };
 
     // Cerrar menús al hacer clic fuera de ellos
@@ -127,6 +144,50 @@ const Navigation = ({ onLogout }) => {
                                 />
                                 <span className="slider"></span>
                             </label>
+                        </div>
+                        <div className="toggle-container">
+                            <span className="toggle-label user-text">Tema:</span>
+                            <button
+                                className="theme-toggle-btn"
+                                onClick={handleToggleTheme}
+                                aria-label="Cambiar tema claro/oscuro"
+                                style={{
+                                    background: "none",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    padding: 0,
+                                    marginLeft: 8,
+                                    display: "flex",
+                                    alignItems: "center"
+                                }}
+                            >
+                                {theme === "light" ? (
+                                    // Sol SVG
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                                        <circle cx="12" cy="12" r="5" fill="#FFD600"/>
+                                        <g stroke="#FFD600" strokeWidth="2">
+                                            <line x1="12" y1="1" x2="12" y2="4"/>
+                                            <line x1="12" y1="20" x2="12" y2="23"/>
+                                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                                            <line x1="1" y1="12" x2="4" y2="12"/>
+                                            <line x1="20" y1="12" x2="23" y2="12"/>
+                                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                                        </g>
+                                    </svg>
+                                ) : (
+                                    // Luna SVG
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                                        <path
+                                            d="M21 12.79A9 9 0 0111.21 3c-.09 0-.18 0-.27.01a1 1 0 00-.62 1.7A7 7 0 1019.29 13.4a1 1 0 00.7-.61c.02-.09.01-.18.01-.27z"
+                                            fill="#FFD600"
+                                            stroke="#FFD600"
+                                            strokeWidth="2"
+                                        />
+                                    </svg>
+                                )}
+                            </button>
                         </div>
                         <button onClick={onLogout}>Cerrar Sesión</button>
                     </div>
