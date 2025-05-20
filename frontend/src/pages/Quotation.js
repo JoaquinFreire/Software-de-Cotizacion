@@ -240,6 +240,28 @@ const Quotation = () => {
 
     // Nuevo: obtener datos del usuario logueado
     const [loggedUser, setLoggedUser] = useState(null);
+    // Nuevo: agente real del cliente existente
+    const [existingAgent, setExistingAgent] = useState(null);
+
+    // Si el cliente es existente, buscar el agente real
+    useEffect(() => {
+        const fetchAgentIfExisting = async () => {
+            if (!newCustomer.agentId) {
+                setExistingAgent(null);
+                return;
+            }
+            const token = localStorage.getItem('token');
+            try {
+                const response = await axios.get(`http://localhost:5187/api/customer-agents/${newCustomer.agentId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setExistingAgent(response.data);
+            } catch (error) {
+                setExistingAgent(null);
+            }
+        };
+        fetchAgentIfExisting();
+    }, [newCustomer.agentId]);
 
     useEffect(() => {
         const fetchLoggedUser = async () => {
@@ -292,24 +314,33 @@ const Quotation = () => {
                 address: newCustomer.address,
                 dni: newCustomer.dni,
             };
-            // Si hay agente, agregarlo
-            if (
+
+            // Si el cliente es existente y tiene agente, usar el agente real
+            if (existingAgent) {
+                customerPayload.agent = {
+                    name: existingAgent.name,
+                    lastname: existingAgent.lastname,
+                    tel: existingAgent.tel,
+                    mail: existingAgent.mail
+                };
+            } else if (
                 newAgent &&
                 newAgent.name &&
                 newAgent.lastname &&
                 newAgent.tel &&
                 newAgent.mail
             ) {
+                // Si es nuevo, usar el agente ingresado
                 customerPayload.agent = { ...newAgent };
             }
 
             // workType: buscar el objeto seleccionado (no solo el nombre)
-            const selectedWorkType = workTypes.find(wt => wt.id === Number(workPlace.workTypeId));
+            const selectedWorkType = workTypes.find(wt => String(wt.id) === String(workPlace.workTypeId));
             const workPlacePayload = {
                 name: workPlace.name,
                 address: workPlace.address,
                 workType: selectedWorkType
-                    ? { type: selectedWorkType.name }
+                    ? { type: selectedWorkType.name || selectedWorkType.type || "" }
                     : { type: "" }
             };
 
@@ -338,6 +369,9 @@ const Quotation = () => {
                 }
             };
 
+            // LOG para debug
+            console.log("Payload enviado a Mongo:", JSON.stringify(mongoPayload, null, 2));
+
             // Enviar al endpoint de Mongo
             const response = await axios.post('http://localhost:5187/api/Mongo/CreateBudget', mongoPayload, {
                 headers: {
@@ -346,6 +380,7 @@ const Quotation = () => {
                 }
             });
             setMongoSubmitMsg("Cotización subida a Mongo correctamente.");
+            console.log("Respuesta de Mongo:", response.data);
             setSubmitting(false);
         } catch (err) {
             setSubmitError(err.message || 'Error al crear la cotización en Mongo');
