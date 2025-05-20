@@ -29,7 +29,6 @@ public class CreateBudgetPdfDocument : IDocument
             page.Content().Element(ComposeContent);
             page.Footer().Element(ComposeFooter);
         });
-        //this.ShowInCompanion();
     }
 
     void ComposeHeader(IContainer container)

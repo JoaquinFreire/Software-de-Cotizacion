@@ -21,7 +21,7 @@ namespace Application.DTOs.CreateBudget
         public async Task<string> Handle(CreateBudgetCommand request, CancellationToken cancellationToken)
         {
             var budget = _mapper.Map<Budget>(request.BudgetDTO);
-            
+
             await _budgetServices.CreateBudgetAsync(budget);
             return budget.id;
         }

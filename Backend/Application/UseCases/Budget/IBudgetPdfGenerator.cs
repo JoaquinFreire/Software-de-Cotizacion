@@ -1,6 +1,6 @@
 ﻿using Application.DTOs.CreateBudget;
 
-namespace Application.UseCases
+namespace Application.UseCases.Budget
 {
     public interface IBudgetPdfGenerator
     {

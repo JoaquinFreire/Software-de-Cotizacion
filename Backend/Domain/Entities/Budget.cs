@@ -22,7 +22,7 @@ public class Budget
     [BsonElement("products")]
     public List<Budget_Product> Products { get; set; } = new List<Budget_Product>(); // Lista de productos
     [BsonElement("expirationDate")]
-    public DateTime? ExpirationDate { get; set; }
+    public DateTime? ExpirationDate { get; set; } = DateTime.UtcNow.AddDays(60); // Fecha de expiración por defecto X días después de la creación
     [BsonElement("endDate")]
     public DateTime? EndDate { get; set; } = null;
     [BsonElement("comment")]

@@ -1,6 +1,5 @@
 using Application.Services;
 using Application.DTOs.CreateBudget;
-using Application.UseCases;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Request;
 using AutoMapper;
@@ -11,6 +10,7 @@ using QuestPDF.Helpers;
 using QuestPDF.Previewer;
 using System;
 using QuestPDF.Companion;
+using Application.UseCases.Budget;
 
 
 namespace Presentation.Controllers
@@ -45,18 +45,18 @@ namespace Presentation.Controllers
 
             var budgetId = await _mediator.Send(command);
 
-            //return Ok("Presupuesto creado correctamente.");
+            return Ok("Presupuesto creado correctamente.");
 
             // Generar el documento PDF
-            var document = new CreateBudgetPdfDocument(request.Budget);
+            //var document = new CreateBudgetPdfDocument(request.Budget);
 
             // Mostrar el documento en QuestPDF Companion
-            document.ShowInCompanion();
+            //document.ShowInCompanion();
 
             // Generar PDF
-            var pdfBytes = _pdfGenerator.Execute(request.Budget);
+            //var pdfBytes = _pdfGenerator.Execute(request.Budget);
             
-            return File(pdfBytes, "application/pdf", "Presupuesto.pdf");
+            //return File(pdfBytes, "application/pdf", "Presupuesto.pdf");
         }
 
 
