@@ -9,6 +9,7 @@ import QuotationList from "../components/QuotationList";
 import { QuotationContext } from "../context/QuotationContext";
 import Skeleton from "react-loading-skeleton";
 import 'react-loading-skeleton/dist/skeleton.css';
+import { ToastContainer, toast, Slide } from 'react-toastify';
 
 const Dashboard = () => {
     const { quotations, setQuotations, loading } = useContext(QuotationContext);
@@ -73,9 +74,11 @@ const Dashboard = () => {
                 )
             );
             setSuccessMessage("Estado de la cotización actualizado con éxito.");
+            toast.success("Estado de la cotización actualizado con éxito.");
             setTimeout(() => setSuccessMessage(""), 3000);
         } catch (error) {
             console.error("Error updating quotation status:", error);
+            toast.error("Error al actualizar el estado de la cotización."); // <-- Toast de error
         }
     };
 
@@ -100,7 +103,8 @@ const Dashboard = () => {
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
             <h2 className="title">Cotizaciones Pendientes</h2>
-
+            {/* Cambia el tiempo aquí (milisegundos) */}
+            <ToastContainer autoClose={4000} theme="light" transition={Slide} position="bottom-right" />
             <div className="search-bar">
                 <div className="search-container">
                     <input
@@ -110,7 +114,7 @@ const Dashboard = () => {
                         value={searchTerm}
                         onChange={handleSearch}
                     />
-                    <button className="clear-button" onClick={() => setSearchTerm("")}>
+                    <button className="clear-button-q" onClick={() => setSearchTerm("")}>
                         ✖
                     </button>
                     <button className="search-button">
@@ -122,26 +126,22 @@ const Dashboard = () => {
                 </button>
             </div>
 
-            {successMessage && (
-                <div className="success-message">{successMessage}</div>
-            )}
-
             {loading ? (
                 <div className="quote-container">
                     {[...Array(3)].map((_, i) => (
                         <div key={i} className="quote-card">
                             <div className="quote-details">
                                 <p>
-                                    <Skeleton width="70%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2}/>
+                                    <Skeleton width="70%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2} />
                                 </p>
                                 <p>
-                                    <Skeleton width="70%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2}/>
+                                    <Skeleton width="70%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2} />
                                 </p>
                                 <p>
-                                    <Skeleton width="70%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2}/>
+                                    <Skeleton width="70%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2} />
                                 </p>
                                 <p>
-                                    <Skeleton width="70%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2}/>
+                                    <Skeleton width="70%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2} />
                                 </p>
                             </div>
                             <div className="quote-actions" style={{ display: 'flex', gap: 10 }}>

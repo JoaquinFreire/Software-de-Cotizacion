@@ -58,7 +58,8 @@ input {
 }
 
 /* Botón de inicio de sesión */
-button {
+
+.menu-button2 {
     width: 100%;
     padding: 12px;
     margin-top: 10px;
@@ -175,19 +176,10 @@ input {
 
 /* Botón */
 button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    border: none;
-    border-radius: 5px;
-    background: cyan;
-    color: black;
-    font-size: 16px;
     cursor: pointer;
-    font-weight: bold;
 }
 
-button:hover {
+.clear-button-q:hover {
     background: #00bcd4;
 }
 
