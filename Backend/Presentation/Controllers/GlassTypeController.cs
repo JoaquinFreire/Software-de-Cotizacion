@@ -1,5 +1,5 @@
 using Application.DTOs;
-using Application.UseCases;
+using Application.UseCases.Glass;
 using Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
