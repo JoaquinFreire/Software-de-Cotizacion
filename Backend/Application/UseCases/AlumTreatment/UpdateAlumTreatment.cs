@@ -17,6 +17,7 @@ namespace Application.UseCases.AlumTreatment
             var existing = await _repository.GetByIdAsync(id);
             if (existing is null) return false;
 
+            existing.id = dto.id;
             existing.name = dto.name;
             existing.pricePercentage = dto.pricePercentage;
 

@@ -3,7 +3,7 @@ using Domain.Repositories;
 using System;
 using System.Threading.Tasks;
 
-namespace Domain.UseCases
+namespace Application.UseCases
 {
     public class CreateQuotation
     {
