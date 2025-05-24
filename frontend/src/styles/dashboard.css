@@ -56,7 +56,7 @@
     flex-grow: 1;
 }
 
-.clear-button {
+.clear-button-q {
     background: transparent;
     border: none;
     color: white;
@@ -112,4 +112,62 @@
     background: rgba(255, 189, 9, 0.144);
     pointer-events: none; /* Permite interactuar con los elementos debajo */
     z-index: 9999; /* Se asegura de que esté en la parte superior */
+}
+
+body.light-mode {
+    background-color: #f6f8fa !important;
+    color: #222 !important;
+}
+
+body.light-mode .dashboard-container {
+    background-color: #f6f8fa !important;
+    color: #222 !important;
+}
+
+body.light-mode .dashboard-header {
+    background-color: #2e7dd8 !important;
+}
+
+body.light-mode .title {
+    color: #00bcd4 !important;
+}
+
+body.light-mode .search-bar,
+body.light-mode .search-container {
+    background-color: #fff !important;
+    border-color: #00bcd4 !important;
+}
+
+body.light-mode .search-input {
+    background: #fff !important;
+    color: #222 !important;
+}
+
+body.light-mode .clear-button-q {
+    color: #222 !important;
+}
+
+body.light-mode .search-button {
+    background: #00bcd4 !important;
+    color: #fff !important;
+}
+
+body.light-mode .new-quote {
+    background-color: #00bcd4 !important;
+    color: #fff !important;
+}
+
+body.light-mode .quote-card {
+    background: #fff !important;
+    color: #222 !important;
+    border: 1px solid #e0e0e0 !important;
+}
+
+body.light-mode .success-message {
+    background: #e0f7fa !important;
+    color: #00796b !important;
+}
+
+body.light-mode .filtro::after {
+    background: rgba(255, 189, 9, 0.08) !important;
 }

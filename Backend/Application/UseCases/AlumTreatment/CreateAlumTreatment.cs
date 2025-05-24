@@ -16,6 +16,7 @@ public class CreateAlumTreatment
     {
         var entity = new Domain.Entities.AlumTreatment
         {
+            id = dto.id,
             name = dto.name,
             pricePercentage = dto.pricePercentage
         };

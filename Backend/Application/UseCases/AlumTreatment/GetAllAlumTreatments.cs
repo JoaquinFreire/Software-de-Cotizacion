@@ -18,6 +18,7 @@ namespace Application.UseCases.AlumTreatment
 
             return entities.Select(at => new AlumTreatmentDTO
             {
+                id = at.id,
                 name = at.name,
                 pricePercentage = at.pricePercentage
             });

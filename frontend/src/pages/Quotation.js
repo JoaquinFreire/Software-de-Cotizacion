@@ -1,558 +1,499 @@
-import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import "../styles/quotation.css";
 import Navigation from "../components/Navigation";
-import FooterLogo from "../components/FooterLogo"; // Importar el componente FooterLogo
-import "../styles/quotation.css"; // Importar los estilos
-import { QuotationContext } from "../context/QuotationContext"; // Importar el contexto
+import FooterLogo from "../components/FooterLogo";
+import Customer from "../components/quotationComponents/Customer";
+import Agent from "../components/quotationComponents/Agent";
+import WorkPlace from "../components/quotationComponents/WorkPlace";
+import OpeningType from "../components/quotationComponents/Opening";
+import Complements from "../components/quotationComponents/Complements";
+import useEmblaCarousel from 'embla-carousel-react';
+import { QuotationContext } from "../context/QuotationContext";
+
+// Utilidad para decodificar el JWT y extraer el userId
+function getUserIdFromToken() {
+    const token = localStorage.getItem('token');
+    if (!token) return '';
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        // Ajusta la clave según cómo guardes el userId en el JWT
+        // Ejemplo: payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]
+        return payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] || '';
+    } catch {
+        return '';
+    }
+}
 
 const Quotation = () => {
-    const { setQuotations } = useContext(QuotationContext); // Obtener la función para actualizar las cotizaciones
-    const [customerId, setCustomerId] = useState('');
+    const [emblaRef, emblaApi] = useEmblaCarousel({ draggable: false });
+    const [canScrollPrev, setCanScrollPrev] = useState(false);
+    const [canScrollNext, setCanScrollNext] = useState(false);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [carouselHeight, setCarouselHeight] = useState('auto');
+    const carouselContainerRef = useRef(null);
+
+    const navigate = useNavigate();
+    const { setQuotations } = React.useContext(QuotationContext);
+
     const [newCustomer, setNewCustomer] = useState({
-        name: '',
-        lastname: '',
-        tel: '',
-        mail: '',
-        address: '',
-        agentId: null
+        name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: ''
     });
-    const [newAgent, setNewAgent] = useState({
-        name: '',
-        lastname: '',
-        tel: '',
-        mail: ''
-    });
-    const [workPlace, setWorkPlace] = useState({
-        name: '',
-        address: '',
-        workTypeId: ''
-    });
+    const [isCustomerComplete, setIsCustomerComplete] = useState(false);
+    const [newAgent, setNewAgent] = useState({ name: '', lastname: '', tel: '', mail: '' });
+
+    const [workPlace, setWorkPlace] = useState({ name: '', address: '', workTypeId: '' });
     const [workTypes, setWorkTypes] = useState([]);
-    const [userId, setUserId] = useState('');
-    const [customers, setCustomers] = useState([]);
-    const [selectedType, setSelectedType] = useState('');
-    const [selectedComplement, setSelectedComplement] = useState('');
-    const [complementQuantity, setComplementQuantity] = useState(1);
-    const [selectedComplements, setSelectedComplements] = useState([]);
-    const [subtotal, setSubtotal] = useState(0);
-    const [complements, setComplements] = useState([]);
-    const [complementTypes, setComplementTypes] = useState([]);
-    const [openingTypes, setOpeningTypes] = useState([]); // Estado para los tipos de abertura
-    const [selectedOpenings, setSelectedOpenings] = useState([]); // Estado para las aberturas seleccionadas
     const [openingForm, setOpeningForm] = useState({
         typeId: '',
         width: '',
         height: '',
-        quantity: 1
+        quantity: 1,
+        treatmentId: '',
+        glassTypeId: '',
     });
-    const navigate = useNavigate();
+    const [selectedOpenings, setSelectedOpenings] = useState([]);
+    const [openingTypes, setOpeningTypes] = useState([]);
+    const [treatments, setTreatments] = useState([]);
+    const [glassTypes, setGlassTypes] = useState([]);
+    const [selectedComplements, setSelectedComplements] = useState([]);
+    const [complementTypes, setComplementTypes] = useState([]);
+    const [complements, setComplements] = useState([]);
+
+    const [submitting, setSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState(null);
+
+    const [userId] = useState(() => getUserIdFromToken());
+
+    // Carousel navigation
+    const handlePrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
+    const handleNext = useCallback(() => {
+        if (currentIndex === 0 && !isCustomerComplete) return;
+        emblaApi && emblaApi.scrollNext();
+    }, [emblaApi, currentIndex, isCustomerComplete]);
+
+    const onSelect = useCallback(() => {
+        if (!emblaApi) return;
+        setCanScrollPrev(emblaApi.canScrollPrev());
+        setCanScrollNext(emblaApi.canScrollNext());
+        setCurrentIndex(emblaApi.selectedScrollSnap());
+    }, [emblaApi]);
 
     useEffect(() => {
-        const fetchUser = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                navigate('/');
-                return;
-            }
-            try {
-                const response = await axios.get('http://localhost:5187/api/auth/me', {
-                    headers: { Authorization: `Bearer ${token}` },
-                    timeout: 20000 // Configurar tiempo de espera
-                });
-                console.log('User response:', response.data); // Verificar la respuesta del backend
-                setUserId(response.data.userId);
-                console.log('userId set to:', response.data.userId); // Verificar el valor de userId
-            } catch (error) {
-                console.error('Error fetching user:', error);
-                navigate('/');
-            }
-        };
+        if (!emblaApi) return;
+        emblaApi.on('select', onSelect);
+        onSelect();
+    }, [emblaApi, onSelect]);
 
-        const fetchCustomers = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                navigate('/');
-                return;
-            }
-            try {
-                const response = await axios.get('http://localhost:5187/api/customers', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                setCustomers(response.data);
-            } catch (error) {
-                console.error('Error fetching customers:', error);
-            }
-        };
+    useEffect(() => {
+        if (!carouselContainerRef.current) return;
+        const activeSlide = carouselContainerRef.current.querySelector(`.embla__slide:nth-child(${currentIndex + 1})`);
+        if (activeSlide) {
+            setCarouselHeight(`${activeSlide.scrollHeight}px`);
+        }
+    }, [currentIndex]);
 
+    // Cargar tipos de trabajo
+    useEffect(() => {
         const fetchWorkTypes = async () => {
             const token = localStorage.getItem('token');
-            if (!token) {
-                navigate('/');
-                return;
-            }
+            if (!token) return;
             try {
                 const response = await axios.get('http://localhost:5187/api/worktypes', {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: { Authorization: `Bearer ${token}` },
                 });
-                console.log('WorkTypes response:', response.data); // Verificar la respuesta del backend
                 setWorkTypes(response.data);
-                console.log('workTypes set to:', response.data); // Verificar el valor de workTypes
             } catch (error) {
                 console.error('Error fetching work types:', error);
             }
         };
+        fetchWorkTypes();
+    }, []);
+
+    // Cargar tipos de abertura, tratamientos y tipos de vidrio
+    useEffect(() => {
+        const fetchOpeningData = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const [openingTypesRes, treatmentsRes, glassTypesRes] = await Promise.all([
+                    axios.get('http://localhost:5187/api/opening-types', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get('http://localhost:5187/api/alum-treatments', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get('http://localhost:5187/api/glass-types', { headers: { Authorization: `Bearer ${token}` } }),
+                ]);
+                setOpeningTypes(openingTypesRes.data);
+                setTreatments(treatmentsRes.data);
+                setGlassTypes(glassTypesRes.data);
+            } catch (error) {
+                console.error('Error fetching opening data:', error);
+            }
+        };
+        fetchOpeningData();
+    }, []);
+
+    // Cargar tipos de complementos y complementos
+    useEffect(() => {
         const fetchComplementsData = async () => {
             const token = localStorage.getItem('token');
-            if (!token) {
-                navigate('/');
-                return;
-            }
+            if (!token) return;
             try {
-                const [typesResponse, complementsResponse] = await Promise.all([
+                const [typesRes, complementsRes] = await Promise.all([
                     axios.get('http://localhost:5187/api/complement-types', { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get('http://localhost:5187/api/complements', { headers: { Authorization: `Bearer ${token}` } })
+                    axios.get('http://localhost:5187/api/complements', { headers: { Authorization: `Bearer ${token}` } }),
                 ]);
-                setComplementTypes(typesResponse.data);
-                setComplements(complementsResponse.data);
+                setComplementTypes(typesRes.data);
+                setComplements(complementsRes.data);
             } catch (error) {
                 console.error('Error fetching complements data:', error);
             }
         };
-
-        const fetchOpeningTypes = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                navigate('/');
-                return;
-            }
-            try {
-                const response = await axios.get('http://localhost:5187/api/opening-types', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                setOpeningTypes(response.data);
-            } catch (error) {
-                console.error('Error fetching opening types:', error);
-            }
-        };
-
-        fetchUser();
-        fetchCustomers();
-        fetchWorkTypes();
-        /* fetchMaterialsData(); */
         fetchComplementsData();
-        fetchOpeningTypes();
-    }, [navigate]);
+    }, []);
 
-    const handleCustomerChange = (e) => {
-        const selectedCustomerId = e.target.value;
-        setCustomerId(selectedCustomerId);
-
-        if (selectedCustomerId) {
-            const selectedCustomer = customers.find(customer => customer.id === parseInt(selectedCustomerId));
-            setNewCustomer({
-                name: selectedCustomer.name,
-                lastname: selectedCustomer.lastname,
-                tel: selectedCustomer.tel,
-                mail: selectedCustomer.mail,
-                address: selectedCustomer.address,
-                agentId: selectedCustomer.agentId
-            });
-
-            if (selectedCustomer.agentId) {
-                const fetchAgent = async () => {
-                    const token = localStorage.getItem('token');
-                    if (!token) {
-                        navigate('/');
-                        return;
-                    }
-                    try {
-                        const response = await axios.get(`http://localhost:5187/api/customer-agents/${selectedCustomer.agentId}`, {
-                            headers: { Authorization: `Bearer ${token}` }
-                        });
-                        const selectedAgent = response.data;
-                        setNewAgent({
-                            name: selectedAgent.name,
-                            lastname: selectedAgent.lastname,
-                            tel: selectedAgent.tel,
-                            mail: selectedAgent.mail
-                        });
-                    } catch (error) {
-                        console.error('Error fetching agent:', error);
-                    }
-                };
-                fetchAgent();
-            } else {
-                setNewAgent({
-                    name: '',
-                    lastname: '',
-                    tel: '',
-                    mail: ''
-                });
-            }
-        } else {
-            setNewCustomer({name: '', lastname: '',
-                tel: '',
-                mail: '',
-                address: '',
-                agentId: null
-            });
-            setNewAgent({
-                name: '',
-                lastname: '',
-                tel: '',
-                mail: ''
-            });
-        }
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const token = localStorage.getItem('token');
-        if (!token) {
-            navigate('/');
-            return;
-        }
-        let customerIdToUse = customerId;
-
-        if (!customerId) {
-            try {
-                let agentId = null;
-                if (newAgent.name || newAgent.tel || newAgent.mail || newAgent.lastname) {
-                    const agentResponse = await axios.post('http://localhost:5187/api/customer-agents', newAgent, {
-                        headers: { Authorization: `Bearer ${token}` },
-                        timeout: 10000 // Aumentar tiempo de espera
-                    });
-                    agentId = agentResponse.data.id;
-                }
-
-                const customerResponse = await axios.post('http://localhost:5187/api/customers', {
-                    ...newCustomer,
-                    agentId: agentId
-                }, {
-                    headers: { Authorization: `Bearer ${token}` },
-                    timeout: 10000 // Aumentar tiempo de espera
-                });
-                customerIdToUse = customerResponse.data.id;
-            } catch (error) {
-                console.error('Error creating customer or agent:', error);
-                return;
-            }
-        }
-
-        // Verificar que todos los campos requeridos estén presentes
-        if (!customerIdToUse || !userId || !workPlace.name || !workPlace.address || !workPlace.workTypeId || subtotal <= 0) {
-            console.error('Missing required fields');
-            console.log('customerIdToUse:', customerIdToUse);
-            console.log('userId:', userId);
-            console.log('workPlace:', workPlace);
-            console.log('subtotal:', subtotal);
-            return;
-        }
-
-        try {
-            const response = await axios.post('http://localhost:5187/api/quotations', {
-                CustomerId: customerIdToUse,
-                UserId: userId,
-                WorkPlace: workPlace,
-                TotalPrice: subtotal // Subir el subtotal como TotalPrice
-            }, {
-                headers: { Authorization: `Bearer ${token}` },
-                timeout: 10000 // Aumentar tiempo de espera
-            });
-            console.log('Quotation created:', response.data);
-            setQuotations(prevQuotations => [...prevQuotations, response.data]); // Agregar la nueva cotización al contexto
-            navigate('/dashboard'); // Redirigir al dashboard después de crear la cotización
-        } catch (error) {
-            console.error('Error creating quotation:', error);
-        }
-    };
-
+    // Logout
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/");
     };
 
-    const handleAddComplement = () => {
-        if (!selectedComplement || complementQuantity <= 0) return;
+    // Enviar cotización (solo un POST a quotations)
+    const handleSubmitQuotation = async () => {
+        setSubmitting(true);
+        setSubmitError(null);
 
-        const complement = complements.find(m => m.id === parseInt(selectedComplement));
-        if (!complement) return;
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setSubmitError("No autenticado");
+                setSubmitting(false);
+                return;
+            }
 
-        setSelectedComplements(prev => {
-            const existingComplement = prev.find(m => m.id === complement.id);
-            if (existingComplement) {
-                // Actualizar cantidad y total si el complement ya existe
-                const updatedComplements = prev.map(c =>
-                    c.id === complement.id
-                        ? {
-                            ...c,
-                            quantity: c.quantity + complementQuantity,
-                            total: (c.quantity + complementQuantity) * c.price
-                        }
-                        : c
-                );
-                setSubtotal(updatedComplements.reduce((sum, c) => sum + c.total, 0));
-                return updatedComplements;
-            } else {
-                // Agregar nuevo complement si no existe
-                const newComplement = {
-                    id: complement.id,
-                    name: complement.name,
-                    price: complement.price,
-                    quantity: complementQuantity,
-                    total: complement.price * complementQuantity
+            // Validar userId y dni
+            if (!userId || !newCustomer.dni) {
+                setSubmitError("Debe estar autenticado y el cliente debe tener DNI.");
+                console.log(userId, newCustomer.dni, newCustomer);
+                setSubmitting(false);
+                return;
+            }
+
+            // Calcular precio total (puedes ajustar esta lógica)
+            const totalComplements = selectedComplements.reduce((acc, c) => acc + (c.price * c.quantity), 0);
+
+            // Limpiar customer para no enviar campos innecesarios
+            const { name, lastname, tel, mail, address, dni, agentId } = newCustomer;
+
+            // Solo incluir agent si el cliente es nuevo y los datos están completos
+            let agent = undefined;
+            const isNewCustomer = !agentId; // Si no tiene agentId, es nuevo
+            if (
+                isNewCustomer &&
+                newAgent.name.trim() &&
+                newAgent.lastname.trim() &&
+                newAgent.tel.trim() &&
+                newAgent.mail.trim()
+            ) {
+                agent = { ...newAgent };
+            }
+
+            const customerPayload = agent
+                ? { name, lastname, tel, mail, address, dni, agent }
+                : { name, lastname, tel, mail, address, dni };
+
+            const quotationPayload = {
+                customer: customerPayload,
+                userId: userId,
+                workPlace: {
+                    ...workPlace,
+                    workTypeId: Number(workPlace.workTypeId)
+                },
+                openings: selectedOpenings,
+                complements: selectedComplements,
+                totalPrice: totalComplements
+            };
+
+            console.log("Payload enviado a /api/quotations:", quotationPayload);
+
+            const response = await axios.post('http://localhost:5187/api/quotations', quotationPayload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            // Actualizar cotizaciones en el contexto
+            if (response && response.data) {
+                setQuotations(prev => [...prev, response.data]);
+            }
+
+            setSubmitting(false);
+            navigate('/dashboard');
+        } catch (err) {
+            setSubmitError(err.message || 'Error al crear la cotización');
+            setSubmitting(false);
+        }
+    };
+
+    // Nuevo: Enviar cotización SOLO a MongoDB
+    const [mongoSubmitMsg, setMongoSubmitMsg] = useState(null);
+
+    // Nuevo: obtener datos del usuario logueado
+    const [loggedUser, setLoggedUser] = useState(null);
+    // Nuevo: agente real del cliente existente
+    const [existingAgent, setExistingAgent] = useState(null);
+
+    // Si el cliente es existente, buscar el agente real
+    useEffect(() => {
+        const fetchAgentIfExisting = async () => {
+            if (!newCustomer.agentId) {
+                setExistingAgent(null);
+                return;
+            }
+            const token = localStorage.getItem('token');
+            try {
+                const response = await axios.get(`http://localhost:5187/api/customer-agents/${newCustomer.agentId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setExistingAgent(response.data);
+            } catch (error) {
+                setExistingAgent(null);
+            }
+        };
+        fetchAgentIfExisting();
+    }, [newCustomer.agentId]);
+
+    useEffect(() => {
+        const fetchLoggedUser = async () => {
+            const token = localStorage.getItem('token');
+            if (!token || !userId) return;
+            try {
+                const response = await axios.get(`http://localhost:5187/api/users/${userId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setLoggedUser(response.data);
+            } catch (error) {
+                setLoggedUser(null);
+            }
+        };
+        fetchLoggedUser();
+    }, [userId]);
+
+    const handleSubmitMongo = async () => {
+        setSubmitting(true);
+        setMongoSubmitMsg(null);
+        setSubmitError(null);
+
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setSubmitError("No autenticado");
+                setSubmitting(false);
+                return;
+            }
+
+            // Usar datos del usuario logueado si están disponibles
+            const userPayload = loggedUser
+                ? {
+                    name: loggedUser.name || "",
+                    lastName: loggedUser.lastName || "",
+                    mail: loggedUser.mail || ""
+                }
+                : {
+                    name: "",
+                    lastName: "",
+                    mail: ""
                 };
-                setSubtotal(prevSubtotal => prevSubtotal + newComplement.total);
-                return [...prev, newComplement];
+
+            // Construir el objeto customer
+            let customerPayload = {
+                name: newCustomer.name,
+                lastname: newCustomer.lastname,
+                tel: newCustomer.tel,
+                mail: newCustomer.mail,
+                address: newCustomer.address,
+                dni: newCustomer.dni,
+            };
+
+            // Si el cliente es existente y tiene agente, usar el agente real
+            if (existingAgent) {
+                customerPayload.agent = {
+                    name: existingAgent.name,
+                    lastname: existingAgent.lastname,
+                    tel: existingAgent.tel,
+                    mail: existingAgent.mail
+                };
+            } else if (
+                newAgent &&
+                newAgent.name &&
+                newAgent.lastname &&
+                newAgent.tel &&
+                newAgent.mail
+            ) {
+                // Si es nuevo, usar el agente ingresado
+                customerPayload.agent = { ...newAgent };
             }
-        });
 
-        setSelectedComplement('');
-        setComplementQuantity(1);
+            // workType: buscar el objeto seleccionado (no solo el nombre)
+            const selectedWorkType = workTypes.find(wt => String(wt.id) === String(workPlace.workTypeId));
+            const workPlacePayload = {
+                name: workPlace.name,
+                address: workPlace.address,
+                workType: selectedWorkType
+                    ? { type: selectedWorkType.name || selectedWorkType.type || "" }
+                    : { type: "" }
+            };
+
+            // Construir el array de productos
+            const productsPayload = selectedOpenings.map(opening => ({
+                OpeningType: openingTypes.find(type => type.id === Number(opening.typeId)) || null,
+                Quantity: opening.quantity,
+                AlumTreatment: treatments.find(t => t.id === Number(opening.treatmentId)) || null,
+                GlassComplement: glassTypes.find(g => g.id === Number(opening.glassTypeId)) || null,
+                width: opening.width,
+                height: opening.height,
+                Accesory: [] // Si tienes accesorios, agrégalos aquí
+            }));
+
+            // Puedes agregar un campo comment si tienes observaciones
+            const comment = "ejemplo"; // O toma de algún campo de observaciones
+
+            // Construir el objeto final
+            const mongoPayload = {
+                budget: {
+                    user: userPayload,
+                    customer: customerPayload,
+                    workPlace: workPlacePayload,
+                    products: productsPayload,
+                    comment: comment
+                }
+            };
+
+            // LOG para debug
+            console.log("Payload enviado a Mongo:", JSON.stringify(mongoPayload, null, 2));
+
+            // Enviar al endpoint de Mongo
+            const response = await axios.post('http://localhost:5187/api/Mongo/CreateBudget', mongoPayload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            setMongoSubmitMsg("Cotización subida a Mongo correctamente.");
+            console.log("Respuesta de Mongo:", response.data);
+            setSubmitting(false);
+        } catch (err) {
+            setSubmitError(err.message || 'Error al crear la cotización en Mongo');
+            setSubmitting(false);
+        }
     };
 
-    const handleRemoveComplement = (id) => {
-        setSelectedComplements(prev => {
-            const updatedComplements = prev.filter(c => c.id !== id);
-            setSubtotal(updatedComplements.reduce((sum, c) => sum + c.total, 0));
-            return updatedComplements;
-        });
-    };
-
-    const handleAddOpening = () => {
-        const { typeId, width, height, quantity } = openingForm;
-        if (!typeId || !width || !height || quantity <= 0) return;
-
-        const openingType = openingTypes.find(type => type.id === parseInt(typeId));
-        if (!openingType) return;
-
-        setSelectedOpenings(prev => [
-            ...prev,
-            {
-                id: Date.now(),
-                typeId,
-                typeName: openingType.name,
-                width: parseFloat(width),
-                height: parseFloat(height),
-                quantity: parseInt(quantity)
-            }
-        ]);
-
-        setOpeningForm({ typeId: '', width: '', height: '', quantity: 1 });
-    };
-
-    const handleRemoveOpening = (id) => {
-        setSelectedOpenings(prev => prev.filter(opening => opening.id !== id));
+    // Evitar submit con Enter salvo en el último paso
+    const handleFormKeyDown = (e) => {
+        if (e.key === 'Enter' && currentIndex !== 4) {
+            e.preventDefault();
+        }
     };
 
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
             <h2 className="title">Nueva Cotización</h2>
-            <form className="quotation-form" onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label>Cotizaciones:</label>
-                    <select value={customerId} onChange={handleCustomerChange}>
-                        <option value="">Seleccionar cotizaciones existentes</option>
-                        {customers.map(customer => (
-                            <option key={customer.id} value={customer.id}>
-                                {customer.name} {customer.lastname}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className="form-group">
-                    <h3>Crear nueva cotización</h3>
-                    <label>Nombre:</label>
-                    <input
-                        type="text"
-                        value={newCustomer.name}
-                        onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                    <label>Apellido:</label>
-                    <input
-                        type="text"
-                        value={newCustomer.lastname}
-                        onChange={(e) => setNewCustomer({ ...newCustomer, lastname: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                    <label>Teléfono:</label>
-                    <input
-                        type="text"
-                        value={newCustomer.tel}
-                        onChange={(e) => setNewCustomer({ ...newCustomer, tel: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                    <label>Email:</label>
-                    <input
-                        type="email"
-                        value={newCustomer.mail}
-                        onChange={(e) => setNewCustomer({ ...newCustomer, mail: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                    <label>Dirección:</label>
-                    <input
-                        type="text"
-                        value={newCustomer.address}
-                        onChange={(e) => setNewCustomer({ ...newCustomer, address: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                </div>
-
-                <div className='form-group'>
-                    <h3>Customer Agent</h3>
-                    <label>Agent Name:</label>
-                    <input
-                        type="text"
-                        value={newAgent.name}
-                        onChange={(e) => setNewAgent({ ...newAgent, name: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                    <label>Agent Last Name:</label>
-                    <input
-                        type="text"
-                        value={newAgent.lastname}
-                        onChange={(e) => setNewAgent({ ...newAgent, lastname: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                    <label>Agent Phone:</label>
-                    <input
-                        type="text"
-                        value={newAgent.tel}
-                        onChange={(e) => setNewAgent({ ...newAgent, tel: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                    <label>Agent Email:</label>
-                    <input
-                        type="email"
-                        value={newAgent.mail}
-                        onChange={(e) => setNewAgent({ ...newAgent, mail: e.target.value })}
-                        disabled={!!customerId}
-                    />
-                </div>
-                <div className='form-group'>
-                    <h3>Work Place</h3>
-                    <label>Name:</label>
-                    <input
-                        type="text"
-                        value={workPlace.name}
-                        onChange={(e) => setWorkPlace({ ...workPlace, name: e.target.value })}
-                        required
-                    />
-                    <label>Address:</label>
-                    <input
-                        type="text"
-                        value={workPlace.address}
-                        onChange={(e) => setWorkPlace({ ...workPlace, address: e.target.value })}
-                        required
-                    />
-                    <label>Work Type:</label>
-                    <select
-                        value={workPlace.workTypeId}
-                        onChange={(e) => setWorkPlace({ ...workPlace, workTypeId: e.target.value })}
-                        required
+            <form className="quotation-form" onKeyDown={handleFormKeyDown}>
+                <div className="embla-buttons-container">
+                    <button
+                        type="button"
+                        className="embla__button embla__button--prev"
+                        onClick={handlePrev}
+                        disabled={!canScrollPrev}
                     >
-                        <option value="">Select work type</option>
-                        {workTypes.map(workType => (
-                            <option key={workType.id} value={workType.id}>
-                                {workType.type}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className="form-group">
-                    <h3>Complementos</h3>
-                    <label>Tipo:</label>
-                    <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
-                        <option value="">Seleccionar tipo</option>
-                        {complementTypes
-                            .map(type => (
-                                <option key={type.id} value={type.id}>{type.name}</option>
-                            ))}
-                    </select>
-                    <label>Complemento:</label>
-                    <select value={selectedComplement} onChange={(e) => setSelectedComplement(e.target.value)}>
-                        <option value="">Seleccionar complemento</option>
-                        {complements
-                            .filter(complement => complement.type_id === parseInt(selectedType))
-                            .map(complement => (
-                                <option key={complement.id} value={complement.id}>{complement.name} - ${complement.price}</option>
-                            ))}
-                    </select>
-                    <label>Cantidad:</label>
-                    <input
-                        type="number"
-                        value={complementQuantity}
-                        onChange={(e) => setComplementQuantity(parseInt(e.target.value))}
-                        min="1"
-                    />
-                    <button type="button" onClick={handleAddComplement}>Agregar complemento</button>
-                </div>
-                <div className="form-group">
-                    <h3>Complementos Seleccionados</h3>
-                    <ul>
-                        {selectedComplements.map(complement => (
-                            <li key={complement.id}>
-                                {complement.name} - {complement.quantity} x ${complement.price} = ${complement.total}
-                                <button type="button" onClick={() => handleRemoveComplement(complement.id)}>Eliminar</button>
-                            </li>
-                        ))}
-                    </ul>
-                    <p>Subtotal: ${subtotal}</p>
-                </div>
-                <div className="form-group">
-                    <h3>Tipos de Abertura</h3>
-                    <label>Tipo de Abertura:</label>
-                    <select
-                        value={openingForm.typeId}
-                        onChange={(e) => setOpeningForm({ ...openingForm, typeId: e.target.value })}
+                        Atrás
+                    </button>
+                    <button
+                        type="button"
+                        className="embla__button embla__button--next"
+                        onClick={handleNext}
+                        disabled={!canScrollNext || (currentIndex === 0 && !isCustomerComplete)}
                     >
-                        <option value="">Seleccionar tipo de abertura</option>
-                        {openingTypes.map(type => (
-                            <option key={type.id} value={type.id}>{type.name}</option>
-                        ))}
-                    </select>
-                    <label>Ancho (m):</label>
-                    <input
-                        type="number"
-                        value={openingForm.width}
-                        onChange={(e) => setOpeningForm({ ...openingForm, width: e.target.value })}
-                        min="0"
-                        step="0.01"
-                    />
-                    <label>Alto (m):</label>
-                    <input
-                        type="number"
-                        value={openingForm.height}
-                        onChange={(e) => setOpeningForm({ ...openingForm, height: e.target.value })}
-                        min="0"
-                        step="0.01"
-                    />
-                    <label>Cantidad:</label>
-                    <input
-                        type="number"
-                        value={openingForm.quantity}
-                        onChange={(e) => setOpeningForm({ ...openingForm, quantity: e.target.value })}
-                        min="1"
-                    />
-                    <button type="button" onClick={handleAddOpening}>Agregar Abertura</button>
+                        Adelante
+                    </button>
                 </div>
-                <div className="form-group">
-                    <h3>Aberturas Seleccionadas</h3>
-                    <ul>
-                        {selectedOpenings.map(opening => (
-                            <li key={opening.id}>
-                                {opening.typeName} - {opening.width}m x {opening.height}m - {opening.quantity} unidades
-                                <button type="button" onClick={() => handleRemoveOpening(opening.id)}>Eliminar</button>
-                            </li>
-                        ))}
-                    </ul>
+                <div
+                    className="embla"
+                    ref={emblaRef}
+                    style={{ height: carouselHeight }}
+                >
+                    <div className="embla__container" ref={carouselContainerRef}>
+                        <div className="embla__slide">
+                            <Customer
+                                newCustomer={newCustomer}
+                                setNewCustomer={setNewCustomer}
+                                setIsCustomerComplete={setIsCustomerComplete}
+                            />
+                        </div>
+                        <div className="embla__slide">
+                            <Agent
+                                customerId={newCustomer.agentId}
+                                newAgent={newAgent}
+                                setNewAgent={setNewAgent}
+                                setIsAgentComplete={() => {}}
+                            />
+                        </div>
+                        <div className="embla__slide">
+                            <WorkPlace
+                                workPlace={workPlace}
+                                setWorkPlace={setWorkPlace}
+                                workTypes={workTypes}
+                            />
+                        </div>
+                        <div className="embla__slide">
+                            <OpeningType
+                                openingForm={openingForm}
+                                setOpeningForm={setOpeningForm}
+                                openingTypes={openingTypes}
+                                treatments={treatments}
+                                glassTypes={glassTypes}
+                                selectedOpenings={selectedOpenings}
+                                setSelectedOpenings={setSelectedOpenings}
+                            />
+                        </div>
+                        <div className="embla__slide">
+                            <Complements
+                                complementTypes={complementTypes}
+                                complements={complements}
+                                selectedComplements={selectedComplements}
+                                setSelectedComplements={setSelectedComplements}
+                            />
+                            <div style={{ marginTop: 24 }}>
+                                <button
+                                    type="button"
+                                    className="submit-button"
+                                    disabled={submitting}
+                                    onClick={handleSubmitQuotation}
+                                >
+                                    {submitting ? "Enviando..." : "Cotizar"}
+                                </button>
+                                <button
+                                    type="button"
+                                    className="submit-button"
+                                    style={{ marginLeft: 8, background: "#4caf50" }}
+                                    disabled={submitting}
+                                    onClick={handleSubmitMongo}
+                                >
+                                    {submitting ? "Enviando..." : "Cotizar en Mongo"}
+                                </button>
+                                {submitError && (
+                                    <div style={{ color: 'red', marginTop: 8 }}>{submitError}</div>
+                                )}
+                                {mongoSubmitMsg && (
+                                    <div style={{ color: 'green', marginTop: 8 }}>{mongoSubmitMsg}</div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <button className="submit-button" type="submit">Siguiente</button>
             </form>
-            <FooterLogo /> {/* Incluir el componente FooterLogo */}
+            <FooterLogo />
         </div>
     );
 };
