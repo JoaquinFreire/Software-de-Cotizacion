@@ -1,6 +1,7 @@
 using Domain.Enums;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Domain.Services;
 namespace Domain.Entities;
 
 public class Budget
@@ -8,6 +9,8 @@ public class Budget
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public string? id { get; set; }
+    [BsonElement("BudgetId")]
+    public string budgetId  { get; set; }
     [BsonElement("file_date")]
     public DateTime? creationDate { get; set; } = DateTime.UtcNow;
     [BsonElement("status")]
@@ -34,5 +37,9 @@ public class Budget
     [BsonElement("total")]
     public double Total { get; set; }  //Total del presupuesto
 
-
+    public Budget()
+    {
+        var generator = new RandomIdGenerator();
+        budgetId = generator.GenerateRandomId(8); // Genera un ID aleatorio de 8 caracteres
+    }
 }
