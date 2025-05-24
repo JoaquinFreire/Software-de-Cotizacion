@@ -4,7 +4,6 @@ using Infrastructure.Persistence.MongoDBContext;
 using Microsoft.Extensions.Options;
 using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Domain.UseCases;  
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -17,9 +16,9 @@ using AutoMapper;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using DotNetEnv;
-using Application.UseCases.OpeningType;
 using QuestPDF.Infrastructure;
 using Application.DTOs.CreateBudget;
+using Application.UseCases.Budget;
 Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
 
 
@@ -57,6 +56,7 @@ builder.Services.AddAutoMapper(typeof(BudgetProfile));
 
 //Convertidor PDF
 builder.Services.AddScoped<IBudgetPdfGenerator, PdfBudgetUseCase>();
+
 
 // Configura MediatR para manejar comandos y consultas
 builder.Services.AddMediatR(cfg =>
