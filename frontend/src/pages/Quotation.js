@@ -12,6 +12,8 @@ import Complements from "../components/quotationComponents/Complements";
 import useEmblaCarousel from 'embla-carousel-react';
 import { QuotationContext } from "../context/QuotationContext";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 // Utilidad para decodificar el JWT y extraer el userId
 function getUserIdFromToken() {
     const token = localStorage.getItem('token');
@@ -100,7 +102,7 @@ const Quotation = () => {
             const token = localStorage.getItem('token');
             if (!token) return;
             try {
-                const response = await axios.get('http://localhost:5187/api/worktypes', {
+                const response = await axios.get(`${API_URL}/api/worktypes`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setWorkTypes(response.data);
@@ -118,9 +120,9 @@ const Quotation = () => {
             if (!token) return;
             try {
                 const [openingTypesRes, treatmentsRes, glassTypesRes] = await Promise.all([
-                    axios.get('http://localhost:5187/api/opening-types', { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get('http://localhost:5187/api/alum-treatments', { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get('http://localhost:5187/api/glass-types', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get(`${API_URL}/api/opening-types`, { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get(`${API_URL}/api/alum-treatments`, { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get(`${API_URL}/api/glass-types`, { headers: { Authorization: `Bearer ${token}` } }),
                 ]);
                 setOpeningTypes(openingTypesRes.data);
                 setTreatments(treatmentsRes.data);
@@ -139,8 +141,8 @@ const Quotation = () => {
             if (!token) return;
             try {
                 const [typesRes, complementsRes] = await Promise.all([
-                    axios.get('http://localhost:5187/api/complement-types', { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get('http://localhost:5187/api/complements', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get(`${API_URL}/api/complement-types`, { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get(`${API_URL}/api/complements`, { headers: { Authorization: `Bearer ${token}` } }),
                 ]);
                 setComplementTypes(typesRes.data);
                 setComplements(complementsRes.data);
@@ -215,7 +217,7 @@ const Quotation = () => {
 
             console.log("Payload enviado a /api/quotations:", quotationPayload);
 
-            const response = await axios.post('http://localhost:5187/api/quotations', quotationPayload, {
+            const response = await axios.post(`${API_URL}/api/quotations`, quotationPayload, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
@@ -252,7 +254,7 @@ const Quotation = () => {
             }
             const token = localStorage.getItem('token');
             try {
-                const response = await axios.get(`http://localhost:5187/api/customer-agents/${newCustomer.agentId}`, {
+                const response = await axios.get(`${API_URL}/customer-agents/${newCustomer.agentId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setExistingAgent(response.data);
@@ -268,7 +270,7 @@ const Quotation = () => {
             const token = localStorage.getItem('token');
             if (!token || !userId) return;
             try {
-                const response = await axios.get(`http://localhost:5187/api/users/${userId}`, {
+                const response = await axios.get(`${API_URL}/users/${userId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setLoggedUser(response.data);
@@ -373,7 +375,7 @@ const Quotation = () => {
             console.log("Payload enviado a Mongo:", JSON.stringify(mongoPayload, null, 2));
 
             // Enviar al endpoint de Mongo
-            const response = await axios.post('http://localhost:5187/api/Mongo/CreateBudget', mongoPayload, {
+            const response = await axios.post(`${API_URL}/Mongo/CreateBudget`, mongoPayload, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`

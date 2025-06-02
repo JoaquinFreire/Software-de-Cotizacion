@@ -4,6 +4,7 @@ import axios from 'axios';
 import '../styles/login.css'; // Archivo de estilos
 import anodalLogo from '../images/anodal_logo.png';
 
+const API_URL = process.env.REACT_APP_API_URL;
 const Login = () => {
     const [legajo, setLegajo] = useState('');
     const [password, setPassword] = useState('');
@@ -20,7 +21,7 @@ const Login = () => {
         setError(''); // Limpiar errores previos
 
         try {
-            const response = await axios.post('http://localhost:5187/api/auth/login', { legajo, password });
+            const response = await axios.post(`${API_URL}/api/auth/login`, { legajo, password });
             localStorage.setItem('token', response.data.token); // Guardar el token
             navigate('/dashboard'); // Redirigir si el login es exitoso
             window.location.reload(); // Recargar la página del dashboard
