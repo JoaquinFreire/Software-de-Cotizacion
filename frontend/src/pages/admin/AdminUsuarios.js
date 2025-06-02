@@ -4,6 +4,7 @@ import axios from "axios";
 import Navigation from "../../components/Navigation";
 import "../../styles/adminUsuarios.css";
 
+const API_URL = process.env.REACT_APP_API_URL;
 const AdminUsuarios = () => {
     const [users, setUsers] = useState([]);
     const [showModal, setShowModal] = useState(false);
@@ -24,7 +25,7 @@ const AdminUsuarios = () => {
     const fetchUsers = async () => {
         const token = localStorage.getItem("token");
         try {
-            const response = await axios.get("http://localhost:5187/api/users", {
+            const response = await axios.get(`${API_URL}/api/users`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             console.log(response.data);
@@ -65,13 +66,13 @@ const AdminUsuarios = () => {
             if (editingUser) {
                 // Actualizar usuario
                 await axios.put(
-                    `http://localhost:5187/api/users/${editingUser.id}`,
+                    `${API_URL}/api/users/${editingUser.id}`,
                     formData,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
             } else {
                 // Crear usuario
-                await axios.post("http://localhost:5187/api/users", formData, {
+                await axios.post(`${API_URL}/api/users`, formData, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
             }
@@ -86,7 +87,7 @@ const AdminUsuarios = () => {
         const token = localStorage.getItem("token");
         try {
             await axios.put(
-                `http://localhost:5187/api/users/${user.id}/status`,
+                `${API_URL}/api/users/${user.id}/status`,
                 { status: user.status === 1 ? 0 : 1 },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

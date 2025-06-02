@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import "../../styles/quotation.css";
 
+const API_URL = process.env.REACT_APP_API_URL;
 const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
     const [loading, setLoading] = useState(false);
     const [isCustomerFound, setIsCustomerFound] = useState(false);
@@ -11,7 +12,7 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:5187/api/customers/dni/${dniValue}`, {
+            const response = await axios.get(`${API_URL}/api/customers/dni/${dniValue}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (response.status === 200) {

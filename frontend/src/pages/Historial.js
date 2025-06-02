@@ -9,7 +9,7 @@ import { QuotationContext } from "../context/QuotationContext";
 import Skeleton from "react-loading-skeleton";
 import 'react-loading-skeleton/dist/skeleton.css';
 import { ToastContainer, toast, Slide } from 'react-toastify';
-
+const API_URL = process.env.REACT_APP_API_URL;
 
 const Historial = () => {
     const { quotations, setQuotations, loading } = useContext(QuotationContext);
@@ -27,7 +27,7 @@ const Historial = () => {
     const handleDelete = async () => {
         const token = localStorage.getItem("token");
         try {
-            await axios.delete(`http://localhost:5187/api/quotations/${quotationToDelete}`, {
+            await axios.delete(`${API_URL}/api/quotations/${quotationToDelete}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setShowModal(false);
@@ -46,7 +46,7 @@ const Historial = () => {
     const handleStatusChange = async (id, newStatus) => {
         const token = localStorage.getItem("token");
         try {
-            await axios.put(`http://localhost:5187/api/quotations/${id}/status`, { status: newStatus }, {
+            await axios.put(`${API_URL}/api/quotations/${id}/status`, { status: newStatus }, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setQuotations(quotations.map(quotation =>
@@ -79,7 +79,7 @@ const Historial = () => {
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
             <h2 className="title">Historial de Cotizaciones</h2>
-            <ToastContainer autoClose={4000} theme="light" transition={Slide} position="bottom-right" />
+            <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
             <div className="quote-container">
                 <div className="quote-card">
                     <div className="search-bar">

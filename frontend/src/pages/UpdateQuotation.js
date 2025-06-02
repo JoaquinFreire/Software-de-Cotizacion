@@ -5,6 +5,7 @@ import Navigation from "../components/Navigation";
 import Charger from "../components/charger"; // Importar el componente Charger
 import "../styles/quotation.css"; // Importar los estilos
 
+const API_URL = process.env.REACT_APP_API_URL;
 const UpdateQuotation = () => {
     const { id } = useParams();
     const [customerId, setCustomerId] = useState('');
@@ -31,7 +32,7 @@ const UpdateQuotation = () => {
                 return;
             }
             try {
-                const response = await axios.get('http://localhost:5187/api/auth/me', {
+                const response = await axios.get(`${API_URL}/api/auth/me`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setUserId(response.data.userId);
@@ -43,7 +44,7 @@ const UpdateQuotation = () => {
 
         const fetchCustomers = async () => {
             try {
-                const response = await axios.get('http://localhost:5187/api/customers');
+                const response = await axios.get(`${API_URL}/api/customers`);
                 setCustomers(response.data);
             } catch (error) {
                 console.error('Error fetching customers:', error);
@@ -52,7 +53,7 @@ const UpdateQuotation = () => {
 
         const fetchQuotation = async () => {
             try {
-                const response = await axios.get(`http://localhost:5187/api/quotations/${id}`);
+                const response = await axios.get(`${API_URL}/api/quotations/${id}`);
                 const quotation = response.data;
                 setCustomerId(quotation.CustomerId);
                 setNewCustomer({
@@ -110,7 +111,7 @@ const UpdateQuotation = () => {
 
         if (!customerId) {
             try {
-                const customerResponse = await axios.post('http://localhost:5187/api/customers', newCustomer, {
+                const customerResponse = await axios.post(`${API_URL}/api/customers`, newCustomer, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 customerIdToUse = customerResponse.data.id;
@@ -122,7 +123,7 @@ const UpdateQuotation = () => {
         }
 
         try {
-            await axios.put(`http://localhost:5187/api/quotations/${id}`, {
+            await axios.put(`${API_URL}/api/quotations/${id}`, {
                 CustomerId: customerIdToUse,
                 UserId: userId,
                 WorkPlaceId: workPlaceId,
