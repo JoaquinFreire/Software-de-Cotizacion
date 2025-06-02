@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+﻿using Application.DTOs.CreateBudget;
 using QuestPDF.Companion;
 using QuestPDF.Fluent;
 using QuestPDF.Previewer;
@@ -9,13 +9,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.UseCases
+namespace Application.UseCases.Budget
 {
     public class PdfBudgetUseCase : IBudgetPdfGenerator
     {
-        public byte[] Execute(BudgetDTO budget)
+        public byte[] Execute(CreateBudgetDTO budget)
         {
-            var document = new BudgetPdfDocument(budget);
+            var document = new CreateBudgetPdfDocument(budget);
             return document.GeneratePdf();
         }
     }
