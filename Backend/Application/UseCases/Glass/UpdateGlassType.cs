@@ -2,7 +2,7 @@ using Application.DTOs;
 using Domain.Entities;
 using Domain.Repositories;
 
-namespace Application.UseCases;
+namespace Application.UseCases.Glass;
 
 public class UpdateGlassType
 {

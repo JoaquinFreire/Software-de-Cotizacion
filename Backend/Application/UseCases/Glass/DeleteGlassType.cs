@@ -1,6 +1,6 @@
 using Domain.Repositories;
 
-namespace Application.UseCases;
+namespace Application.UseCases.Glass;
 
 public class DeleteGlassType
 {
