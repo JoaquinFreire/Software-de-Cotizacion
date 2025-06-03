@@ -68,6 +68,26 @@ const Quotation = () => {
 
     const [userId] = useState(() => getUserIdFromToken());
 
+    // Agrega estado para el usuario logueado
+    const [loggedUser, setLoggedUser] = useState(null);
+
+    // Obtiene los datos del usuario logueado al montar el componente
+    useEffect(() => {
+        const fetchLoggedUser = async () => {
+            const token = localStorage.getItem('token');
+            if (!token || !userId) return;
+            try {
+                const response = await axios.get(`${API_URL}/api/users/${userId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setLoggedUser(response.data);
+            } catch (error) {
+                setLoggedUser(null);
+            }
+        };
+        fetchLoggedUser();
+    }, [userId, API_URL]);
+
     // Carousel navigation
     const handlePrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
     const handleNext = useCallback(() => {
@@ -102,7 +122,7 @@ const Quotation = () => {
             const token = localStorage.getItem('token');
             if (!token) return;
             try {
-                const response = await axios.get(`${API_URL}/api/worktypes`, {
+                const response = await axios.get('http://localhost:5187/api/worktypes', {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setWorkTypes(response.data);
@@ -120,9 +140,9 @@ const Quotation = () => {
             if (!token) return;
             try {
                 const [openingTypesRes, treatmentsRes, glassTypesRes] = await Promise.all([
-                    axios.get(`${API_URL}/api/opening-types`, { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get(`${API_URL}/api/alum-treatments`, { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get(`${API_URL}/api/glass-types`, { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get('http://localhost:5187/api/opening-types', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get('http://localhost:5187/api/alum-treatments', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get('http://localhost:5187/api/glass-types', { headers: { Authorization: `Bearer ${token}` } }),
                 ]);
                 setOpeningTypes(openingTypesRes.data);
                 setTreatments(treatmentsRes.data);
@@ -141,8 +161,8 @@ const Quotation = () => {
             if (!token) return;
             try {
                 const [typesRes, complementsRes] = await Promise.all([
-                    axios.get(`${API_URL}/api/complement-types`, { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get(`${API_URL}/api/complements`, { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get('http://localhost:5187/api/complement-types', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get('http://localhost:5187/api/complements', { headers: { Authorization: `Bearer ${token}` } }),
                 ]);
                 setComplementTypes(typesRes.data);
                 setComplements(complementsRes.data);
@@ -175,7 +195,6 @@ const Quotation = () => {
             // Validar userId y dni
             if (!userId || !newCustomer.dni) {
                 setSubmitError("Debe estar autenticado y el cliente debe tener DNI.");
-                console.log(userId, newCustomer.dni, newCustomer);
                 setSubmitting(false);
                 return;
             }
@@ -215,8 +234,7 @@ const Quotation = () => {
                 totalPrice: totalComplements
             };
 
-            console.log("Payload enviado a /api/quotations:", quotationPayload);
-
+            // 1. POST a SQL
             const response = await axios.post(`${API_URL}/api/quotations`, quotationPayload, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -224,78 +242,18 @@ const Quotation = () => {
                 }
             });
 
-            // Actualizar cotizaciones en el contexto
-            if (response && response.data) {
-                setQuotations(prev => [...prev, response.data]);
-            }
-
-            setSubmitting(false);
-            navigate('/dashboard');
-        } catch (err) {
-            setSubmitError(err.message || 'Error al crear la cotización');
-            setSubmitting(false);
-        }
-    };
-
-    // Nuevo: Enviar cotización SOLO a MongoDB
-    const [mongoSubmitMsg, setMongoSubmitMsg] = useState(null);
-
-    // Nuevo: obtener datos del usuario logueado
-    const [loggedUser, setLoggedUser] = useState(null);
-    // Nuevo: agente real del cliente existente
-    const [existingAgent, setExistingAgent] = useState(null);
-
-    // Si el cliente es existente, buscar el agente real
-    useEffect(() => {
-        const fetchAgentIfExisting = async () => {
-            if (!newCustomer.agentId) {
-                setExistingAgent(null);
-                return;
-            }
-            const token = localStorage.getItem('token');
-            try {
-                const response = await axios.get(`${API_URL}/customer-agents/${newCustomer.agentId}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                setExistingAgent(response.data);
-            } catch (error) {
-                setExistingAgent(null);
-            }
-        };
-        fetchAgentIfExisting();
-    }, [newCustomer.agentId]);
-
-    useEffect(() => {
-        const fetchLoggedUser = async () => {
-            const token = localStorage.getItem('token');
-            if (!token || !userId) return;
-            try {
-                const response = await axios.get(`${API_URL}/users/${userId}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                setLoggedUser(response.data);
-            } catch (error) {
-                setLoggedUser(null);
-            }
-        };
-        fetchLoggedUser();
-    }, [userId]);
-
-    const handleSubmitMongo = async () => {
-        setSubmitting(true);
-        setMongoSubmitMsg(null);
-        setSubmitError(null);
-
-        try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                setSubmitError("No autenticado");
+            // Obtener el id de SQL (puede venir como response.data.Id o similar)
+            const sqlId = response.data?.Id || response.data?.id;
+            console.log("ID recibido de SQL:", sqlId); // <-- LOG para depuración
+            if (!sqlId) {
+                setSubmitError("No se pudo obtener el ID de la cotización SQL.");
                 setSubmitting(false);
                 return;
             }
 
-            // Usar datos del usuario logueado si están disponibles
-            const userPayload = loggedUser
+            // 2. POST a Mongo usando el id de SQL como budgetId
+            // Esperar a que loggedUser esté disponible
+            let userPayload = loggedUser
                 ? {
                     name: loggedUser.name || "",
                     lastName: loggedUser.lastName || "",
@@ -307,8 +265,8 @@ const Quotation = () => {
                     mail: ""
                 };
 
-            // Construir el objeto customer
-            let customerPayload = {
+            // Construir el objeto customer para Mongo
+            let customerPayloadMongo = {
                 name: newCustomer.name,
                 lastname: newCustomer.lastname,
                 tel: newCustomer.tel,
@@ -317,26 +275,16 @@ const Quotation = () => {
                 dni: newCustomer.dni,
             };
 
-            // Si el cliente es existente y tiene agente, usar el agente real
-            if (existingAgent) {
-                customerPayload.agent = {
-                    name: existingAgent.name,
-                    lastname: existingAgent.lastname,
-                    tel: existingAgent.tel,
-                    mail: existingAgent.mail
-                };
-            } else if (
+            if (
                 newAgent &&
                 newAgent.name &&
                 newAgent.lastname &&
                 newAgent.tel &&
                 newAgent.mail
             ) {
-                // Si es nuevo, usar el agente ingresado
-                customerPayload.agent = { ...newAgent };
+                customerPayloadMongo.agent = { ...newAgent };
             }
 
-            // workType: buscar el objeto seleccionado (no solo el nombre)
             const selectedWorkType = workTypes.find(wt => String(wt.id) === String(workPlace.workTypeId));
             const workPlacePayload = {
                 name: workPlace.name,
@@ -346,7 +294,6 @@ const Quotation = () => {
                     : { type: "" }
             };
 
-            // Construir el array de productos
             const productsPayload = selectedOpenings.map(opening => ({
                 OpeningType: openingTypes.find(type => type.id === Number(opening.typeId)) || null,
                 Quantity: opening.quantity,
@@ -354,38 +301,42 @@ const Quotation = () => {
                 GlassComplement: glassTypes.find(g => g.id === Number(opening.glassTypeId)) || null,
                 width: opening.width,
                 height: opening.height,
-                Accesory: [] // Si tienes accesorios, agrégalos aquí
+                Accesory: []
             }));
 
-            // Puedes agregar un campo comment si tienes observaciones
-            const comment = "ejemplo"; // O toma de algún campo de observaciones
+            const comment = "ejemplo";
 
-            // Construir el objeto final
+            // Payload para Mongo, agregando budgetId
             const mongoPayload = {
                 budget: {
+                    budgetId: String(sqlId), // Aquí va el id de SQL
                     user: userPayload,
-                    customer: customerPayload,
+                    customer: customerPayloadMongo,
                     workPlace: workPlacePayload,
                     products: productsPayload,
                     comment: comment
                 }
             };
 
-            // LOG para debug
-            console.log("Payload enviado a Mongo:", JSON.stringify(mongoPayload, null, 2));
+            console.log("Payload enviado a Mongo:", JSON.stringify(mongoPayload, null, 2)); // <-- LOG para depuración
 
-            // Enviar al endpoint de Mongo
-            const response = await axios.post(`${API_URL}/Mongo/CreateBudget`, mongoPayload, {
+            // 2. POST a Mongo (usa la ruta correcta)
+            await axios.post(`${API_URL}/api/Mongo/CreateBudget`, mongoPayload, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 }
             });
-            setMongoSubmitMsg("Cotización subida a Mongo correctamente.");
-            console.log("Respuesta de Mongo:", response.data);
+
+            // Actualizar cotizaciones en el contexto si quieres
+            if (response && response.data) {
+                setQuotations(prev => [...prev, response.data]);
+            }
+
             setSubmitting(false);
+            navigate('/dashboard');
         } catch (err) {
-            setSubmitError(err.message || 'Error al crear la cotización en Mongo');
+            setSubmitError(err.message || 'Error al crear la cotización');
             setSubmitting(false);
         }
     };
@@ -475,20 +426,8 @@ const Quotation = () => {
                                 >
                                     {submitting ? "Enviando..." : "Cotizar"}
                                 </button>
-                                <button
-                                    type="button"
-                                    className="submit-button"
-                                    style={{ marginLeft: 8, background: "#4caf50" }}
-                                    disabled={submitting}
-                                    onClick={handleSubmitMongo}
-                                >
-                                    {submitting ? "Enviando..." : "Cotizar en Mongo"}
-                                </button>
                                 {submitError && (
                                     <div style={{ color: 'red', marginTop: 8 }}>{submitError}</div>
-                                )}
-                                {mongoSubmitMsg && (
-                                    <div style={{ color: 'green', marginTop: 8 }}>{mongoSubmitMsg}</div>
                                 )}
                             </div>
                         </div>
