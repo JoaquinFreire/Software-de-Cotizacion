@@ -39,7 +39,7 @@ public class Budget
 
     public Budget()
     {
-        var generator = new RandomIdGenerator();
-        budgetId = generator.GenerateRandomId(8); // Genera un ID aleatorio de 8 caracteres
+        //var generator = new RandomIdGenerator();
+        //budgetId = generator.GenerateRandomId(8); // Genera un ID aleatorio de 8 caracteres
     }
 }
