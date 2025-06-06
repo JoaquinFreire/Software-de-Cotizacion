@@ -9,6 +9,7 @@ import Agent from "../components/quotationComponents/Agent";
 import WorkPlace from "../components/quotationComponents/WorkPlace";
 import OpeningType from "../components/quotationComponents/Opening";
 import Complements from "../components/quotationComponents/Complements";
+import Extras from "../components/quotationComponents/Extras";
 import useEmblaCarousel from 'embla-carousel-react';
 import { QuotationContext } from "../context/QuotationContext";
 
@@ -62,6 +63,7 @@ const Quotation = () => {
     const [selectedComplements, setSelectedComplements] = useState([]);
     const [complementTypes, setComplementTypes] = useState([]);
     const [complements, setComplements] = useState([]);
+    const [comment, setComment] = useState(""); // Nuevo estado para comentario
 
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState(null);
@@ -231,7 +233,8 @@ const Quotation = () => {
                 },
                 openings: selectedOpenings,
                 complements: selectedComplements,
-                totalPrice: totalComplements
+                totalPrice: totalComplements,
+                comment // <-- Usa el comentario real
             };
 
             // 1. POST a SQL
@@ -304,17 +307,15 @@ const Quotation = () => {
                 Accesory: []
             }));
 
-            const comment = "ejemplo";
-
-            // Payload para Mongo, agregando budgetId
+            // Payload para Mongo, agregando budgetId y comment real
             const mongoPayload = {
                 budget: {
-                    budgetId: String(sqlId), // Aquí va el id de SQL
+                    budgetId: String(sqlId),
                     user: userPayload,
                     customer: customerPayloadMongo,
                     workPlace: workPlacePayload,
                     products: productsPayload,
-                    comment: comment
+                    comment // <-- Usa el comentario real
                 }
             };
 
@@ -417,6 +418,9 @@ const Quotation = () => {
                                 selectedComplements={selectedComplements}
                                 setSelectedComplements={setSelectedComplements}
                             />
+                        </div>
+                        <div className="embla__slide">
+                            <Extras comment={comment} setComment={setComment} />
                             <div style={{ marginTop: 24 }}>
                                 <button
                                     type="button"
