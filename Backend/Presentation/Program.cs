@@ -145,7 +145,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000") // Permitir el frontend
+            policy.WithOrigins("http://localhost:3000", "https://joaquinfreire.github.io") // Permitir el frontend
                   .AllowAnyMethod()  // Permitir cualquier método HTTP (GET, POST, etc.)
                   .AllowAnyHeader(); // Permitir cualquier encabezado
         });
