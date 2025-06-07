@@ -12,6 +12,7 @@ import Complements from "../components/quotationComponents/Complements";
 import Extras from "../components/quotationComponents/Extras";
 import useEmblaCarousel from 'embla-carousel-react';
 import { QuotationContext } from "../context/QuotationContext";
+import { validateQuotation } from "../validation/quotationValidation";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -67,6 +68,7 @@ const Quotation = () => {
 
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState(null);
+    const [validationErrors, setValidationErrors] = useState({});
 
     const [userId] = useState(() => getUserIdFromToken());
 
@@ -88,7 +90,7 @@ const Quotation = () => {
             }
         };
         fetchLoggedUser();
-    }, [userId, API_URL]);
+    }, [userId]);
 
     // Carousel navigation
     const handlePrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
@@ -185,6 +187,24 @@ const Quotation = () => {
     const handleSubmitQuotation = async () => {
         setSubmitting(true);
         setSubmitError(null);
+
+        // Validar todo el formulario antes de enviar
+        const validation = validateQuotation({
+            customer: newCustomer,
+            agent: newAgent,
+            workPlace,
+            openings: selectedOpenings,
+            complements: selectedComplements,
+            comment
+        });
+        if (!validation.valid) {
+            setValidationErrors(validation.errors);
+            setSubmitError("Hay errores en el formulario. Corríjalos antes de continuar.");
+            setSubmitting(false);
+            return;
+        } else {
+            setValidationErrors({});
+        }
 
         try {
             const token = localStorage.getItem('token');
@@ -433,6 +453,13 @@ const Quotation = () => {
                                 </button>
                                 {submitError && (
                                     <div style={{ color: 'red', marginTop: 8 }}>{submitError}</div>
+                                )}
+                                {Object.keys(validationErrors).length > 0 && (
+                                    <div style={{ color: 'red', marginTop: 8 }}>
+                                        {Object.entries(validationErrors).map(([field, msg]) => (
+                                            <div key={field}>{msg}</div>
+                                        ))}
+                                    </div>
                                 )}
                             </div>
                         </div>
