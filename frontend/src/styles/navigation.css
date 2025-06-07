@@ -413,3 +413,19 @@ body, html {
 .sidebar-show-btn:hover {
     background: #00FFFF22;
 }
+
+body,
+.new-header,
+.header-center-logo,
+.logo-centered,
+.header-right,
+.icon-btn,
+.user-menu-container,
+.user-dropdown,
+.sidebar-nav,
+.sidebar-link,
+.sidebar-admin-btn,
+.sidebar-admin-dropdown .sidebar-link,
+.dashboard-container {
+    transition: background-color 2.4s cubic-bezier(.4,2,.6,1), color 0.4s cubic-bezier(.4,2,.6,1), border-color 0.4s cubic-bezier(.4,2,.6,1);
+}

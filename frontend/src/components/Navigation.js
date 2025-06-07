@@ -75,7 +75,9 @@ const Navigation = ({ onLogout }) => {
             {/* Header superior */}
             <header className="dashboard-header new-header">
                 <div className="header-center-logo">
+                    <NavLink to="/dashboard">
                     <img src={anodalLogo} alt="Logo Anodal" className="logo-centered" />
+                </NavLink>
                 </div>
                 <div className="header-right">
                     <button
