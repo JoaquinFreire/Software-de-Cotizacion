@@ -55,15 +55,32 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
             return;
         }
 
-        debounceTimeout.current = setTimeout(() => {
-            searchCustomerByDni(enteredDni);
-        }, 400);
+        // Solo buscar si hay 8 o más dígitos
+        if (enteredDni.length >= 8) {
+            debounceTimeout.current = setTimeout(() => {
+                searchCustomerByDni(enteredDni);
+            }, 400);
+        } else {
+            // Si hay menos de 8, limpiar datos y estado de búsqueda
+            setIsCustomerFound(false);
+            setIsCustomerComplete(false);
+            setNewCustomer((prev) => ({
+                ...prev,
+                name: '',
+                lastname: '',
+                tel: '',
+                mail: '',
+                address: '',
+                agentId: null
+            }));
+        }
     };
 
     const handleInputChange = (field, value) => {
         if (isCustomerFound) return;
         setNewCustomer((prev) => ({ ...prev, [field]: value }));
     };
+    
 
     useEffect(() => {
         const isComplete =
@@ -84,11 +101,27 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
                 <input
                     type="text"
                     value={newCustomer.dni || ''}
-                    onChange={handleDniChange}
+                    onChange={(e) => {
+                        const onlyNumbers = e.target.value.replace(/\D/g, '');
+                        handleDniChange({ target: { value: onlyNumbers } });
+                    }}
                     placeholder="Ingrese el DNI del cliente"
                     maxLength={10} // <-- ajusta según tu base
                     disabled={isCustomerFound}
                 />
+                {isCustomerFound && (
+                    <button
+                        type="button"
+                        style={{ marginLeft: 12 }}
+                        onClick={() => {
+                            setIsCustomerFound(false);
+                            setIsCustomerComplete(false);
+                            setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: '' });
+                        }}
+                    >
+                        Buscar otro DNI
+                    </button>
+                )}
             </div>
             {loading ? (
                 <p>Buscando cliente...</p>
