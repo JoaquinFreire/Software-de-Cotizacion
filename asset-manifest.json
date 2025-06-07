@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/Software-de-Cotizacion/static/css/main.350c2a8d.css",
+    "main.js": "/Software-de-Cotizacion/static/js/main.5da2428c.js",
+    "static/media/fondo-login.jpg": "/Software-de-Cotizacion/static/media/fondo-login.45897bbc3cc5d41fa8d1.jpg",
+    "index.html": "/Software-de-Cotizacion/index.html",
+    "main.350c2a8d.css.map": "/Software-de-Cotizacion/static/css/main.350c2a8d.css.map",
+    "main.5da2428c.js.map": "/Software-de-Cotizacion/static/js/main.5da2428c.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.350c2a8d.css",
+    "static/js/main.5da2428c.js"
+  ]
+}
