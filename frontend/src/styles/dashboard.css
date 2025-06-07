@@ -171,3 +171,25 @@ body.light-mode .success-message {
 body.light-mode .filtro::after {
     background: rgba(255, 189, 9, 0.08) !important;
 }
+
+body,
+.dashboard-container,
+.dashboard-header,
+.title,
+.search-bar,
+.search-container,
+.search-input,
+.clear-button-q,
+.search-button,
+.new-quote,
+.quote-card,
+.quote-container,
+.success-message,
+.filtro::after,
+.quote-details,
+.quote-actions,
+.quotation-form,
+.embla__slide,
+.embla__container {
+    transition: background-color 2.4s cubic-bezier(.4,2,.6,1), color 0.4s cubic-bezier(.4,2,.6,1), border-color 0.4s cubic-bezier(.4,2,.6,1), box-shadow 0.4s cubic-bezier(.4,2,.6,1);
+}
