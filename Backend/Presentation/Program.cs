@@ -163,6 +163,21 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection(); // Redirige automáticamente HTTP a HTTPS
 app.UseRouting(); // Habilita el enrutamiento de las solicitudes
+// ⬇️ ACA CAMBIO
+app.Use(async (context, next) =>
+{
+    if (context.Request.Method == HttpMethods.Options)
+    {
+        context.Response.StatusCode = 200;
+        context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+        context.Response.Headers.Append("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        context.Response.Headers.Append("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        await context.Response.CompleteAsync();
+        return;
+    }
+
+    await next();
+});
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication(); // 🔹
