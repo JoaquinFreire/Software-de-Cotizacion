@@ -10,7 +10,7 @@ WORKDIR /app/Presentation
 RUN dotnet restore
 
 # Publica en modo Release
-RUN dotnet publish -c Release -o /app/out
+RUN dotnet publish Presentation.csproj -c Release -o /app/out
 
 # Imagen de runtime liviano para correr la app
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
