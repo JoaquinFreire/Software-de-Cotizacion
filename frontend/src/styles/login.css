@@ -199,3 +199,54 @@ button {
 .forgot-password:hover {
     text-decoration: underline;
 }
+
+/* Responsivo */
+@media (max-width: 600px) {
+    .login-container {
+        padding: 0 2vw;
+    }
+    .login-box {
+        width: 98vw;
+        min-width: 0;
+        padding: 18px 6px;
+        font-size: 15px;
+    }
+    .logo, .login-logo {
+        font-size: 22px;
+        width: 110px;
+    }
+    .subtitle {
+        font-size: 15px;
+    }
+    input {
+        font-size: 15px;
+        padding: 10px;
+        width: 98%;
+    }
+    .menu-button2, button {
+        font-size: 15px;
+        padding: 10px 0;
+    }
+}
+
+@media (max-width: 400px) {
+    .login-box {
+        padding: 8px 2px;
+        font-size: 13px;
+    }
+    .logo, .login-logo {
+        font-size: 16px;
+        width: 80px;
+    }
+    .subtitle {
+        font-size: 12px;
+    }
+    input {
+        font-size: 13px;
+        padding: 7px;
+    }
+    .menu-button2, button {
+        font-size: 13px;
+        padding: 8px 0;
+    }
+}

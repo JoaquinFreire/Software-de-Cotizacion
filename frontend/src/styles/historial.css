@@ -1,1 +1,32 @@
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 0 2vw;
+    }
+    .title {
+        font-size: 22px;
+        margin-top: 1rem;
+        margin-bottom: 12px;
+    }
+    .quote-container, .quote-card {
+        width: 100%;
+        padding: 10px;
+        font-size: 15px;
+    }
+    .search-bar, .search-container {
+        width: 100%;
+        min-width: 0;
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .title {
+        font-size: 16px;
+    }
+    .quote-card {
+        font-size: 13px;
+        padding: 6px;
+    }
+}
 
