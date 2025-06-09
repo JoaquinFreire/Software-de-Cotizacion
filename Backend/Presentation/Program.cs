@@ -170,4 +170,12 @@ app.UseAuthorization(); // Habilita la autorización en la API
 // Mapea los controladores definidos en la aplicación
 app.MapControllers();
 Console.WriteLine("Backend listo para recibir solicitudes.");
-app.Run(); // Ejecuta la aplicación
+try
+{
+    app.Run();
+}
+catch (Exception ex)
+{
+    Console.WriteLine("ERROR FATAL: " + ex.ToString());
+    throw;
+}
