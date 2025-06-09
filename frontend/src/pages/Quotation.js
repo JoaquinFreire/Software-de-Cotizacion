@@ -257,7 +257,8 @@ const Quotation = () => {
                 comment // <-- Usa el comentario real
             };
 
-            // 1. POST a SQL
+            console.log("Payload enviado a /api/quotations:", quotationPayload);
+
             const response = await axios.post(`${API_URL}/api/quotations`, quotationPayload, {
                 headers: {
                     'Content-Type': 'application/json',
