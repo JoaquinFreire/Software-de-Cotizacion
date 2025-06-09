@@ -10,8 +10,7 @@ import { QuotationContext } from "../context/QuotationContext";
 import Skeleton from "react-loading-skeleton";
 import 'react-loading-skeleton/dist/skeleton.css';
 import { ToastContainer, toast, Slide } from 'react-toastify';
-const API_URL = process.env.REACT_APP_API_URL;
-
+// solo uno
 const API_URL = process.env.REACT_APP_API_URL;
 const Dashboard = () => {
     const { quotations, setQuotations, loading } = useContext(QuotationContext);

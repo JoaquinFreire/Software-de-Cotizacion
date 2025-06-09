@@ -335,3 +335,58 @@ body.light-mode .remove-complement-button:hover {
     background: #b71c1c !important;
 }
 
+@media (max-width: 768px) {
+    .quotation-form {
+        max-width: 100%;
+        padding: 10px;
+        font-size: 15px;
+    }
+    .title {
+        font-size: 22px;
+        margin-bottom: 12px;
+    }
+    .embla__button,
+    .submit-button {
+        font-size: 15px;
+        padding: 10px 0;
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    .embla-buttons-container {
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+    .workplace-container, .agent-container, .opening-container, .complements-container, .customer-details {
+        padding: 10px;
+        font-size: 15px;
+    }
+    .form-group input, .form-group select, input, select {
+        font-size: 15px;
+        padding: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .quotation-form {
+        padding: 4px;
+        font-size: 13px;
+    }
+    .title {
+        font-size: 16px;
+    }
+    .embla__button,
+    .submit-button {
+        font-size: 13px;
+        padding: 8px 0;
+    }
+    .workplace-container, .agent-container, .opening-container, .complements-container, .customer-details {
+        padding: 6px;
+        font-size: 13px;
+    }
+    .form-group input, .form-group select, input, select {
+        font-size: 13px;
+        padding: 6px;
+    }
+}
+

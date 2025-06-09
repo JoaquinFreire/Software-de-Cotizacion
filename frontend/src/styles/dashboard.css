@@ -193,3 +193,69 @@ body,
 .embla__container {
     transition: background-color 2.4s cubic-bezier(.4,2,.6,1), color 0.4s cubic-bezier(.4,2,.6,1), border-color 0.4s cubic-bezier(.4,2,.6,1), box-shadow 0.4s cubic-bezier(.4,2,.6,1);
 }
+
+/* --- RESPONSIVE DESIGN --- */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 0 2vw;
+    }
+    .title {
+        font-size: 24px;
+        margin-top: 1rem;
+        margin-bottom: 12px;
+    }
+    .search-bar {
+        flex-direction: column;
+        width: 100%;
+        margin-bottom: 16px;
+        gap: 10px;
+    }
+    .search-container {
+        width: 100%;
+        min-width: 0;
+        flex-grow: 1;
+        height: 38px;
+        padding: 0;
+    }
+    .search-input {
+        font-size: 16px;
+        padding: 8px 4px;
+    }
+    .clear-button-q,
+    .search-button {
+        width: 40px;
+        height: 38px;
+        margin: 0 2px 0 0;
+        font-size: 18px;
+    }
+    .search-button img {
+        width: 18px;
+        height: 18px;
+    }
+    .new-quote {
+        width: 100%;
+        margin: 10px 0 0 0;
+        padding: 12px 0;
+        font-size: 16px;
+    }
+    .dashboard-header {
+        flex-direction: column;
+        padding: 8px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-container {
+        padding: 0 1vw;
+    }
+    .title {
+        font-size: 18px;
+    }
+    .search-bar {
+        gap: 6px;
+    }
+    .new-quote {
+        font-size: 15px;
+        padding: 10px 0;
+    }
+}
