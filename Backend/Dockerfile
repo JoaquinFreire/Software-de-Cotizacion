@@ -18,6 +18,6 @@ WORKDIR /app
 COPY --from=build /app/out .
 
 # Expone puerto por defecto de ASP.NET
-EXPOSE 80
+EXPOSE 8080
 
 ENTRYPOINT ["dotnet", "Presentation.dll"]
