@@ -145,7 +145,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000", "https://joaquinfreire.github.io", "https://software-de-cotizacion-1.onrender.com")
+            policy.WithOrigins("http://localhost:3000", "https://joaquinfreire.github.io",
+            "https://joaquinfreire.github.io/Software-de-Cotizacion", "https://software-de-cotizacion-1.onrender.com")
                   // Permitir el frontend
                   .AllowAnyMethod()  // Permitir cualquier método HTTP (GET, POST, etc.)
                   .AllowAnyHeader(); // Permitir cualquier encabezado
@@ -163,26 +164,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection(); // Redirige automáticamente HTTP a HTTPS
 app.UseRouting(); // Habilita el enrutamiento de las solicitudes
-// ⬇️ ACA CAMBIO
-app.Use(async (context, next) =>
-{
-    if (context.Request.Method == HttpMethods.Options)
-    {
-        context.Response.StatusCode = 200;
-        context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
-        context.Response.Headers.Append("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        context.Response.Headers.Append("Access-Control-Allow-Headers", "Content-Type, Authorization");
-        await context.Response.CompleteAsync();
-        return;
-    }
-
-    await next();
-});
 app.UseCors("AllowFrontend");
-
 app.UseAuthentication(); // 🔹
 app.UseAuthorization(); // Habilita la autorización en la API
-
 // Mapea los controladores definidos en la aplicación
 app.MapControllers();
 

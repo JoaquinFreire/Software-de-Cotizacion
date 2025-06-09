@@ -12,6 +12,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import { ToastContainer, toast, Slide } from 'react-toastify';
 const API_URL = process.env.REACT_APP_API_URL;
 
+const API_URL = process.env.REACT_APP_API_URL;
 const Dashboard = () => {
     const { quotations, setQuotations, loading } = useContext(QuotationContext);
     const [filteredQuotations, setFilteredQuotations] = useState([]);
