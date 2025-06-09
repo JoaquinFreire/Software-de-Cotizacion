@@ -21,7 +21,7 @@ using Application.DTOs.CreateBudget;
 using Application.UseCases.Budget;
 /* Env.Load("../.env"); */ // Carga las variables de entorno desde el archivo .env
 
-
+Console.WriteLine("Arrancando backend...");
 var builder = WebApplication.CreateBuilder(args);
 
 //Inscripción a QuestPDF
@@ -169,5 +169,5 @@ app.UseAuthentication(); // 🔹
 app.UseAuthorization(); // Habilita la autorización en la API
 // Mapea los controladores definidos en la aplicación
 app.MapControllers();
-
+Console.WriteLine("Backend listo para recibir solicitudes.");
 app.Run(); // Ejecuta la aplicación
