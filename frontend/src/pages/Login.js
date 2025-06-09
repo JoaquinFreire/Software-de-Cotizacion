@@ -23,7 +23,7 @@ const Login = () => {
         try {
             const response = await axios.post(`${API_URL}/api/auth/login`, { legajo, password });
             localStorage.setItem('token', response.data.token); // Guardar el token
-            navigate('/dashboard'); // Redirigir si el login es exitoso
+            navigate('/'); // Redirigir si el login es exitoso
             window.location.reload(); // Recargar la página del dashboard
         } catch (err) { // Manejar errores de la API o de conexión con el servidor
             if (err.response && err.response.data.error) { // Verificar si el error proviene de la API y mostrarlo en caso afirmativo

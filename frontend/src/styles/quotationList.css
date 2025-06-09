@@ -91,3 +91,42 @@
     text-align: center;
     margin: 10px 0;
 }
+
+@media (max-width: 768px) {
+    .quote-card {
+        flex-direction: column;
+        width: 98%;
+        padding: 12px;
+        font-size: 15px;
+        align-items: stretch;
+    }
+    .quote-details {
+        font-size: 15px;
+    }
+    .quote-actions {
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 10px;
+        align-items: stretch;
+    }
+    .go-button, .update-button, .delete-button, .status-select, .status-button {
+        width: 100%;
+        font-size: 15px;
+        height: 44px;
+        padding: 8px 0;
+    }
+    .status-select {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .quote-card {
+        font-size: 13px;
+        padding: 8px;
+    }
+    .go-button, .update-button, .delete-button, .status-select, .status-button {
+        font-size: 13px;
+        height: 38px;
+    }
+}

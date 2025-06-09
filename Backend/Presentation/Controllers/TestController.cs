@@ -10,6 +10,10 @@ using System.Threading.Tasks;
 [Route("api/test")]
 public class TestController : ControllerBase
 {
+    public TestController()
+    {
+        Console.WriteLine("TestController creado");
+    }
     [HttpGet]
     public IActionResult Get() => Ok("¡Funciona!");
 }
