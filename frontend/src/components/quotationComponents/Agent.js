@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_URL = process.env.REACT_APP_API_URL;
 const Agent = ({ customerId, newAgent, setNewAgent, setIsAgentComplete }) => {
     const [agent, setAgent] = useState(null); // Estado para almacenar el agente del cliente seleccionado
 
@@ -13,7 +14,7 @@ const Agent = ({ customerId, newAgent, setNewAgent, setIsAgentComplete }) => {
 
             const token = localStorage.getItem('token');
             try {
-                const response = await axios.get(`http://localhost:5187/api/customer-agents/${customerId}`, {
+                const response = await axios.get(`${API_URL}/api/customer-agents/${customerId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setAgent(response.data);

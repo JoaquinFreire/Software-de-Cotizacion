@@ -43,7 +43,7 @@ secrets.json
 # 🔹 Node & Frontend (si aplicable)
 node_modules/
 *.env
-
+out/
 # 🔹 Git Specific
 *.orig
 

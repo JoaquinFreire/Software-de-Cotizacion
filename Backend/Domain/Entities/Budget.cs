@@ -25,7 +25,7 @@ public class Budget
     [BsonElement("products")]
     public List<Budget_Product> Products { get; set; } = new List<Budget_Product>(); // Lista de productos
     [BsonElement("expirationDate")]
-    public DateTime? ExpirationDate { get; set; } = DateTime.UtcNow.AddDays(60); // Fecha de expiración por defecto X días después de la creación
+    public DateTime? ExpirationDate { get; set; } = DateTime.UtcNow.AddDays(60); // Fecha de expiraciï¿½n por defecto X dï¿½as despuï¿½s de la creaciï¿½n
     [BsonElement("endDate")]
     public DateTime? EndDate { get; set; } = null;
     [BsonElement("comment")]
@@ -37,9 +37,9 @@ public class Budget
     [BsonElement("total")]
     public double Total { get; set; }  //Total del presupuesto
 
-    public Budget()
+   /*  public Budget()
     {
-        //var generator = new RandomIdGenerator();
-        //budgetId = generator.GenerateRandomId(8); // Genera un ID aleatorio de 8 caracteres
-    }
+        var generator = new RandomIdGenerator();
+        budgetId = generator.GenerateRandomId(8); // Genera un ID aleatorio de 8 caracteres
+    } */
 }
