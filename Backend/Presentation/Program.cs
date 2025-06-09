@@ -19,9 +19,9 @@ using DotNetEnv;
 using QuestPDF.Infrastructure;
 using Application.DTOs.CreateBudget;
 using Application.UseCases.Budget;
-Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
+/* Env.Load("../.env"); */ // Carga las variables de entorno desde el archivo .env
 
-
+Console.WriteLine("Arrancando backend...");
 var builder = WebApplication.CreateBuilder(args);
 
 //Inscripción a QuestPDF
@@ -145,7 +145,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000") // Permitir el frontend
+            policy.WithOrigins("http://localhost:3000", "https://joaquinfreire.github.io",
+            "https://joaquinfreire.github.io/Software-de-Cotizacion", "https://software-de-cotizacion-1.onrender.com")
+                  // Permitir el frontend
                   .AllowAnyMethod()  // Permitir cualquier método HTTP (GET, POST, etc.)
                   .AllowAnyHeader(); // Permitir cualquier encabezado
         });
@@ -163,11 +165,17 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection(); // Redirige automáticamente HTTP a HTTPS
 app.UseRouting(); // Habilita el enrutamiento de las solicitudes
 app.UseCors("AllowFrontend");
-
 app.UseAuthentication(); // 🔹
 app.UseAuthorization(); // Habilita la autorización en la API
-
 // Mapea los controladores definidos en la aplicación
 app.MapControllers();
-
-app.Run(); // Ejecuta la aplicación
+Console.WriteLine("Backend listo para recibir solicitudes.");
+try
+{
+    app.Run();
+}
+catch (Exception ex)
+{
+    Console.WriteLine("ERROR FATAL: " + ex.ToString());
+    throw;
+}

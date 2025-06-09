@@ -13,6 +13,8 @@ import AdminUsuarios from './pages/admin/AdminUsuarios';
 import SessionModal from './components/SessionModal';
 import { QuotationProvider } from './context/QuotationContext'; // Importar el proveedor de contexto
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const PrivateRoute = ({ element }) => {
     const token = localStorage.getItem('token');
     return token ? element : <Navigate to="/" />;
@@ -85,7 +87,7 @@ function App() {
         try {
             const token = localStorage.getItem('token');
             const response = await axios.post(
-                'http://localhost:5187/api/auth/extend-session',
+                `${API_URL}/api/auth/extend-session`,
                 {}, // No envía datos en el cuerpo
                 { headers: { Authorization: `Bearer ${token}` } } // Adjunta el token en la cabecera
             );
