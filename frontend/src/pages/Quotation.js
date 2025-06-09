@@ -126,7 +126,7 @@ const Quotation = () => {
             const token = localStorage.getItem('token');
             if (!token) return;
             try {
-                const response = await axios.get('http://localhost:5187/api/worktypes', {
+                const response = await axios.get(`${API_URL}/api/worktypes`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setWorkTypes(response.data);
@@ -144,9 +144,9 @@ const Quotation = () => {
             if (!token) return;
             try {
                 const [openingTypesRes, treatmentsRes, glassTypesRes] = await Promise.all([
-                    axios.get('http://localhost:5187/api/opening-types', { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get('http://localhost:5187/api/alum-treatments', { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get('http://localhost:5187/api/glass-types', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get(`${API_URL}/api/opening-types`, { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get(`${API_URL}/api/alum-treatments`, { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get(`${API_URL}/api/glass-types`, { headers: { Authorization: `Bearer ${token}` } }),
                 ]);
                 setOpeningTypes(openingTypesRes.data);
                 setTreatments(treatmentsRes.data);
@@ -165,8 +165,8 @@ const Quotation = () => {
             if (!token) return;
             try {
                 const [typesRes, complementsRes] = await Promise.all([
-                    axios.get('http://localhost:5187/api/complement-types', { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get('http://localhost:5187/api/complements', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get(`${API_URL}/api/complement-types`, { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get(`${API_URL}/api/complements`, { headers: { Authorization: `Bearer ${token}` } }),
                 ]);
                 setComplementTypes(typesRes.data);
                 setComplements(complementsRes.data);

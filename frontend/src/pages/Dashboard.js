@@ -11,6 +11,7 @@ import Skeleton from "react-loading-skeleton";
 import 'react-loading-skeleton/dist/skeleton.css';
 import { ToastContainer, toast, Slide } from 'react-toastify';
 
+const API_URL = process.env.REACT_APP_API_URL;
 const Dashboard = () => {
     const { quotations, setQuotations, loading } = useContext(QuotationContext);
     const [filteredQuotations, setFilteredQuotations] = useState([]);
@@ -29,7 +30,7 @@ const Dashboard = () => {
         const token = localStorage.getItem("token");
         try {
             await axios.delete(
-                `http://localhost:5187/api/quotations/${quotationToDelete}`,
+                `${API_URL}/api/quotations/${quotationToDelete}`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -57,7 +58,7 @@ const Dashboard = () => {
         const token = localStorage.getItem("token");
         try {
             await axios.put(
-                `http://localhost:5187/api/quotations/${id}/status`,
+                `${API_URL}/api/quotations/${id}/status`,
                 { status: newStatus },
                 {
                     headers: { Authorization: `Bearer ${token}` },
