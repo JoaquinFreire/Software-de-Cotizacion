@@ -74,6 +74,7 @@ const Quotation = () => {
 
     // Agrega estado para el usuario logueado
     const [loggedUser, setLoggedUser] = useState(null);
+    const [agentData, setAgentData] = useState(null); // <-- Nuevo estado para datos del agente
 
     // Obtiene los datos del usuario logueado al montar el componente
     useEffect(() => {
@@ -91,6 +92,26 @@ const Quotation = () => {
         };
         fetchLoggedUser();
     }, [userId]);
+
+    // Obtener datos del agente si hay agentId
+    useEffect(() => {
+        const fetchAgentData = async () => {
+            if (!newCustomer.agentId) {
+                setAgentData(null);
+                return;
+            }
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get(`${API_URL}/api/customer-agents/${newCustomer.agentId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setAgentData(response.data);
+            } catch {
+                setAgentData(null);
+            }
+        };
+        fetchAgentData();
+    }, [newCustomer.agentId]);
 
     // Carousel navigation
     const handlePrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
@@ -240,9 +261,12 @@ const Quotation = () => {
                 agent = { ...newAgent };
             }
 
+            // --- CAMBIO: incluir agentId si existe, y solo incluir agent si es nuevo ---
             const customerPayload = agent
                 ? { name, lastname, tel, mail, address, dni, agent }
-                : { name, lastname, tel, mail, address, dni };
+                : agentId
+                    ? { name, lastname, tel, mail, address, dni, agentId }
+                    : { name, lastname, tel, mail, address, dni };
 
             const quotationPayload = {
                 customer: customerPayload,
@@ -299,7 +323,17 @@ const Quotation = () => {
                 dni: newCustomer.dni,
             };
 
+            // --- CAMBIO: incluir datos del agente si existen ---
             if (
+                agentData && agentData.name && agentData.lastname && agentData.tel && agentData.mail
+            ) {
+                customerPayloadMongo.agent = {
+                    name: agentData.name,
+                    lastname: agentData.lastname,
+                    tel: agentData.tel,
+                    mail: agentData.mail
+                };
+            } else if (
                 newAgent &&
                 newAgent.name &&
                 newAgent.lastname &&
