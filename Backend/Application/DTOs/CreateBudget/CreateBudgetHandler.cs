@@ -22,12 +22,6 @@ namespace Application.DTOs.CreateBudget
         {
             var budget = _mapper.Map<Budget>(request.BudgetDTO);
 
-            var idGenerator = new BudgetIdGenerator();
-            budget.budgetId = idGenerator.GenerateBudgetId(
-                request.BudgetDTO.customer.name,
-                request.BudgetDTO.customer.lastname);
-
-
             await _budgetServices.CreateBudgetAsync(budget);
             return budget.id;
         }

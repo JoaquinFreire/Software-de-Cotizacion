@@ -1,7 +1,24 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Ryzen 5\\source\\repos\\Software-de-Cotizacion\\",
-  "Documents": [],
+  "WorkspaceRootPath": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\Backend\\Application\\DTOs\\GetBudget\\GetBudgetByIdHandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Backend\\Application\\DTOs\\GetBudget\\GetBudgetByIdHandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\Backend\\Application\\DTOs\\GetBudget\\GetBudgetByIdQuery.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Backend\\Application\\DTOs\\GetBudget\\GetBudgetByIdQuery.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\Backend\\Presentation\\Controllers\\BudgetController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Backend\\Presentation\\Controllers\\BudgetController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\Backend\\Application\\DTOs\\GetBudget\\GetBudgetDTO.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Backend\\Application\\DTOs\\GetBudget\\GetBudgetDTO.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,8 +26,47 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 0,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "GetBudgetByIdHandler.cs",
+              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\Backend\\Application\\DTOs\\GetBudget\\GetBudgetByIdHandler.cs",
+              "RelativeDocumentMoniker": "Backend\\Application\\DTOs\\GetBudget\\GetBudgetByIdHandler.cs",
+              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\Backend\\Application\\DTOs\\GetBudget\\GetBudgetByIdHandler.cs",
+              "RelativeToolTip": "Backend\\Application\\DTOs\\GetBudget\\GetBudgetByIdHandler.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-09T23:22:24.369Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "GetBudgetByIdQuery.cs",
+              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\Backend\\Application\\DTOs\\GetBudget\\GetBudgetByIdQuery.cs",
+              "RelativeDocumentMoniker": "Backend\\Application\\DTOs\\GetBudget\\GetBudgetByIdQuery.cs",
+              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\Backend\\Application\\DTOs\\GetBudget\\GetBudgetByIdQuery.cs",
+              "RelativeToolTip": "Backend\\Application\\DTOs\\GetBudget\\GetBudgetByIdQuery.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-09T23:20:32.566Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "BudgetController.cs",
+              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\Backend\\Presentation\\Controllers\\BudgetController.cs",
+              "RelativeDocumentMoniker": "Backend\\Presentation\\Controllers\\BudgetController.cs",
+              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\Backend\\Presentation\\Controllers\\BudgetController.cs",
+              "RelativeToolTip": "Backend\\Presentation\\Controllers\\BudgetController.cs",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAgwEcAAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-09T21:26:40.155Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:129:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
@@ -42,6 +98,31 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "GetBudgetDTO.cs",
+              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\Backend\\Application\\DTOs\\GetBudget\\GetBudgetDTO.cs",
+              "RelativeDocumentMoniker": "Backend\\Application\\DTOs\\GetBudget\\GetBudgetDTO.cs",
+              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\Backend\\Application\\DTOs\\GetBudget\\GetBudgetDTO.cs",
+              "RelativeToolTip": "Backend\\Application\\DTOs\\GetBudget\\GetBudgetDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-09T21:46:25.784Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:130:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
             }
           ]
         }

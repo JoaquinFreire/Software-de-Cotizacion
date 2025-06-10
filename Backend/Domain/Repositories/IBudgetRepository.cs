@@ -5,7 +5,8 @@ namespace Domain.Repositories
     public interface IBudgetRepository
     {
         Task<List<Budget>> GetAllAsync();
-        Task<Budget> GetByIdAsync(string id);
+        Task<Budget> GetByIdAsync(string budgetid); // método para id de mongo
+        Task<Budget> GetByBudgetIdAsync(string budgetId); // método para BudgetId
         Task AddAsync(Budget entity);
         Task UpdateAsync(string id, Budget entity);
         Task DeleteAsync(string id);

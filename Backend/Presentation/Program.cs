@@ -52,7 +52,7 @@ builder.Services.AddScoped<UserServices>(); // Registrar el servicio de aplicaci
 
 builder.Services.AddScoped<UserServices>();
 
-builder.Services.AddAutoMapper(typeof(BudgetProfile));
+builder.Services.AddAutoMapper(typeof(CreateBudgetProfile));
 
 //Convertidor PDF
 builder.Services.AddScoped<IBudgetPdfGenerator, PdfBudgetUseCase>();

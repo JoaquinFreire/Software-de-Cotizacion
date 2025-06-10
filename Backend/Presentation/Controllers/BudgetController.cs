@@ -1,11 +1,12 @@
-using Application.Services;
 using Application.DTOs.CreateBudget;
+using Application.Queries.Budget;
+using Application.Services;
 using Application.UseCases;
-using Microsoft.AspNetCore.Mvc;
-using Presentation.Request;
+using Application.UseCases.Budget;
 using AutoMapper;
 using MediatR;
-using Application.UseCases.Budget;
+using Microsoft.AspNetCore.Mvc;
+using Presentation.Request;
 
 namespace Presentation.Controllers
 {
@@ -46,12 +47,19 @@ namespace Presentation.Controllers
         }
 
 
-        [HttpGet("Test")]
-        public IActionResult Test()
+        [HttpGet("GetBudgetByBudgetId/{budgetId}")]
+        public async Task<IActionResult> GetBudgetByBudgetId(string budgetId)
         {
-            return Ok("Funciona");
+            var query = new GetBudgetByBudgetIdQuery(budgetId);
+            var result = await _mediator.Send(query);
+
+            if (result == null)
+                return NotFound("Presupuesto no encontrado.");
+
+            return Ok(result);
         }
-        
+
+
         [HttpDelete("DeleteBudget")]
         public async Task<IActionResult> DeleteBudget([FromBody] string id)
         {
