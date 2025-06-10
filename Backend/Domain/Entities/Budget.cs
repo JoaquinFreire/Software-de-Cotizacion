@@ -11,6 +11,8 @@ public class Budget
     public string? id { get; set; }
     [BsonElement("BudgetId")]
     public string budgetId  { get; set; }
+    [BsonElement("version")]
+    public string version { get; set; } = "1"; // Versi�n del presupuesto, por defecto 1
     [BsonElement("file_date")]
     public DateTime? creationDate { get; set; } = DateTime.UtcNow;
     [BsonElement("status")]
@@ -37,9 +39,4 @@ public class Budget
     [BsonElement("total")]
     public double Total { get; set; }  //Total del presupuesto
 
-   /*  public Budget()
-    {
-        var generator = new RandomIdGenerator();
-        budgetId = generator.GenerateRandomId(8); // Genera un ID aleatorio de 8 caracteres
-    } */
 }

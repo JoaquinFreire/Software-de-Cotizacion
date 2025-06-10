@@ -1,6 +1,16 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\Backend",
+    "\\Backend\\Application",
+    "\\Backend\\Application\\DTOs",
+    "\\Backend\\Application\\DTOs\\GetBudget",
+    "\\Backend\\Infrastructure",
+    "\\Backend\\Infrastructure\\Persistence",
+    "\\Backend\\Infrastructure\\Persistence\\MongoDBContext",
+    "\\Backend\\Infrastructure\\Persistence\\Repositories",
+    "\\Backend\\Infrastructure\\Persistence\\Repositories\\MongoDB"
   ],
+  "SelectedNode": "\\Backend\\Application\\DTOs\\GetBudget\\GetBudgetByIdHandler.cs",
   "PreviewInSolutionExplorer": false
 }

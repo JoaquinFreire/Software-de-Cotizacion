@@ -19,7 +19,7 @@ using DotNetEnv;
 using QuestPDF.Infrastructure;
 using Application.DTOs.CreateBudget;
 using Application.UseCases.Budget;
-/* Env.Load("../.env"); */ // Carga las variables de entorno desde el archivo .env
+Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
 
 Console.WriteLine("Arrancando backend...");
 var builder = WebApplication.CreateBuilder(args);
@@ -52,7 +52,7 @@ builder.Services.AddScoped<UserServices>(); // Registrar el servicio de aplicaci
 
 builder.Services.AddScoped<UserServices>();
 
-builder.Services.AddAutoMapper(typeof(BudgetProfile));
+builder.Services.AddAutoMapper(typeof(CreateBudgetProfile));
 
 //Convertidor PDF
 builder.Services.AddScoped<IBudgetPdfGenerator, PdfBudgetUseCase>();
