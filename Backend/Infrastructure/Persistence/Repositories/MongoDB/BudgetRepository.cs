@@ -31,10 +31,18 @@ namespace Infrastructure.Persistence.Repositories
             return await _collection.Find(_ => true).ToListAsync();
         }
 
-        //Metodo para buscar cotizaciones por id
+        // Método para buscar cotizaciones por id de MongoDB
         public async Task<Budget> GetByIdAsync(string id)
         {
-            return await _collection.Find(b => b.id == id).FirstOrDefaultAsync();
+            var filter = Builders<Budget>.Filter.Eq(b => b.id, id);
+            return await _collection.Find(filter).FirstOrDefaultAsync();
+        }
+
+        //Metodo para buscar cotizaciones por BudgetId
+        public async Task<Budget> GetByBudgetIdAsync(string budgetId)
+        {
+            var filter = Builders<Budget>.Filter.Eq(b => b.budgetId, budgetId);
+            return await _collection.Find(filter).FirstOrDefaultAsync();
         }
 
         //Metodo para agregar cotizaciones

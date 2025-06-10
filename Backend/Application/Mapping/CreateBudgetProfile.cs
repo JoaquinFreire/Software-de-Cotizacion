@@ -2,9 +2,9 @@
 using Application.DTOs.CreateBudget;
 using Domain.Entities;
 
-public class BudgetProfile : Profile
+public class CreateBudgetProfile : Profile
 {
-    public BudgetProfile()
+    public CreateBudgetProfile()
     {
         // Mapeo BudgetDTO a Budget
         CreateMap<CreateBudgetDTO, Budget>()
