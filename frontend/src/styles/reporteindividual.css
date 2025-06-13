@@ -1,0 +1,286 @@
+/* Reset básico */
+.reporte-cotizaciones-pdf {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #fff;
+    color: #222;
+    min-height: 100vh;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Simulación de hoja A4 */
+.reporte-cotizaciones-root {
+    min-height: 100vh;
+    background: rgb(51, 57, 71);
+    padding: 32px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.reporte-cotizaciones-a4 {
+    width: 794px; /* A4: 210mm * 3.78 */
+    min-height: 1123px; /* A4: 297mm * 3.78 */
+    background: #fff;
+    box-shadow: 0 0 24px 2px rgba(30,40,90,0.13);
+    border-radius: 12px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Encabezado */
+.reporte-cotizaciones-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #e0e0e0;
+    padding: 32px 0 24px 0;
+    margin-bottom: 0;
+    background: #f8f9fa;
+}
+
+.reporte-cotizaciones-logo {
+    height: 70px;
+    margin-left: 32px;
+}
+
+.reporte-cotizaciones-title {
+    flex: 1;
+    text-align: center;
+    font-size: 2rem;
+    margin: 0;
+    letter-spacing: 1px;
+    font-weight: 700;
+    color: #1a237e;
+}
+
+.reporte-cotizaciones-logo-placeholder {
+    width: 70px;
+    margin-right: 32px;
+}
+
+/* Barra de filtros y acciones */
+.reporte-cotizaciones-toolbar {
+    width: 794px;
+    margin: 0 auto 24px auto;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background: transparent;
+}
+
+.reporte-cotizaciones-filtros {
+    display: flex;
+    gap: 24px;
+    align-items: flex-end;
+    background: #fff;
+    padding: 18px 32px 18px 32px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(30,40,90,0.07);
+    margin-bottom: 0;
+    width: 100%;
+    text-align: black;
+}
+
+.reporte-cotizaciones-filtros label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 500;
+    color: #333;
+    font-size: 1.08rem;
+}
+
+.reporte-cotizaciones-filtros input[type="date"] {
+    margin-top: 4px;
+    padding: 6px 10px;
+    border: 1px solid #bdbdbd;
+    border-radius: 4px;
+    font-size: 1rem;
+    background: #f8f9fa;
+    color: black;
+}
+
+.reporte-cotizaciones-filtros button,
+.reporte-cotizaciones-btn-pdf {
+    padding: 10px 22px;
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-left: 20px;
+    margin-bottom: 8px;
+}
+
+.reporte-cotizaciones-filtros button:disabled,
+.reporte-cotizaciones-btn-pdf:disabled {
+    background: #bdbdbd;
+    cursor: not-allowed;
+}
+
+.reporte-cotizaciones-btn-pdf {
+    background: #43a047;
+    margin-left: 12px;
+    min-width: 150px;
+}
+
+.reporte-cotizaciones-btn-pdf:disabled {
+    background: #bdbdbd;
+}
+
+/* Info superior */
+.reporte-cotizaciones-info {
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    margin: 32px auto 18px auto;
+    font-size: 1.15rem;
+    color: #444;
+    font-weight: 500;
+}
+
+/* Gráfico */
+.reporte-cotizaciones-grafico {
+    width: 370px;
+    margin: 0 auto 32px auto;
+    background: #f4f6fb;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(30,40,90,0.07);
+    padding: 24px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Tabla */
+.reporte-cotizaciones-tabla {
+    width: 420px;
+    margin: 0 auto 32px auto;
+    border-collapse: collapse;
+    text-align: center;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(30,40,90,0.07);
+}
+
+.reporte-cotizaciones-tabla th,
+.reporte-cotizaciones-tabla td {
+    border: 1px solid #e0e0e0;
+    padding: 12px 8px;
+    font-size: 1.08rem;
+}
+
+.reporte-cotizaciones-tabla th {
+    background: #e3eafc;
+    color: #1a237e;
+    font-weight: 700;
+}
+
+.reporte-cotizaciones-tabla tr:last-child td {
+    background: #f8f9fa;
+    font-weight: 700;
+}
+
+/* Nueva sección de análisis */
+.reporte-cotizaciones-analisis {
+    width: 90%;
+    margin: 0 auto 32px auto;
+    background: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(30,40,90,0.06);
+    padding: 24px 32px 18px 32px;
+    font-size: 1.08rem;
+    color: #222;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.reporte-cotizaciones-analisis-bloque {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+.reporte-cotizaciones-analisis ul {
+    margin: 8px 0 8px 18px;
+    padding: 0;
+}
+
+.reporte-cotizaciones-analisis li {
+    margin-bottom: 4px;
+}
+
+/* Main */
+.reporte-cotizaciones-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* Pie de página */
+.reporte-cotizaciones-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 2px solid #e0e0e0;
+    padding: 18px 0;
+    margin-top: 36px;
+    background: #f8f9fa;
+}
+
+.reporte-cotizaciones-direccion {
+    font-size: 1.08rem;
+    margin-left: 32px;
+    color: #444;
+}
+
+.reporte-cotizaciones-footer-logo {
+    height: 44px;
+    margin-right: 32px;
+}
+
+/* Ajustes para impresión/pdf */
+@media print {
+    body {
+        background: #fff !important;
+    }
+    .reporte-cotizaciones-root {
+        background: #fff !important;
+        padding: 0 !important;
+    }
+    .reporte-cotizaciones-toolbar {
+        display: none !important;
+    }
+    .reporte-cotizaciones-a4 {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        min-height: 0 !important;
+    }
+    .reporte-cotizaciones-filtros button {
+        display: none;
+    }
+    .reporte-cotizaciones-filtros input[type="date"] {
+        pointer-events: none;
+    }
+    .reporte-cotizaciones-footer,
+    .reporte-cotizaciones-header {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

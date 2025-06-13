@@ -172,6 +172,13 @@ public class QuotationController : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { id = quotation.Id }, quotation);
     }
+    [HttpGet("by-period")]
+    public async Task<IActionResult> GetByPeriod([FromQuery] DateTime from, [FromQuery] DateTime to)
+    {
+        var quotations = await _quotationRepository.GetByPeriodAsync(from, to);
+        return Ok(quotations);
+    }
+
 
     [HttpPut("{id}/status")]
     public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateStatusRequest request)
