@@ -17,7 +17,7 @@
 
 .title {
     text-align: center;
-    color: cyan;
+    color: rgb(61, 189, 189);
     font-size: 35px;
     margin-bottom: 20px;
     margin-top: 2rem;
@@ -88,6 +88,7 @@
     height: 16px;
 }
 
+
 .new-quote { 
     width: 30%;
     height: 50%;
@@ -113,6 +114,7 @@
     pointer-events: none; /* Permite interactuar con los elementos debajo */
     z-index: 9999; /* Se asegura de que esté en la parte superior */
 }
+<<<<<<< HEAD
 
 body.light-mode {
     background-color: #f6f8fa !important;
@@ -258,4 +260,10 @@ body,
         font-size: 15px;
         padding: 10px 0;
     }
+=======
+.nav-linksF {
+    position: fixed; /* Fijo en la pantalla */
+    top: 2.5rem; /* Ajusta según sea necesario */
+    right: 15rem; /* Ajusta según sea necesario */
+>>>>>>> 6fa2f07d335703d6d19730ceaef5f2f6e929db6c
 }
