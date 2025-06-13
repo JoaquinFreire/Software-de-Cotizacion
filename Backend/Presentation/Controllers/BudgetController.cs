@@ -1,10 +1,15 @@
 using Application.Services;
 using Application.DTOs.CreateBudget;
-using Application.UseCases;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Request;
 using AutoMapper;
 using MediatR;
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
+using QuestPDF.Helpers;
+using QuestPDF.Previewer;
+using System;
+using QuestPDF.Companion;
 using Application.UseCases.Budget;
 
 namespace Presentation.Controllers
@@ -26,14 +31,11 @@ namespace Presentation.Controllers
             _mediator = mediator;
         }
 
-        [HttpPost("CreateBudget")]
+         [HttpPost("CreateBudget")]
         public async Task<IActionResult> CreateBudget([FromBody] CreateBudgetRequest request)
         {
             if (request == null || request.Budget == null || request.Budget.Products == null)
                 return BadRequest("Datos inválidos.");
-
-            // Validar que venga el comentario si es requerido
-            // if (string.IsNullOrEmpty(request.Budget.Comment)) return BadRequest("Falta el comentario.");
 
             // Mapear el DTO a un DTO que el servicio pueda usar (si es necesario)
             var budgetDTO = _mapper.Map<CreateBudgetDTO>(request.Budget);
@@ -42,7 +44,18 @@ namespace Presentation.Controllers
 
             var budgetId = await _mediator.Send(command);
 
-            return Ok("Presupuesto creado correctamente.");
+            //return Ok("Presupuesto creado correctamente.");
+
+            // Generar el documento PDF
+            var document = new CreateBudgetPdfDocument(request.Budget);
+
+            //Mostrar el documento en QuestPDF Companion  USAR METODO PARA DESCARGAR PDF
+            document.ShowInCompanion();
+
+            // Generar PDF
+            var pdfBytes = _pdfGenerator.Execute(request.Budget);
+            
+            return File(pdfBytes, "application/pdf", "Presupuesto.pdf");
         }
 
 

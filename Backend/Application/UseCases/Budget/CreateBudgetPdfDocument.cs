@@ -1,4 +1,5 @@
-﻿using QuestPDF.Fluent;
+﻿using System.Net.Mime;
+using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using QuestPDF.Drawing;
@@ -6,6 +7,7 @@ using QuestPDF.Previewer;
 using Application.DTOs.CreateBudget;
 using System.Security.Cryptography.X509Certificates;
 using QuestPDF.Companion;
+using System.Threading.Tasks.Dataflow;
 
 public class CreateBudgetPdfDocument : IDocument
 {
@@ -42,8 +44,8 @@ public class CreateBudgetPdfDocument : IDocument
                 row.RelativeItem().Height(100).Image(logoBytes).FitHeight();
 
                 //Titulo documento
-                row.RelativeItem().AlignMiddle().AlignCenter().Text("Cotización")
-                    .FontSize(24).Bold();
+                row.RelativeItem().AlignMiddle().AlignCenter().Text("Presupuesto")
+                    .FontSize(30).Bold();
 
                 //Info Empresa
                 row.RelativeItem().AlignMiddle().AlignRight().Column(col =>
@@ -54,16 +56,10 @@ public class CreateBudgetPdfDocument : IDocument
                     col.Item().Text("0351 4995870");
                 });
             });
-            //Linea divisoria
-            column.Item().PaddingTop(0).PaddingBottom(15).LineHorizontal(1).LineColor(Colors.Grey.Medium);
-        });
-    }
-
-    void ComposeContent(IContainer container)
-    {
-        container.Column(col =>
-        {
-            col.Item().Row(row => {
+            column.Item().Row(row => {
+                            //Linea divisoria
+                column.Item().PaddingTop(15).PaddingBottom(15).LineHorizontal(1).LineColor(Colors.Grey.Medium);
+              
                 //Info Cotización
                 row.RelativeItem().Column(col1 =>
                 {
@@ -75,25 +71,36 @@ public class CreateBudgetPdfDocument : IDocument
                     col2.Item().AlignRight().Text($"Válido hasta: {DateTime.Now.AddDays(7).ToString("dd/MM/yyyy")}");
                 });
 
-                col.Item().PaddingVertical(10);
+                
             });
+            
+        });
+    }
 
-            col.Item().Row(row =>
+    void ComposeContent(IContainer container)
+    {
+        container.Column(col =>
+        {
+
+            col.Item().PaddingLeft(55).AlignCenter().Row(row =>
             {
                 row.RelativeItem().Column(col1 =>
                 {
                     //Info Cliente
-                    col1.Item().Text("Cliente").FontSize(14).Bold();
+                    col1.Item().Text("Cliente").FontSize(14).Bold().Underline();
+                    col1.Item().PaddingTop(5);
                     col1.Item().Text($"Nombre: {_budget.customer?.name} {_budget.customer?.lastname}");
-                    col1.Item().Text($"Correo: {_budget.customer?.mail}");
-                    col1.Item().Text($"Tel: {_budget.customer?.tel}");
                     col1.Item().Text($"Dirección: {_budget.customer?.address}");
+                    col1.Item().Text($"Mail: {_budget.customer?.mail}");
+                    col1.Item().Text($"Tel: {_budget.customer?.tel}");
+
                 });
 
                 row.RelativeItem().Column(col2 =>
                 {
                     //Info Lugar de trabajo
-                    col2.Item().Text("Lugar de Trabajo").FontSize(14).Bold();
+                    col2.Item().Text("Lugar de Trabajo").FontSize(14).Bold().Underline();
+                    col2.Item().PaddingTop(5);
                     col2.Item().Text($"Nombre: {_budget.workPlace?.name}");
                     col2.Item().Text($"Dirección: {_budget.workPlace?.address}");
                 });
@@ -101,54 +108,57 @@ public class CreateBudgetPdfDocument : IDocument
                 row.RelativeItem().Column(col3 =>
                 {
                     //Info Vendedor/Cotizador
-                    col3.Item().Text("Vendedor").FontSize(14).Bold();
+                    col3.Item().Text("Vendedor").FontSize(14).Bold().Underline();
+                    col3.Item().PaddingTop(5);
                     col3.Item().Text($"Nombre: {_budget.user?.name} {_budget.user?.lastName}");
                     col3.Item().Text($"Mail: {_budget.user?.mail}");
                 });
-
-                col.Item().PaddingVertical(10).LineHorizontal(1).LineColor(Colors.Grey.Medium);
             });
+
+            col.Item().PaddingVertical(10).LineHorizontal(1).LineColor(Colors.Grey.Medium);
 
             //Tabla de productos
             col.Item().Text("Productos").FontSize(16).Bold();
             col.Item().PaddingVertical(5);
-            col.Item().Table(table =>
+
+            foreach (var p in _budget.Products)
             {
-                //Columnas de la tabla
-                table.ColumnsDefinition(columns =>
-                {
-                    columns.RelativeColumn();      // Producto
-                    columns.ConstantColumn(45);    // Cantidad
-                    columns.ConstantColumn(90);    // Dimensiones
-                    columns.RelativeColumn();      // Vidrio
-                    columns.RelativeColumn();      // Tratamiento
-                    columns.ConstantColumn(70);    // Precio/u
-                });
+                // Espacio antes de cada producto (después del subtotal anterior)
+                col.Item().PaddingTop(15);
 
-                //Encabezado de la tabla
-                table.Header(header =>
+                // Encabezado de la tabla para cada producto
+                col.Item().Table(table =>
                 {
-                    header.Cell().Text("Producto").Bold();
-                    header.Cell().Text("Cant.").Bold();
-                    header.Cell().Text("Dimensiones").Bold();
-                    header.Cell().Text("Vidrio").Bold();
-                    header.Cell().Text("Tratamiento").Bold();
-                    header.Cell().Text("Precio/u").Bold();
-                });
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn();      // Producto
+                        columns.ConstantColumn(45);    // Cantidad
+                        columns.ConstantColumn(90);    // Dimensiones
+                        columns.RelativeColumn();      // Vidrio
+                        columns.RelativeColumn();      // Tratamiento
+                        columns.ConstantColumn(70);    // Precio/u
+                    });
 
-                //Contenido de la tabla
-                foreach (var p in _budget.Products)
-                {
+                    table.Header(header =>
+                    {
+                        header.Cell().Border(1).Background(Colors.Grey.Lighten1).Padding(5).Text("Producto").Bold();
+                        header.Cell().Border(1).Background(Colors.Grey.Lighten1).Padding(5).Text("Cant.").Bold();
+                        header.Cell().Border(1).Background(Colors.Grey.Lighten1).Padding(5).Text("Dimensiones").Bold();
+                        header.Cell().Border(1).Background(Colors.Grey.Lighten1).Padding(5).Text("Vidrio").Bold();
+                        header.Cell().Border(1).Background(Colors.Grey.Lighten1).Padding(5).Text("Tratamiento").Bold();
+                        header.Cell().Border(1).Background(Colors.Grey.Lighten1).Padding(5).Text("Precio/u").Bold();
+                    });
+
                     // Fila principal del producto
-                    table.Cell().PaddingVertical(5).Text(p.OpeningType?.name ?? "-");
-                    table.Cell().PaddingVertical(5).Text($"{p.Quantity}");
-                    table.Cell().PaddingVertical(5).Text($"{p.width}x{p.height} cm");
-                    table.Cell().PaddingVertical(5).Text(p.GlassComplement?.name ?? "-");
-                    table.Cell().PaddingVertical(5).Text(p.AlumTreatment?.name ?? "-");
-                    table.Cell().PaddingVertical(5).Text($"abc");
+                    table.Cell().Border(1).Padding(5).Text(p.OpeningType?.name ?? "-");
+                    table.Cell().Border(1).Padding(5).Text($"{p.Quantity}");
+                    table.Cell().Border(1).Padding(5).Text($"{p.width}x{p.height} cm");
+                    table.Cell().Border(1).Padding(5).Text(p.GlassComplement?.name ?? "-");
+                    table.Cell().Border(1).Padding(5).Text(p.AlumTreatment?.name ?? "-");
+                    table.Cell().Border(1).Padding(5).Text("abc"); // Precio unitario
 
-                    // Subtabla de accesorios (una fila extra)
-                    table.Cell().ColumnSpan(6).PaddingBottom(10).PaddingLeft(10).Element(cell =>
+                    // Subfila para accesorios
+                    table.Cell().ColumnSpan(6).Border(1).BorderTop(0).PaddingLeft(10).PaddingVertical(5).Element(cell =>
                     {
                         if (p.Accesory != null && p.Accesory.Any())
                         {
@@ -162,7 +172,7 @@ public class CreateBudgetPdfDocument : IDocument
                                     {
                                         row.RelativeItem().Text($"• {a.Accesory?.name ?? "-"}");
                                         row.ConstantItem(50).AlignRight().Text($"x{a.Quantity}");
-                                        row.ConstantItem(100).AlignRight().Text("Precio de accesorio");//Precio de accesorio(?)
+                                        row.ConstantItem(100).AlignRight().Text("Precio ");
                                     });
                                 }
                             });
@@ -173,28 +183,32 @@ public class CreateBudgetPdfDocument : IDocument
                         }
                     });
 
-                    // Esta celda vacía compensa la 7ma columna (Precio/u)
-                    table.Cell().Text("");
+                    // Subtotal alineado a la derecha
+                    table.Cell().ColumnSpan(6).Border(1).BorderTop(0).AlignRight().Padding(5).Text(text =>
+                        {
+                            text.Span("Subtotal: ").Bold();
+                            //text.Span($"${p.Subtotal:F2}");
 
-                    // Subtotal del producto (alineado a la derecha)
-                    table.Cell().ColumnSpan(6).AlignRight().PaddingBottom(15).Text(text =>
-                    {
-                        text.Span("Subtotal: ").Bold();
-                    });
-                }
 
-            });
+                        });
+                });
+            }
+
+            col.Item().PaddingTop(20);
+            col.Item().AlignRight().Text($"Subtotal Genaral:");//Agregar método para obtener el subtotal
+            col.Item().AlignRight().Text($"Dólar Ref:");//Agregar método para obtener el dólar referencia
+            col.Item().AlignRight().Text($"Mano de Obra:");//Agregar método para obtener la mano de obra referencia
+
 
             col.Item().PaddingTop(10).AlignRight().Text(text =>
-            {
-                text.Span("Total: ").Bold().FontSize(16);
-                //text.Span($"${_budget.Total:F2}").FontSize(14);
-            });
-            col.Item().AlignRight().Text($"Dólar Ref:");//Agregar metodo para obtener el dolar referencia
-            col.Item().AlignRight().Text($"Mano de Obra:");//Agregar metodo para obtener la mano de obra referencia
+                {
+                    text.Span("Total: ").Bold().FontSize(20);
+                    //text.Span($"${_budget.Total:F2}").FontSize(14);
+                });
             col.Item().PaddingTop(10).Text($"Observaciones: {_budget.Comment}");
         });
     }
+
 
     public void ComposeFooter(IContainer container)
     {
