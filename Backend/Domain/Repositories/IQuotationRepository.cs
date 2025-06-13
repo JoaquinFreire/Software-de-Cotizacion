@@ -11,5 +11,6 @@ namespace Domain.Repositories
         Task AddAsync(Quotation quotation);
         Task UpdateAsync(Quotation quotation);
         Task DeleteAsync(int id);
+        Task<IEnumerable<Quotation>> GetByPeriodAsync(DateTime from, DateTime to);
     }
 }

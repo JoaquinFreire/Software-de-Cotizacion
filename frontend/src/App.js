@@ -5,11 +5,12 @@ import axios from 'axios';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Historial from './pages/Historial';
-import Reportes from './pages/Reportes';
 import Admin from './pages/Admin';
 import Quotation from './pages/Quotation';
 import UpdateQuotation from './pages/UpdateQuotation';
 import AdminUsuarios from './pages/admin/AdminUsuarios';
+import Reportes from './pages/Reportes';
+import ReporteEstadoCotizaciones from './pages/reportes/ReporteEstadoCotizaciones';
 import SessionModal from './components/SessionModal';
 import { QuotationProvider } from './context/QuotationContext'; // Importar el proveedor de contexto
 
@@ -147,11 +148,12 @@ function App() {
                     <Route path="/" element={<PublicRoute element={<Login />} />} />
                     <Route path="/dashboard" element={<PrivateRoute element={<Dashboard />} />} />
                     <Route path="/historial" element={<PrivateRoute element={<Historial />} />} />
-                    <Route path="/reportes" element={<PrivateRoute element={<Reportes />} />} />
                     <Route path="/new-quotation" element={<PrivateRoute element={<Quotation />} />} />
                     <Route path="/update-quotation/:id" element={<PrivateRoute element={<UpdateQuotation />} />} />
                     <Route path="/admin" element={<PrivateRoute element={<Admin />} />} />
                     <Route path="/admin/usuarios" element={<PrivateRoute element={<AdminUsuarios/>} />} />
+                    <Route path="/reportes" element={<PrivateRoute element={<Reportes />} />} />
+                    <Route path="/reportes/estado-cotizaciones" element={<PrivateRoute element={<ReporteEstadoCotizaciones/>} />} />
                 </Routes>
                 <SessionModal show={showSessionModal} onExtend={handleExtendSession} onLogout={handleLogout} />
             </Router>
