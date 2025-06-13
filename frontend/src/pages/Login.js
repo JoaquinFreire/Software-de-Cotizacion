@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/login.css'; // Archivo de estilos
 import anodalLogo from '../images/anodal_logo.png';
+import ojo from '../images/ojo.png'; // Icono de ojo para mostrar/ocultar contraseña
 
 const API_URL = process.env.REACT_APP_API_URL;
 const Login = () => {
     const [legajo, setLegajo] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false); // Estado para mostrar/ocultar contraseña
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
@@ -33,6 +35,7 @@ const Login = () => {
             }
         }
     };
+
     return (
         <div className="login-container">
             <div className="login-overlay"></div>
@@ -50,14 +53,27 @@ const Login = () => {
                         required
                     />
                     <label className="label" htmlFor="password">Contraseña</label>
-                    <input
-                        type="password"
-                        placeholder="Ingrese su contraseña"
-                        id="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
+                    <div className="password-container">
+                        <input
+                            type={showPassword ? "text" : "password"} // Cambiar el tipo de input
+                            placeholder="Ingrese su contraseña"
+                            id="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                        <button
+                            type="button"
+                            className="toggle-password"
+                            onClick={() => setShowPassword(!showPassword)} // Alternar visibilidad
+                            
+                        >
+                            <div className="eye-icon">
+                            <img src={ojo} alt="Icono de ojo" />
+                            
+                            </div>
+                        </button>
+                    </div>
                     <button type="submit">Siguiente</button>
                 </form>
                 {error && <p className="error-message">{error}</p>} {/* Mostrar errores aquí */}

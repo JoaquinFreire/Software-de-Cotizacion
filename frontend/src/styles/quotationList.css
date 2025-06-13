@@ -62,13 +62,24 @@
 
 .update-button {
     background: #008CBA; /* Blue */
-    color: white;
+    color: rgb(12, 12, 12);
+}
+
+.update-button:hover {
+    background: #008CBA; /* Remove hover background change */
+    color: black; /* Remove hover text color change */
 }
 
 .delete-button {
     background: #f44336; /* Red */
-    color: white;
+    color: rgb(0, 0, 0);
 }
+.delete-button:hover {
+    background: #f44336; /* Remove hover background change */
+    color: black; /* Remove hover text color change */
+}
+
+
 
 .status-button {
     background: yellow;
@@ -77,7 +88,12 @@
 .status-select {
     background: #ffeb3b; /* Yellow */
     color: black;
+<<<<<<< HEAD
     width: 110%;
+=======
+    width: 138%;
+    height: 50px; /* Ajustar la altura */
+>>>>>>> 6fa2f07d335703d6d19730ceaef5f2f6e929db6c
 }
 
 .status-select option[value="pending"] {
