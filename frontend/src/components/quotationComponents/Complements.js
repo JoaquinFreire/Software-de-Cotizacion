@@ -78,7 +78,7 @@ const Complements = ({ complementTypes, complements, selectedComplements, setSel
                     min="1"
                 />
             </div>
-            <button type="button" onClick={handleAddComplement}>
+            <button className="botton-carusel" type="button" onClick={handleAddComplement}>
                 Agregar Complemento
             </button>
             <div className="form-group">

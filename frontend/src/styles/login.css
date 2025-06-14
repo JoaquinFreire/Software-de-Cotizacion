@@ -56,24 +56,38 @@ input {
     background: #222;
     color: white;
 }
+.namelegajo {
+    text-align: left;
+    font-weight: bold;
+}
+.Legajo,
+.password {
+    display: block;
+    text-align: left;
+    width: 95%;
+    margin: 10px auto 5px;
+    font-size: 16px;
+    font-weight: bold;
+}
 
 /* Botón de inicio de sesión */
 
-.menu-button2 {
-    width: 100%;
+.bottonLogin {
+    width: 50%;
     padding: 12px;
     margin-top: 10px;
     border: none;
     border-radius: 5px;
-    background: white;
+    background: #00bcd4;
     color: black;
     font-size: 16px;
     cursor: pointer;
     font-weight: bold;
+
 }
 
 button:hover {
-    background: #ddd;
+    background: #00bcd4;
 }
 
 /* Mensaje de error */
@@ -96,7 +110,8 @@ button:hover {
 /* Asegura que los labels sean bloques y estén alineados a la izquierda */
 .login-box label {
     display: block;
-    text-align: left;
+    text-align: center;
+   color: #11b9cf;
     width: 95%;
     margin: 10px auto 5px;
     font-size: 16px;
@@ -174,13 +189,12 @@ input {
     color: white;
 }
 
-/* Botón */
-button {
+.bottonLogin {
     cursor: pointer;
 }
 
-.clear-button-q:hover {
-    background: #00bcd4;
+.bottonLogin:hover {
+    background: #139aac;
 }
 
 /* Mensaje de error */
@@ -249,4 +263,5 @@ button {
         font-size: 13px;
         padding: 8px 0;
     }
+
 }
