@@ -477,7 +477,7 @@ const Quotation = () => {
                         <div className="embla__slide">
                             <Extras comment={comment} setComment={setComment} />
                             <div style={{ marginTop: 24 }}>
-                                <button
+                                <button 
                                     type="button"
                                     className="submit-button"
                                     disabled={submitting}
