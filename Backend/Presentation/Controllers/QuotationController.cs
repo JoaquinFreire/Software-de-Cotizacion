@@ -178,7 +178,7 @@ public class QuotationController : ControllerBase
         var quotations = await _quotationRepository.GetByPeriodAsync(from, to);
         return Ok(quotations);
     }
-
+    
 
     [HttpPut("{id}/status")]
     public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateStatusRequest request)

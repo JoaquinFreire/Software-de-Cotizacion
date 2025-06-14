@@ -11,6 +11,7 @@ import UpdateQuotation from './pages/UpdateQuotation';
 import AdminUsuarios from './pages/admin/AdminUsuarios';
 import Reportes from './pages/Reportes';
 import ReporteEstadoCotizaciones from './pages/reportes/ReporteEstadoCotizaciones';
+import BudgetDetail from './pages/BudgetDetail';
 import SessionModal from './components/SessionModal';
 import { QuotationProvider } from './context/QuotationContext'; // Importar el proveedor de contexto
 
@@ -154,6 +155,7 @@ function App() {
                     <Route path="/admin/usuarios" element={<PrivateRoute element={<AdminUsuarios/>} />} />
                     <Route path="/reportes" element={<PrivateRoute element={<Reportes />} />} />
                     <Route path="/reportes/estado-cotizaciones" element={<PrivateRoute element={<ReporteEstadoCotizaciones/>} />} />
+                    <Route path="/quotation/:id" element={<PrivateRoute element={<BudgetDetail/>} />} />
                 </Routes>
                 <SessionModal show={showSessionModal} onExtend={handleExtendSession} onLogout={handleLogout} />
             </Router>
