@@ -24,6 +24,9 @@
     justify-content: space-between;
     border: #00FFFF 1px solid;
 }
+.dashboard-header {
+    background: #f0f0f000; /* Fondo claro */
+}
 
 .dashboard-header nav a {
     margin: 0 15px;
@@ -32,7 +35,7 @@
 }
 
 .dashboard-header nav a.active {
-    color: #00FFFF; /* Color celeste para la página actual */
+    color: #000000; /* Color celeste para la página actual */
     border-bottom: 2px solid #00FFFF; /* Línea inferior celeste */
 }
 
@@ -180,7 +183,9 @@ input:checked + .slider:before {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #080808;
+    background: transparent !important; /* Cambia de #080808 o cualquier color a transparente */
+    background-color: transparent !important;
+    box-shadow: none !important;
     height: 70px;
     position: relative;
     z-index: 10;
@@ -197,6 +202,7 @@ input:checked + .slider:before {
 .logo-centered {
     height: 48px;
     width: auto;
+    background: none;
 }
 
 .header-right {
@@ -275,6 +281,19 @@ input:checked + .slider:before {
     box-sizing: border-box;
     overflow-x: hidden;
 }
+body.light-mode .sidebar-link,
+body.light-mode .sidebar-admin-btn {
+    background: #dbcfcf; /* Fondo claro para botones en tema blanco */
+    color: #111;
+}
+body.light-mode .sidebar-link:hover,
+body.light-mode .sidebar-link.active,
+body.light-mode .sidebar-admin-btn:hover,
+body.light-mode .sidebar-admin-btn.active {
+    background: #00FFFF;
+    color: #111;
+}
+    
 body {
   background-color: #111;;
 }
@@ -381,6 +400,17 @@ body, html {
     padding: 0;
     box-sizing: border-box;
 }
+
+
+/* Elimina cualquier fondo para .dashboard-header en modo claro */
+body.light-mode .dashboard-header,
+body.light-mode .new-header {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+
 
 .sidebar-toggle-btn {
     background: none;

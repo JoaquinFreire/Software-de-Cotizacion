@@ -111,8 +111,7 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
                 />
                 {isCustomerFound && (
                     <button
-                        type="button"
-                        style={{ marginLeft: 12 }}
+                        className="botton-DNI"
                         onClick={() => {
                             setIsCustomerFound(false);
                             setIsCustomerComplete(false);

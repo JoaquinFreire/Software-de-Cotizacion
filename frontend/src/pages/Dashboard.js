@@ -159,7 +159,7 @@ const Dashboard = () => {
                                     highlightColor="#f2f8f8" duration={1.2}
                                 />
                                 <Skeleton
-                                    width="100px" height="30px" baseColor="#ffeb3b"
+                                    width="100px" height="30px" baseColor="#93871acf"
                                     highlightColor="#f2f8f8" duration={1.2}
                                 />
                             </div>

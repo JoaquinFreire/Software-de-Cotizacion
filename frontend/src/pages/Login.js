@@ -40,8 +40,9 @@ const Login = () => {
                 <img src={anodalLogo} alt="Logo de Anodal" />
                 <h2 className="subtitle">Cotizaciones</h2>
                 <form onSubmit={handleLogin}>
-                    <label className="label" htmlFor="legajo">Legajo</label>
+                    <label htmlFor="legajo">Legajo</label>
                     <input
+                        className="Legajo"
                         type="text"
                         placeholder="Ingrese su legajo"
                         id="legajo"
@@ -51,6 +52,7 @@ const Login = () => {
                     />
                     <label className="label" htmlFor="password">Contraseña</label>
                     <input
+                        className="password"
                         type="password"
                         placeholder="Ingrese su contraseña"
                         id="password"
@@ -58,7 +60,7 @@ const Login = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                     />
-                    <button type="submit">Siguiente</button>
+                    <button className="bottonLogin" type="submit">Siguiente</button>
                 </form>
                 {error && <p className="error-message">{error}</p>} {/* Mostrar errores aquí */}
                 <p className="forgot-password">Recuperar contraseña</p>
