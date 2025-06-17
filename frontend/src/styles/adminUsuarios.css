@@ -1,47 +1,155 @@
+/* Header con botón a la derecha */
+.admin-usuarios-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    margin-right: 4rem;
+    margin-left: 1rem;
+}
+
+.admin-usuarios-header h2 {
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-left: 4rem;
+}
+
 .create-user-button {
-    background-color: cyan;
-    color: black;
+    background: linear-gradient(90deg, #4f8cff 0%, #1cb5e0 100%);
+    color: #fff;
     border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 10px 22px;
     cursor: pointer;
-    margin-bottom: 20px;
+    transition: background 0.2s;
+    box-shadow: 0 2px 8px rgba(76, 140, 255, 0.08);
+}
+
+.create-user-button:hover {
+    background: linear-gradient(90deg, #1cb5e0 0%, #4f8cff 100%);
+}
+
+/* Tabla mejorada */
+.users-table-wrapper {
+    overflow-x: auto;
+    background: #23272f;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    padding: 0;
 }
 
 .users-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
+    width: 90%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #23272f;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-left: 4rem;
+    
 }
 
-.users-table th,
-.users-table td {
-    border: 1px solid cyan;
-    padding: 10px;
+.users-table th, .users-table td {
+    padding: 14px 12px;
     text-align: left;
 }
 
 .users-table th {
-    background-color: rgba(0, 0, 0, 0.8);
-    color: cyan;
+    background: #1a1d23;
+    color: #b5c7e3;
+    font-weight: 600;
+    font-size: 1rem;
+    border-bottom: 2px solid #2e3440;
+}
+
+.users-table tr {
+    border-bottom: 1px solid #2e3440;
+}
+
+.users-table tr:last-child {
+    border-bottom: none;
 }
 
 .users-table td {
+    font-size: 0.98rem;
+    vertical-align: middle;
     background-color: rgba(0, 0, 0, 0.6);
 }
 
-.edit-button,
-.status-button,
-.details-button {
-    background-color: cyan;
-    color: black;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-right: 5px;
+/* Estado visual */
+.status-active {
+    color: #1cb5e0;
+    font-weight: 600;
 }
 
+.status-inactive {
+    color: #ff6b6b;
+    font-weight: 600;
+}
+
+/* Botones de acción agrupados y mejorados */
+.actions-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.actions-group button {
+    padding: 7px 14px;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+    margin-bottom: 2px;
+    white-space: nowrap;
+}
+
+.edit-button {
+    background: #4f8cff;
+    color: #fff;
+}
+
+.edit-button:hover {
+    background: #357ae8;
+}
+
+.status-button {
+    background: #23272f;
+    color: #1cb5e0;
+    border: 1px solid #1cb5e0;
+}
+
+.status-button:hover {
+    background: #1cb5e0;
+    color: #fff;
+}
+
+.details-button {
+    background: #23272f;
+    color: #b5c7e3;
+    border: 1px solid #b5c7e3;
+}
+
+.details-button:hover {
+    background: #b5c7e3;
+    color: #23272f;
+}
+
+.invite-button {
+    background: #1cb5e0;
+    color: #fff;
+}
+
+.invite-button:hover {
+    background: #4f8cff;
+}
+
+/* Modal igual que antes */
 .modal {
     position: fixed;
     top: 0;
@@ -82,4 +190,14 @@
 .modal-actions {
     display: flex;
     justify-content: space-between;
+}
+
+/* Estilos para el loader centrado */
+.loader-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 320px;
+    height: 100%;
+    width: 100%;
 }
