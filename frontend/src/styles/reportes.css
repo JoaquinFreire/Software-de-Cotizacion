@@ -1,1 +1,93 @@
 /* Agrega tus estilos aquí */
+
+.reportes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+  margin: 2rem 2rem 3rem 2rem;
+  justify-items: center;
+}
+
+.reporte-card {
+  width: 220px;
+  height: 220px;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s;
+  outline: none;
+  border: none;
+  user-select: none;
+  /* El color de fondo se define por clase específica */
+  background: #181c23;
+  color: #f2f2f2;
+}
+
+/* === COLORES POR CARD EN MODO CLARO === */
+body.light-mode .reporte-estado-cotizaciones { background: #e3f0ff !important; }
+body.light-mode .reporte-material-usado { background: #eaffea !important; }
+body.light-mode .reporte-tendencias-mensuales { background: #fffbe3 !important; }
+body.light-mode .reporte-productividad-cotizador { background: #fde2e2 !important; }
+body.light-mode .reporte-productividad-vendedor { background: #e2f7f2 !important; }
+body.light-mode .reporte-tendencias-anuales { background: #f0e3ff !important; }
+body.light-mode .reporte-tiempo-respuesta { background: #fff0e3 !important; }
+body.light-mode .reporte-beneficio-proyecto { background: #e3ffe6 !important; }
+body.light-mode .reporte-clientes-mayor-volumen { background: #e3f7ff !important; }
+body.light-mode .reporte-proyectos-ubicacion { background: #fef3e3 !important; }
+body.light-mode .reporte-ciclo-vida { background: #ece3ff !important; }
+body.light-mode .reporte-satisfaccion-cliente { background: #ffe3e3 !important; }
+body.light-mode .reporte-tendencias-industria { background: #e3fff7 !important; }
+body.light-mode .reporte-promociones-descuentos { background: #f0fff3 !important; }
+body.light-mode .reporte-productividad-cotizador-2 { background: #fefbe3 !important; }
+
+/* === COLORES POR CARD EN MODO OSCURO (tinte) === */
+.reporte-estado-cotizaciones { background: #1a2230; }
+.reporte-material-usado { background: #1a2a1d; }
+.reporte-tendencias-mensuales { background: #29281a; }
+.reporte-productividad-cotizador { background: #2a1a1a; }
+.reporte-productividad-vendedor { background: #1a2a26; }
+.reporte-tendencias-anuales { background: #241a2a; }
+.reporte-tiempo-respuesta { background: #2a241a; }
+.reporte-beneficio-proyecto { background: #1a2a1d; }
+.reporte-clientes-mayor-volumen { background: #1a232a; }
+.reporte-proyectos-ubicacion { background: #2a241a; }
+.reporte-ciclo-vida { background: #221a2a; }
+.reporte-satisfaccion-cliente { background: #2a1a1a; }
+.reporte-tendencias-industria { background: #1a2a26; }
+.reporte-promociones-descuentos { background: #1a2a1d; }
+.reporte-productividad-cotizador-2 { background: #29281a; }
+
+.reporte-card:hover,
+.reporte-card:focus {
+  transform: scale(1.05);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+}
+
+.reporte-icon {
+  margin-bottom: 1.2rem;
+  color: #00bcd4;
+}
+
+/* Modo claro: icono oscuro */
+body.light-mode .reporte-icon {
+  color: #2d3a4a;
+}
+
+.reporte-title {
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: #f2f2f2;
+  text-align: center;
+}
+
+/* Modo claro: texto oscuro */
+body.light-mode .reporte-title {
+  color: #2d3a4a;
+}
+a {
+    text-decoration: none;
+}

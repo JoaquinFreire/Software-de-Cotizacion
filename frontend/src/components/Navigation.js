@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 import anodalLogo from "../images/anodal_logo.png";
+import Logonegro from "../images/anodal_logo_Negro.png";
 import "../styles/navigation.css";
 import "../styles/scrollbar.css";
 
@@ -24,8 +25,10 @@ const Navigation = ({ onLogout }) => {
     useEffect(() => {
         if (theme === "light") {
             document.body.classList.add("light-mode");
+            
         } else {
             document.body.classList.remove("light-mode");
+            <img src={Logonegro} alt="Logo Anodal" />
         }
         localStorage.setItem("theme", theme);
     }, [theme]);
@@ -73,11 +76,16 @@ const Navigation = ({ onLogout }) => {
     return (
         <>
             {/* Header superior */}
-            <header className="dashboard-header new-header">
+            <header className="dashboard-header new-header" style={{ backgroundColor: "black"}}>
                 <div className="header-center-logo">
-                    <NavLink to="/dashboard">
-                    <img src={anodalLogo} alt="Logo Anodal" className="logo-centered" />
-                </NavLink>
+    <NavLink to="/dashboard">
+        <img
+            src={theme === "light" ? Logonegro : anodalLogo}
+            alt="Logo Anodal"
+            className="logo-centered"
+            
+        />
+    </NavLink>
                 </div>
                 <div className="header-right">
                     <button
@@ -156,12 +164,15 @@ const Navigation = ({ onLogout }) => {
                 </div>
             </header>
             {/* Sidebar vertical */}
-            <aside
+            <aside 
+                src={theme === "light" ? "open" : "closed"}
                 className={`sidebar-nav${sidebarOpen ? " open" : " closed"}`}
                 style={{
                     transition: "transform 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s",
                     transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
-                    boxShadow: sidebarOpen ? "2px 0 16px #00ffff33" : "none"
+                    boxShadow: sidebarOpen ? "2px 0 16px #00ffff33" : "none",
+                    backgroundColor: theme === "light" ? "#dbcfcf" : "#121212"
+                    
                 }}
             >
                 <button

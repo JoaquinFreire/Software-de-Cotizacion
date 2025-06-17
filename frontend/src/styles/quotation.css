@@ -117,6 +117,32 @@
     flex: 1;
     margin: 0 5px;
 }
+.botton-carusel {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid cyan;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    text-align: center;
+    margin: 5px auto;
+    display: block;
+    width: fit-content;
+}
+.botton-DNI {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid cyan;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    text-align: center;
+    margin: 5px auto;
+    display: block;
+    width: fit-content;
+}
 
 .customer-option.active {
     background: cyan;
@@ -288,7 +314,7 @@ body.light-mode .customer-details h4 {
 
 body.light-mode input,
 body.light-mode select {
-    color: #222 !important;
+    color: #ffffff !important;
 }
 
 body.light-mode input::placeholder,

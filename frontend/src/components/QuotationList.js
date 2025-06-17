@@ -38,10 +38,10 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
             <button className="update-button" onClick={() => navigate(`/update-quotation/${quotation.Id}`)}>Actualizar</button>
             <button className="delete-button" onClick={() => handleShowModal(quotation.Id)}>Eliminar</button>
             <select className="status-select" value={quotation.Status} onChange={(e) => onStatusChange(quotation.Id, e.target.value)}>
-              <option value="pending">Pendientes</option>
-              <option value="approved">Aprobados</option>
-              <option value="rejected">Rechazado</option>
-              <option value="finished">Finalizado</option>
+              <option className="dropdown" value="pending">Pendientes</option>
+              <option className="dropdown"value="approved">Aprobados</option>
+              <option className="dropdown"value="rejected">Rechazado</option>
+              <option className="dropdown"value="finished">Finalizado</option>
             </select>
           </div>
         </div>

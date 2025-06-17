@@ -1,6 +1,6 @@
 .quote-card {
     background: rgba(0, 0, 0, 0.8);
-    border: 1px solid cyan;
+    border: 1px solid rgb(0, 255, 255);
     padding: 20px;
     width: 80%;
     border-radius: 10px;
@@ -56,32 +56,36 @@
     line-height: 1;
 }
 .go-button {
-    background: cyan;
-    color: black;
+    background: #1a2a1d; /* Green */
+    color: rgb(197, 194, 194);
 }
 
 .update-button {
-    background: #008CBA; /* Blue */
-    color: white;
+    background: #1a2230; /* Blue */
+    color: rgb(197, 194, 194);
 }
 
 .delete-button {
-    background: #f44336; /* Red */
-    color: white;
+    background: #2a1a1a; /* Red */
+    color: rgb(197, 194, 194);
 }
 
 .status-button {
-    background: yellow;
+    background: #29281a;
     color: black;
 }
 .status-select {
-    background: #ffeb3b; /* Yellow */
-    color: black;
-    width: 110%;
+    background: #a0910e96; /* Yellow */
+    color: rgb(197, 194, 194);
 }
 
 .status-select option[value="pending"] {
     font-weight: 700;
+    background:  #998b0a8f; 
+}
+.dropdown{
+    background: #998b0a8f; 
+    color: rgb(0, 0, 0);
 }
 .success-message {
     background: green;

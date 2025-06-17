@@ -128,7 +128,7 @@ const OpeningType = ({
                         </option>
                     ))}
                 </select>
-                <button type="button" onClick={handleAddOpening}>
+                <button className="botton-carusel" type="button" onClick={handleAddOpening}>
                     Agregar Abertura
                 </button>
             </div>
