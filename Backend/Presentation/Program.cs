@@ -107,6 +107,7 @@ builder.Services.AddScoped<IAlumTreatmentRepository, AlumTreatmentRepository>();
 builder.Services.AddScoped<IPriceRepository, PriceRepository>();
 
 builder.Services.AddScoped<IGlassTypeRepository, GlassTypeRepository>();
+builder.Services.AddScoped<IUserInvitationRepository, UserInvitationRepository>();
 
 // Agrega soporte para controladores en la API
 builder.Services.AddControllers()

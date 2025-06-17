@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
-    public class UserRole
+    public class UserRoleDTO
     {
         public int id { get; set; }  // ID del rol
         public string? role_name { get; set; }  // Nombre del rol (Ej: "manager", "coordinator")
