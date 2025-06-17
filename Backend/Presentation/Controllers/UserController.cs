@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BCrypt.Net;
+using Microsoft.EntityFrameworkCore; // Para AppDbContext
 
 [ApiController]
 [Route("api/users")]
@@ -35,8 +37,17 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] User newUser)
     {
-        if (newUser == null || string.IsNullOrEmpty(newUser.name) || string.IsNullOrEmpty(newUser.lastName))
+        if (newUser == null || string.IsNullOrEmpty(newUser.name) || string.IsNullOrEmpty(newUser.lastName) || newUser.role_id == 0)
             return BadRequest("Invalid data.");
+
+        // Si no se recibe password_hash, hashear "1234"
+        if (string.IsNullOrEmpty(newUser.password_hash))
+        {
+            newUser.password_hash = BCrypt.Net.BCrypt.HashPassword("1234");
+        }
+
+        // Evita que EF intente crear un nuevo UserRole
+        newUser.role = null;
 
         await _userRepository.AddAsync(newUser);
         return CreatedAtAction(nameof(GetById), new { id = newUser.id }, newUser);
@@ -74,6 +85,13 @@ public class UserController : ControllerBase
 
         await _userRepository.DeleteAsync(id);
         return NoContent();
+    }
+
+    [HttpGet("/api/userroles")]
+    public async Task<IActionResult> GetRoles([FromServices] AppDbContext context)
+    {
+        var roles = await context.Set<UserRole>().ToListAsync();
+        return Ok(roles);
     }
 }
 

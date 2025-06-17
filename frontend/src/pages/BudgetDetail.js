@@ -88,20 +88,30 @@ const BudgetDetail = () => {
       </div>
 
       {/* Contenedor centrado para el PDF */}
-      <div className="budget-detail-main-bg">
-        <div className="budget-detail-center">
-          <div style={{position: 'relative'}}>
+      <div className="budget-detail-main-bg" style={{ minHeight: "100vh", background: "rgb(51, 57, 71)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="budget-detail-center" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
+          <div style={{position: 'relative', display: "flex", alignItems: "center", justifyContent: "center"}}>
             {/* Spinner sobre el área del PDF */}
             {loading && (
-              <div className="budget-detail-loading-overlay">
+              <div className="budget-detail-loading-overlay" style={{
+                position: "absolute",
+                top: 0, left: 0, right: 0, bottom: 0,
+                background: "rgba(255,255,255,0.8)",
+                zIndex: 10,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: 12,
+                minWidth: 794, minHeight: 1123
+              }}>
                 <ReactLoading type="spin" color="#1976d2" height={80} width={80} />
               </div>
             )}
 
             {/* Área exportable */}
             {!loading && budget && (
-              <div className="reporte-cotizaciones-root">
-                <div className="reporte-cotizaciones-a4">
+              <div className="reporte-cotizaciones-root" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+                <div className="reporte-cotizaciones-a4" style={{margin: "0 auto"}}>
                   <div className="reporte-cotizaciones-pdf" ref={pdfRef}>
                     <header className="reporte-cotizaciones-header">
                       <img src={logoAnodal} alt="Logo Anodal" className="reporte-cotizaciones-logo" />
