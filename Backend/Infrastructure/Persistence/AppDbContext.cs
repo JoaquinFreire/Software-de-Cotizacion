@@ -17,7 +17,7 @@ public class AppDbContext : DbContext
     public DbSet<AlumTreatment> AlumTreatments { get; set; }
     public DbSet<Price> Prices { get; set; }
     public DbSet<GlassType> GlassTypes { get; set; }
-
+    public DbSet<UserInvitation> UserInvitations { get; set; }  // Tabla UserInvitation en la BD
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -29,13 +29,14 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Customer>().ToTable("customer");
         modelBuilder.Entity<CustomerAgent>().ToTable("customeragent");
         modelBuilder.Entity<WorkPlace>().ToTable("workplace");
-        modelBuilder.Entity<WorkType>().ToTable("worktype");  
+        modelBuilder.Entity<WorkType>().ToTable("worktype");
         modelBuilder.Entity<Complement>().ToTable("complement");
         modelBuilder.Entity<ComplementType>().ToTable("complement_type");
         modelBuilder.Entity<Opening_Type>().ToTable("opening_type");
         modelBuilder.Entity<AlumTreatment>().ToTable("alumTreatment");
         modelBuilder.Entity<Price>().ToTable("price");
         modelBuilder.Entity<GlassType>().ToTable("glass_type");
+        modelBuilder.Entity<UserInvitation>().ToTable("userInvitations");
 
         // Configurar LastEdit para que se almacene como DATE en la base de datos
         modelBuilder.Entity<Quotation>()
@@ -100,5 +101,11 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Complement>()
             .Property(co => co.unit)
             .HasConversion<int>(); // Guarda el enum como INT en la base de datos
+        
+        modelBuilder.Entity<UserInvitation>()
+        .HasOne(ui => ui.user)
+        .WithMany()
+        .HasForeignKey(ui => ui.user_id)
+        .OnDelete(DeleteBehavior.Cascade);
     }
 }

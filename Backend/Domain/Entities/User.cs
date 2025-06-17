@@ -23,8 +23,8 @@ public class User
     public UserRole role { get; set; } = new UserRole();  // Relación con UserRole (navegación)
     [BsonElement("mail")]
     public string mail { get; set; } = string.Empty; // Nueva columna
-    // TODO : @Joaquin: Agregar Telefono
-    [BsonIgnore]
+                                                     // TODO : @Joaquin: Agregar Telefono
+    // acá saqué el BsonIgnore, posible error con mongo TODO: @Joaquin: Ver si es necesario
     public int status { get; set; } = 1; // Nueva columna (0 = inactivo, 1 = activo)
 
     public User() { }  // Constructor vacío necesario para Entity Framework
