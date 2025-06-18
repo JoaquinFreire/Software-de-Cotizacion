@@ -60,4 +60,16 @@ public class UserRepository : IUserRepository
             await _context.SaveChangesAsync();
         }
     }
+
+    // Método asíncrono para obtener un usuario por su correo electrónico
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.mail == email);
+    }
+
+    // Método asíncrono para obtener un usuario por su DNI
+    public async Task<User?> GetByDniAsync(string dni)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.legajo == dni);
+    }
 }
