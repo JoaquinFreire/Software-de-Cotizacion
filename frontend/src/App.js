@@ -157,7 +157,7 @@ function App() {
                     <Route path="/reportes" element={<PrivateRoute element={<Reportes />} />} />
                     <Route path="/reportes/estado-cotizaciones" element={<PrivateRoute element={<ReporteEstadoCotizaciones/>} />} />
                     <Route path="/quotation/:id" element={<PrivateRoute element={<BudgetDetail/>} />} />
-                    <Route path="/crear-password" element={<PrivateRoute element={<CreatePassword/>} />} />
+                    <Route path="/crear-password" element={<PublicRoute element={<CreatePassword/>} />} />
                 </Routes>
                 <SessionModal show={showSessionModal} onExtend={handleExtendSession} onLogout={handleLogout} />
             </Router>
