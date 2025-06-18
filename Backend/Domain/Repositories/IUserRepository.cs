@@ -14,4 +14,6 @@ public interface IUserRepository
     Task AddAsync(User user); // Agregar un nuevo usuario
     Task UpdateAsync(User user); // Actualizar un usuario existente
     Task DeleteAsync(int id); // Eliminar un usuario por ID
+    Task<User?> GetByEmailAsync(string email);
+    Task<User?> GetByDniAsync(string dni);
 }
