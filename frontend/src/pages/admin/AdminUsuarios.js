@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navigation from "../../components/Navigation";
+import Footer from "../../components/Footer";
 import "../../styles/adminUsuarios.css";
 import { TailSpin } from "react-loader-spinner";
 import { validateUser } from "../../validation/userValidation"; // Asumiendo que existe
@@ -363,6 +364,7 @@ const AdminUsuarios = () => {
                         </div>
                     </div>
                 )}
+                <Footer />
             </div>
         </>
     );

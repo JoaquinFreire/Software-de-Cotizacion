@@ -3,6 +3,7 @@ using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore; // Agrega esto para usar IQueryable y Skip/Take
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -27,10 +28,22 @@ public class QuotationController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<Quotation>> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 5, [FromQuery] string? status = null)
     {
-        var quotations = await _quotationRepository.GetAllAsync();
-        return quotations;
+        var query = _quotationRepository.Query();
+        if (!string.IsNullOrEmpty(status))
+        {
+            query = query.Where(q => q.Status == status);
+        }
+        var total = await query.CountAsync();
+        var quotations = await query
+            .OrderByDescending(q => q.CreationDate)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        // Asegura que quotations siempre sea un array (nunca null)
+        return Ok(new { total, quotations = quotations ?? new List<Quotation>() });
     }
 
     [HttpGet("{id}")]

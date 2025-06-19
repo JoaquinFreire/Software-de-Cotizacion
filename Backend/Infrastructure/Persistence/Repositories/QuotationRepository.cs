@@ -87,15 +87,21 @@ public class QuotationRepository : IQuotationRepository
             throw;
         }
     }
+     public IQueryable<Quotation> Query()
+        {
+            return _context.Quotations
+                .Include(q => q.Customer)
+                .Include(q => q.WorkPlace);
+        }
 
     public async Task<IEnumerable<Quotation>> GetByPeriodAsync(DateTime from, DateTime to)
-{
-    return await _context.Quotations
-        .Include(q => q.Customer)
-        .Include(q => q.User)
-        .Include(q => q.WorkPlace)
-        .Where(q => q.CreationDate >= from && q.CreationDate <= to)
-        .ToListAsync();
-}
+    {
+        return await _context.Quotations
+            .Include(q => q.Customer)
+            .Include(q => q.User)
+            .Include(q => q.WorkPlace)
+            .Where(q => q.CreationDate >= from && q.CreationDate <= to)
+            .ToListAsync();
+    }
 
 }

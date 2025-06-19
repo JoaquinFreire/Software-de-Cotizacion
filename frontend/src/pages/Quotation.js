@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import "../styles/quotation.css";
 import Navigation from "../components/Navigation";
-import FooterLogo from "../components/FooterLogo";
+import Footer from "../components/Footer";
 import Customer from "../components/quotationComponents/Customer";
 import Agent from "../components/quotationComponents/Agent";
 import WorkPlace from "../components/quotationComponents/WorkPlace";
@@ -500,7 +500,7 @@ const Quotation = () => {
                     </div>
                 </div>
             </form>
-            <FooterLogo />
+            <Footer />
         </div>
     );
 };

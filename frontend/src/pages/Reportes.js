@@ -1,6 +1,6 @@
 import React from 'react';
 import Navigation from "../components/Navigation";
-import FooterLogo from "../components/FooterLogo";
+import Footer from "../components/Footer";
 import "../styles/reportes.css";
 import { FileText, Layers, TrendingUp, UserCheck, User, Clock3, PieChart, MapPin, Smile, LineChart, Percent, Users } from 'lucide-react';
 
@@ -116,7 +116,7 @@ const Reportes = () => {
           </a>
         ))}
       </div>
-      <FooterLogo />
+      <Footer />
     </div>
   );
 };

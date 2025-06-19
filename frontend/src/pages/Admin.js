@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 import Navigation from "../components/Navigation";
-import FooterLogo from "../components/FooterLogo"; // Importar el componente FooterLogo
+import Footer from "../components/Footer";
 import "../styles/admin.css"; // Importar los estilos
 
 const Admin = () => {
@@ -17,7 +17,7 @@ const Admin = () => {
       <Navigation onLogout={handleLogout} />
       <h2 className="title">Administración</h2>
       {/* Contenido de la página de administración */}
-      <FooterLogo /> {/* Incluir el componente FooterLogo */}
+      <Footer />
     </div>
   );
 };
