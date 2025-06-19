@@ -62,6 +62,9 @@ public class UserController : ControllerBase
         var existingUser = await _userRepository.GetByIdAsync(id);
         if (existingUser == null) return NotFound();
 
+        // Evita que EF intente actualizar la relación de rol
+        updatedUser.role = null;
+
         await _userRepository.UpdateAsync(updatedUser);
         return NoContent();
     }

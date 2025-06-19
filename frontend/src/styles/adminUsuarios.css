@@ -1,4 +1,4 @@
-/* Header con botón a la derecha */
+    /* Header con botón a la derecha */
 .admin-usuarios-header {
     display: flex;
     align-items: center;
@@ -187,9 +187,99 @@
     color: white;
 }
 
+.modal-user-form {
+    background: #23272f;
+    padding: 32px 28px 24px 28px;
+    border-radius: 14px;
+    min-width: 340px;
+    max-width: 95vw;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.22);
+}
+
+.modal-user-form label {
+    display: block;
+    margin-bottom: 16px;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.modal-user-form input,
+.modal-user-form select {
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 6px;
+    border-radius: 6px;
+    border: 1.5px solid #444;
+    background: #181c22;
+    color: #fff;
+    font-size: 1rem;
+    margin-bottom: 4px;
+    transition: border 0.2s;
+}
+
+.modal-user-form input:focus,
+.modal-user-form select:focus {
+    border: 1.5px solid #4f8cff;
+    outline: none;
+}
+
+.input-error {
+    border: 1.5px solid #ff6b6b !important;
+    background: #2a1a1a !important;
+}
+
+.validation-error {
+    color: #ff6b6b;
+    font-size: 0.95rem;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    display: block;
+}
+
 .modal-actions {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.modal-submit-btn {
+    padding: 10px 28px;
+    border-radius: 6px;
+    border: none;
+    font-size: 1.08rem;
+    font-weight: 600;
+    background: linear-gradient(90deg, #4f8cff 0%, #1cb5e0 100%);
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.18s;
+    box-shadow: 0 2px 8px rgba(76, 140, 255, 0.08);
+}
+
+.modal-submit-btn:disabled {
+    background: #444;
+    cursor: not-allowed;
+}
+
+.modal-submit-btn:hover:not(:disabled) {
+    background: linear-gradient(90deg, #1cb5e0 0%, #4f8cff 100%);
+}
+
+.modal-cancel-btn {
+    padding: 10px 22px;
+    border-radius: 6px;
+    border: 1.5px solid #b5c7e3;
+    background: #23272f;
+    color: #b5c7e3;
+    font-size: 1.08rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+}
+
+.modal-cancel-btn:hover {
+    background: #b5c7e3;
+    color: #23272f;
 }
 
 /* Estilos para el loader centrado */
