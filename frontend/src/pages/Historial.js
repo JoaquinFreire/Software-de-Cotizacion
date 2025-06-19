@@ -2,17 +2,21 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import Navigation from "../components/Navigation";
-import FooterLogo from "../components/FooterLogo";
+import Footer from "../components/Footer";
 import QuotationList from "../components/QuotationList";
 import logo_busqueda from "../images/logo_busqueda.png";
 import { QuotationContext } from "../context/QuotationContext";
 import Skeleton from "react-loading-skeleton";
 import 'react-loading-skeleton/dist/skeleton.css';
 import { ToastContainer, toast, Slide } from 'react-toastify';
+import '../styles/pagination.css';
 const API_URL = process.env.REACT_APP_API_URL;
 
 const Historial = () => {
-    const { quotations, setQuotations, loading } = useContext(QuotationContext);
+    const {
+        historialState, pageSize, goToHistorialPage, switchToHistorial
+    } = useContext(QuotationContext);
+    const { quotations, page, total, loading } = historialState;
     const navigate = useNavigate();
     const [filteredQuotations, setFilteredQuotations] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -21,7 +25,11 @@ const Historial = () => {
     const [successMessage, setSuccessMessage] = useState("");
 
     useEffect(() => {
-        setFilteredQuotations(quotations);
+        switchToHistorial();
+    }, []);
+
+    useEffect(() => {
+        setFilteredQuotations(Array.isArray(quotations) ? quotations : []);
     }, [quotations]);
 
     const handleDelete = async () => {
@@ -32,6 +40,8 @@ const Historial = () => {
             });
             setShowModal(false);
             setSuccessMessage("Cotización eliminada con éxito.");
+            // Recarga la página actual después de borrar
+            goToHistorialPage(page);
             setTimeout(() => setSuccessMessage(""), 3000);
         } catch (error) {
             console.error("Error deleting quotation:", error);
@@ -39,8 +49,7 @@ const Historial = () => {
     };
 
     const handleDeleteSuccess = () => {
-        setQuotations(quotations.filter((quotation) => quotation.Id !== quotationToDelete));
-        setFilteredQuotations(filteredQuotations.filter((quotation) => quotation.Id !== quotationToDelete));
+        // Ya no necesitas modificar el estado localmente
     };
 
     const handleStatusChange = async (id, newStatus) => {
@@ -49,12 +58,8 @@ const Historial = () => {
             await axios.put(`${API_URL}/api/quotations/${id}/status`, { status: newStatus }, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setQuotations(quotations.map(quotation =>
-                quotation.Id === id ? { ...quotation, Status: newStatus } : quotation
-            ));
-            setFilteredQuotations(filteredQuotations.map(quotation =>
-                quotation.Id === id ? { ...quotation, Status: newStatus } : quotation
-            ));
+            // Recarga la página actual después de cambiar estado
+            goToHistorialPage(page);
             toast.success("Estado de la cotización actualizado con éxito.");
             setTimeout(() => setSuccessMessage(""), 3000);
         } catch (error) {
@@ -127,18 +132,33 @@ const Historial = () => {
                     ))}
                 </div>
             ) : (
-                <QuotationList
-                    quotations={filteredQuotations}
-                    onDelete={handleDelete}
-                    onStatusChange={handleStatusChange}
-                    showModal={showModal}
-                    setShowModal={setShowModal}
-                    setQuotationToDelete={setQuotationToDelete}
-                    successMessage={successMessage}
-                    onDeleteSuccess={handleDeleteSuccess}
-                />
+                <>
+                    <QuotationList
+                        quotations={filteredQuotations}
+                        onDelete={handleDelete}
+                        onStatusChange={handleStatusChange}
+                        showModal={showModal}
+                        setShowModal={setShowModal}
+                        setQuotationToDelete={setQuotationToDelete}
+                        successMessage={successMessage}
+                        onDeleteSuccess={handleDeleteSuccess}
+                    />
+                    <div className="pagination-nav">
+                        <button
+                            onClick={() => goToHistorialPage(page - 1)}
+                            disabled={page <= 1}
+                        >Anterior</button>
+                        <span>
+                            Página {page} de {Math.ceil(total / pageSize)}
+                        </span>
+                        <button
+                            onClick={() => goToHistorialPage(page + 1)}
+                            disabled={page >= Math.ceil(total / pageSize)}
+                        >Siguiente</button>
+                    </div>
+                </>
             )}
-            <FooterLogo />
+            <Footer />
         </div>
     );
 };

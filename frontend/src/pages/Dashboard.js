@@ -2,8 +2,9 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/dashboard.css";
+import "../styles/pagination.css";
 import Navigation from "../components/Navigation";
-import FooterLogo from "../components/FooterLogo";
+import Footer from "../components/Footer";
 import logo_busqueda from "../images/logo_busqueda.png";
 import QuotationList from "../components/QuotationList";
 import { QuotationContext } from "../context/QuotationContext";
@@ -13,7 +14,10 @@ import { ToastContainer, toast, Slide } from 'react-toastify';
 // solo uno
 const API_URL = process.env.REACT_APP_API_URL;
 const Dashboard = () => {
-    const { quotations, setQuotations, loading } = useContext(QuotationContext);
+    const {
+        dashboardState, pageSize, goToDashboardPage, switchToDashboard
+    } = useContext(QuotationContext);
+    const { quotations, page, total, loading } = dashboardState;
     const [filteredQuotations, setFilteredQuotations] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [showModal, setShowModal] = useState(false);
@@ -21,9 +25,14 @@ const Dashboard = () => {
     const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
 
+    // Al entrar al Dashboard, siempre carga la página 1 de pendientes
     useEffect(() => {
-        const pending = quotations.filter((q) => q.Status === "pending");
-        setFilteredQuotations(pending);
+        switchToDashboard();
+    }, []);
+
+    // Ya no necesitas filtrar pendientes aquí, quotations ya viene filtrado
+    useEffect(() => {
+        setFilteredQuotations(Array.isArray(quotations) ? quotations : []);
     }, [quotations]);
 
     const handleDelete = async () => {
@@ -37,6 +46,8 @@ const Dashboard = () => {
             );
             setShowModal(false);
             setSuccessMessage("Cotización eliminada con éxito.");
+            // Recarga la página actual después de borrar
+            goToDashboardPage(page);
             setTimeout(() => setSuccessMessage(""), 3000);
         } catch (error) {
             console.error("Error deleting quotation:", error);
@@ -44,14 +55,7 @@ const Dashboard = () => {
     };
 
     const handleDeleteSuccess = () => {
-        setQuotations(
-            quotations.filter((quotation) => quotation.Id !== quotationToDelete)
-        );
-        setFilteredQuotations(
-            filteredQuotations.filter(
-                (quotation) => quotation.Id !== quotationToDelete
-            )
-        );
+        // Ya no necesitas modificar el estado localmente
     };
 
     const handleStatusChange = async (id, newStatus) => {
@@ -64,22 +68,14 @@ const Dashboard = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
-            setQuotations(
-                quotations.map((quotation) =>
-                    quotation.Id === id ? { ...quotation, Status: newStatus } : quotation
-                )
-            );
-            setFilteredQuotations(
-                filteredQuotations.map((quotation) =>
-                    quotation.Id === id ? { ...quotation, Status: newStatus } : quotation
-                )
-            );
+            // Recarga la página actual después de cambiar estado
+            goToDashboardPage(page);
             setSuccessMessage("Estado de la cotización actualizado con éxito.");
             toast.success("Estado de la cotización actualizado con éxito.");
             setTimeout(() => setSuccessMessage(""), 3000);
         } catch (error) {
             console.error("Error updating quotation status:", error);
-            toast.error("Error al actualizar el estado de la cotización."); // <-- Toast de error
+            toast.error("Error al actualizar el estado de la cotización.");
         }
     };
 
@@ -99,6 +95,9 @@ const Dashboard = () => {
         localStorage.removeItem("token");
         navigate("/");
     };
+
+    // Log en el render para ver el valor en cada render
+    console.log("Dashboard render - quotations:", quotations, "filteredQuotations:", filteredQuotations);
 
     return (
         <div className="dashboard-container">
@@ -167,19 +166,34 @@ const Dashboard = () => {
                     ))}
                 </div>
             ) : (
-                <QuotationList
-                    quotations={filteredQuotations}
-                    onDelete={handleDelete}
-                    onStatusChange={handleStatusChange}
-                    showModal={showModal}
-                    setShowModal={setShowModal}
-                    setQuotationToDelete={setQuotationToDelete}
-                    successMessage={successMessage}
-                    onDeleteSuccess={handleDeleteSuccess}
-                />
+                <>
+                    <QuotationList
+                        quotations={filteredQuotations}
+                        onDelete={handleDelete}
+                        onStatusChange={handleStatusChange}
+                        showModal={showModal}
+                        setShowModal={setShowModal}
+                        setQuotationToDelete={setQuotationToDelete}
+                        successMessage={successMessage}
+                        onDeleteSuccess={handleDeleteSuccess}
+                    />
+                    <div className="pagination-nav">
+                        <button
+                            onClick={() => goToDashboardPage(page - 1)}
+                            disabled={page <= 1}
+                        >Anterior</button>
+                        <span>
+                            Página {page} de {Math.ceil(total / pageSize)}
+                        </span>
+                        <button
+                            onClick={() => goToDashboardPage(page + 1)}
+                            disabled={page >= Math.ceil(total / pageSize)}
+                        >Siguiente</button>
+                    </div>
+                </>
             )}
 
-            <FooterLogo />
+            <Footer />
         </div>
     );
 };
