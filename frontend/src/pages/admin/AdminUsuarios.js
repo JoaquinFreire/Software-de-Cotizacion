@@ -4,6 +4,7 @@ import axios from "axios";
 import Navigation from "../../components/Navigation";
 import "../../styles/adminUsuarios.css";
 import { TailSpin } from "react-loader-spinner";
+import { validateUser } from "../../validation/userValidation"; // Asumiendo que existe
 
 const API_URL = process.env.REACT_APP_API_URL;
 const AdminUsuarios = () => {
@@ -18,9 +19,10 @@ const AdminUsuarios = () => {
         lastName: "",
         legajo: "",
         mail: "",
-        status: 1,
+        status: 0, // Siempre inactivo al crear
         role_id: "", // Agrega role_id
     });
+    const [validationErrors, setValidationErrors] = useState({});
 
     useEffect(() => {
         fetchUsers();
@@ -55,18 +57,22 @@ const AdminUsuarios = () => {
 
     const handleOpenModal = (user = null) => {
         setEditingUser(user);
+        setValidationErrors({});
         setFormData(
             user
                 ? {
                       ...user,
                       role_id: user.role_id || (user.role && user.role.id) || "",
+                      // Eliminar password_hash y role si existen
+                      password_hash: undefined,
+                      role: undefined
                   }
                 : {
                       name: "",
                       lastName: "",
                       legajo: "",
                       mail: "",
-                      status: 1,
+                      status: 0,
                       role_id: "",
                   }
         );
@@ -85,12 +91,38 @@ const AdminUsuarios = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setValidationErrors({});
+        // Validar antes de enviar
+        const errors = validateUser({
+            ...formData,
+            status: editingUser ? formData.status : 0,
+        });
+        if (Object.keys(errors).length > 0) {
+            setValidationErrors(errors);
+            return;
+        }
         const token = localStorage.getItem("token");
         setLoading(true);
         try {
-            // Elimina la propiedad 'role' si existe en formData antes de enviar
-            const payload = { ...formData };
-            delete payload.role;
+            // Solo los campos permitidos y sin undefined/null
+            const payload = {
+                name: formData.name,
+                lastName: formData.lastName,
+                legajo: formData.legajo,
+                mail: formData.mail,
+                status: editingUser ? formData.status : 0,
+                role_id: typeof formData.role_id === "string" ? parseInt(formData.role_id) : formData.role_id
+            };
+            if (editingUser) {
+                payload.id = editingUser.id;
+                // Elimina cualquier campo extra que pueda venir del backend
+                // (por ejemplo, password_hash, role, etc.)
+            }
+
+            // Limpieza final: elimina cualquier campo undefined o null
+            Object.keys(payload).forEach(
+                (key) => (payload[key] === undefined || payload[key] === null) && delete payload[key]
+            );
 
             if (editingUser) {
                 await axios.put(
@@ -106,6 +138,9 @@ const AdminUsuarios = () => {
             fetchUsers();
             handleCloseModal();
         } catch (error) {
+            setValidationErrors({
+                general: "Error al guardar el usuario. Verifique los datos o contacte al administrador.",
+            });
             console.error("Error saving user:", error);
         }
         setLoading(false);
@@ -224,9 +259,14 @@ const AdminUsuarios = () => {
                 </div>
                 {showModal && (
                     <div className="modal">
-                        <div className="modal-content">
-                            <h3>{editingUser ? "Actualizar Usuario" : "Crear Usuario"}</h3>
-                            <form onSubmit={handleSubmit}>
+                        <div className="modal-content modal-user-form">
+                            <h3 style={{ textAlign: "center", color: "#4f8cff", marginBottom: 18 }}>
+                                {editingUser ? "Actualizar Usuario" : "Crear Usuario"}
+                            </h3>
+                            <form onSubmit={handleSubmit} noValidate>
+                                {validationErrors.general && (
+                                    <div className="validation-error">{validationErrors.general}</div>
+                                )}
                                 <label>
                                     Nombre:
                                     <input
@@ -235,7 +275,11 @@ const AdminUsuarios = () => {
                                         value={formData.name}
                                         onChange={handleInputChange}
                                         required
+                                        className={validationErrors.name ? "input-error" : ""}
                                     />
+                                    {validationErrors.name && (
+                                        <span className="validation-error">{validationErrors.name}</span>
+                                    )}
                                 </label>
                                 <label>
                                     Apellido:
@@ -245,17 +289,25 @@ const AdminUsuarios = () => {
                                         value={formData.lastName}
                                         onChange={handleInputChange}
                                         required
+                                        className={validationErrors.lastName ? "input-error" : ""}
                                     />
+                                    {validationErrors.lastName && (
+                                        <span className="validation-error">{validationErrors.lastName}</span>
+                                    )}
                                 </label>
                                 <label>
-                                    Legajo:
+                                    Legajo (DNI):
                                     <input
                                         type="text"
                                         name="legajo"
                                         value={formData.legajo}
                                         onChange={handleInputChange}
                                         required
+                                        className={validationErrors.legajo ? "input-error" : ""}
                                     />
+                                    {validationErrors.legajo && (
+                                        <span className="validation-error">{validationErrors.legajo}</span>
+                                    )}
                                 </label>
                                 <label>
                                     Email:
@@ -265,18 +317,11 @@ const AdminUsuarios = () => {
                                         value={formData.mail}
                                         onChange={handleInputChange}
                                         required
+                                        className={validationErrors.mail ? "input-error" : ""}
                                     />
-                                </label>
-                                <label>
-                                    Status:
-                                    <select
-                                        name="status"
-                                        value={formData.status}
-                                        onChange={handleInputChange}
-                                    >
-                                        <option value={1}>Activo</option>
-                                        <option value={0}>Inactivo</option>
-                                    </select>
+                                    {validationErrors.mail && (
+                                        <span className="validation-error">{validationErrors.mail}</span>
+                                    )}
                                 </label>
                                 <label>
                                     Rol:
@@ -285,6 +330,7 @@ const AdminUsuarios = () => {
                                         value={formData.role_id}
                                         onChange={handleInputChange}
                                         required
+                                        className={validationErrors.role_id ? "input-error" : ""}
                                     >
                                         <option value="">Seleccione un rol</option>
                                         {roles.map((role) => (
@@ -293,12 +339,23 @@ const AdminUsuarios = () => {
                                             </option>
                                         ))}
                                     </select>
+                                    {validationErrors.role_id && (
+                                        <span className="validation-error">{validationErrors.role_id}</span>
+                                    )}
                                 </label>
                                 <div className="modal-actions">
-                                    <button type="submit">
-                                        {editingUser ? "Actualizar" : "Crear"}
+                                    <button
+                                        type="submit"
+                                        className="modal-submit-btn"
+                                        disabled={loading}
+                                    >
+                                        {loading
+                                            ? "Guardando..."
+                                            : editingUser
+                                            ? "Actualizar"
+                                            : "Crear"}
                                     </button>
-                                    <button type="button" onClick={handleCloseModal}>
+                                    <button type="button" onClick={handleCloseModal} className="modal-cancel-btn">
                                         Cancelar
                                     </button>
                                 </div>

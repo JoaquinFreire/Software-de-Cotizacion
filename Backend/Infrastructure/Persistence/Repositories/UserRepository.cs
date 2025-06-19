@@ -46,7 +46,20 @@ public class UserRepository : IUserRepository
     // Método asíncrono para actualizar un usuario existente
     public async Task UpdateAsync(User user)
     {
-        _context.Users.Update(user);
+        var existingUser = await _context.Users.FindAsync(user.id);
+        if (existingUser == null) return;
+
+        // Actualiza solo los campos permitidos
+        existingUser.name = user.name;
+        existingUser.lastName = user.lastName;
+        existingUser.legajo = user.legajo;
+        existingUser.mail = user.mail;
+        existingUser.status = user.status;
+        existingUser.role_id = user.role_id;
+
+        // Si necesitas actualizar la contraseña, hacelo explícitamente aquí
+        // existingUser.password_hash = user.password_hash;
+
         await _context.SaveChangesAsync();
     }
 
