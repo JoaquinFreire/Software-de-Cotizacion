@@ -4,33 +4,112 @@ import axios from 'axios';
 const API_URL = process.env.REACT_APP_API_URL;
 export const QuotationContext = createContext();
 export const QuotationProvider = ({ children }) => {
-    const [quotations, setQuotations] = useState([]);
-    const [loading, setLoading] = useState(true);
+    // Estado separado para cada vista
+    const [dashboardState, setDashboardState] = useState({
+        quotations: [],
+        page: 1,
+        total: 0,
+        loading: false,
+    });
+    const [historialState, setHistorialState] = useState({
+        quotations: [],
+        page: 1,
+        total: 0,
+        loading: false,
+    });
 
+    // Control de vista actual
+    const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard' o 'historial'
+    const pageSize = 5;
+
+    // Función genérica para fetch
+    const fetchQuotations = async ({ page = 1, status = null, view }) => {
+        const setState = view === 'dashboard' ? setDashboardState : setHistorialState;
+        setState(prev => ({ ...prev, loading: true }));
+        const token = localStorage.getItem("token");
+        if (!token) {
+            setState(prev => ({ ...prev, loading: false }));
+            return;
+        }
+        try {
+            let url = `${API_URL}/api/quotations?page=${page}&pageSize=${pageSize}`;
+            if (status) url += `&status=${status}`;
+            const response = await axios.get(url, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const arr = Array.isArray(response.data.quotations) ? response.data.quotations : [];
+            setState({
+                quotations: arr,
+                page,
+                total: response.data.total,
+                loading: false,
+            });
+        } catch (error) {
+            setState(prev => ({ ...prev, loading: false }));
+            console.error("Error fetching quotations:", error);
+        }
+    };
+
+    // Agrega una nueva cotización al estado actual (dashboard e historial)
+    const addQuotation = (quotation) => {
+        // Si estamos en la primera página, agregamos al principio
+        setHistorialState(prev => ({
+            ...prev,
+            quotations: prev.page === 1 ? [quotation, ...prev.quotations.slice(0, pageSize - 1)] : prev.quotations,
+            total: prev.total + 1
+        }));
+        // Solo si es pendiente, también al dashboard
+        if (quotation.Status === "pending") {
+            setDashboardState(prev => ({
+                ...prev,
+                quotations: prev.page === 1 ? [quotation, ...prev.quotations.slice(0, pageSize - 1)] : prev.quotations,
+                total: prev.total + 1
+            }));
+        }
+    };
+
+    // Funciones para cambiar de página y vista
+    const goToDashboardPage = (newPage) => {
+        fetchQuotations({ page: newPage, status: "pending", view: "dashboard" });
+    };
+    const goToHistorialPage = (newPage) => {
+        fetchQuotations({ page: newPage, status: null, view: "historial" });
+    };
+    const switchToDashboard = () => {
+        setCurrentView('dashboard');
+        if (dashboardState.quotations.length === 0) {
+            fetchQuotations({ page: dashboardState.page, status: "pending", view: "dashboard" });
+        }
+    };
+    const switchToHistorial = () => {
+        setCurrentView('historial');
+        if (historialState.quotations.length === 0) {
+            fetchQuotations({ page: historialState.page, status: null, view: "historial" });
+        }
+    };
+
+    // Carga inicial solo una vez por vista
     useEffect(() => {
-        const fetchQuotations = async () => {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                setLoading(false); // Detener el estado de carga si no hay token
-                return;
-            }
-            try {
-                const response = await axios.get(`${API_URL}/api/quotations`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                setQuotations(response.data);
-            } catch (error) {
-                console.error("Error fetching quotations:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchQuotations();
-    }, []);
+        if (dashboardState.quotations.length === 0) {
+            fetchQuotations({ page: 1, status: "pending", view: "dashboard" });
+        }
+        if (historialState.quotations.length === 0) {
+            fetchQuotations({ page: 1, status: null, view: "historial" });
+        }
+    }, [dashboardState.quotations.length, historialState.quotations.length]);
 
     return (
-        <QuotationContext.Provider value={{ quotations, setQuotations, loading }}>
+        <QuotationContext.Provider value={{
+            dashboardState,
+            historialState,
+            pageSize,
+            goToDashboardPage,
+            goToHistorialPage,
+            switchToDashboard,
+            switchToHistorial,
+            currentView,
+            addQuotation // <-- exporta la función
+        }}>
             {children}
         </QuotationContext.Provider>
     );
