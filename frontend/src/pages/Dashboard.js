@@ -28,7 +28,7 @@ const Dashboard = () => {
     // Al entrar al Dashboard, siempre carga la página 1 de pendientes
     useEffect(() => {
         switchToDashboard();
-    }, []);
+    }, [switchToDashboard]);
 
     // Ya no necesitas filtrar pendientes aquí, quotations ya viene filtrado
     useEffect(() => {

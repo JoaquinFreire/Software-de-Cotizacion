@@ -96,7 +96,7 @@ export const QuotationProvider = ({ children }) => {
         if (historialState.quotations.length === 0) {
             fetchQuotations({ page: 1, status: null, view: "historial" });
         }
-    }, []);
+    }, [dashboardState.quotations.length, historialState.quotations.length]);
 
     return (
         <QuotationContext.Provider value={{

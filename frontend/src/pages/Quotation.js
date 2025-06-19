@@ -39,7 +39,7 @@ const Quotation = () => {
     const carouselContainerRef = useRef(null);
 
     const navigate = useNavigate();
-    const { setQuotations } = React.useContext(QuotationContext);
+    const { addQuotation } = React.useContext(QuotationContext);
 
     const [newCustomer, setNewCustomer] = useState({
         name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: ''
@@ -386,7 +386,7 @@ const Quotation = () => {
 
             // Actualizar cotizaciones en el contexto si quieres
             if (response && response.data) {
-                setQuotations(prev => [...prev, response.data]);
+                addQuotation(response.data); // <-- usa addQuotation en vez de setQuotations
             }
 
             setSubmitting(false);

@@ -26,7 +26,7 @@ const Historial = () => {
 
     useEffect(() => {
         switchToHistorial();
-    }, []);
+    }, [switchToHistorial]);
 
     useEffect(() => {
         setFilteredQuotations(Array.isArray(quotations) ? quotations : []);
