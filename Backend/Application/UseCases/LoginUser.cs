@@ -20,6 +20,11 @@ public class LoginUser
             return (false, "LEGAJO INCORRECTO", null);
         }
 
+        if (user.status != 1)
+        {
+            return (false, "Credenciales correctas, pero aún está inactivo. Consulte al administrador.", null);
+        }
+
         if (!BCrypt.Net.BCrypt.Verify(password, user.password_hash))
         {
             return (false, "CONTRASEÑA INCORRECTA", null);
