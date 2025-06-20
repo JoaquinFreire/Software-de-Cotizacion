@@ -120,56 +120,56 @@ body.light-mode {
 }
 
 body.light-mode .dashboard-container {
-    background-color: #f6f8fa !important;
-    color: #222 !important;
+    background-color: #f6f8fa;
+    color: #222;
 }
 
 body.light-mode .dashboard-header {
-    background-color: #2e7dd8 !important;
+    background-color: #c1ddddd5;
 }
 
 body.light-mode .title {
-    color: #00bcd4 !important;
+    color: #00bcd4;
 }
 
 body.light-mode .search-bar,
 body.light-mode .search-container {
-    background-color: #fff !important;
-    border-color: #00bcd4 !important;
+    background-color: #fff;
+    border-color: #00bcd4;
 }
 
 body.light-mode .search-input {
-    background: #fff !important;
-    color: #222 !important;
+    background: #fff;
+    color: #222;
 }
 
 body.light-mode .clear-button-q {
-    color: #222 !important;
+    color: #222;
 }
 
 body.light-mode .search-button {
-    background: #00bcd4 !important;
-    color: #fff !important;
+    background: #00bcd4;
+    color: #fff;
 }
 
 body.light-mode .new-quote {
-    background-color: #00bcd4 !important;
-    color: #fff !important;
+    background-color: #00bcd4;
+    color: #fff;
 }
 
 body.light-mode .quote-card {
-    background: #fff !important;
-    color: #222 !important;
-    border: 1px solid #e0e0e0 !important;
+    background: #fff;
+    color: #222;
+    border: 1px solid #e0e0e0;
 }
 
 body.light-mode .success-message {
-    background: #e0f7fa !important;
-    color: #00796b !important;
+    background: #e0f7fa;
+    color: #00796b;
 }
 
 body.light-mode .filtro::after {
-    background: rgba(255, 189, 9, 0.08) !important;
+    background: rgba(255, 189, 9, 0.08);
 }
 
 body,
@@ -195,7 +195,21 @@ body,
 }
 
 /* --- RESPONSIVE DESIGN --- */
+@media (max-width: 1024px) {
+    .dashboard-container {
+        margin-left: 12px;
+        margin-right: 12px;
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
 @media (max-width: 768px) {
+    .dashboard-container {
+        margin-left: 12px;
+        margin-right: 12px;
+        padding-left: 0;
+        padding-right: 0;
+    }
     .dashboard-container {
         padding: 0 2vw;
     }
@@ -245,6 +259,12 @@ body,
 }
 
 @media (max-width: 480px) {
+    .dashboard-container {
+        margin-left: 6px;
+        margin-right: 6px;
+        padding-left: 0;
+        padding-right: 0;
+    }
     .dashboard-container {
         padding: 0 1vw;
     }
