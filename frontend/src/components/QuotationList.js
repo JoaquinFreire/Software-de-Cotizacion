@@ -3,7 +3,7 @@ import ConfirmationModal from "./ConfirmationModal";
 import "../styles/quotationList.css"; // Importar los estilos
 import 'react-loading-skeleton/dist/skeleton.css'
 
-const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setShowModal, setQuotationToDelete, successMessage, onDeleteSuccess }) => {
+const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setShowModal, setQuotationToDelete, onDeleteSuccess }) => {
   const navigate = useNavigate();
 
   const handleShowModal = (id) => {
@@ -23,7 +23,6 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
 
   return (
     <div className="quote-container">
-      {successMessage && <div className="success-message">{successMessage}</div>}
       {quotations.map((quotation) => (
         <div key={quotation.Id} className="quote-card">
           <div className="quote-details">
