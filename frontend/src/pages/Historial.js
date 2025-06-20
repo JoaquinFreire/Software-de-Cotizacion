@@ -26,7 +26,8 @@ const Historial = () => {
 
     useEffect(() => {
         switchToHistorial();
-    }, [switchToHistorial]);
+        // eslint-disable-next-line
+    }, []);
 
     useEffect(() => {
         setFilteredQuotations(Array.isArray(quotations) ? quotations : []);
