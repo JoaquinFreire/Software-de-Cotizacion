@@ -1,4 +1,4 @@
-    /* Header con botón a la derecha */
+/* Header con botón a la derecha */
 .admin-usuarios-header {
     display: flex;
     align-items: center;
@@ -16,7 +16,7 @@
 }
 
 .create-user-button {
-    background: linear-gradient(90deg, #4f8cff 0%, #1cb5e0 100%);
+    background: linear-gradient(90deg, #26b7cd 0%, #26b7cd 100%);
     color: #fff;
     border: none;
     border-radius: 6px;
@@ -25,11 +25,11 @@
     padding: 10px 22px;
     cursor: pointer;
     transition: background 0.2s;
-    box-shadow: 0 2px 8px rgba(76, 140, 255, 0.08);
+    box-shadow: 0 2px 8px #26b7cd14;
 }
 
 .create-user-button:hover {
-    background: linear-gradient(90deg, #1cb5e0 0%, #4f8cff 100%);
+    background: linear-gradient(90deg, #26b7cd 0%, #26b7cd 100%);
 }
 
 /* Tabla mejorada */
@@ -81,7 +81,7 @@
 
 /* Estado visual */
 .status-active {
-    color: #1cb5e0;
+    color: #26b7cd;
     font-weight: 600;
 }
 
@@ -120,12 +120,12 @@
 
 .status-button {
     background: #23272f;
-    color: #1cb5e0;
-    border: 1px solid #1cb5e0;
+    color: #26b7cd;
+    border: 1px solid #26b7cd;
 }
 
 .status-button:hover {
-    background: #1cb5e0;
+    background: #26b7cd;
     color: #fff;
 }
 
@@ -141,12 +141,12 @@
 }
 
 .invite-button {
-    background: #1cb5e0;
+    background: #26b7cd;
     color: #fff;
 }
 
 .invite-button:hover {
-    background: #4f8cff;
+    background: #26b7cd;
 }
 
 /* Modal igual que antes */
@@ -219,13 +219,13 @@
 
 .modal-user-form input:focus,
 .modal-user-form select:focus {
-    border: 1.5px solid #4f8cff;
+    border: 1.5px solid #26b7cd;
     outline: none;
 }
 
 .input-error {
-    border: 1.5px solid #ff6b6b !important;
-    background: #2a1a1a !important;
+    border: 1.5px solid #ff6b6b;
+    background: #2a1a1a;
 }
 
 .validation-error {
@@ -249,11 +249,11 @@
     border: none;
     font-size: 1.08rem;
     font-weight: 600;
-    background: linear-gradient(90deg, #4f8cff 0%, #1cb5e0 100%);
+    background: linear-gradient(90deg, #26b7cd 0%, #26b7cd 100%);
     color: #fff;
     cursor: pointer;
     transition: background 0.18s;
-    box-shadow: 0 2px 8px rgba(76, 140, 255, 0.08);
+    box-shadow: 0 2px 8px #26b7cd14;
 }
 
 .modal-submit-btn:disabled {
@@ -262,7 +262,7 @@
 }
 
 .modal-submit-btn:hover:not(:disabled) {
-    background: linear-gradient(90deg, #1cb5e0 0%, #4f8cff 100%);
+    background: linear-gradient(90deg, #26b7cd 0%, #26b7cd 100%);
 }
 
 .modal-cancel-btn {

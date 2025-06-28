@@ -7,7 +7,7 @@
     font-family: 'Montserrat', Arial, sans-serif;
 }
 .pagination-nav button {
-    background: linear-gradient(90deg, #00bcd4 0%, #0097a7 100%);
+    background: linear-gradient(90deg, #26b7cd 0%, #26b7cd 100%);
     color: #fff;
     border: none;
     border-radius: 20px;
@@ -15,7 +15,7 @@
     font-size: 1.1rem;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 2px 8px #00bcd455;
+    box-shadow: 0 2px 8px #26b7cd55;
     transition: background 0.2s, transform 0.1s;
 }
 .pagination-nav button:disabled {
@@ -26,12 +26,12 @@
     transform: none;
 }
 .pagination-nav button:not(:disabled):hover {
-    background: linear-gradient(90deg, #0097a7 0%, #00bcd4 100%);
+    background: linear-gradient(90deg, #26b7cd 0%, #26b7cd 100%);
     transform: translateY(-2px) scale(1.04);
 }
 .pagination-nav span {
     font-weight: bold;
-    color: #0097a7;
+    color: #26b7cd;
     font-size: 1.1rem;
     letter-spacing: 1px;
 }

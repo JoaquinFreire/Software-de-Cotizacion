@@ -73,19 +73,21 @@ const Navigation = ({ onLogout }) => {
     const handleToggleFilter = () => setIsFilterActive((prev) => !prev);
     const handleToggleTheme = () => setTheme((prev) => prev === "light" ? "dark" : "light");
 
+    // Determinar el color de fondo del encabezado según el tema
+    const headerBgColor = theme === "light" ? "#fff" : "#121212";
+
     return (
         <>
             {/* Header superior */}
-            <header className="dashboard-header new-header" style={{ backgroundColor: "black"}}>
+            <header className="dashboard-header new-header" style={{ backgroundColor: headerBgColor }}>
                 <div className="header-center-logo">
-    <NavLink to="/dashboard">
-        <img
-            src={theme === "light" ? Logonegro : anodalLogo}
-            alt="Logo Anodal"
-            className="logo-centered"
-            
-        />
-    </NavLink>
+                    <NavLink to="/dashboard">
+                        <img
+                            src={theme === "light" ? Logonegro : anodalLogo}
+                            alt="Logo Anodal"
+                            className="logo-centered"
+                        />
+                    </NavLink>
                 </div>
                 <div className="header-right">
                     <button
@@ -171,7 +173,7 @@ const Navigation = ({ onLogout }) => {
                     transition: "transform 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s",
                     transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
                     boxShadow: sidebarOpen ? "2px 0 16px #00ffff33" : "none",
-                    backgroundColor: theme === "light" ? "#dbcfcf" : "#121212"
+                    backgroundColor: theme === "light" ? "#B4B4B4" : "#121212"
                     
                 }}
             >
