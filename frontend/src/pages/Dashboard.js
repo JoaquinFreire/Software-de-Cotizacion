@@ -27,8 +27,10 @@ const Dashboard = () => {
 
     // Al entrar al Dashboard, siempre carga la página 1 de pendientes
     useEffect(() => {
-        switchToDashboard();
-    }, [switchToDashboard]);
+    switchToDashboard();
+    // eslint-disable-next-line
+}, []);
+
 
     // Ya no necesitas filtrar pendientes aquí, quotations ya viene filtrado
     useEffect(() => {
@@ -146,19 +148,19 @@ const Dashboard = () => {
                             </div>
                             <div className="quote-actions" style={{ display: 'flex', gap: 10 }}>
                                 <Skeleton
-                                    width="100px" height="30px" baseColor="#00ffff"
+                                    width="100px" height="30px" baseColor="#1a2a1d"
                                     highlightColor="#f2f8f8" duration={1.2}
                                 />
                                 <Skeleton
-                                    width="100px" height="30px" baseColor="#00bcd4"
+                                    width="100px" height="30px" baseColor="#16203a"
                                     highlightColor="#f2f8f8" duration={1.2}
                                 />
                                 <Skeleton
-                                    width="100px" height="30px" baseColor="#f44336"
+                                    width="100px" height="30px" baseColor="#611616"
                                     highlightColor="#f2f8f8" duration={1.2}
                                 />
                                 <Skeleton
-                                    width="100px" height="30px" baseColor="#93871acf"
+                                    width="100px" height="30px" baseColor="#a0910e96"
                                     highlightColor="#f2f8f8" duration={1.2}
                                 />
                             </div>

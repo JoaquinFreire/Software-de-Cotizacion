@@ -5,14 +5,14 @@
 
 .title {
     text-align: center;
-    color: cyan;
+    color: #26b7cd;
     font-size: 35px;
     margin-bottom: 20px;
 }
 
 .quotation-form {
     background: rgba(0, 0, 0, 0.8);
-    border: 1px solid cyan;
+    border: 1px solid #26b7cd;
     padding: 20px;
     border-radius: 10px;
     color: white;
@@ -28,7 +28,7 @@
 .form-group label {
     display: block;
     margin-bottom: 5px;
-    color: cyan;
+    color: #26b7cd;
 }
 
 .form-group input,
@@ -43,7 +43,7 @@
 }
 
 .submit-button {
-    background: cyan;
+    background: #26b7cd;
     color: black;
     border: none;
     border-radius: 5px;
@@ -79,7 +79,7 @@
 }
 
 .embla__button {
-    background: cyan;
+    background: #26b7cd;
     color: black;
     border: none;
     border-radius: 5px;
@@ -107,7 +107,7 @@
 
 .customer-option {
     background: rgba(0, 0, 0, 0.8);
-    border: 1px solid cyan;
+    border: 1px solid #26b7cd;
     padding: 10px 20px;
     border-radius: 5px;
     color: white;
@@ -119,7 +119,7 @@
 }
 .botton-carusel {
     background: rgba(0, 0, 0, 0.8);
-    border: 1px solid cyan;
+    border: 1px solid #26b7cd;
     padding: 10px 20px;
     border-radius: 5px;
     color: white;
@@ -132,7 +132,7 @@
 }
 .botton-DNI {
     background: rgba(0, 0, 0, 0.8);
-    border: 1px solid cyan;
+    border: 1px solid #26b7cd;
     padding: 10px 20px;
     border-radius: 5px;
     color: white;
@@ -145,7 +145,7 @@
 }
 
 .customer-option.active {
-    background: cyan;
+    background: #26b7cd;
     color: black;
     transform: scale(1.05);
 }
@@ -156,7 +156,7 @@
 
 .customer-details {
     background: rgba(0, 0, 0, 0.8);
-    border: 1px solid cyan;
+    border: 1px solid #26b7cd;
     padding: 15px;
     border-radius: 5px;
     color: white;
@@ -165,12 +165,12 @@
 
 .customer-details h4 {
     margin-bottom: 10px;
-    color: cyan;
+    color: #26b7cd;
 }
 
 .workplace-container, .agent-container {
     background: rgba(0, 0, 0, 0.8);
-    border: 1px solid cyan;
+    border: 1px solid #26b7cd;
     padding: 20px;
     border-radius: 10px;
     color: white;
@@ -179,7 +179,7 @@
 }
 
 .workplace-container h3, .agent-container h3 {
-    color: cyan;
+    color: #26b7cd;
     margin-bottom: 15px;
 }
 
@@ -188,7 +188,7 @@
 }
 
 .agent-details h4 {
-    color: cyan;
+    color: #26b7cd;
     margin-bottom: 10px;
 }
 
@@ -208,7 +208,7 @@ input::placeholder, select::placeholder {
 
 .opening-container {
     background: rgba(0, 0, 0, 0.8);
-    border: 1px solid cyan;
+    border: 1px solid #26b7cd;
     padding: 20px;
     border-radius: 10px;
     color: white;
@@ -226,7 +226,7 @@ input::placeholder, select::placeholder {
     justify-content: space-between;
     align-items: center;
     background: rgba(0, 0, 0, 0.6);
-    border: 1px solid cyan;
+    border: 1px solid #26b7cd;
     padding: 10px;
     border-radius: 5px;
     margin-bottom: 10px;
@@ -250,7 +250,7 @@ input::placeholder, select::placeholder {
 
 .complements-container {
     background: rgba(0, 0, 0, 0.8);
-    border: 1px solid cyan;
+    border: 1px solid #26b7cd;
     padding: 20px;
     border-radius: 10px;
     color: white;
@@ -268,7 +268,7 @@ input::placeholder, select::placeholder {
     justify-content: space-between;
     align-items: center;
     background: rgba(0, 0, 0, 0.6);
-    border: 1px solid cyan;
+    border: 1px solid #26b7cd;
     padding: 10px;
     border-radius: 5px;
     margin-bottom: 10px;
@@ -296,69 +296,66 @@ body.light-mode .agent-container,
 body.light-mode .opening-container,
 body.light-mode .complements-container,
 body.light-mode .customer-details {
-    background: #fff !important;
-    color: #222 !important;
-    border: 1px solid #00bcd4 !important;
+    background: #fff;
+    color: #222;
+    border: 1px solid #26b7cd;
 }
 
 body.light-mode .title {
-    color: #00bcd4 !important;
+    color: #26b7cd;
 }
 
 body.light-mode .form-group label,
 body.light-mode .workplace-container h3,
 body.light-mode .agent-container h3,
 body.light-mode .customer-details h4 {
-    color: #00bcd4 !important;
+    color: #26b7cd;
 }
 
-body.light-mode input,
-body.light-mode select {
-    color: #ffffff !important;
-}
+
 
 body.light-mode input::placeholder,
 body.light-mode select::placeholder {
-    color: #888 !important;
+    color: #888;
 }
 
 body.light-mode .submit-button,
 body.light-mode .embla__button {
-    background: #00bcd4 !important;
-    color: #fff !important;
+    background: #26b7cd;
+    color: #fff;
 }
 
 body.light-mode .embla__button:disabled {
-    background: #bdbdbd !important;
+    background: #bdbdbd;
 }
 
 body.light-mode .customer-option {
-    background: #f6f8fa !important;
-    color: #222 !important;
-    border: 1px solid #00bcd4 !important;
+    background: #f6f8fa;
+    color: #222;
+    border: 1px solid #26b7cd;
 }
 
 body.light-mode .customer-option.active {
-    background: #00bcd4 !important;
-    color: #fff !important;
+    background: #26b7cd;
+    color: #fff;
 }
 
 body.light-mode .opening-item,
 body.light-mode .complement-item {
-    background: #f6f8fa !important;
-    color: #222 !important;
-    border: 1px solid #00bcd4 !important;
+    background: #f6f8fa;
+    color: #222;
+    border: 1px solid #26b7cd;
 }
 
 body.light-mode .remove-opening-button,
 body.light-mode .remove-complement-button {
-    background: #f44336 !important;
-    color: #fff !important;
+    background: #f44336;
+    color: #fff;
 }
 
 body.light-mode .remove-opening-button:hover,
 body.light-mode .remove-complement-button:hover {
-    background: #b71c1c !important;
+    background: #b71c1c;
 }
 
 @media (max-width: 768px) {

@@ -1,6 +1,6 @@
 .quote-card {
     background: rgba(0, 0, 0, 0.8);
-    border: 1px solid rgb(0, 255, 255);
+    border: 1px solid #26b7cd;
     padding: 20px;
     width: 80%;
     border-radius: 10px;
@@ -59,33 +59,51 @@
     background: #1a2a1d; /* Green */
     color: rgb(197, 194, 194);
 }
+.go-button:hover {
+    background: #18301e; /* Un verde más oscuro */
+}
 
 .update-button {
     background: #1a2230; /* Blue */
     color: rgb(197, 194, 194);
+}
+.update-button:hover {
+    background: #16203a; /* Un azul más oscuro */
 }
 
 .delete-button {
     background: #2a1a1a; /* Red */
     color: rgb(197, 194, 194);
 }
+.delete-button:hover {
+    background: #611616; /* Un rojo más oscuro */
+}
 
 .status-button {
     background: #29281a;
     color: black;
 }
+.status-button:hover {
+    background: #4a491a; /* Un amarillo/marrón más oscuro */
+    color: #fff;
+}
 .status-select {
-    background: #a0910e96; /* Yellow */
-    color: rgb(197, 194, 194);
+    background: #817821; /* Yellow */
+    color: rgb(243, 243, 243);
+    padding: 5px;
+    width: 122px;
+
 }
 
 .status-select option[value="pending"] {
     font-weight: 700;
     background:  #998b0a8f; 
+    border-radius: 0% !important;
 }
 .dropdown{
     background: #998b0a8f; 
     color: rgb(0, 0, 0);
+    border: none;
 }
 .success-message {
     background: green;
