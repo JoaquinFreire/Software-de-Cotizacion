@@ -1,24 +1,25 @@
+using Application.DTOs.CreateBudget;
+using Application.Services;
+using Application.UseCases;
+using Application.UseCases.Budget;
+using Application.Validators;
+using AutoMapper;
+using Domain.Repositories;
+using DotNetEnv;
 using Infrastructure;
 // Ensure the namespace containing MongoDbSettings is included
 using Infrastructure.Persistence.MongoDBContext;
-using Microsoft.Extensions.Options;
-using Domain.Repositories;
-using Microsoft.EntityFrameworkCore;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Application.Services;
-using Application.UseCases;
-using System.IO;
 using Infrastructure.Persistence.Repositories;
-using AutoMapper;
-using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
-using DotNetEnv;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using QuestPDF.Infrastructure;
-using Application.DTOs.CreateBudget;
-using Application.UseCases.Budget;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.IO;
+using System.Text;
+using System.Text.Json.Serialization;
 Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
 
 Console.WriteLine("Arrancando backend...");
@@ -56,6 +57,13 @@ builder.Services.AddAutoMapper(typeof(CreateBudgetProfile));
 
 //Convertidor PDF
 builder.Services.AddScoped<IBudgetPdfGenerator, PdfBudgetUseCase>();
+
+//VALIDACIONES DE BUDGET
+//Capa de logica de negocio
+builder.Services.AddTransient<IBudgetValidator, BudgetValidator>();
+//Capa de aplicación
+builder.Services.AddTransient<IApplicationBudgetValidator, ApplicationBudgetValidator>();
+
 
 
 // Configura MediatR para manejar comandos y consultas
