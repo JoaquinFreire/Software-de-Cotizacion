@@ -409,6 +409,7 @@ const Quotation = () => {
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
             <h2 className="title">Nueva Cotización</h2>
+           
             <form className="quotation-form" onKeyDown={handleFormKeyDown}>
                 <div className="embla-buttons-container">
                     <button
