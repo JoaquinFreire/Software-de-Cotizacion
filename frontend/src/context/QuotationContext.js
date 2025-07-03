@@ -52,13 +52,11 @@ export const QuotationProvider = ({ children }) => {
 
     // Agrega una nueva cotización al estado actual (dashboard e historial)
     const addQuotation = (quotation) => {
-        // Si estamos en la primera página, agregamos al principio
         setHistorialState(prev => ({
             ...prev,
             quotations: prev.page === 1 ? [quotation, ...prev.quotations.slice(0, pageSize - 1)] : prev.quotations,
             total: prev.total + 1
         }));
-        // Solo si es pendiente, también al dashboard
         if (quotation.Status === "pending") {
             setDashboardState(prev => ({
                 ...prev,
@@ -77,26 +75,22 @@ export const QuotationProvider = ({ children }) => {
     };
     const switchToDashboard = () => {
         setCurrentView('dashboard');
-        if (dashboardState.quotations.length === 0) {
+        if (dashboardState.quotations.length === 0 && !dashboardState.loading) {
             fetchQuotations({ page: dashboardState.page, status: "pending", view: "dashboard" });
         }
     };
     const switchToHistorial = () => {
         setCurrentView('historial');
-        if (historialState.quotations.length === 0) {
+        if (historialState.quotations.length === 0 && !historialState.loading) {
             fetchQuotations({ page: historialState.page, status: null, view: "historial" });
         }
     };
 
     // Carga inicial solo una vez por vista
     useEffect(() => {
-        if (dashboardState.quotations.length === 0) {
-            fetchQuotations({ page: 1, status: "pending", view: "dashboard" });
-        }
-        if (historialState.quotations.length === 0) {
-            fetchQuotations({ page: 1, status: null, view: "historial" });
-        }
-    }, [dashboardState.quotations.length, historialState.quotations.length]);
+        fetchQuotations({ page: 1, status: "pending", view: "dashboard" });
+        fetchQuotations({ page: 1, status: null, view: "historial" });
+    }, []);
 
     return (
         <QuotationContext.Provider value={{
@@ -108,9 +102,10 @@ export const QuotationProvider = ({ children }) => {
             switchToDashboard,
             switchToHistorial,
             currentView,
-            addQuotation // <-- exporta la función
+            addQuotation
         }}>
             {children}
         </QuotationContext.Provider>
     );
 };
+export default QuotationProvider;

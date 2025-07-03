@@ -101,9 +101,12 @@
     border-radius: 0% !important;
 }
 .dropdown{
-    background: #998b0a8f; 
+    background: #b8ac46; 
     color: rgb(0, 0, 0);
-    border: none;
+
+    border-radius: none;
+    padding: 0;
+    margin: 0;
 }
 .success-message {
     background: green;
@@ -114,6 +117,68 @@
     margin: 10px 0;
 }
 
+/* --- MODO CLARO: Colores claros para los botones de acciones --- */
+body.light-mode .go-button {
+    background: #e0f7fa;
+    color: #00796b;
+}
+body.light-mode .update-button {
+    background: #fffde7;
+    color: #fbc02d;
+}
+body.light-mode .delete-button {
+    background: #ffebee;
+    color: #d32f2f;
+}
+body.light-mode .status-select {
+    background: #c2ddf0;
+    color: #1976d2;
+    border: none;
+}
+body.light-mode .status-select option {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+body.light-mode .dropdown {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+/* Centrar texto y ajustar tamaño del select para igualar a los botones */
+.status-select {
+    text-align: center;
+    text-align-last: center;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    min-width: 120px;
+    /* Elimina borde y sombra nativos en todos los navegadores */
+    border: none;
+    box-shadow: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+/* Igualar altura de botones y select en responsive */
+@media (max-width: 768px) {
+    .status-select {
+        height: 44px;
+        min-width: 100%;
+    }
+}
+
+/* Elimina borde interno del select en modo claro y oscuro */
+.status-select,
+.status-select:focus,
+.status-select:active {
+    outline: none;
+    border: none;
+    box-shadow: none;
+}
+
 @media (max-width: 768px) {
     .quote-card {
         flex-direction: column;
@@ -121,6 +186,11 @@
         padding: 12px;
         font-size: 15px;
         align-items: stretch;
+        border: none !important;
+        box-shadow: none !important;
+        background: rgba(0,0,0,0.85);
+        margin-left: 2rem;
+        margin-right: 2rem;
     }
     .quote-details {
         font-size: 15px;
@@ -136,19 +206,25 @@
         font-size: 15px;
         height: 44px;
         padding: 8px 0;
-    }
-    .status-select {
-        width: 100%;
+        border-radius: 0%;
+        box-shadow: none !important;
     }
 }
 
+/* Para pantallas muy pequeñas, también sin bordes */
 @media (max-width: 480px) {
     .quote-card {
         font-size: 13px;
         padding: 8px;
+        border: none !important;
+        box-shadow: none !important;
+        margin-left: 0;
+        margin-right: 0;
     }
     .go-button, .update-button, .delete-button, .status-select, .status-button {
         font-size: 13px;
         height: 38px;
+        border: none !important;
+        box-shadow: none !important;
     }
 }
