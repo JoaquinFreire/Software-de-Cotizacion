@@ -20,7 +20,7 @@
 
 .modal-actions {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   margin-top: 20px;
 }
 
@@ -40,5 +40,6 @@
   color: white;
 }
 .modal-content h2, .modal-content p {
-    color: black;
+    color: rgb(255, 255, 255);
+    align-items: center;
 }

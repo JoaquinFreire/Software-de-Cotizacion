@@ -35,7 +35,7 @@ const Quotation = () => {
     const [canScrollPrev, setCanScrollPrev] = useState(false);
     const [canScrollNext, setCanScrollNext] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [carouselHeight, setCarouselHeight] = useState('auto');
+    // const [carouselHeight, setCarouselHeight] = useState('auto');
     const carouselContainerRef = useRef(null);
 
     const navigate = useNavigate();
@@ -135,10 +135,11 @@ const Quotation = () => {
 
     useEffect(() => {
         if (!carouselContainerRef.current) return;
-        const activeSlide = carouselContainerRef.current.querySelector(`.embla__slide:nth-child(${currentIndex + 1})`);
-        if (activeSlide) {
-            setCarouselHeight(`${activeSlide.scrollHeight}px`);
-        }
+        // Optionally, you can handle carousel height here if needed
+        // const activeSlide = carouselContainerRef.current.querySelector(`.embla__slide:nth-child(${currentIndex + 1})`);
+        // if (activeSlide) {
+        //     setCarouselHeight(`${activeSlide.scrollHeight}px`);
+        // }
     }, [currentIndex]);
 
     // Cargar tipos de trabajo
@@ -408,6 +409,7 @@ const Quotation = () => {
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
             <h2 className="title">Nueva Cotización</h2>
+           
             <form className="quotation-form" onKeyDown={handleFormKeyDown}>
                 <div className="embla-buttons-container">
                     <button
@@ -418,6 +420,9 @@ const Quotation = () => {
                     >
                         Atrás
                     </button>
+                    <span style={{ alignSelf: "center", fontWeight: 500, fontSize: 16, color: "#26b7cd" }}>
+                        Página {currentIndex + 1} de 6
+                    </span>
                     <button
                         type="button"
                         className="embla__button embla__button--next"
@@ -430,7 +435,6 @@ const Quotation = () => {
                 <div
                     className="embla"
                     ref={emblaRef}
-                    style={{ height: carouselHeight }}
                 >
                     <div className="embla__container" ref={carouselContainerRef}>
                         <div className="embla__slide">

@@ -17,7 +17,7 @@
 
 .title {
     text-align: center;
-    color: cyan;
+    color: #26b7cd;
     font-size: 35px;
     margin-bottom: 20px;
     margin-top: 2rem;
@@ -41,7 +41,7 @@
     display: flex;
     align-items:center;
     background-color: black;
-    border: 2px solid cyan;
+    border: 2px solid #26b7cd;
     border-radius: 5px;
     padding: 2px;
     flex-grow: 1; /* Hace que el input ocupe el espacio disponible */
@@ -69,7 +69,7 @@
 }
 
 .search-button {
-    background: cyan;
+    background: #26b7cd;
     border: none;
     padding: 8px;
     cursor: pointer;
@@ -94,7 +94,7 @@
     margin-left: 20px;
     padding: 10px 5px;
     border: none;
-    background-color: cyan;
+    background-color: #26b7cd;
     color: black;
     border-radius: 5px;
     cursor: pointer;
@@ -120,6 +120,25 @@ body.light-mode {
 }
 
 body.light-mode .dashboard-container {
+
+    background-color: #e2e5e7 !important;
+}
+
+body.light-mode .title,
+body.light-mode .search-button,
+body.light-mode .new-quote {
+    color: #fff !important;
+}
+
+body.light-mode .title {
+    color: #26b7cd !important;
+}
+
+body.light-mode .search-bar,
+body.light-mode .search-container,
+body.light-mode .search-input {
+    background-color: #ffffff00 !important;
+    border-color: #26b7cd !important;
     background-color: #f6f8fa;
     color: #222;
 }
@@ -147,10 +166,19 @@ body.light-mode .clear-button-q {
     color: #222;
 }
 
+body.light-mode .search-button,
+body.light-mode .new-quote {
+    background: #26b7cd !important;
+}
+
+body.light-mode .quote-card {
+    background: #fff !important;
+    color: #222 !important;
+    border: 1px solid #26b7cd
 body.light-mode .search-button {
     background: #00bcd4;
     color: #fff;
-}
+  }
 
 body.light-mode .new-quote {
     background-color: #00bcd4;
@@ -191,7 +219,7 @@ body,
 .quotation-form,
 .embla__slide,
 .embla__container {
-    transition: background-color 2.4s cubic-bezier(.4,2,.6,1), color 0.4s cubic-bezier(.4,2,.6,1), border-color 0.4s cubic-bezier(.4,2,.6,1), box-shadow 0.4s cubic-bezier(.4,2,.6,1);
+    transition: background-color 2s, color 0.4s, border-color 0.4s, box-shadow 0.4s;
 }
 
 /* --- RESPONSIVE DESIGN --- */

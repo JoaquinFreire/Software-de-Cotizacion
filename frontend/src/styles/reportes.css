@@ -28,21 +28,21 @@
 }
 
 /* === COLORES POR CARD EN MODO CLARO === */
-body.light-mode .reporte-estado-cotizaciones { background: #e3f0ff !important; }
-body.light-mode .reporte-material-usado { background: #eaffea !important; }
-body.light-mode .reporte-tendencias-mensuales { background: #fffbe3 !important; }
-body.light-mode .reporte-productividad-cotizador { background: #fde2e2 !important; }
-body.light-mode .reporte-productividad-vendedor { background: #e2f7f2 !important; }
-body.light-mode .reporte-tendencias-anuales { background: #f0e3ff !important; }
-body.light-mode .reporte-tiempo-respuesta { background: #fff0e3 !important; }
-body.light-mode .reporte-beneficio-proyecto { background: #e3ffe6 !important; }
-body.light-mode .reporte-clientes-mayor-volumen { background: #e3f7ff !important; }
-body.light-mode .reporte-proyectos-ubicacion { background: #fef3e3 !important; }
-body.light-mode .reporte-ciclo-vida { background: #ece3ff !important; }
-body.light-mode .reporte-satisfaccion-cliente { background: #ffe3e3 !important; }
-body.light-mode .reporte-tendencias-industria { background: #e3fff7 !important; }
-body.light-mode .reporte-promociones-descuentos { background: #f0fff3 !important; }
-body.light-mode .reporte-productividad-cotizador-2 { background: #fefbe3 !important; }
+body.light-mode .reporte-estado-cotizaciones { background: #e3f0ff; }
+body.light-mode .reporte-material-usado { background: #eaffea; }
+body.light-mode .reporte-tendencias-mensuales { background: #fffbe3; }
+body.light-mode .reporte-productividad-cotizador { background: #fde2e2; }
+body.light-mode .reporte-productividad-vendedor { background: #e2f7f2; }
+body.light-mode .reporte-tendencias-anuales { background: #f0e3ff; }
+body.light-mode .reporte-tiempo-respuesta { background: #fff0e3; }
+body.light-mode .reporte-beneficio-proyecto { background: #e3ffe6; }
+body.light-mode .reporte-clientes-mayor-volumen { background: #e3f7ff; }
+body.light-mode .reporte-proyectos-ubicacion { background: #fef3e3; }
+body.light-mode .reporte-ciclo-vida { background: #ece3ff; }
+body.light-mode .reporte-satisfaccion-cliente { background: #ffe3e3; }
+body.light-mode .reporte-tendencias-industria { background: #e3fff7; }
+body.light-mode .reporte-promociones-descuentos { background: #f0fff3; }
+body.light-mode .reporte-productividad-cotizador-2 { background: #fefbe3; }
 
 /* === COLORES POR CARD EN MODO OSCURO (tinte) === */
 .reporte-estado-cotizaciones { background: #1a2230; }
@@ -69,7 +69,7 @@ body.light-mode .reporte-productividad-cotizador-2 { background: #fefbe3 !import
 
 .reporte-icon {
   margin-bottom: 1.2rem;
-  color: #00bcd4;
+  color: #26b7cd;
 }
 
 /* Modo claro: icono oscuro */

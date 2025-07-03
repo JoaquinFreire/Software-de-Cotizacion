@@ -1,3 +1,117 @@
+
+.nav-links {
+    background-color: #080808; /* Fondo más oscuro */
+    padding: 20px 30px;
+    border-radius: 20px;
+    display: flex;
+    margin: 0 auto;
+    position: relative;
+    z-index: 4;
+    justify-content: space-between;
+    width: 25%;
+    margin-right: 14rem;
+    margin-left: 0;
+}
+
+.nav-linksF {
+    position: fixed; /* Fijo en la pantalla */
+    top: 2rem; /* Ajusta según sea necesario */
+    left: 50%; /* Centrado horizontalmente */
+    width: 35%; /* Ancho del 25% */
+    min-width: 35%; /* Ancho completo */
+    transform: translateX(-50%); /* Centrado horizontalmente */
+    background-color: rgba(0, 0, 0, 0.815); /* Fondo más oscuro */
+    display: flex;
+    justify-content: space-between;
+    border: #26b7cd 1px solid;
+}
+.dashboard-header {
+    background: #f0f0f000; /* Fondo claro */
+}
+
+.dashboard-header nav a {
+    margin: 0 15px;
+    color: white;
+    text-decoration: none;
+}
+
+.dashboard-header nav a.active {
+    color: #000000; /* Color celeste para la página actual */
+    border-bottom: 2px solid #26b7cd; /* Línea inferior celeste */
+}
+
+.menu {
+    position: relative;
+}
+
+.menu-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.menu-icon {
+    width: 40px;
+    height: 40px;
+}
+
+/* Dropdown */
+.dropdown-menu {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    min-width: 160px;
+    text-align: left;
+    z-index: 100;
+}
+
+.admin-menu .dropdown-menu {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    min-width: 200px;
+    z-index: 100;
+}
+
+.admin-menu .dropdown-menu a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 8px 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.admin-menu .dropdown-menu a:hover {
+    background-color: #26b7cd;
+    color: black;
+}
+.menu-button2 {
+ margin: 0;
+ padding: 0 10px 0px 0;
+ background: none;
+ color: white;
+ font-weight: 200;
+ margin: 0;
+}
+.menu-button2:hover {
+    background: none;
+   }
+.dropdown-menu button {
+    font-family: 'Poppins', sans-serif;
+}
+
 /* Usuario */
 .user-text {
     font-weight: bold;
@@ -58,7 +172,7 @@
 }
 
 input:checked + .slider {
-    background-color: #2196F3;
+    background-color: #26b7cd;
 }
 
 input:checked + .slider:before {
@@ -70,6 +184,10 @@ input:checked + .slider:before {
     display: flex;
     justify-content: center;
     align-items: center;
+    background: transparent;
+    background-color: transparent;
+    box-shadow: none;
+    height: 100px;
     /* El color por defecto es rojo, pero lo sobreescribimos abajo */
     background-color: black; /* Por defecto negro */
     transition: background-color 0.3s cubic-bezier(.4,2,.6,1);
@@ -84,6 +202,7 @@ input:checked + .slider:before {
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-top: 10px;
 }
 
 .logo-centered {
@@ -113,7 +232,7 @@ input:checked + .slider:before {
     align-items: center;
 }
 .icon-btn:hover {
-    background: #00FFFF22;
+    background: #26b7cd22;
 }
 
 .user-menu-container {
@@ -126,7 +245,7 @@ input:checked + .slider:before {
     min-width: 180px;
     background: rgba(0,0,0,0.95);
     border-radius: 10px;
-    box-shadow: 0 4px 16px #00ffff33;
+    box-shadow: 0 4px 16px #26b7cd33;
     padding: 12px 16px;
     position: absolute;
     top: 48px;
@@ -137,7 +256,7 @@ input:checked + .slider:before {
 .user-dropdown .dropdown-link {
     background: none;
     border: none;
-    color: #00FFFF;
+    color: #26b7cd;
     text-align: left;
     width: 100%;
     padding: 6px 0;
@@ -148,7 +267,7 @@ input:checked + .slider:before {
     transition: background 0.2s;
 }
 .user-dropdown .dropdown-link:hover {
-    background: #00FFFF22;
+    background: #26b7cd22;
     color: #fff;
 }
 
@@ -173,6 +292,7 @@ input:checked + .slider:before {
 }
 body.light-mode .sidebar-link,
 body.light-mode .sidebar-admin-btn {
+
     background: #c0d8d8; /* Fondo claro para botones en tema blanco */
     color: #111;
 }
@@ -180,7 +300,7 @@ body.light-mode .sidebar-link:hover,
 body.light-mode .sidebar-link.active,
 body.light-mode .sidebar-admin-btn:hover,
 body.light-mode .sidebar-admin-btn.active {
-    background: #00FFFF;
+    background: #26b7cd;
     color: #111;
 }
     
@@ -210,7 +330,7 @@ body {
 
 .sidebar-link.active,
 .sidebar-link:hover {
-    background: #00FFFF;
+    background: #26b7cd;
     color: #111;
 }
 
@@ -241,7 +361,7 @@ body {
 
 .sidebar-admin-btn:hover,
 .sidebar-admin-btn.active {
-    background: #00FFFF;
+    background: #26b7cd;
     color: #111;
 }
 
@@ -262,7 +382,7 @@ body {
     font-size: 15px;
     padding: 10px 12px;
     background: none;
-    color: #00FFFF;
+    color: #26b7cd;
     max-width: 100%;
     overflow: hidden;
     white-space: nowrap;
@@ -270,7 +390,7 @@ body {
 }
 .sidebar-admin-dropdown .sidebar-link.active,
 .sidebar-admin-dropdown .sidebar-link:hover {
-    background: #00FFFF22;
+    background: #26b7cd22;
     color: #fff;
 }
 
@@ -294,6 +414,11 @@ body, html {
 
 /* Elimina cualquier fondo para .dashboard-header en modo claro */
 body.light-mode .dashboard-header,
+body.light-mode .new-header {
+    background: transparent;
+    background-color: transparent;
+    box-shadow: none;
+}
 /* body.light-mode .new-header {
     background: transparent !important;
     background-color: transparent !important;
@@ -313,7 +438,7 @@ body.light-mode .dashboard-header,
     transition: background 0.2s;
 }
 .sidebar-toggle-btn:hover {
-    background: #00FFFF22;
+    background: #26b7cd22;
     border-radius: 0 20px 20px 0;
 }
 
@@ -322,32 +447,22 @@ body.light-mode .dashboard-header,
     top: 18px;
     left: 0;
     z-index: 110;
-    background: #111;
+    background: #000000;
     border: none;
     border-radius: 0 20px 20px 0;
     padding: 6px 8px 6px 2px;
     cursor: pointer;
-    box-shadow: 2px 0 16px #00ffff33;
+    box-shadow: 2px 0 16px #26b7cd33;
     transition: background 0.2s;
 }
 .sidebar-show-btn:hover {
-    background: #00FFFF22;
+    background: #d1d1d122;
 }
 
-body,
-.new-header,
-.header-center-logo,
-.logo-centered,
-.header-right,
-.icon-btn,
-.user-menu-container,
-.user-dropdown,
-.sidebar-nav,
-.sidebar-link,
-.sidebar-admin-btn,
-.sidebar-admin-dropdown .sidebar-link,
-.dashboard-container {
-    transition: background-color 2.4s cubic-bezier(.4,2,.6,1), color 0.4s cubic-bezier(.4,2,.6,1), border-color 0.4s cubic-bezier(.4,2,.6,1);
+
+/* Tema claro: fondo gris */
+body.light-mode .sidebar-show-btn {
+    background: #e0e0e0;
 }
 
 /* Header superior: color de fondo y transición según tema */
@@ -803,4 +918,3 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
         transition: transform 0.5s cubic-bezier(.22,1.2,.36,1), box-shadow 0.3s, background-color 0.3s cubic-bezier(.4,2,.6,1);
     }
 }
-
