@@ -303,6 +303,13 @@ body.light-mode .customer-details {
 
 body.light-mode .title {
     color: #26b7cd;
+    background: #fff ;
+    color: #222 ;
+    border: 1px solid #00bcd4 ;
+}
+
+body.light-mode .title {
+    color: #00bcd4;
 }
 
 body.light-mode .form-group label,
@@ -317,6 +324,17 @@ body.light-mode .customer-details h4 {
 body.light-mode input::placeholder,
 body.light-mode select::placeholder {
     color: #888;
+    color: #00bcd4;
+}
+
+body.light-mode input,
+body.light-mode select {
+    color: #ffffff;
+}
+
+body.light-mode input::placeholder,
+body.light-mode select::placeholder {
+    color: #888 ;
 }
 
 body.light-mode .submit-button,
@@ -338,6 +356,23 @@ body.light-mode .customer-option {
 body.light-mode .customer-option.active {
     background: #26b7cd;
     color: #fff;
+    background: #00bcd4 ;
+    color: #fff ;
+}
+
+body.light-mode .embla__button:disabled {
+    background: #bdbdbd ;
+}
+
+body.light-mode .customer-option {
+    background: #f6f8fa ;
+    color: #222 ;
+    border: 1px solid #00bcd4 ;
+}
+
+body.light-mode .customer-option.active {
+    background: #00bcd4 ;
+    color: #fff ;
 }
 
 body.light-mode .opening-item,
@@ -355,6 +390,7 @@ body.light-mode .remove-complement-button {
 
 body.light-mode .remove-opening-button:hover,
 body.light-mode .remove-complement-button:hover {
+
     background: #b71c1c;
 }
 

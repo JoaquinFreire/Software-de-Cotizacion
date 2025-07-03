@@ -1,3 +1,4 @@
+
 .nav-links {
     background-color: #080808; /* Fondo más oscuro */
     padding: 20px 30px;
@@ -187,9 +188,13 @@ input:checked + .slider:before {
     background-color: transparent;
     box-shadow: none;
     height: 100px;
+    /* El color por defecto es rojo, pero lo sobreescribimos abajo */
+    background-color: black; /* Por defecto negro */
+    transition: background-color 0.3s cubic-bezier(.4,2,.6,1);
+    height: 70px;
     position: relative;
     z-index: 10;
-    padding: 0;
+    padding: 11px 0px 5px 0px; /*arriba derecha abajo izquierda*/
 }
 
 .header-center-logo {
@@ -269,11 +274,12 @@ input:checked + .slider:before {
 /* Sidebar vertical */
 .sidebar-nav {
     position: fixed;
-    top: 0;
+    top: 0; 
     left: 0;
     width: 210px;
     height: 100vh;
-    background: #111;
+    background-color: #121212;
+    box-shadow: 2px 0 16px #00ffff33;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -281,10 +287,13 @@ input:checked + .slider:before {
     z-index: 100;
     box-sizing: border-box;
     overflow-x: hidden;
+    transition: background-color 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s cubic-bezier(.4,2,.6,1), transform 0.3s cubic-bezier(.4,2,.6,1);
+    transform: translateX(0);
 }
 body.light-mode .sidebar-link,
 body.light-mode .sidebar-admin-btn {
-    background: #d6d3d3; /* Fondo claro para botones en tema blanco */
+
+    background: #c0d8d8; /* Fondo claro para botones en tema blanco */
     color: #111;
 }
 body.light-mode .sidebar-link:hover,
@@ -410,6 +419,11 @@ body.light-mode .new-header {
     background-color: transparent;
     box-shadow: none;
 }
+/* body.light-mode .new-header {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+} */
 
 
 
@@ -445,9 +459,462 @@ body.light-mode .new-header {
     background: #d1d1d122;
 }
 
+
 /* Tema claro: fondo gris */
 body.light-mode .sidebar-show-btn {
     background: #e0e0e0;
 }
 
+/* Header superior: color de fondo y transición según tema */
+.new-header {
+    /* ...existing code... */
+    /* El color por defecto es rojo, pero lo sobreescribimos abajo */
+    background-color: black; /* Por defecto negro */
+    transition: background-color 0.3s cubic-bezier(.4,2,.6,1);
+}
+.new-header.light-header {
+    background-color: #fff !important;
+    /* Puedes ajustar el color claro si lo prefieres */
+}
 
+/* Sidebar: color de fondo y sombra según tema */
+.sidebar-nav {
+    /* ...existing code... */
+    background-color: #121212;
+    box-shadow: 2px 0 16px #00ffff33;
+    transition: background-color 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s cubic-bezier(.4,2,.6,1), transform 0.3s cubic-bezier(.4,2,.6,1);
+    transform: translateX(0);
+}
+.sidebar-nav.sidebar-light {
+    background-color: #c0d8d8;
+}
+.sidebar-nav.sidebar-dark {
+    background-color: #121212;
+}
+.sidebar-nav.closed {
+    transform: translateX(-100%);
+    box-shadow: none;
+}
+.sidebar-nav.open {
+    transform: translateX(0);
+    box-shadow: 2px 0 16px #00ffff33;
+}
+
+/* Encapsula todos los estilos de navegación bajo .navigation-root para evitar conflictos */
+.navigation-root .new-header,
+.navigation-root .dashboard-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #121212;
+    transition: background-color 0.3s cubic-bezier(.4,2,.6,1);
+    height: 70px;
+    position: relative;
+    z-index: 10;
+    padding: 11px 0px 5px 0px;
+}
+.navigation-root .new-header.light-header {
+    background-color: #fff;
+}
+
+.navigation-root .header-center-logo {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.navigation-root .logo-centered {
+    height: 48px;
+    width: auto;
+    background: none;
+}
+
+.navigation-root .header-right {
+    position: absolute;
+    right: 30px;
+    top: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.navigation-root .icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 7px;
+    border-radius: 50%;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+}
+.navigation-root .icon-btn:hover {
+    background: #00FFFF22;
+}
+
+.navigation-root .user-menu-container {
+    position: relative;
+}
+
+.navigation-root .user-dropdown {
+    right: 0;
+    left: auto;
+    min-width: 180px;
+    background: rgba(0,0,0,0.95);
+    border-radius: 10px;
+    box-shadow: 0 4px 16px #00ffff33;
+    padding: 12px 16px;
+    position: absolute;
+    top: 48px;
+    z-index: 100;
+    color: white;
+}
+
+.navigation-root .user-dropdown .dropdown-link {
+    background: none;
+    border: none;
+    color: #00FFFF;
+    text-align: left;
+    width: 100%;
+    padding: 6px 0;
+    cursor: pointer;
+    font-size: 15px;
+    border-radius: 5px;
+    margin-bottom: 4px;
+    transition: background 0.2s;
+}
+.navigation-root .user-dropdown .dropdown-link:hover {
+    background: #00FFFF22;
+    color: #fff;
+}
+
+/* Sidebar vertical */
+.navigation-root .sidebar-nav {
+    position: fixed;
+    top: 0; 
+    left: 0;
+    width: 210px;
+    height: 100vh;
+    background-color: #121212;
+    box-shadow: 2px 0 16px #00ffff33;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: 0;
+    z-index: 100;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    transition: background-color 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s cubic-bezier(.4,2,.6,1), transform 0.3s cubic-bezier(.4,2,.6,1);
+    transform: translateX(0);
+}
+body.light-mode .navigation-root .sidebar-nav,
+.navigation-root .sidebar-nav.sidebar-light {
+    background-color: #c0d8d8;
+}
+.navigation-root .sidebar-nav.sidebar-dark {
+    background-color: #121212;
+}
+.navigation-root .sidebar-nav.closed {
+    transform: translateX(-100%);
+    box-shadow: none;
+}
+.navigation-root .sidebar-nav.open {
+    transform: translateX(0);
+    box-shadow: 2px 0 16px #00ffff33;
+}
+
+.navigation-root .sidebar-link {
+    color: #fff;
+    text-decoration: none;
+    padding: 14px 18px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 17px;
+    border: none;
+    background: none;
+    text-align: left;
+    transition: background 0.2s, color 0.2s;
+    margin-bottom: 2px;
+    font-family: 'Poppins', sans-serif;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: block;
+}
+body.light-mode .navigation-root .sidebar-link,
+body.light-mode .navigation-root .sidebar-admin-btn {
+    background: #c0d8d8;
+    color: #111;
+}
+body.light-mode .navigation-root .sidebar-link:hover,
+body.light-mode .navigation-root .sidebar-link.active,
+body.light-mode .navigation-root .sidebar-admin-btn:hover,
+body.light-mode .navigation-root .sidebar-admin-btn.active {
+    background: #00FFFF;
+    color: #111;
+}
+.navigation-root .sidebar-link.active,
+.navigation-root .sidebar-link:hover {
+    background: #00FFFF;
+    color: #111;
+}
+
+.navigation-root .sidebar-admin-menu {
+    width: 100%;
+    position: relative;
+}
+
+.navigation-root .sidebar-admin-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 17px;
+    padding: 14px 18px;
+    cursor: pointer;
+    margin-bottom: 2px;
+    font-family: 'Poppins', sans-serif;
+    transition: background 0.2s, color 0.2s;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+.navigation-root .sidebar-admin-btn:hover,
+.navigation-root .sidebar-admin-btn.active {
+    background: #00FFFF;
+    color: #111;
+}
+
+.navigation-root .sidebar-admin-dropdown {
+    position: static;
+    background: none;
+    box-shadow: none;
+    padding-left: 8px;
+    margin-top: 0;
+    margin-bottom: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+.navigation-root .sidebar-admin-dropdown .sidebar-link {
+    font-size: 15px;
+    padding: 10px 12px;
+    background: none;
+    color: #00FFFF;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.navigation-root .sidebar-admin-dropdown .sidebar-link.active,
+.navigation-root .sidebar-admin-dropdown .sidebar-link:hover {
+    background: #00FFFF22;
+    color: #fff;
+}
+
+.navigation-root .sidebar-toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 12px 10px 12px 8px;
+    margin: 0;
+    outline: none;
+    align-self: flex-end;
+    transition: background 0.2s;
+}
+.navigation-root .sidebar-toggle-btn:hover {
+    background: #00FFFF22;
+    border-radius: 0 20px 20px 0;
+}
+
+.navigation-root .sidebar-show-btn {
+    position: fixed;
+    top: 18px;
+    left: 0;
+    z-index: 210;
+    background: #111;
+    border: none;
+    border-radius: 0 20px 20px 0;
+    padding: 6px 8px 6px 2px;
+    cursor: pointer;
+    box-shadow: 2px 0 16px #00ffff33;
+    transition: background 0.2s;
+    width: 48px;
+    height: 48px;
+}
+
+/* Sidebar overlay para móvil */
+.sidebar-nav.sidebar-mobile {
+    width: 100vw !important;
+    height: 100vh !important;
+    left: 0;
+    top: 0;
+    z-index: 200;
+    box-shadow: 0 0 0 100vw rgba(0,0,0,0.5);
+    background: inherit;
+    transition: transform 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s;
+}
+.sidebar-nav.sidebar-mobile.closed {
+    transform: translateX(-100%);
+    box-shadow: none;
+}
+.sidebar-nav.sidebar-mobile.open {
+    transform: translateX(0);
+    box-shadow: 0 0 0 100vw rgba(0,0,0,0.5);
+}
+
+/* Asegura que el contenido del sidebar se vea bien en móvil */
+@media (max-width: 768px) {
+    .sidebar-nav,
+    .sidebar-nav.sidebar-mobile {
+        width: 100vw !important;
+        min-width: 0;
+        max-width: 100vw;
+        height: 100vh !important;
+        padding-top: 30px;
+        font-size: 18px;
+    }
+    .sidebar-link,
+    .sidebar-admin-btn {
+        font-size: 20px;
+        padding: 18px 24px;
+    }
+    .sidebar-toggle-btn {
+        padding: 18px 16px 18px 10px;
+        font-size: 22px;
+    }
+    .sidebar-show-btn {
+        top: 18px;
+        left: 0;
+        z-index: 210;
+        width: 48px;
+        height: 48px;
+    }
+    .sidebar-admin-dropdown .sidebar-link {
+        font-size: 18px;
+        padding: 14px 20px;
+    }
+}
+
+/* Opcional: oscurece el fondo cuando el sidebar está abierto en móvil */
+@media (max-width: 768px) {
+    body.sidebar-mobile-open {
+        overflow: hidden;
+    }
+}
+
+/* Transiciones solo para navegación */
+.navigation-root,
+.navigation-root .new-header,
+.navigation-root .header-center-logo,
+.navigation-root .logo-centered,
+.navigation-root .header-right,
+.navigation-root .icon-btn,
+.navigation-root .user-menu-container,
+.navigation-root .user-dropdown,
+.navigation-root .sidebar-nav,
+.navigation-root .sidebar-link,
+.navigation-root .sidebar-admin-btn,
+.navigation-root .sidebar-admin-dropdown .sidebar-link {
+    transition: background-color 2.4s cubic-bezier(.4,2,.6,1), color 0.4s cubic-bezier(.4,2,.6,1), border-color 0.4s cubic-bezier(.4,2,.6,1);
+}
+
+/* Botones debajo del logo en móvil */
+.header-mobile-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    margin-top: 12px;
+}
+
+@media (max-width: 768px) {
+    .header-right {
+        display: none !important;
+    }
+    .header-mobile-actions {
+        display: flex;
+    }
+    .mobile-header-margin {
+        margin-left: 12px;
+        margin-right: 12px;
+    }
+    .header-center-logo {
+        flex-direction: column;
+        align-items: center;
+    }
+    .logo-centered {
+        margin-bottom: 0;
+    }
+}
+
+/* Mejor distribución en móvil para logo y botones */
+@media (max-width: 768px) {
+    .header-center-logo {
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        padding-top: 12px;
+        padding-bottom: 8px;
+    }
+    .logo-centered {
+        max-width: 160px;
+        width: 80vw;
+        height: auto;
+        margin-bottom: 10px;
+        margin-top: 0;
+        display: block;
+    }
+    .header-mobile-actions {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        margin: 0 auto 8px auto;
+        flex-wrap: wrap;
+    }
+    .icon-btn {
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        font-size: 22px;
+        margin: 0 2px;
+        flex: 0 0 auto;
+    }
+    .mobile-header-margin {
+        margin-left: 0;
+        margin-right: 0;
+        width: 100%;
+    }
+    .new-header {
+        min-height: 90px;
+        height: auto;
+        padding: 8px 0 8px 0;
+    }
+}
+
+/* Evita que el logo se salga hacia arriba */
+@media (max-width: 768px) {
+    .new-header {
+        align-items: flex-start;
+    }
+}
+
+/* Sidebar resorte efecto sólo desktop */
+@media (min-width: 769px) {
+    .sidebar-nav {
+        transition: transform 0.5s cubic-bezier(.22,1.2,.36,1), box-shadow 0.3s, background-color 0.3s cubic-bezier(.4,2,.6,1);
+    }
+}

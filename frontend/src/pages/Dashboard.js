@@ -22,7 +22,6 @@ const Dashboard = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [quotationToDelete, setQuotationToDelete] = useState(null);
-    const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
 
     // Al entrar al Dashboard, siempre carga la página 1 de pendientes
@@ -47,10 +46,8 @@ const Dashboard = () => {
                 }
             );
             setShowModal(false);
-            setSuccessMessage("Cotización eliminada con éxito.");
             // Recarga la página actual después de borrar
             goToDashboardPage(page);
-            setTimeout(() => setSuccessMessage(""), 3000);
         } catch (error) {
             console.error("Error deleting quotation:", error);
         }
@@ -72,9 +69,7 @@ const Dashboard = () => {
             );
             // Recarga la página actual después de cambiar estado
             goToDashboardPage(page);
-            setSuccessMessage("Estado de la cotización actualizado con éxito.");
             toast.success("Estado de la cotización actualizado con éxito.");
-            setTimeout(() => setSuccessMessage(""), 3000);
         } catch (error) {
             console.error("Error updating quotation status:", error);
             toast.error("Error al actualizar el estado de la cotización.");
@@ -176,7 +171,6 @@ const Dashboard = () => {
                         showModal={showModal}
                         setShowModal={setShowModal}
                         setQuotationToDelete={setQuotationToDelete}
-                        successMessage={successMessage}
                         onDeleteSuccess={handleDeleteSuccess}
                     />
                     <div className="pagination-nav">
