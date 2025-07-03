@@ -104,6 +104,8 @@ const Navigation = ({ onLogout }) => {
     const handleToggleFilter = () => setIsFilterActive((prev) => !prev);
     const handleToggleTheme = () => setTheme((prev) => prev === "light" ? "dark" : "light");
 
+    // Determinar el color de fondo del encabezado según el tema
+    const headerBgColor = theme === "light" ? "#fff" : "#121212";
     // Helper para saber si es móvil (se usa en render)
     const mobile = isMobile();
 
@@ -278,31 +280,16 @@ const Navigation = ({ onLogout }) => {
                 )}
             </header>
             {/* Sidebar vertical */}
-            <aside
-                className={
-                    `sidebar-nav${sidebarOpen ? " open" : " closed"}${theme === "light" ? " sidebar-light" : " sidebar-dark"}${mobile ? " sidebar-mobile" : ""}`
-                }
-                style={
-                    mobile
-                        ? {
-                            position: "fixed",
-                            top: 0,
-                            left: 0,
-                            width: "100vw",
-                            height: "100vh",
-                            backgroundColor: theme === "light" ? "#fff" : "#121212",
-                            zIndex: 200,
-                            boxShadow: sidebarOpen ? "0 0 0 100vw rgba(0,0,0,0.5)" : "none",
-                            transition: "transform 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s",
-                            transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)"
-                        }
-                        : {
-                            transition: "transform 0.5s cubic-bezier(.22,1.2,.36,1), box-shadow 0.3s", // resorte suave
-                            transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
-                            boxShadow: sidebarOpen ? "2px 0 16px #00ffff33" : "none",
-                            backgroundColor: theme === "light" ? "#dbcfcf" : "#121212"
-                        }
-                }
+            <aside 
+                src={theme === "light" ? "open" : "closed"}
+                className={`sidebar-nav${sidebarOpen ? " open" : " closed"}`}
+                style={{
+                    transition: "transform 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s",
+                    transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
+                    boxShadow: sidebarOpen ? "2px 0 16px #00ffff33" : "none",
+                    backgroundColor: theme === "light" ? "#B4B4B4" : "#121212"
+                    
+                }}
             >
                 <button
                     className="sidebar-toggle-btn"

@@ -78,7 +78,7 @@ input {
     margin-top: 10px;
     border: none;
     border-radius: 5px;
-    background: #00bcd4;
+    background: #26b7cd;
     color: black;
     font-size: 16px;
     cursor: pointer;
@@ -87,7 +87,7 @@ input {
 }
 
 button:hover {
-    background: #00bcd4;
+    background: #26b7cd;
 }
 
 /* Mensaje de error */
@@ -111,7 +111,7 @@ button:hover {
 .login-box label {
     display: block;
     text-align: center;
-   color: #11b9cf;
+    color: #26b7cd;
     width: 95%;
     margin: 10px auto 5px;
     font-size: 16px;
@@ -194,7 +194,7 @@ input {
 }
 
 .bottonLogin:hover {
-    background: #139aac;
+    background: #26b7cd;
 }
 
 /* Mensaje de error */

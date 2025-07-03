@@ -256,21 +256,21 @@
 /* Ajustes para impresión/pdf */
 @media print {
     body {
-        background: #fff !important;
+        background: #fff;
     }
     .reporte-cotizaciones-root {
-        background: #fff !important;
-        padding: 0 !important;
+        background: #fff;
+        padding: 0;
     }
     .reporte-cotizaciones-toolbar {
-        display: none !important;
+        display: none;
     }
     .reporte-cotizaciones-a4 {
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        margin: 0 !important;
-        width: 100% !important;
-        min-height: 0 !important;
+        box-shadow: none;
+        border-radius: 0;
+        margin: 0;
+        width: 100%;
+        min-height: 0;
     }
     .reporte-cotizaciones-filtros button {
         display: none;
