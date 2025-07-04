@@ -301,16 +301,6 @@ body.light-mode .customer-details {
     border: 1px solid #26b7cd;
 }
 
-body.light-mode .title {
-    color: #26b7cd;
-    background: #fff ;
-    color: #222 ;
-    border: 1px solid #00bcd4 ;
-}
-
-body.light-mode .title {
-    color: #00bcd4;
-}
 
 body.light-mode .form-group label,
 body.light-mode .workplace-container h3,

@@ -91,3 +91,82 @@ body.light-mode .reporte-title {
 a {
     text-decoration: none;
 }
+
+.tabla-cotizaciones-responsive {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 30px;
+  /* Evita cortes de página dentro de la tabla */
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.tabla-ajustada {
+  font-size: 13px;
+  word-break: break-word;
+  table-layout: auto;
+  min-width: 775px;
+  max-width: 100%;
+  /* Evita cortes de página dentro de la tabla */
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.tabla-ajustada th,
+.tabla-ajustada td {
+  padding: 0px 0px;
+  max-width: 250px;
+  word-break: break-word;
+  white-space: pre-line;
+  font-size: 12px !important;
+}
+
+@media print {
+  .tabla-cotizaciones-responsive,
+  .tabla-ajustada {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .tabla-ajustada th,
+  .tabla-ajustada td {
+    padding: 2px 4px;
+    max-width: 120px;
+  }
+  /* Evita que los encabezados de grupo se corten solos */
+  h2 {
+    break-after: avoid;
+    page-break-after: avoid;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  /* Opcional: fuerza salto antes de cada grupo para mejor separación */
+  .tabla-cotizaciones-responsive {
+    page-break-before: auto;
+    break-before: auto;
+  }
+}
+
+/* Botón flotante para ir arriba */
+.scroll-to-top-btn {
+  position: fixed;
+  right: 32px;
+  bottom: 32px;
+  z-index: 9999;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.2s, background 0.2s;
+}
+.scroll-to-top-btn:hover {
+  opacity: 1;
+  background: #1256a2;
+}
