@@ -7,6 +7,11 @@ import '../../styles/reportes.css';
 import '../../styles/reporteindividual.css';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import autoTable from 'jspdf-autotable';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { Chart } from 'chart.js/auto';
+import ScrollToTopButton from '../../components/ScrollToTopButton';
+Chart.register(ChartDataLabels);
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -17,6 +22,20 @@ const getDefaultDates = () => {
     hasta: `${year}-12-31`
   };
 };
+const formatFecha = (fecha) => {
+  if (!fecha) return '';
+  const [y, m, d] = fecha.split('-');
+  return `${d}-${m}-${y.slice(2)}`;
+};
+
+// Formato corto para detalles (dd-MM-yy)
+const formatFechaCorta = (fecha) => {
+  if (!fecha) return '';
+  // Soporta tanto "2024-06-11" como "2024-06-11T13:00:00"
+  const [datePart] = fecha.split('T');
+  const [y, m, d] = datePart.split('-');
+  return `${d}-${m}-${y.slice(2)}`;
+};
 
 const ReporteEstadoCotizaciones = () => {
   const defaultDates = getDefaultDates();
@@ -25,9 +44,19 @@ const ReporteEstadoCotizaciones = () => {
   const [generar, setGenerar] = useState(false);
   const [counts, setCounts] = useState([0, 0, 0, 0]); // [Pendiente, Aprobado, Rechazado, Finalizado]
   const [loading, setLoading] = useState(false);
-
+  const [cotizaciones, setCotizaciones] = useState([]);
+  // switches para mostrar/ocultar cada grupo
+  const [mostrarPendientes, setMostrarPendientes] = useState(true);
+  const [mostrarAprobados, setMostrarAprobados] = useState(true);
+  const [mostrarRechazados, setMostrarRechazados] = useState(true);
+  const [mostrarFinalizados, setMostrarFinalizados] = useState(true);
   // Ref para el área a exportar como PDF
   const pdfRef = useRef();
+  // refs para scroll a cada grupo
+  const pendientesRef = useRef();
+  const aprobadosRef = useRef();
+  const rechazadosRef = useRef();
+  const finalizadosRef = useRef();
 
   const fetchData = async () => {
     if (!fechaDesde || !fechaHasta) return;
@@ -40,6 +69,7 @@ const ReporteEstadoCotizaciones = () => {
       );
       // Contar por estado
       const data = res.data;
+      setCotizaciones(data); // Guardar todas las cotizaciones
       const newCounts = [
         data.filter(q => q.Status === 'pending').length,
         data.filter(q => q.Status === 'approved').length,
@@ -49,6 +79,7 @@ const ReporteEstadoCotizaciones = () => {
       setCounts(newCounts);
     } catch (err) {
       setCounts([0, 0, 0, 0]);
+      setCotizaciones([]);
     }
     setLoading(false);
   };
@@ -89,6 +120,14 @@ const ReporteEstadoCotizaciones = () => {
       }
     }
     pdf.save(`reporte_estado_cotizaciones_${fechaDesde}_a_${fechaHasta}.pdf`);
+  };
+
+  // Agrupar cotizaciones por estado
+  const cotizacionesPorEstado = {
+    pending: cotizaciones.filter(q => q.Status === 'pending'),
+    approved: cotizaciones.filter(q => q.Status === 'approved'),
+    rejected: cotizaciones.filter(q => q.Status === 'rejected'),
+    finished: cotizaciones.filter(q => q.Status === 'finished'),
   };
 
   const total = counts.reduce((a, b) => a + b, 0);
@@ -136,6 +175,17 @@ const ReporteEstadoCotizaciones = () => {
     observacion = 'La distribución de estados es equilibrada, sin predominancia clara de un estado.';
     recomendacion = 'Analizar casos particulares para identificar oportunidades de mejora.';
   }
+
+  // Handler para click en la torta
+  const handlePieClick = (evt, elements) => {
+    if (!elements.length) return;
+    const idx = elements[0].index;
+    // Scroll al grupo correspondiente
+    const refs = [pendientesRef, aprobadosRef, rechazadosRef, finalizadosRef];
+    setTimeout(() => {
+      if (refs[idx].current) refs[idx].current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
 
   return (
     <div className="reporte-cotizaciones-root">
@@ -187,7 +237,7 @@ const ReporteEstadoCotizaciones = () => {
               {/* Info superior */}
               <div className="reporte-cotizaciones-info">
                 <div>
-                  <strong>Período:</strong> {fechaDesde || '____'} al {fechaHasta || '____'}
+                  <strong>Período:</strong> {formatFecha(fechaDesde) || '____'} al {formatFecha(fechaHasta) || '____'}
                 </div>
                 <div>
                   <strong>Destinatario:</strong> {window.localStorage.getItem('usuario') || 'Usuario'}
@@ -199,11 +249,23 @@ const ReporteEstadoCotizaciones = () => {
 
               {/* Gráfico */}
               <div className="reporte-cotizaciones-grafico">
-                <Pie data={data} />
+                <Pie
+                  data={data}
+                  options={{
+                    plugins: {
+                      datalabels: {
+                        color: '#222',
+                        font: { weight: 'bold', size: 20 },
+                        formatter: (value, context) => value,
+                      }
+                    },
+                    onClick: handlePieClick
+                  }}
+                />
               </div>
 
               {/* Tabla */}
-              <table className="reporte-cotizaciones-tabla">
+              <table className="reporte-cotizaciones-tabla tablachild">
                 <thead>
                   <tr>
                     <th>Parámetro</th>
@@ -283,6 +345,194 @@ const ReporteEstadoCotizaciones = () => {
                   <div>{recomendacion}</div>
                 </div>
               </section>
+
+              {/* Switches para mostrar/ocultar grupos */}
+              <section style={{margin: '30px 0 10px 0', display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'center'}}>
+                <label>
+                  <input type="checkbox" checked={mostrarPendientes} onChange={e => setMostrarPendientes(e.target.checked)} />
+                  Mostrar Pendientes
+                </label>
+                <label>
+                  <input type="checkbox" checked={mostrarAprobados} onChange={e => setMostrarAprobados(e.target.checked)} />
+                  Mostrar Aprobados
+                </label>
+                <label>
+                  <input type="checkbox" checked={mostrarRechazados} onChange={e => setMostrarRechazados(e.target.checked)} />
+                  Mostrar Rechazados
+                </label>
+                <label>
+                  <input type="checkbox" checked={mostrarFinalizados} onChange={e => setMostrarFinalizados(e.target.checked)} />
+                  Mostrar Finalizados
+                </label>
+              </section>
+
+              {/* Detalle de cotizaciones por estado, siempre visible, dentro del PDF */}
+              <section style={{marginTop: 10}}>
+                {mostrarPendientes && (
+                  <>
+                    <h2 ref={pendientesRef} style={{marginBottom: 10, color: '#1976d2'}}>Pendientes</h2>
+                    {cotizacionesPorEstado.pending.length === 0 ? (
+                      <div>No hay cotizaciones pendientes.</div>
+                    ) : (
+                      <div className="tabla-cotizaciones-responsive">
+                        <table className="reporte-cotizaciones-tabla tabla-ajustada">
+                          <thead>
+                            <tr>
+                              <th>Cliente</th>
+                              <th>Teléfono</th>
+                              <th>Email</th>
+                              <th>Dirección</th>
+                              <th>Fecha Creación</th>
+                              <th>Última Edición</th>
+                              <th>Precio Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {cotizacionesPorEstado.pending.map(q => (
+                              <tr key={q.Id || q.id}>
+                                <td>
+                                  {q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''}
+                                  {' '}
+                                  {q.Customer?.Customer?.lastname || q.Customer?.lastname || q.customer?.lastname || ''}
+                                </td>
+                                <td>{q.Customer?.Customer?.tel || q.Customer?.tel || q.customer?.tel || ''}</td>
+                                <td>{q.Customer?.Customer?.mail || q.Customer?.mail || q.customer?.mail || ''}</td>
+                                <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
+                                <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
+                                <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
+                                <td style={{whiteSpace: 'nowrap'}}>${q.TotalPrice || q.totalPrice}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </>
+                )}
+                {mostrarAprobados && (
+                  <>
+                    <h2 ref={aprobadosRef} style={{marginBottom: 10, color: '#388e3c'}}>Aprobados</h2>
+                    {cotizacionesPorEstado.approved.length === 0 ? (
+                      <div>No hay cotizaciones aprobadas.</div>
+                    ) : (
+                      <div className="tabla-cotizaciones-responsive">
+                        <table className="reporte-cotizaciones-tabla tabla-ajustada">
+                          <thead>
+                            <tr>
+                              <th>Cliente</th>
+                              <th>Teléfono</th>
+                              <th>Email</th>
+                              <th>Dirección</th>
+                              <th>Fecha Creación</th>
+                              <th>Última Edición</th>
+                              <th>Precio Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {cotizacionesPorEstado.approved.map(q => (
+                              <tr key={q.Id || q.id}>
+                                <td>
+                                  {q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''}
+                                  {' '}
+                                  {q.Customer?.Customer?.lastname || q.Customer?.lastname || q.customer?.lastname || ''}
+                                </td>
+                                <td>{q.Customer?.Customer?.tel || q.Customer?.tel || q.customer?.tel || ''}</td>
+                                <td>{q.Customer?.Customer?.mail || q.Customer?.mail || q.customer?.mail || ''}</td>
+                                <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
+                                <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
+                                <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
+                                <td style={{whiteSpace: 'nowrap'}}>${q.TotalPrice || q.totalPrice}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </>
+                )}
+                {mostrarRechazados && (
+                  <>
+                    <h2 ref={rechazadosRef} style={{marginBottom: 10, color: '#d32f2f'}}>Rechazados</h2>
+                    {cotizacionesPorEstado.rejected.length === 0 ? (
+                      <div>No hay cotizaciones rechazadas.</div>
+                    ) : (
+                      <div className="tabla-cotizaciones-responsive">
+                        <table className="reporte-cotizaciones-tabla tabla-ajustada">
+                          <thead>
+                            <tr>
+                              <th>Cliente</th>
+                              <th>Teléfono</th>
+                              <th>Email</th>
+                              <th>Dirección</th>
+                              <th>Fecha Creación</th>
+                              <th>Última Edición</th>
+                              <th>Precio Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {cotizacionesPorEstado.rejected.map(q => (
+                              <tr key={q.Id || q.id}>
+                                <td>
+                                  {q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''}
+                                  {' '}
+                                  {q.Customer?.Customer?.lastname || q.Customer?.lastname || q.customer?.lastname || ''}
+                                </td>
+                                <td>{q.Customer?.Customer?.tel || q.Customer?.tel || q.customer?.tel || ''}</td>
+                                <td>{q.Customer?.Customer?.mail || q.Customer?.mail || q.customer?.mail || ''}</td>
+                                <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
+                                <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
+                                <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
+                                <td style={{whiteSpace: 'nowrap'}}>${q.TotalPrice || q.totalPrice}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </>
+                )}
+                {mostrarFinalizados && (
+                  <>
+                    <h2 ref={finalizadosRef} style={{marginBottom: 10, color: '#fbc02d'}}>Finalizados</h2>
+                    {cotizacionesPorEstado.finished.length === 0 ? (
+                      <div>No hay cotizaciones finalizadas.</div>
+                    ) : (
+                      <div className="tabla-cotizaciones-responsive">
+                        <table className="reporte-cotizaciones-tabla tabla-ajustada">
+                          <thead>
+                            <tr>
+                              <th>Cliente</th>
+                              <th>Teléfono</th>
+                              <th>Email</th>
+                              <th>Dirección</th>
+                              <th>Fecha Creación</th>
+                              <th>Última Edición</th>
+                              <th>Precio Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {cotizacionesPorEstado.finished.map(q => (
+                              <tr key={q.Id || q.id}>
+                                <td>
+                                  {q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''}
+                                  {' '}
+                                  {q.Customer?.Customer?.lastname || q.Customer?.lastname || q.customer?.lastname || ''}
+                                </td>
+                                <td>{q.Customer?.Customer?.tel || q.Customer?.tel || q.customer?.tel || ''}</td>
+                                <td>{q.Customer?.Customer?.mail || q.Customer?.mail || q.customer?.mail || ''}</td>
+                                <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
+                                <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
+                                <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
+                                <td style={{whiteSpace: 'nowrap'}}>${q.TotalPrice || q.totalPrice}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </>
+                )}
+              </section>
             </main>
           )}
 
@@ -291,9 +541,9 @@ const ReporteEstadoCotizaciones = () => {
             <div className="reporte-cotizaciones-direccion">
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                 {/* SVG de ubicación */}
-                <svg width="18" height="18" viewBox="0 0 20 20" fill="#1976d2" xmlns="http://www.w3.org/2000/svg" style={{marginRight: 4}}>
-                  <path d="M10 2C6.686 2 4 4.686 4 8c0 4.418 5.25 9.54 5.473 9.753a1 1 0 0 0 1.054 0C10.75 17.54 16 12.418 16 8c0-3.314-2.686-6-6-6zm0 15.07C8.14 15.13 6 11.98 6 8c0-2.206 1.794-4 4-4s4 1.794 4 4c0 3.98-2.14 7.13-4 7.07z"/>
-                  <circle cx="10" cy="8" r="2" fill="#1976d2"/>
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="#1976d2" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: 4 }}>
+                  <path d="M10 2C6.686 2 4 4.686 4 8c0 4.418 5.25 9.54 5.473 9.753a1 1 0 0 0 1.054 0C10.75 17.54 16 12.418 16 8c0-3.314-2.686-6-6-6zm0 15.07C8.14 15.13 6 11.98 6 8c0-2.206 1.794-4 4-4s4 1.794 4 4c0 3.98-2.14 7.13-4 7.07z" />
+                  <circle cx="10" cy="8" r="2" fill="#1976d2" />
                 </svg>
                 Avenida Japón 1292 / Córdoba / Argentina
               </span>
@@ -304,6 +554,8 @@ const ReporteEstadoCotizaciones = () => {
           </footer>
         </div>
       </div>
+      {/* Botón flotante para ir arriba */}
+      <ScrollToTopButton />
     </div>
   );
 };
