@@ -124,15 +124,8 @@ body.light-mode .dashboard-container {
     background-color: #e2e5e7 !important;
 }
 
-body.light-mode .title,
-body.light-mode .search-button,
-body.light-mode .new-quote {
-    color: #fff !important;
-}
 
-body.light-mode .title {
-    color: #26b7cd !important;
-}
+
 
 body.light-mode .search-bar,
 body.light-mode .search-container,
@@ -145,10 +138,6 @@ body.light-mode .search-input {
 
 body.light-mode .dashboard-header {
     background-color: #c1ddddd5;
-}
-
-body.light-mode .title {
-    color: #00bcd4;
 }
 
 body.light-mode .search-bar,
