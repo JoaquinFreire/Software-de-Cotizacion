@@ -13,6 +13,10 @@ import Extras from "../components/quotationComponents/Extras";
 import useEmblaCarousel from 'embla-carousel-react';
 import { QuotationContext } from "../context/QuotationContext";
 import { validateQuotation } from "../validation/quotationValidation";
+import { validateCustomer } from "../validation/customerValidation";
+import { validateAgent } from "../validation/agentValidation";
+import { validateWorkPlace } from "../validation/workPlaceValidation";
+import { validateOpenings } from "../validation/openingValidation";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -33,7 +37,6 @@ function getUserIdFromToken() {
 const Quotation = () => {
     const [emblaRef, emblaApi] = useEmblaCarousel({ draggable: false });
     const [canScrollPrev, setCanScrollPrev] = useState(false);
-    const [canScrollNext, setCanScrollNext] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
     // const [carouselHeight, setCarouselHeight] = useState('auto');
     const carouselContainerRef = useRef(null);
@@ -44,7 +47,7 @@ const Quotation = () => {
     const [newCustomer, setNewCustomer] = useState({
         name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: ''
     });
-    const [isCustomerComplete, setIsCustomerComplete] = useState(false);
+    // const [isCustomerComplete, setIsCustomerComplete] = useState(false); // <-- ELIMINAR ESTA LÍNEA
     const [newAgent, setNewAgent] = useState({ name: '', lastname: '', tel: '', mail: '' });
 
     const [workPlace, setWorkPlace] = useState({ name: '', address: '', workTypeId: '' });
@@ -69,6 +72,7 @@ const Quotation = () => {
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState(null);
     const [validationErrors, setValidationErrors] = useState({});
+    const [stepErrors, setStepErrors] = useState({});
 
     const [userId] = useState(() => getUserIdFromToken());
 
@@ -115,15 +119,38 @@ const Quotation = () => {
 
     // Carousel navigation
     const handlePrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
+
+    // Validación por paso
     const handleNext = useCallback(() => {
-        if (currentIndex === 0 && !isCustomerComplete) return;
-        emblaApi && emblaApi.scrollNext();
-    }, [emblaApi, currentIndex, isCustomerComplete]);
+        const validateStep = (step) => {
+            switch (step) {
+                case 0:
+                    return validateCustomer(newCustomer);
+                case 1:
+                    return newCustomer.agentId ? { valid: true, errors: {} } : validateAgent(newAgent);
+                case 2:
+                    return validateWorkPlace(workPlace);
+                case 3:
+                    return validateOpenings(selectedOpenings);
+                // Puedes agregar validaciones para complementos y extras si lo deseas
+                default:
+                    return { valid: true, errors: {} };
+            }
+        };
+        const validation = validateStep(currentIndex);
+        if (!validation.valid) {
+            setStepErrors(validation.errors);
+            return; // No avanza si hay errores
+        } else {
+            setStepErrors({});
+            emblaApi && emblaApi.scrollNext();
+        }
+    }, [emblaApi, currentIndex, newCustomer, newAgent, workPlace, selectedOpenings]);
 
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
         setCanScrollPrev(emblaApi.canScrollPrev());
-        setCanScrollNext(emblaApi.canScrollNext());
+        // setCanScrollNext(emblaApi.canScrollNext()); // <-- ELIMINAR ESTA LÍNEA
         setCurrentIndex(emblaApi.selectedScrollSnap());
     }, [emblaApi]);
 
@@ -427,7 +454,7 @@ const Quotation = () => {
                         type="button"
                         className="embla__button embla__button--next"
                         onClick={handleNext}
-                        disabled={!canScrollNext || (currentIndex === 0 && !isCustomerComplete)}
+                        disabled={currentIndex === 5}
                     >
                         Adelante
                     </button>
@@ -441,7 +468,7 @@ const Quotation = () => {
                             <Customer
                                 newCustomer={newCustomer}
                                 setNewCustomer={setNewCustomer}
-                                setIsCustomerComplete={setIsCustomerComplete}
+                                errors={currentIndex === 0 ? stepErrors : {}} // Pasa errores solo en el paso actual
                             />
                         </div>
                         <div className="embla__slide">
@@ -450,6 +477,7 @@ const Quotation = () => {
                                 newAgent={newAgent}
                                 setNewAgent={setNewAgent}
                                 setIsAgentComplete={() => {}}
+                                errors={currentIndex === 1 ? stepErrors : {}}
                             />
                         </div>
                         <div className="embla__slide">
@@ -457,6 +485,7 @@ const Quotation = () => {
                                 workPlace={workPlace}
                                 setWorkPlace={setWorkPlace}
                                 workTypes={workTypes}
+                                errors={currentIndex === 2 ? stepErrors : {}}
                             />
                         </div>
                         <div className="embla__slide">
@@ -468,6 +497,7 @@ const Quotation = () => {
                                 glassTypes={glassTypes}
                                 selectedOpenings={selectedOpenings}
                                 setSelectedOpenings={setSelectedOpenings}
+                                errors={currentIndex === 3 ? stepErrors : {}}
                             />
                         </div>
                         <div className="embla__slide">

@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import axios from 'axios';
 import "../../styles/quotation.css";
 
 const API_URL = process.env.REACT_APP_API_URL;
-const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
+const Customer = ({ newCustomer, setNewCustomer, errors = {} }) => {
     const [loading, setLoading] = useState(false);
     const [isCustomerFound, setIsCustomerFound] = useState(false);
     const debounceTimeout = useRef(null);
@@ -26,16 +26,13 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
                     agentId: customer.agentId,
                     dni: customer.dni
                 });
-                setIsCustomerComplete(true);
                 setIsCustomerFound(true);
             } else {
                 setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: dniValue });
-                setIsCustomerComplete(false);
                 setIsCustomerFound(false);
             }
         } catch (error) {
             setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: dniValue });
-            setIsCustomerComplete(false);
             setIsCustomerFound(false);
         } finally {
             setLoading(false);
@@ -50,7 +47,6 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
 
         if (enteredDni.trim() === '') {
             setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: '' });
-            setIsCustomerComplete(false);
             setIsCustomerFound(false);
             return;
         }
@@ -63,7 +59,6 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
         } else {
             // Si hay menos de 8, limpiar datos y estado de búsqueda
             setIsCustomerFound(false);
-            setIsCustomerComplete(false);
             setNewCustomer((prev) => ({
                 ...prev,
                 name: '',
@@ -79,19 +74,10 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
     const handleInputChange = (field, value) => {
         if (isCustomerFound) return;
         setNewCustomer((prev) => ({ ...prev, [field]: value }));
+        if (errors[field]) {
+            errors[field] = undefined;
+        }
     };
-    
-
-    useEffect(() => {
-        const isComplete =
-            newCustomer.dni &&
-            newCustomer.name.trim() &&
-            newCustomer.lastname.trim() &&
-            newCustomer.tel.trim() &&
-            newCustomer.mail.trim() &&
-            newCustomer.address.trim();
-        setIsCustomerComplete(isComplete);
-    }, [newCustomer, setIsCustomerComplete]);
 
     return (
         <div>
@@ -104,17 +90,19 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
                     onChange={(e) => {
                         const onlyNumbers = e.target.value.replace(/\D/g, '');
                         handleDniChange({ target: { value: onlyNumbers } });
+                        if (errors.dni) errors.dni = undefined;
                     }}
                     placeholder="Ingrese el DNI del cliente"
-                    maxLength={10} // <-- ajusta según tu base
+                    maxLength={10}
                     disabled={isCustomerFound}
+                    className={errors.dni ? "input-error" : ""}
                 />
+                {errors.dni && <span className="error-message">{errors.dni}</span>}
                 {isCustomerFound && (
                     <button
                         className="botton-DNI"
                         onClick={() => {
                             setIsCustomerFound(false);
-                            setIsCustomerComplete(false);
                             setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: '' });
                         }}
                     >
@@ -142,7 +130,9 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
                             value={newCustomer.name}
                             onChange={(e) => handleInputChange('name', e.target.value)}
                             disabled={isCustomerFound}
+                            className={errors.name ? "input-error" : ""}
                         />
+                        {errors.name && <span className="error-message">{errors.name}</span>}
                     </div>
                     <div className="form-group">
                         <label>Apellido:</label>
@@ -151,7 +141,9 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
                             value={newCustomer.lastname}
                             onChange={(e) => handleInputChange('lastname', e.target.value)}
                             disabled={isCustomerFound}
+                            className={errors.lastname ? "input-error" : ""}
                         />
+                        {errors.lastname && <span className="error-message">{errors.lastname}</span>}
                     </div>
                     <div className="form-group">
                         <label>Teléfono:</label>
@@ -160,7 +152,9 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
                             value={newCustomer.tel}
                             onChange={(e) => handleInputChange('tel', e.target.value)}
                             disabled={isCustomerFound}
+                            className={errors.tel ? "input-error" : ""}
                         />
+                        {errors.tel && <span className="error-message">{errors.tel}</span>}
                     </div>
                     <div className="form-group">
                         <label>Email:</label>
@@ -169,7 +163,9 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
                             value={newCustomer.mail}
                             onChange={(e) => handleInputChange('mail', e.target.value)}
                             disabled={isCustomerFound}
+                            className={errors.mail ? "input-error" : ""}
                         />
+                        {errors.mail && <span className="error-message">{errors.mail}</span>}
                     </div>
                     <div className="form-group">
                         <label>Dirección:</label>
@@ -178,7 +174,9 @@ const Customer = ({ newCustomer, setNewCustomer, setIsCustomerComplete }) => {
                             value={newCustomer.address}
                             onChange={(e) => handleInputChange('address', e.target.value)}
                             disabled={isCustomerFound}
+                            className={errors.address ? "input-error" : ""}
                         />
+                        {errors.address && <span className="error-message">{errors.address}</span>}
                     </div>
                 </div>
             )}
