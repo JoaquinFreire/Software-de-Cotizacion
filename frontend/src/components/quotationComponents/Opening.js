@@ -66,7 +66,7 @@ const OpeningType = ({
         setSelectedOpenings((prev) => prev.filter((opening) => opening.id !== id));
     };
 
-    const handleChange = (field, value) => {
+    const handleInputChange = (field, value) => {
         setOpeningForm({ ...openingForm, [field]: value });
         if (errors[field]) {
             errors[field] = undefined;
@@ -80,7 +80,7 @@ const OpeningType = ({
                 <label>Tipo de abertura</label>
                 <select
                     value={openingForm.typeId}
-                    onChange={e => handleChange("typeId", e.target.value)}
+                    onChange={e => handleInputChange("typeId", e.target.value)}
                     className={errors.typeId ? "input-error" : ""}
                 >
                     <option value="">Seleccione tipo</option>
@@ -95,7 +95,7 @@ const OpeningType = ({
                 <input
                     type="number"
                     value={openingForm.width}
-                    onChange={e => handleChange("width", e.target.value)}
+                    onChange={e => handleInputChange("width", e.target.value)}
                     className={errors.width ? "input-error" : ""}
                     placeholder="Ancho"
                 />
@@ -106,7 +106,7 @@ const OpeningType = ({
                 <input
                     type="number"
                     value={openingForm.height}
-                    onChange={e => handleChange("height", e.target.value)}
+                    onChange={e => handleInputChange("height", e.target.value)}
                     className={errors.height ? "input-error" : ""}
                     placeholder="Alto"
                 />
@@ -117,7 +117,7 @@ const OpeningType = ({
                 <input
                     type="number"
                     value={openingForm.quantity}
-                    onChange={e => handleChange("quantity", e.target.value)}
+                    onChange={e => handleInputChange("quantity", e.target.value)}
                     className={errors.quantity ? "input-error" : ""}
                     placeholder="Cantidad"
                 />
@@ -127,7 +127,7 @@ const OpeningType = ({
                 <label>Tratamiento</label>
                 <select
                     value={openingForm.treatmentId}
-                    onChange={e => handleChange("treatmentId", e.target.value)}
+                    onChange={e => handleInputChange("treatmentId", e.target.value)}
                     className={errors.treatmentId ? "input-error" : ""}
                 >
                     <option value="">Seleccione tratamiento</option>
@@ -141,7 +141,7 @@ const OpeningType = ({
                 <label>Tipo de vidrio</label>
                 <select
                     value={openingForm.glassTypeId}
-                    onChange={e => handleChange("glassTypeId", e.target.value)}
+                    onChange={e => handleInputChange("glassTypeId", e.target.value)}
                     className={errors.glassTypeId ? "input-error" : ""}
                 >
                     <option value="">Seleccione tipo de vidrio</option>
