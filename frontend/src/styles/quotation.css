@@ -384,6 +384,17 @@ body.light-mode .remove-complement-button:hover {
     background: #b71c1c;
 }
 
+.input-error {
+    border: 2px solid #ff4d4f !important;
+    background: #2a0000 !important;
+}
+.error-message {
+    color: #ff4d4f;
+    font-size: 13px;
+    margin-bottom: 5px;
+    display: block;
+}
+
 @media (max-width: 768px) {
     .quotation-form {
         max-width: 100%;

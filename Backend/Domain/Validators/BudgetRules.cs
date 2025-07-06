@@ -80,11 +80,11 @@ namespace Domain.Validators
 
         //VALIDACIONES ESPECIFICAS DE PRODUCTOS
 
-        //Validación de tamaño de abertura(ancho y largo) <= 10 y >= 0.5
+        //Validación de tamaño de abertura(ancho y largo) <= 1000 y >= 0.5
         public static void ValidateSizeLimits(Budget_Product product)
         {
-            //Maximo en metros(10mts en este caso)
-            if (product.width > 10 || product.height > 10)
+            //Maximo en metros(1000mts en este caso)
+            if (product.width > 1000 || product.height > 1000)
                 throw new BusinessException("El tamaño de la abertura supera los límites permitidos.");
             //Minimo en metros(0.25mts en este caso)
             if (product.width < 0.25 || product.height < 0.25)

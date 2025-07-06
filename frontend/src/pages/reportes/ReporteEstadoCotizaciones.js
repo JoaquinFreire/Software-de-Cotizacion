@@ -5,16 +5,18 @@ import 'chart.js/auto';
 import logoAnodal from '../../images/logo_secundario.png';
 import '../../styles/reportes.css';
 import '../../styles/reporteindividual.css';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+/* import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas'; */
 import autoTable from 'jspdf-autotable';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Chart } from 'chart.js/auto';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
+import html2pdf from 'html2pdf.js';
 Chart.register(ChartDataLabels);
 
 const API_URL = process.env.REACT_APP_API_URL;
-
+const au = autoTable;
+console.log(au);
 const getDefaultDates = () => {
   const year = new Date().getFullYear();
   return {
@@ -92,34 +94,26 @@ const ReporteEstadoCotizaciones = () => {
   // PDF download handler
   const handleDescargarPDF = async () => {
     if (!pdfRef.current) return;
-    const input = pdfRef.current;
-    const canvas = await html2canvas(input, { scale: 2, useCORS: true });
-    const imgData = canvas.toDataURL('image/jpeg', 1.0);
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'pt',
-      format: 'a4'
-    });
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfWidth = pageWidth;
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-    let position = 0;
+    // Oculta el botón flotante antes de exportar (opcional)
+    const scrollBtn = document.querySelector('.scroll-to-top-btn');
+    if (scrollBtn) scrollBtn.style.display = 'none';
 
-    // Si la imagen es más alta que la página, hacer multipágina
-    if (pdfHeight < pageHeight) {
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-    } else {
-      let heightLeft = pdfHeight;
-      while (heightLeft > 0) {
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
-        heightLeft -= pageHeight;
-        position -= pageHeight;
-        if (heightLeft > 0) pdf.addPage();
-      }
-    }
-    pdf.save(`reporte_estado_cotizaciones_${fechaDesde}_a_${fechaHasta}.pdf`);
+    // Opciones para html2pdf.js
+    const opt = {
+      margin:       [0.2, 0.2, 0.2, 0.2], // pulgadas
+      filename:     `reporte_estado_cotizaciones_${fechaDesde}_a_${fechaHasta}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, logging: false, scrollY: 0 },
+      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' },
+      pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    // Espera un pequeño delay para asegurar que todo se renderice bien
+    setTimeout(() => {
+      html2pdf().set(opt).from(pdfRef.current).save().then(() => {
+        if (scrollBtn) scrollBtn.style.display = '';
+      });
+    }, 100);
   };
 
   // Agrupar cotizaciones por estado
@@ -215,8 +209,10 @@ const ReporteEstadoCotizaciones = () => {
             className="reporte-cotizaciones-btn-pdf"
             onClick={handleDescargarPDF}
             disabled={!generar}
+            /*  onClick={() => window.print()}
+            disabled={!generar} */
           >
-            Descargar PDF
+          Guardar PDF
           </button>
         </div>
       </div>
@@ -370,7 +366,7 @@ const ReporteEstadoCotizaciones = () => {
               <section style={{marginTop: 10}}>
                 {mostrarPendientes && (
                   <>
-                    <h2 ref={pendientesRef} style={{marginBottom: 10, color: '#1976d2'}}>Pendientes</h2>
+                    <h2 className='estadosreporte' ref={pendientesRef} style={{marginBottom: 10, color: '#1976d2'}}>Pendientes</h2>
                     {cotizacionesPorEstado.pending.length === 0 ? (
                       <div>No hay cotizaciones pendientes.</div>
                     ) : (
@@ -411,7 +407,7 @@ const ReporteEstadoCotizaciones = () => {
                 )}
                 {mostrarAprobados && (
                   <>
-                    <h2 ref={aprobadosRef} style={{marginBottom: 10, color: '#388e3c'}}>Aprobados</h2>
+                    <h2 className='estadosreporte' ref={aprobadosRef} style={{marginBottom: 10, color: '#388e3c'}}>Aprobados</h2>
                     {cotizacionesPorEstado.approved.length === 0 ? (
                       <div>No hay cotizaciones aprobadas.</div>
                     ) : (
@@ -452,7 +448,7 @@ const ReporteEstadoCotizaciones = () => {
                 )}
                 {mostrarRechazados && (
                   <>
-                    <h2 ref={rechazadosRef} style={{marginBottom: 10, color: '#d32f2f'}}>Rechazados</h2>
+                    <h2 className='estadosreporte' ref={rechazadosRef} style={{marginBottom: 10, color: '#d32f2f'}}>Rechazados</h2>
                     {cotizacionesPorEstado.rejected.length === 0 ? (
                       <div>No hay cotizaciones rechazadas.</div>
                     ) : (
@@ -493,7 +489,7 @@ const ReporteEstadoCotizaciones = () => {
                 )}
                 {mostrarFinalizados && (
                   <>
-                    <h2 ref={finalizadosRef} style={{marginBottom: 10, color: '#fbc02d'}}>Finalizados</h2>
+                    <h2 className='estadosreporte' ref={finalizadosRef} style={{marginBottom: 10, color: '#fbc02d'}}>Finalizados</h2>
                     {cotizacionesPorEstado.finished.length === 0 ? (
                       <div>No hay cotizaciones finalizadas.</div>
                     ) : (
