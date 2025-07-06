@@ -121,25 +121,22 @@ const Quotation = () => {
     const handlePrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
 
     // Validación por paso
-    const validateStep = (step) => {
-        switch (step) {
-            case 0:
-                return validateCustomer(newCustomer);
-            case 1:
-                // Solo valida agente si es nuevo cliente
-                return newCustomer.agentId ? { valid: true, errors: {} } : validateAgent(newAgent);
-            case 2:
-                return validateWorkPlace(workPlace);
-            case 3:
-                return validateOpenings(selectedOpenings);
-            // Puedes agregar validaciones para complementos y extras si lo deseas
-            default:
-                return { valid: true, errors: {} };
-        }
-    };
-
-    // Nuevo handleNext con validación por paso (deja solo esta versión)
     const handleNext = useCallback(() => {
+        const validateStep = (step) => {
+            switch (step) {
+                case 0:
+                    return validateCustomer(newCustomer);
+                case 1:
+                    return newCustomer.agentId ? { valid: true, errors: {} } : validateAgent(newAgent);
+                case 2:
+                    return validateWorkPlace(workPlace);
+                case 3:
+                    return validateOpenings(selectedOpenings);
+                // Puedes agregar validaciones para complementos y extras si lo deseas
+                default:
+                    return { valid: true, errors: {} };
+            }
+        };
         const validation = validateStep(currentIndex);
         if (!validation.valid) {
             setStepErrors(validation.errors);
@@ -148,7 +145,7 @@ const Quotation = () => {
             setStepErrors({});
             emblaApi && emblaApi.scrollNext();
         }
-    }, [emblaApi, currentIndex, validateStep]);
+    }, [emblaApi, currentIndex, newCustomer, newAgent, workPlace, selectedOpenings]);
 
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
