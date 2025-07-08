@@ -17,5 +17,7 @@ namespace Application.DTOs.CreateBudget
         public required CreateBudgetWorkPlaceDTO workPlace { get; set; }
         public required List<CreateBudgetProductDTO> Products { get; set; } = new List<CreateBudgetProductDTO>(); // Lista de productos
         public string Comment { get; set; } = string.Empty;
+        public double DollarReference { get; set; }
+        public double LabourReference { get; set; }
     }
 }
