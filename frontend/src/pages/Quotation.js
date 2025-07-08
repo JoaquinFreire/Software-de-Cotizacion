@@ -68,6 +68,8 @@ const Quotation = () => {
     const [complementTypes, setComplementTypes] = useState([]);
     const [complements, setComplements] = useState([]);
     const [comment, setComment] = useState(""); // Nuevo estado para comentario
+    const [dollarReference, setDollarReference] = useState(null); // <-- Nuevo estado para el valor del dólar
+    const [labourReference, setLabourReference] = useState(null); // <-- Nuevo estado
 
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState(null);
@@ -398,7 +400,9 @@ const Quotation = () => {
                     customer: customerPayloadMongo,
                     workPlace: workPlacePayload,
                     products: productsPayload,
-                    comment // <-- Usa el comentario real
+                    comment, // <-- Usa el comentario real
+                    DollarReference: dollarReference ?? 0, // <-- Usa la mayúscula inicial aquí
+                    LabourReference: labourReference ?? 0 // <-- Agrega mano de obra
                 }
             };
 
@@ -509,7 +513,12 @@ const Quotation = () => {
                             />
                         </div>
                         <div className="embla__slide">
-                            <Extras comment={comment} setComment={setComment} />
+                            <Extras 
+                                comment={comment} 
+                                setComment={setComment} 
+                                setDollarReference={setDollarReference}
+                                setLabourReference={setLabourReference}
+                            />
                             <div style={{ marginTop: 24 }}>
                                 <button 
                                     type="button"
