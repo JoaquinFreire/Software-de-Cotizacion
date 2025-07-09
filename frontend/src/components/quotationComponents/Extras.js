@@ -7,7 +7,7 @@ const Extras = ({ comment, setComment, setDollarReference, setLabourReference })
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        let labourValue = null;
+  /*       let labourValue = null; */
         setLoading(true);
         fetch('https://dolarapi.com/v1/dolares/oficial')
             .then(res => res.json())

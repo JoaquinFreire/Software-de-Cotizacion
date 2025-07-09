@@ -291,6 +291,197 @@ input::placeholder, select::placeholder {
     background: darkred;
 }
 
+.flexCotization {
+    display: flex;
+    align-items:baseline;
+    justify-content: last baseline;
+    gap: 20px;
+}
+
+.quotation-layout {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto 32px auto;
+    padding: 0 16px;
+}
+
+.quotation-main {
+    flex: 1 1 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 320px;
+    max-width: 650px;
+}
+
+.quotation-summary {
+    width: 340px;
+    min-width: 260px;
+    background: #111b1d;
+    border: 1px solid #11d9f3;
+    border-radius: 12px;
+    padding: 24px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    position: sticky;
+    top: 32px;
+    min-height: 300px;
+    color: #fff;
+}
+
+.quotation-summary h3 {
+    margin-top: 0;
+    color: #26b7cd;
+    font-size: 1.3rem;
+    margin-bottom: 18px;
+}
+
+.summary-item {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 8px 0;
+}
+
+.summary-title {
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.summary-detail {
+    font-size: 14px;
+    color: #e0e0e0;
+}
+
+.summary-subtotal {
+    font-size: 14px;
+    color: #26b7cd;
+}
+
+.summary-total {
+    margin-top: 8px;
+    font-weight: 600;
+    color: #26b7cd;
+    font-size: 1.05rem;
+}
+
+.summary-empty {
+    color: #888;
+    font-size: 14px;
+    margin: 8px 0;
+}
+
+/* Botón agregar abertura y complemento */
+.add-opening-btn,
+.add-complement-btn {
+    background: linear-gradient(90deg, #26b7cd 60%, #11d9f3 100%);
+    color: #111b1d;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 10px 22px;
+    margin: 12px 0 8px 0;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(38,183,205,0.08);
+    transition: background 0.2s, transform 0.1s;
+    display: inline-block;
+}
+.add-opening-btn:hover,
+.add-complement-btn:hover {
+    background: linear-gradient(90deg, #11d9f3 60%, #26b7cd 100%);
+    color: #111b1d;
+    transform: scale(1.04);
+}
+
+/* Botón quitar (equis) en resumen */
+.summary-remove-btn {
+    background: transparent;
+    color: #ff4d4f;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    float: right;
+    margin-left: 8px;
+    margin-top: -2px;
+    transition: color 0.2s;
+    line-height: 1;
+}
+.summary-remove-btn:hover {
+    color: #ff2222;
+}
+
+/* Botones cantidad en resumen */
+.summary-qty-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0 2px 0;
+}
+.summary-qty-btn {
+    background: #26b7cd;
+    color: #111b1d;
+    border: none;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+.summary-qty-btn:hover {
+    background: #11d9f3;
+}
+.summary-qty {
+    min-width: 24px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 15px;
+    color: #fff;
+}
+
+/* Ajuste para el resumen en mobile */
+@media (max-width: 1100px) {
+    .quotation-summary {
+        margin-top: 0;
+    }
+    .quotation-layout {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 24px;
+    }
+    .quotation-summary {
+        width: 100%;
+        min-width: unset;
+        margin: 0 auto;
+        position: static;
+        top: unset;
+    }
+    .quotation-main {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .quotation-layout {
+        flex-direction: column;
+        gap: 16px;
+        padding: 0 4px;
+    }
+    .quotation-summary {
+        padding: 16px 8px;
+    }
+    .quotation-main {
+        padding: 0;
+    }
+}
+
 body.light-mode .quotation-form,
 body.light-mode .workplace-container,
 body.light-mode .agent-container,
