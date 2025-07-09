@@ -37,9 +37,6 @@ const Complements = ({ complementTypes, complements, selectedComplements, setSel
         setComplementQuantity(1);
     };
 
-    const handleRemoveComplement = (id) => {
-        setSelectedComplements(prev => prev.filter(c => c.id !== id));
-    };
 
     return (
         <div className="complements-container">
@@ -81,23 +78,6 @@ const Complements = ({ complementTypes, complements, selectedComplements, setSel
             <button className="botton-carusel" type="button" onClick={handleAddComplement}>
                 Agregar Complemento
             </button>
-            <div className="form-group">
-                <h3>Complementos Seleccionados</h3>
-                <ul className="complements-list">
-                    {selectedComplements.map(complement => (
-                        <li key={complement.id} className="complement-item">
-                            {complement.name} - {complement.quantity} x ${complement.price} = ${complement.quantity * complement.price}
-                            <button
-                                type="button"
-                                className="remove-complement-button"
-                                onClick={() => handleRemoveComplement(complement.id)}
-                            >
-                                X
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            </div>
         </div>
     );
 };

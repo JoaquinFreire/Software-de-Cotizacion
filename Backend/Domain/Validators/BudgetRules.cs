@@ -94,8 +94,8 @@ namespace Domain.Validators
         //Validación de cantidad máxima de cada producto permitidos en la cotización(limite de 100 por productos de mismas caracteristicas)
         public static void ValidateMaxQuantity(Budget_Product product)
         {
-            if (product.Quantity > 100)
-                throw new BusinessException("La cantidad no puede superar las 100 unidades por producto.");
+            if (product.Quantity > 1000)
+                throw new BusinessException("La cantidad no puede superar las 1000 unidades por producto.");
         }
 
         //Validación de precio del vidrio, debe ser mayor a cero. TODO: Descomentar cuando se implemente la validación de precios
