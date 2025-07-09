@@ -10,7 +10,8 @@ import WorkPlace from "../components/quotationComponents/WorkPlace";
 import OpeningType from "../components/quotationComponents/Opening";
 import Complements from "../components/quotationComponents/Complements";
 import Extras from "../components/quotationComponents/Extras";
-import useEmblaCarousel from 'embla-carousel-react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
 import { QuotationContext } from "../context/QuotationContext";
 import { validateQuotation } from "../validation/quotationValidation";
 import { validateCustomer } from "../validation/customerValidation";
@@ -35,11 +36,8 @@ function getUserIdFromToken() {
 }
 
 const Quotation = () => {
-    const [emblaRef, emblaApi] = useEmblaCarousel({ draggable: false });
-    const [canScrollPrev, setCanScrollPrev] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
-    // const [carouselHeight, setCarouselHeight] = useState('auto');
-    const carouselContainerRef = useRef(null);
+    const swiperRef = useRef(null);
 
     const navigate = useNavigate();
     const { addQuotation } = React.useContext(QuotationContext);
@@ -120,56 +118,52 @@ const Quotation = () => {
     }, [newCustomer.agentId]);
 
     // Carousel navigation
-    const handlePrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
+    const handlePrev = useCallback(() => {
+        if (swiperRef.current && swiperRef.current.swiper) {
+            swiperRef.current.swiper.slidePrev();
+        }
+    }, []);
 
     // Validación por paso
+    const validateStep = useCallback((step) => {
+        switch (step) {
+            case 0:
+                return validateCustomer(newCustomer);
+            case 1:
+                return newCustomer.agentId ? { valid: true, errors: {} } : validateAgent(newAgent);
+            case 2:
+                return validateWorkPlace(workPlace);
+            case 3:
+                return validateOpenings(selectedOpenings);
+            // Puedes agregar validaciones para complementos y extras si lo deseas
+            default:
+                return { valid: true, errors: {} };
+        }
+    }, [newCustomer, newAgent, workPlace, selectedOpenings]);
+
+    useEffect(() => {
+        /*   const validation = validateStep(currentIndex); */
+        // Elimina setStepHasError porque no existe ni es necesario
+        // setStepHasError && setStepHasError(!validation.valid);
+        // No hace falta nada aquí, la validación por paso ya se maneja en handleNext
+    }, [currentIndex, validateStep]);
+
     const handleNext = useCallback(() => {
-        const validateStep = (step) => {
-            switch (step) {
-                case 0:
-                    return validateCustomer(newCustomer);
-                case 1:
-                    return newCustomer.agentId ? { valid: true, errors: {} } : validateAgent(newAgent);
-                case 2:
-                    return validateWorkPlace(workPlace);
-                case 3:
-                    return validateOpenings(selectedOpenings);
-                // Puedes agregar validaciones para complementos y extras si lo deseas
-                default:
-                    return { valid: true, errors: {} };
-            }
-        };
         const validation = validateStep(currentIndex);
         if (!validation.valid) {
             setStepErrors(validation.errors);
-            return; // No avanza si hay errores
+            return;
         } else {
             setStepErrors({});
-            emblaApi && emblaApi.scrollNext();
+            if (swiperRef.current && swiperRef.current.swiper) {
+                swiperRef.current.swiper.slideNext();
+            }
         }
-    }, [emblaApi, currentIndex, newCustomer, newAgent, workPlace, selectedOpenings]);
+    }, [currentIndex, validateStep]);
 
-    const onSelect = useCallback(() => {
-        if (!emblaApi) return;
-        setCanScrollPrev(emblaApi.canScrollPrev());
-        // setCanScrollNext(emblaApi.canScrollNext()); // <-- ELIMINAR ESTA LÍNEA
-        setCurrentIndex(emblaApi.selectedScrollSnap());
-    }, [emblaApi]);
-
-    useEffect(() => {
-        if (!emblaApi) return;
-        emblaApi.on('select', onSelect);
-        onSelect();
-    }, [emblaApi, onSelect]);
-
-    useEffect(() => {
-        if (!carouselContainerRef.current) return;
-        // Optionally, you can handle carousel height here if needed
-        // const activeSlide = carouselContainerRef.current.querySelector(`.embla__slide:nth-child(${currentIndex + 1})`);
-        // if (activeSlide) {
-        //     setCarouselHeight(`${activeSlide.scrollHeight}px`);
-        // }
-    }, [currentIndex]);
+    const handleSlideChange = (swiper) => {
+        setCurrentIndex(swiper.activeIndex);
+    };
 
     // Cargar tipos de trabajo
     useEffect(() => {
@@ -436,113 +430,260 @@ const Quotation = () => {
         }
     };
 
+    // Función para obtener nombre de abertura por id
+    const getOpeningTypeName = (typeId) => {
+        const type = openingTypes.find(t => String(t.id) === String(typeId));
+        return type ? (type.name || type.type) : '';
+    };
+
+    // Función para calcular subtotal de abertura (placeholder)
+    const getOpeningSubtotal = (opening) => {
+        // Aquí irá el cálculo real cuando esté disponible
+        return 'Subtotal $';
+    };
+
+    // Función para obtener nombre de complemento por id
+    const getComplementName = (complementId) => {
+        const comp = complements.find(c => String(c.id) === String(complementId));
+        return comp ? comp.name : '';
+    };
+
+    // Función para calcular subtotal de complemento (placeholder)
+    const getComplementSubtotal = (complement) => {
+        // Aquí irá el cálculo real cuando esté disponible
+        return 'Subtotal $';
+    };
+
+    // Placeholder para total de aberturas y complementos
+    const getTotalOpenings = () => {
+        // Aquí irá el cálculo real cuando esté disponible
+        return 'Total aberturas $';
+    };
+    const getTotalComplements = () => {
+        // Aquí irá el cálculo real cuando esté disponible
+        return 'Total complementos $';
+    };
+
+    // Handlers para resumen (quitar y modificar cantidad)
+    const handleRemoveOpening = (idx) => {
+        setSelectedOpenings(prev => prev.filter((_, i) => i !== idx));
+    };
+    const handleChangeOpeningQty = (idx, delta) => {
+        setSelectedOpenings(prev =>
+            prev.map((op, i) =>
+                i === idx
+                    ? { ...op, quantity: Math.max(1, (op.quantity || 1) + delta) }
+                    : op
+            )
+        );
+    };
+    const handleRemoveComplement = (idx) => {
+        setSelectedComplements(prev => prev.filter((_, i) => i !== idx));
+    };
+    const handleChangeComplementQty = (idx, delta) => {
+        setSelectedComplements(prev =>
+            prev.map((comp, i) =>
+                i === idx
+                    ? { ...comp, quantity: Math.max(1, (comp.quantity || 1) + delta) }
+                    : comp
+            )
+        );
+    };
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
             <h2 className="title">Nueva Cotización</h2>
-           
-            <form className="quotation-form" onKeyDown={handleFormKeyDown}>
-                <div className="embla-buttons-container">
-                    <button
-                        type="button"
-                        className="embla__button embla__button--prev"
-                        onClick={handlePrev}
-                        disabled={!canScrollPrev}
-                    >
-                        Atrás
-                    </button>
-                    <span style={{ alignSelf: "center", fontWeight: 500, fontSize: 16, color: "#26b7cd" }}>
-                        Página {currentIndex + 1} de 6
-                    </span>
-                    <button
-                        type="button"
-                        className="embla__button embla__button--next"
-                        onClick={handleNext}
-                        disabled={currentIndex === 5}
-                    >
-                        Adelante
-                    </button>
-                </div>
-                <div
-                    className="embla"
-                    ref={emblaRef}
-                >
-                    <div className="embla__container" ref={carouselContainerRef}>
-                        <div className="embla__slide">
-                            <Customer
-                                newCustomer={newCustomer}
-                                setNewCustomer={setNewCustomer}
-                                errors={currentIndex === 0 ? stepErrors : {}} // Pasa errores solo en el paso actual
-                            />
+            <div className="quotation-layout">
+                <main className="quotation-main">
+                    <form className="quotation-form" onKeyDown={handleFormKeyDown}>
+                        <div className="embla-buttons-container">
+                            <button
+                                type="button"
+                                className="embla__button embla__button--prev"
+                                onClick={handlePrev}
+                                disabled={currentIndex === 0}
+                            >
+                                Atrás
+                            </button>
+                            <span style={{ alignSelf: "center", fontWeight: 500, fontSize: 16, color: "#26b7cd" }}>
+                                Página {currentIndex + 1} de 6
+                            </span>
+                            <button
+                                type="button"
+                                className="embla__button embla__button--next"
+                                onClick={handleNext}
+                                disabled={currentIndex === 5}
+                            >
+                                Adelante
+                            </button>
                         </div>
-                        <div className="embla__slide">
-                            <Agent
-                                customerId={newCustomer.agentId}
-                                newAgent={newAgent}
-                                setNewAgent={setNewAgent}
-                                setIsAgentComplete={() => {}}
-                                errors={currentIndex === 1 ? stepErrors : {}}
-                            />
-                        </div>
-                        <div className="embla__slide">
-                            <WorkPlace
-                                workPlace={workPlace}
-                                setWorkPlace={setWorkPlace}
-                                workTypes={workTypes}
-                                errors={currentIndex === 2 ? stepErrors : {}}
-                            />
-                        </div>
-                        <div className="embla__slide">
-                            <OpeningType
-                                openingForm={openingForm}
-                                setOpeningForm={setOpeningForm}
-                                openingTypes={openingTypes}
-                                treatments={treatments}
-                                glassTypes={glassTypes}
-                                selectedOpenings={selectedOpenings}
-                                setSelectedOpenings={setSelectedOpenings}
-                                errors={currentIndex === 3 ? stepErrors : {}}
-                            />
-                        </div>
-                        <div className="embla__slide">
-                            <Complements
-                                complementTypes={complementTypes}
-                                complements={complements}
-                                selectedComplements={selectedComplements}
-                                setSelectedComplements={setSelectedComplements}
-                            />
-                        </div>
-                        <div className="embla__slide">
-                            <Extras 
-                                comment={comment} 
-                                setComment={setComment} 
-                                setDollarReference={setDollarReference}
-                                setLabourReference={setLabourReference}
-                            />
-                            <div style={{ marginTop: 24 }}>
-                                <button 
+                        <Swiper
+                            ref={swiperRef}
+                            allowTouchMove={false}
+                            slidesPerView={1}
+                            onSlideChange={handleSlideChange}
+                            initialSlide={0}
+                            style={{ minHeight: 400 }}
+                        >
+                            <SwiperSlide>
+                                <Customer
+                                    newCustomer={newCustomer}
+                                    setNewCustomer={setNewCustomer}
+                                    errors={currentIndex === 0 ? stepErrors : {}}
+                                />
+                            </SwiperSlide>
+                            <SwiperSlide>
+                                <Agent
+                                    customerId={newCustomer.agentId}
+                                    newAgent={newAgent}
+                                    setNewAgent={setNewAgent}
+                                    setIsAgentComplete={() => { }}
+                                    errors={currentIndex === 1 ? stepErrors : {}}
+                                />
+                            </SwiperSlide>
+                            <SwiperSlide>
+                                <WorkPlace
+                                    workPlace={workPlace}
+                                    setWorkPlace={setWorkPlace}
+                                    workTypes={workTypes}
+                                    errors={currentIndex === 2 ? stepErrors : {}}
+                                />
+                            </SwiperSlide>
+                            <SwiperSlide>
+                                <OpeningType
+                                    openingForm={openingForm}
+                                    setOpeningForm={setOpeningForm}
+                                    openingTypes={openingTypes}
+                                    treatments={treatments}
+                                    glassTypes={glassTypes}
+                                    selectedOpenings={selectedOpenings}
+                                    setSelectedOpenings={setSelectedOpenings}
+                                    errors={currentIndex === 3 ? stepErrors : {}}
+                                    // Quita la lista de aberturas seleccionadas del paso
+                                    hideSelectedList={true}
+                                />
+                            </SwiperSlide>
+                            <SwiperSlide>
+                                <Complements
+                                    complementTypes={complementTypes}
+                                    complements={complements}
+                                    selectedComplements={selectedComplements}
+                                    setSelectedComplements={setSelectedComplements}
+                                    // Quita la lista de complementos seleccionados del paso
+                                    hideSelectedList={true}
+                                />
+                            </SwiperSlide>
+                            <SwiperSlide>
+                                <Extras
+                                    comment={comment}
+                                    setComment={setComment}
+                                    setDollarReference={setDollarReference}
+                                    setLabourReference={setLabourReference}
+                                />
+                                <div style={{ marginTop: 24 }}>
+                                    <button
+                                        type="button"
+                                        className="submit-button"
+                                        disabled={submitting}
+                                        onClick={handleSubmitQuotation}
+                                    >
+                                        {submitting ? "Enviando..." : "Cotizar"}
+                                    </button>
+                                    {submitError && (
+                                        <div style={{ color: 'red', marginTop: 8 }}>{submitError}</div>
+                                    )}
+                                    {Object.keys(validationErrors).length > 0 && (
+                                        <div style={{ color: 'red', marginTop: 8 }}>
+                                            {Object.entries(validationErrors).map(([field, msg]) => (
+                                                <div key={field}>{msg}</div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </SwiperSlide>
+                        </Swiper>
+                    </form>
+                </main>
+                <aside className="quotation-summary">
+                    <h3>Resumen</h3>
+                    <div>
+                        <strong>Aberturas agregadas:</strong>
+                        {selectedOpenings.length === 0 && (
+                            <div className="summary-empty">No hay aberturas agregadas.</div>
+                        )}
+                        {selectedOpenings.map((opening, idx) => (
+                            <div key={idx} className="summary-item">
+                                <button
+                                    className="summary-remove-btn"
+                                    title="Quitar abertura"
+                                    onClick={() => handleRemoveOpening(idx)}
                                     type="button"
-                                    className="submit-button"
-                                    disabled={submitting}
-                                    onClick={handleSubmitQuotation}
-                                >
-                                    {submitting ? "Enviando..." : "Cotizar"}
-                                </button>
-                                {submitError && (
-                                    <div style={{ color: 'red', marginTop: 8 }}>{submitError}</div>
-                                )}
-                                {Object.keys(validationErrors).length > 0 && (
-                                    <div style={{ color: 'red', marginTop: 8 }}>
-                                        {Object.entries(validationErrors).map(([field, msg]) => (
-                                            <div key={field}>{msg}</div>
-                                        ))}
-                                    </div>
-                                )}
+                                >×</button>
+                                <div className="summary-title">{getOpeningTypeName(opening.typeId)}</div>
+                                <div className="summary-detail">
+                                    Medidas: {opening.width} x {opening.height} cm
+                                </div>
+                                <div className="summary-detail summary-qty-row">
+                                    <button
+                                        className="summary-qty-btn"
+                                        type="button"
+                                        onClick={() => handleChangeOpeningQty(idx, -1)}
+                                    >−</button>
+                                    <span className="summary-qty">{opening.quantity}</span>
+                                    <button
+                                        className="summary-qty-btn"
+                                        type="button"
+                                        onClick={() => handleChangeOpeningQty(idx, 1)}
+                                    >+</button>
+                                </div>
+                                <div className="summary-subtotal">
+                                    {getOpeningSubtotal(opening)}
+                                </div>
                             </div>
+                        ))}
+                        <div className="summary-total">
+                            {getTotalOpenings()}
                         </div>
                     </div>
-                </div>
-            </form>
+                    <div style={{ marginTop: 24 }}>
+                        <strong>Complementos agregados:</strong>
+                        {selectedComplements.length === 0 && (
+                            <div className="summary-empty">No hay complementos agregados.</div>
+                        )}
+                        {selectedComplements.map((complement, idx) => (
+                            <div key={idx} className="summary-item">
+                                <button
+                                    className="summary-remove-btn"
+                                    title="Quitar complemento"
+                                    onClick={() => handleRemoveComplement(idx)}
+                                    type="button"
+                                >×</button>
+                                <div className="summary-title">{getComplementName(complement.complementId || complement.id)}</div>
+                                <div className="summary-detail summary-qty-row">
+                                    <button
+                                        className="summary-qty-btn"
+                                        type="button"
+                                        onClick={() => handleChangeComplementQty(idx, -1)}
+                                    >−</button>
+                                    <span className="summary-qty">{complement.quantity}</span>
+                                    <button
+                                        className="summary-qty-btn"
+                                        type="button"
+                                        onClick={() => handleChangeComplementQty(idx, 1)}
+                                    >+</button>
+                                </div>
+                                <div className="summary-subtotal">
+                                    {getComplementSubtotal(complement)}
+                                </div>
+                            </div>
+                        ))}
+                        <div className="summary-total">
+                            {getTotalComplements()}
+                        </div>
+                    </div>
+                </aside>
+            </div>
             <Footer />
         </div>
     );

@@ -62,10 +62,6 @@ const OpeningType = ({
         setOpeningForm({ typeId: '', width: '', height: '', quantity: 1, treatmentId: '', glassTypeId: '' });
     };
 
-    const handleRemoveOpening = (id) => {
-        setSelectedOpenings((prev) => prev.filter((opening) => opening.id !== id));
-    };
-
     const handleInputChange = (field, value) => {
         setOpeningForm({ ...openingForm, [field]: value });
         if (errors[field]) {
@@ -154,24 +150,6 @@ const OpeningType = ({
             <button className="botton-carusel" type="button" onClick={handleAddOpening}>
                 Agregar Abertura
             </button>
-            <div className="form-group">
-                <h3>Aberturas Seleccionadas</h3>
-                <ul className="opening-list">
-                    {selectedOpenings.map((opening) => (
-                        <li key={opening.id} className="opening-item">
-                            {opening.typeName} - {opening.width}m x {opening.height}m - {opening.quantity} unidades
-                            - Tratamiento: {opening.treatmentName} - Vidrio: {opening.glassTypeName}
-                            <button
-                                type="button"
-                                className="remove-opening-button"
-                                onClick={() => handleRemoveOpening(opening.id)}
-                            >
-                                X
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            </div>
         </div>
     );
 };
