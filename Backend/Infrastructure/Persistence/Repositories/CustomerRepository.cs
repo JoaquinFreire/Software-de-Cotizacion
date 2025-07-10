@@ -2,6 +2,7 @@ using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 public class CustomerRepository : ICustomerRepository
@@ -50,5 +51,17 @@ public class CustomerRepository : ICustomerRepository
 
         _context.Customers.Remove(customer);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<(IEnumerable<Customer> Items, int Total)> GetPagedAsync(int page, int pageSize)
+    {
+        var query = _context.Customers.AsQueryable();
+        var total = await query.CountAsync();
+        var items = await query
+            .OrderBy(c => c.id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+        return (items, total);
     }
 }

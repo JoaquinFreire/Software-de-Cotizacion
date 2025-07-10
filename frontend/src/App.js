@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { jwtDecode } from "jwt-decode";
-import axios from 'axios'; 
+import axios from 'axios';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Historial from './pages/Historial';
@@ -14,7 +14,11 @@ import ReporteEstadoCotizaciones from './pages/reportes/ReporteEstadoCotizacione
 import BudgetDetail from './pages/BudgetDetail';
 import CreatePassword from './pages/CreatePassword';
 import SessionModal from './components/SessionModal';
+import Customers from './pages/Customers';
+import Materiales from './pages/Materiales';
+import Aberturas from './pages/Aberturas';
 import { QuotationProvider } from './context/QuotationContext'; // Importar el proveedor de contexto
+import { CustomerProvider } from './context/customerContext';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -34,7 +38,7 @@ function App() {
     // Estado para almacenar el identificador del intervalo
     const [intervalId, setIntervalId] = useState(null);
     /* const [sessionExpired, setSessionExpired] = useState(false); */
-    
+
 
     useEffect(() => {
         // Aplica un filtro visual si está activado en el localStorage
@@ -65,8 +69,8 @@ function App() {
                 // Crea un intervalo que revisa cada segundo el tiempo restante
                 const id = setInterval(() => {
                     const currentTime = Date.now();
-                    const timeLeft = expirationTime - currentTime;      
-                    if (timeLeft <= 0) {      
+                    const timeLeft = expirationTime - currentTime;
+                    if (timeLeft <= 0) {
                         // Si ya expiró, cierra sesión
                         handleLogout();
                         /* setSessionExpired(true); */ // Force re-render
@@ -145,22 +149,30 @@ function App() {
 
     return (
         <QuotationProvider>
-            <Router>
-                <Routes>
-                    <Route path="/" element={<PublicRoute element={<Login />} />} />
-                    <Route path="/dashboard" element={<PrivateRoute element={<Dashboard />} />} />
-                    <Route path="/historial" element={<PrivateRoute element={<Historial />} />} />
-                    <Route path="/new-quotation" element={<PrivateRoute element={<Quotation />} />} />
-                    <Route path="/update-quotation/:id" element={<PrivateRoute element={<UpdateQuotation />} />} />
-                    <Route path="/admin" element={<PrivateRoute element={<Admin />} />} />
-                    <Route path="/admin/usuarios" element={<PrivateRoute element={<AdminUsuarios/>} />} />
-                    <Route path="/reportes" element={<PrivateRoute element={<Reportes />} />} />
-                    <Route path="/reportes/estado-cotizaciones" element={<PrivateRoute element={<ReporteEstadoCotizaciones/>} />} />
-                    <Route path="/quotation/:id" element={<PrivateRoute element={<BudgetDetail/>} />} />
-                    <Route path="/crear-password" element={<PublicRoute element={<CreatePassword/>} />} />
-                </Routes>
-                <SessionModal show={showSessionModal} onExtend={handleExtendSession} onLogout={handleLogout} />
-            </Router>
+            <CustomerProvider>
+                <Router>
+                    <Routes>
+                        <Route path="/" element={<PublicRoute element={<Login />} />} />
+                        <Route path="/dashboard" element={<PrivateRoute element={<Dashboard />} />} />
+                        <Route path="/historial" element={<PrivateRoute element={<Historial />} />} />
+                        <Route path="/new-quotation" element={<PrivateRoute element={<Quotation />} />} />
+                        <Route path="/update-quotation/:id" element={<PrivateRoute element={<UpdateQuotation />} />} />
+                        <Route path="/admin" element={<PrivateRoute element={<Admin />} />} />
+                        <Route path="/admin/usuarios" element={<PrivateRoute element={<AdminUsuarios />} />} />
+                        <Route path="/reportes" element={<PrivateRoute element={<Reportes />} />} />
+                        <Route path="/reportes/estado-cotizaciones" element={<PrivateRoute element={<ReporteEstadoCotizaciones />} />} />
+                        <Route path="/quotation/:id" element={<PrivateRoute element={<BudgetDetail />} />} />
+                        <Route path="/crear-password" element={<PublicRoute element={<CreatePassword />} />} />
+                        <Route path="/customers" element={<PrivateRoute element={<Customers />} />} />
+                        <Route path="/materiales" element={<PrivateRoute element={<Materiales />} />} />
+                        <Route path="/aberturas" element={<PrivateRoute element={<Aberturas />} />} />
+
+                        {/* Ruta catch-all para redirigir a la página principal */}
+                        <Route path="*" element={<Navigate to="/" />} />
+                    </Routes>
+                    <SessionModal show={showSessionModal} onExtend={handleExtendSession} onLogout={handleLogout} />
+                </Router>
+            </CustomerProvider>
         </QuotationProvider>
     );
 }

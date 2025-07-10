@@ -56,7 +56,7 @@ const Navigation = ({ onLogout }) => {
     useEffect(() => {
         if (theme === "light") {
             document.body.classList.add("light-mode");
-            
+
         } else {
             document.body.classList.remove("light-mode");
             <img src={Logonegro} alt="Logo Anodal" />
@@ -104,8 +104,6 @@ const Navigation = ({ onLogout }) => {
     const handleToggleFilter = () => setIsFilterActive((prev) => !prev);
     const handleToggleTheme = () => setTheme((prev) => prev === "light" ? "dark" : "light");
 
-    // Determinar el color de fondo del encabezado según el tema
-    const headerBgColor = theme === "light" ? "#fff" : "#121212";
     // Helper para saber si es móvil (se usa en render)
     const mobile = isMobile();
 
@@ -146,16 +144,16 @@ const Navigation = ({ onLogout }) => {
                             {theme === "light" ? (
                                 // Sol SVG
                                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                                    <circle cx="12" cy="12" r="5" fill="#FFD600"/>
+                                    <circle cx="12" cy="12" r="5" fill="#FFD600" />
                                     <g stroke="#FFD600" strokeWidth="2">
-                                        <line x1="12" y1="1" x2="12" y2="4"/>
-                                        <line x1="12" y1="20" x2="12" y2="23"/>
-                                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                                        <line x1="1" y1="12" x2="4" y2="12"/>
-                                        <line x1="20" y1="12" x2="23" y2="12"/>
-                                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                                        <line x1="12" y1="1" x2="12" y2="4" />
+                                        <line x1="12" y1="20" x2="12" y2="23" />
+                                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                                        <line x1="1" y1="12" x2="4" y2="12" />
+                                        <line x1="20" y1="12" x2="23" y2="12" />
+                                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
                                     </g>
                                 </svg>
                             ) : (
@@ -179,8 +177,8 @@ const Navigation = ({ onLogout }) => {
                             >
                                 {/* Usuario SVG */}
                                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                                    <circle cx="12" cy="8" r="4" stroke="#00FFFF" strokeWidth="2" fill="none"/>
-                                    <path d="M4 20c0-3.3137 3.134-6 7-6s7 2.6863 7 6" stroke="#00FFFF" strokeWidth="2" fill="none"/>
+                                    <circle cx="12" cy="8" r="4" stroke="#00FFFF" strokeWidth="2" fill="none" />
+                                    <path d="M4 20c0-3.3137 3.134-6 7-6s7 2.6863 7 6" stroke="#00FFFF" strokeWidth="2" fill="none" />
                                 </svg>
                             </button>
                             {userMenuOpen && (
@@ -224,16 +222,16 @@ const Navigation = ({ onLogout }) => {
                             {theme === "light" ? (
                                 // Sol SVG
                                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                                    <circle cx="12" cy="12" r="5" fill="#FFD600"/>
+                                    <circle cx="12" cy="12" r="5" fill="#FFD600" />
                                     <g stroke="#FFD600" strokeWidth="2">
-                                        <line x1="12" y1="1" x2="12" y2="4"/>
-                                        <line x1="12" y1="20" x2="12" y2="23"/>
-                                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                                        <line x1="1" y1="12" x2="4" y2="12"/>
-                                        <line x1="20" y1="12" x2="23" y2="12"/>
-                                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                                        <line x1="12" y1="1" x2="12" y2="4" />
+                                        <line x1="12" y1="20" x2="12" y2="23" />
+                                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                                        <line x1="1" y1="12" x2="4" y2="12" />
+                                        <line x1="20" y1="12" x2="23" y2="12" />
+                                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
                                     </g>
                                 </svg>
                             ) : (
@@ -257,8 +255,8 @@ const Navigation = ({ onLogout }) => {
                             >
                                 {/* Usuario SVG */}
                                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                                    <circle cx="12" cy="8" r="4" stroke="#00FFFF" strokeWidth="2" fill="none"/>
-                                    <path d="M4 20c0-3.3137 3.134-6 7-6s7 2.6863 7 6" stroke="#00FFFF" strokeWidth="2" fill="none"/>
+                                    <circle cx="12" cy="8" r="4" stroke="#00FFFF" strokeWidth="2" fill="none" />
+                                    <path d="M4 20c0-3.3137 3.134-6 7-6s7 2.6863 7 6" stroke="#00FFFF" strokeWidth="2" fill="none" />
                                 </svg>
                             </button>
                             {userMenuOpen && (
@@ -280,7 +278,7 @@ const Navigation = ({ onLogout }) => {
                 )}
             </header>
             {/* Sidebar vertical */}
-            <aside 
+            <aside
                 src={theme === "light" ? "open" : "closed"}
                 className={`sidebar-nav${sidebarOpen ? " open" : " closed"}`}
                 style={{
@@ -288,7 +286,7 @@ const Navigation = ({ onLogout }) => {
                     transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
                     boxShadow: sidebarOpen ? "2px 0 16px #00ffff33" : "none",
                     backgroundColor: theme === "light" ? "#B4B4B4" : "#121212"
-                    
+
                 }}
             >
                 <button
@@ -298,7 +296,7 @@ const Navigation = ({ onLogout }) => {
                 >
                     {/* Flecha izquierda SVG */}
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                        <path d="M15 6l-6 6 6 6" stroke="#00FFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M15 6l-6 6 6 6" stroke="#00FFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                 </button>
                 <NavLink to="/dashboard" className="sidebar-link">
@@ -309,6 +307,15 @@ const Navigation = ({ onLogout }) => {
                 </NavLink>
                 <NavLink to="/reportes" className="sidebar-link">
                     Reportes
+                </NavLink>
+                <NavLink to="/customers" className="sidebar-link">
+                    Clientes
+                </NavLink>
+                <NavLink to="/materiales" className="sidebar-link">
+                    Materiales
+                </NavLink>
+                <NavLink to="/aberturas" className="sidebar-link">
+                    Aberturas
                 </NavLink>
                 <div className="sidebar-admin-menu" ref={adminMenuRef}>
                     <button
@@ -339,7 +346,7 @@ const Navigation = ({ onLogout }) => {
                 >
                     {/* Flecha derecha SVG */}
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                        <path d="M9 6l6 6-6 6" stroke="#00FFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M9 6l6 6-6 6" stroke="#00FFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                 </button>
             )}
