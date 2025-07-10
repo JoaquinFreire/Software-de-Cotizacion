@@ -1,3 +1,4 @@
+using Application.DTOs;
 using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -62,5 +63,18 @@ public class CustomerController : ControllerBase
     {
         await _customerRepository.DeleteAsync(id);
         return NoContent();
+    }
+
+    [HttpGet("paged")]
+    public async Task<ActionResult<PagedResultDTO<Customer>>> GetPaged([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    {
+        if (page < 1 || pageSize < 1) return BadRequest("Invalid pagination parameters.");
+        var (items, total) = await _customerRepository.GetPagedAsync(page, pageSize);
+        var result = new PagedResultDTO<Customer>
+        {
+            Items = items,
+            Total = total
+        };
+        return Ok(result);
     }
 }
