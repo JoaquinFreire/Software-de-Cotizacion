@@ -33,6 +33,11 @@ const Historial = () => {
         setFilteredQuotations(Array.isArray(quotations) ? quotations : []);
     }, [quotations]);
 
+    // Scroll arriba al cambiar de página
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [historialState.page]);
+
     const handleDelete = async () => {
         const token = localStorage.getItem("token");
         try {

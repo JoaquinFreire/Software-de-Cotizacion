@@ -15,6 +15,7 @@ namespace Domain.Repositories
         Task AddAsync(Customer customer);
         Task UpdateAsync(Customer customer);
         Task DeleteAsync(int id);
+        Task<(IEnumerable<Customer> Items, int Total)> GetPagedAsync(int page, int pageSize);
     }
 }
 

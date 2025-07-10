@@ -1,0 +1,151 @@
+.clientes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 30px 0 10px 0;
+}
+
+.btn-nuevo-cliente {
+  background: #1a2a1d;
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-nuevo-cliente:hover {
+  background: #2e4d2c;
+}
+
+.clientes-list-container {
+  margin: 0 auto;
+  max-width: 900px;
+  min-height: 400px;
+}
+
+.clientes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.cliente-card {
+  background: #050d0f;
+  border-radius: 10px;
+  padding: 18px 28px;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: box-shadow 0.2s;
+}
+.cliente-card:hover {
+  box-shadow: 0 4px 16px rgba(30,40,60,0.13);
+}
+
+.cliente-info {
+  flex: 1;
+}
+.cliente-nombre {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+.cliente-datos {
+  display: flex;
+  gap: 18px;
+  font-size: 0.98rem;
+  color: #838383;
+  flex-wrap: wrap;
+}
+
+.cliente-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-left: 30px;
+}
+
+.cliente-actions button {
+  padding: 7px 18px;
+  border-radius: 5px;
+  border: none;
+  font-size: 0.98rem;
+  cursor: pointer;
+  margin-bottom: 2px;
+  transition: background 0.18s, color 0.18s;
+}
+
+.btn-detalle {
+  background: #1a2a1d;
+  color: #fff;
+}
+.btn-detalle:hover {
+  background: #2e4d2c;
+}
+
+.btn-actualizar {
+  background: #16203a;
+  color: #fff;
+}
+.btn-actualizar:hover {
+  background: #22336b;
+}
+
+.btn-agente {
+  background: #a0910e96;
+  color: #fff;
+}
+.btn-agente:hover {
+  background: #c7b91a;
+}
+
+.btn-contactar {
+  background: #611616;
+  color: #fff;
+}
+.btn-contactar:hover {
+  background: #a12a2a;
+}
+
+.no-clientes {
+  text-align: center;
+  color: #888;
+  font-size: 1.1rem;
+  margin: 40px 0;
+}
+
+.pagination-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  margin: 30px 0 10px 0;
+}
+.pagination-nav button {
+  padding: 7px 18px;
+  border-radius: 5px;
+  border: none;
+  background: #1a2a1d;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.pagination-nav button:disabled {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.clientes-title-centered {
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.clientes-btn-container {
+  display: flex;
+  justify-content: center;
+  margin: 18px 0 28px 0;
+}
