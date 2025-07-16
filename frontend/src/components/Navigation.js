@@ -279,14 +279,13 @@ const Navigation = ({ onLogout }) => {
             </header>
             {/* Sidebar vertical */}
             <aside
-                src={theme === "light" ? "open" : "closed"}
                 className={`sidebar-nav${sidebarOpen ? " open" : " closed"}`}
                 style={{
                     transition: "transform 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s",
                     transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
                     boxShadow: sidebarOpen ? "2px 0 16px #00ffff33" : "none",
+                    width: sidebarOpen ? "250px" : "0px",
                     backgroundColor: theme === "light" ? "#B4B4B4" : "#121212"
-
                 }}
             >
                 <button
@@ -302,8 +301,11 @@ const Navigation = ({ onLogout }) => {
                 <NavLink to="/dashboard" className="sidebar-link">
                     Inicio
                 </NavLink>
+                <NavLink to="/cotizaciones" className="sidebar-link">
+                    Cotizaciones Pendientes
+                </NavLink>
                 <NavLink to="/historial" className="sidebar-link">
-                    Historial
+                    Todas las Cotizaciones
                 </NavLink>
                 <NavLink to="/reportes" className="sidebar-link">
                     Reportes

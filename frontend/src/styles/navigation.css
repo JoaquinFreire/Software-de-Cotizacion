@@ -484,6 +484,7 @@ body.light-mode .sidebar-show-btn {
     box-shadow: 2px 0 16px #00ffff33;
     transition: background-color 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s cubic-bezier(.4,2,.6,1), transform 0.3s cubic-bezier(.4,2,.6,1);
     transform: translateX(0);
+    
 }
 .sidebar-nav.sidebar-light {
     background-color: #c0d8d8;
