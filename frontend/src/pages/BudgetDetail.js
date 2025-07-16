@@ -98,8 +98,8 @@ const BudgetDetail = () => {
           >
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <img src={logoAnodal} alt="Logo" style={{ height: 30 }} />
-                <h1 style={{ fontSize: 28, fontWeight: 'bold' }}>Cotización</h1>
+                <img src={logoAnodal} alt="Logo" style={{ height: 30, marginLeft: 80 }} />
+                <h1 style={{ fontSize: 28, fontWeight: 'bold', marginLeft: 40 }}>Cotización</h1>
                 <div style={{ textAlign: 'right', fontSize: 14 }}>
                   <div>Anodal S.A.</div>
                   <div>Av. Japón 1292 Córdoba</div>
