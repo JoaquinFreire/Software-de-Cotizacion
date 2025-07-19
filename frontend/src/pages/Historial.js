@@ -89,10 +89,10 @@ const Historial = () => {
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
-            <h2 className="title">Historial de Cotizaciones</h2>
+            <h2 className="title">Todas las Cotizaciones</h2>
             <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
             <div className="quote-container">
-                <div className="quote-card">
+                
                     <div className="search-bar">
                         <div className="search-container">
                             <input
@@ -108,7 +108,7 @@ const Historial = () => {
                             </button>
                         </div>
                     </div>
-                </div>
+                
             </div>
             {loading ? (
                 <div className="quote-container">

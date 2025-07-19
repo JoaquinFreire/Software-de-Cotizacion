@@ -88,19 +88,6 @@
     height: 16px;
 }
 
-.new-quote { 
-    width: 30%;
-    height: 50%;
-    margin-left: 20px;
-    padding: 10px 5px;
-    border: none;
-    background-color: #26b7cd;
-    color: black;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 0;
-    font-family: 'Poppins', sans-serif;
-}
 
 .filtro::after {
     content: "";    
@@ -155,10 +142,7 @@ body.light-mode .clear-button-q {
     color: #222;
 }
 
-body.light-mode .search-button,
-body.light-mode .new-quote {
-    background: #26b7cd !important;
-}
+
 
 body.light-mode .quote-card {
     background: #fff !important;
@@ -198,7 +182,6 @@ body,
 .search-input,
 .clear-button-q,
 .search-button,
-.new-quote,
 .quote-card,
 .quote-container,
 .success-message,
@@ -263,12 +246,7 @@ body,
         width: 18px;
         height: 18px;
     }
-    .new-quote {
-        width: 100%;
-        margin: 10px 0 0 0;
-        padding: 12px 0;
-        font-size: 16px;
-    }
+    
     .dashboard-header {
         flex-direction: column;
         padding: 8px 0;
@@ -291,8 +269,5 @@ body,
     .search-bar {
         gap: 6px;
     }
-    .new-quote {
-        font-size: 15px;
-        padding: 10px 0;
-    }
+    
 }
