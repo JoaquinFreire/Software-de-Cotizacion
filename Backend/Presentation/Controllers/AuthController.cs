@@ -56,7 +56,7 @@ public class AuthController : ControllerBase
             jwtIssuer,
             jwtAudience,
             claims,
-            expires: System.DateTime.UtcNow.AddMinutes(30), // El token expira en 30 minutos
+            expires: System.DateTime.UtcNow.AddHours(2), // El token expira en 30 minutos
             signingCredentials: credentials
         );
 

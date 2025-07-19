@@ -22,7 +22,6 @@
   outline: none;
   border: none;
   user-select: none;
-  /* El color de fondo se define por clase específica */
   background: #181c23;
   color: #f2f2f2;
 }

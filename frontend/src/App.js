@@ -19,6 +19,7 @@ import Materiales from './pages/Materiales';
 import Aberturas from './pages/Aberturas';
 import { QuotationProvider } from './context/QuotationContext'; // Importar el proveedor de contexto
 import { CustomerProvider } from './context/customerContext';
+import Home from "./components/Home";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -153,7 +154,8 @@ function App() {
                 <Router>
                     <Routes>
                         <Route path="/" element={<PublicRoute element={<Login />} />} />
-                        <Route path="/dashboard" element={<PrivateRoute element={<Dashboard />} />} />
+                        <Route path="/dashboard" element={<Home />} />
+                        <Route path="/cotizaciones" element={<Dashboard />} />
                         <Route path="/historial" element={<PrivateRoute element={<Historial />} />} />
                         <Route path="/new-quotation" element={<PrivateRoute element={<Quotation />} />} />
                         <Route path="/update-quotation/:id" element={<PrivateRoute element={<UpdateQuotation />} />} />
@@ -161,6 +163,7 @@ function App() {
                         <Route path="/admin/usuarios" element={<PrivateRoute element={<AdminUsuarios />} />} />
                         <Route path="/reportes" element={<PrivateRoute element={<Reportes />} />} />
                         <Route path="/reportes/estado-cotizaciones" element={<PrivateRoute element={<ReporteEstadoCotizaciones />} />} />
+                        <Route path="/quotation" element={<Quotation />} />
                         <Route path="/quotation/:id" element={<PrivateRoute element={<BudgetDetail />} />} />
                         <Route path="/crear-password" element={<PublicRoute element={<CreatePassword />} />} />
                         <Route path="/customers" element={<PrivateRoute element={<Customers />} />} />

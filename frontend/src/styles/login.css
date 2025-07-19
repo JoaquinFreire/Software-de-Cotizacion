@@ -127,7 +127,7 @@ body, html {
 
 /* Contenedor del login */
 .login-container {
-    background: url('../images/fondo-login.jpg') no-repeat center center/cover;
+    background: url('../images/fondo-login.webp') no-repeat center center/cover;
     height: 100vh;
     display: flex;
     justify-content: center;
