@@ -28,7 +28,7 @@ const Navigation = ({ onLogout }) => {
     // Sidebar abierto/cerrado: lee de localStorage o inicia cerrado en móvil
     const [sidebarOpen, setSidebarOpen] = useState(() => {
         const saved = localStorage.getItem("sidebarOpen");
-        if (saved !== null) return saved === "true";
+        if (saved !== null) return saved === "false";
         return !isMobile() ? true : false;
     });
 
