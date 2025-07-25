@@ -401,7 +401,7 @@ body {
 }
 .sidebar-nav.closed ~ .dashboard-container,
 body .dashboard-container:not(:has(.sidebar-nav.open)) {
-    margin-left: 0 !important;
+    margin-left: 0 ;
 }
 
 /* Elimina el espacio en blanco arriba a la izquierda */
@@ -419,14 +419,6 @@ body.light-mode .new-header {
     background-color: transparent;
     box-shadow: none;
 }
-/* body.light-mode .new-header {
-    background: transparent !important;
-    background-color: transparent !important;
-    box-shadow: none !important;
-} */
-
-
-
 .sidebar-toggle-btn {
     background: none;
     border: none;
@@ -472,10 +464,7 @@ body.light-mode .sidebar-show-btn {
     background-color: black; /* Por defecto negro */
     transition: background-color 0.3s cubic-bezier(.4,2,.6,1);
 }
-.new-header.light-header {
-    background-color: #fff !important;
-    /* Puedes ajustar el color claro si lo prefieres */
-}
+
 
 /* Sidebar: color de fondo y sombra según tema */
 .sidebar-nav {
@@ -839,9 +828,7 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
 }
 
 @media (max-width: 768px) {
-    .header-right {
-        display: none !important;
-    }
+
     .header-mobile-actions {
         display: flex;
     }

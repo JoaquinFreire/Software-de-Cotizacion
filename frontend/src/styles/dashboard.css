@@ -101,27 +101,10 @@
     z-index: 9999; /* Se asegura de que esté en la parte superior */
 }
 
-body.light-mode {
-    background-color: #f6f8fa !important;
-    color: #222 !important;
-}
-
 body.light-mode .dashboard-container {
-
-    background-color: #e2e5e7 !important;
+    background-color: #e2e5e7 ;
 }
 
-
-
-
-body.light-mode .search-bar,
-body.light-mode .search-container,
-body.light-mode .search-input {
-    background-color: #ffffff00 !important;
-    border-color: #26b7cd !important;
-    background-color: #f6f8fa;
-    color: #222;
-}
 
 body.light-mode .dashboard-header {
     background-color: #c1ddddd5;
@@ -142,12 +125,6 @@ body.light-mode .clear-button-q {
     color: #222;
 }
 
-
-
-body.light-mode .quote-card {
-    background: #fff !important;
-    color: #222 !important;
-    border: 1px solid #26b7cd}
 body.light-mode .search-button {
     background: #00bcd4;
     color: #fff;
@@ -161,7 +138,7 @@ body.light-mode .new-quote {
 body.light-mode .quote-card {
     background: #fff;
     color: #222;
-    border: 1px solid #e0e0e0;
+    border: 2px solid #26b7cd;
 }
 
 body.light-mode .success-message {
