@@ -20,7 +20,7 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    
+     font-size: 15px;
 }
 
 .quote-details p {
@@ -46,7 +46,7 @@
 .go-button, .update-button, .delete-button, .status-select, .status-button {
     padding: 7px 18px;
     border: none;
-    border-radius: 5%; /* cambio */
+    border-radius: 10px; /* cambio */
     cursor: pointer;
     font-weight: 700;
     font-size: 16px;
@@ -91,23 +91,24 @@
     background: #817821; /* Yellow */
     color: rgb(243, 243, 243);
     padding: 5px;
-    width: 122px;
+    width: 128px;
 
 }
 
 .status-select option[value="pending"] {
     font-weight: 700;
     background:  #998b0a8f; 
-    border-radius: 0% !important;
+    
 }
-.dropdown{
+.dropdown {
     background: #b8ac46; 
     color: rgb(0, 0, 0);
-
-    border-radius: none;
-    padding: 0;
-    margin: 0;
+    border-radius: 10px;
+    padding: 5px 0;
+    overflow: hidden; /* Opcional: evita bordes rectos en hijos */
 }
+
+
 .success-message {
     background: green;
     color: white;
@@ -123,21 +124,21 @@ body.light-mode .go-button {
     color: #00796b;
 }
 body.light-mode .update-button {
-    background: #fffde7;
-    color: #fbc02d;
+    background: #c2ddf0;
+    color: #0080ff;
 }
 body.light-mode .delete-button {
     background: #ffebee;
     color: #d32f2f;
 }
 body.light-mode .status-select {
-    background: #c2ddf0;
-    color: #1976d2;
+    background: hsl(55, 100%, 85%);
+    color: #fbc02d;
     border: none;
 }
 body.light-mode .status-select option {
-    background: #e3f2fd;
-    color: #1976d2;
+    background: hsl(55, 100%, 85%);
+    color: #f0d911;
 }
 body.light-mode .dropdown {
     background: #e3f2fd;
@@ -164,37 +165,17 @@ body.light-mode .dropdown {
 
 /* Igualar altura de botones y select en responsive */
 @media (max-width: 768px) {
-    .status-select {
-        height: 44px;
-        min-width: 100%;
-    }
-}
-
-/* Elimina borde interno del select en modo claro y oscuro */
-.status-select,
-.status-select:focus,
-.status-select:active {
-    outline: none;
-    border: none;
-    box-shadow: none;
-}
-
-@media (max-width: 768px) {
     .quote-card {
         flex-direction: column;
         width: 98%;
         padding: 12px;
         font-size: 15px;
         align-items: stretch;
-        border: none !important;
-        box-shadow: none !important;
         background: rgba(0,0,0,0.85);
         margin-left: 2rem;
         margin-right: 2rem;
     }
-    .quote-details {
-        font-size: 15px;
-    }
+    
     .quote-actions {
         flex-direction: column;
         gap: 8px;
@@ -207,7 +188,7 @@ body.light-mode .dropdown {
         height: 44px;
         padding: 8px 0;
         border-radius: 0%;
-        box-shadow: none !important;
+        box-shadow: none;
     }
 }
 
@@ -216,15 +197,16 @@ body.light-mode .dropdown {
     .quote-card {
         font-size: 13px;
         padding: 8px;
-        border: none !important;
-        box-shadow: none !important;
+        border: none;
+        box-shadow: none;
         margin-left: 0;
         margin-right: 0;
     }
     .go-button, .update-button, .delete-button, .status-select, .status-button {
         font-size: 13px;
         height: 38px;
-        border: none !important;
-        box-shadow: none !important;
+        border: none;
+        box-shadow: none;
     }
+    
 }

@@ -37,6 +37,7 @@ export const QuotationProvider = ({ children }) => {
             const response = await axios.get(url, {
                 headers: { Authorization: `Bearer ${token}` },
             });
+            console.log(`Fetched ${view} quotations:`, response.data.quotations);
             const arr = Array.isArray(response.data.quotations) ? response.data.quotations : [];
             setState({
                 quotations: arr,

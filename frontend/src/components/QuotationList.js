@@ -32,6 +32,13 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
             <p><b><u>Teléfono</u>:  </b>{quotation.Customer.tel}</p>
             <p><b><u>Correo</u>:  </b>{quotation.Customer.mail}</p>
           </div>
+          <div className="quote-details">
+            <p><b><u>Abertura</u>:  </b>{quotation.OpeningType?.name}</p>
+            <p><b><u>Complementos</u>:  </b>{}</p>
+            <p><b><u>Precio</u>:  </b>${quotation.Price}</p>
+            <p><b><u>Fecha de Entrega</u>:  </b>{new Date(quotation.DeliveryDate).toLocaleDateString()}</p>
+            <p><b><u>Fecha de Vencimiento</u>:  </b>{new Date(quotation.ExpirationDate).toLocaleDateString()}</p>
+          </div>
           <div className="quote-actions">
             <button className="go-button" onClick={() => navigate(`/quotation/${quotation.Id}`)}>Ver Detalles</button>
             <button className="update-button" onClick={() => navigate(`/update-quotation/${quotation.Id}`)}>Actualizar</button>

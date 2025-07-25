@@ -41,7 +41,7 @@ public class QuotationController : ControllerBase
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
-
+        Console.WriteLine("prueba!"+quotations);
         // Asegura que quotations siempre sea un array (nunca null)
         return Ok(new { total, quotations = quotations ?? new List<Quotation>() });
     }
