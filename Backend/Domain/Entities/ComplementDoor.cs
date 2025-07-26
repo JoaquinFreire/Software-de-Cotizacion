@@ -9,13 +9,9 @@ namespace Domain.Entities
 {
     public class ComplementDoor // Puerta
     {
-        [BsonIgnore]
         public int id { get; set; }
         public string? name { get; set; }
-        public double price { get; set; }
-        public double width { get; set; } // Ancho de la puerta
-        public double height { get; set; } // Alto de la puerta
+        public decimal price { get; set; }
         public string? Material { get; set; } // Material de la puerta
-        public List<Accesory> Accesory { get; set; } = new List<Accesory>();
     }
 }

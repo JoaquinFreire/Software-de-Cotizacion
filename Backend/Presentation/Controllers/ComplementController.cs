@@ -32,24 +32,24 @@ public class ComplementController : ControllerBase
         if (complement == null) return NotFound();
         return Ok(complement);
     }
-    // PUT: api/complements/{id}
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Complement complement)
-    {
-        if (complement == null || id != complement.id)
-        {
-            return BadRequest("Invalid data.");
-        }
+    //// PUT: api/complements/{id}
+    //[HttpPut("{id}")]
+    //public async Task<IActionResult> Update(int id, [FromBody] Complement complement)
+    //{
+    //    if (complement == null || id != complement.id)
+    //    {
+    //        return BadRequest("Invalid data.");
+    //    }
 
-        var existingComplement = await _complementRepository.GetByIdAsync(id);
-        if (existingComplement == null)
-        {
-            return NotFound();
-        }
+    //    var existingComplement = await _complementRepository.GetByIdAsync(id);
+    //    if (existingComplement == null)
+    //    {
+    //        return NotFound();
+    //    }
 
-        await _complementRepository.UpdateAsync(complement);
-        return NoContent();
-    }
+    //    await _complementRepository.UpdateAsync(complement);
+    //    return NoContent();
+    //}
 
     // DELETE: api/materials/{id}
     [HttpDelete("{id}")]

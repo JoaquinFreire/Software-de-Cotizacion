@@ -11,8 +11,8 @@ public class AppDbContext : DbContext
     public DbSet<CustomerAgent> CustomerAgents { get; set; }
     public DbSet<WorkPlace> WorkPlaces { get; set; }
     public DbSet<WorkType> WorkTypes { get; set; }  // Agrega WorkType
-    public DbSet<Complement> Complements { get; set; }
-    public DbSet<ComplementType> ComplementTypes { get; set; }
+    //public DbSet<Complement> Complements { get; set; }
+    //public DbSet<ComplementType> ComplementTypes { get; set; }
     public DbSet<Opening_Type> Opening_Types { get; set; }
     public DbSet<AlumTreatment> AlumTreatments { get; set; }
     public DbSet<Price> Prices { get; set; }
@@ -30,8 +30,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<CustomerAgent>().ToTable("customeragent");
         modelBuilder.Entity<WorkPlace>().ToTable("workplace");
         modelBuilder.Entity<WorkType>().ToTable("worktype");
-        modelBuilder.Entity<Complement>().ToTable("complement");
-        modelBuilder.Entity<ComplementType>().ToTable("complement_type");
+        //modelBuilder.Entity<Complement>().ToTable("complement");
+        //modelBuilder.Entity<ComplementType>().ToTable("complement_type");
         modelBuilder.Entity<Opening_Type>().ToTable("opening_type");
         modelBuilder.Entity<AlumTreatment>().ToTable("alumTreatment");
         modelBuilder.Entity<Price>().ToTable("price");
@@ -93,14 +93,14 @@ public class AppDbContext : DbContext
             .HasColumnType("DATETIME")
             .HasDefaultValueSql("GETDATE()"); // Establecer valor predeterminado como fecha actual
 
-        // Materiales
-        modelBuilder.Entity<Complement>()
-            .HasOne(co => co.type)
-            .WithMany()
-            .HasForeignKey(m => m.type_id);
-        modelBuilder.Entity<Complement>()
-            .Property(co => co.unit)
-            .HasConversion<int>(); // Guarda el enum como INT en la base de datos
+        //// Materiales
+        //modelBuilder.Entity<Complement>()
+        //    .HasOne(co => co.type)
+        //    .WithMany()
+        //    .HasForeignKey(m => m.type_id);
+        //modelBuilder.Entity<Complement>()
+        //    .Property(co => co.unit)
+        //    .HasConversion<int>(); // Guarda el enum como INT en la base de datos
         
         modelBuilder.Entity<UserInvitation>()
         .HasOne(ui => ui.user)
