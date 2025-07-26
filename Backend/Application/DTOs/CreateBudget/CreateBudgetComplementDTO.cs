@@ -8,6 +8,9 @@ namespace Application.DTOs.CreateBudget
 {
     public class CreateBudgetComplementDTO
     {
-        public string? name { get; set; }
+        public List<CreateBudgetComplementDoorDTO>? ComplementDoor { get; set; } = new List<CreateBudgetComplementDoorDTO>();
+        public List<CreateBudgetComplementRailingDTO>? ComplementRailing { get; set; } = new List<CreateBudgetComplementRailingDTO>();
+        public List<CreateBudgetComplementPartitionDTO> ComplementPartition { get; set; } = new List<CreateBudgetComplementPartitionDTO>();
+        public decimal price { get; set; } // Precio total de los complementos
     }
 }
