@@ -5,16 +5,8 @@ namespace Domain.Entities;
 
 public class Complement
 {
-    [BsonIgnore]
-    public int id { get; set; }
-    [BsonElement("name")]
-    public string? name { get; set; }
-    [BsonElement("precio")]
-    public double price { get; set; }
-    [BsonIgnore]
-    public int type_id { get; set; }
-    [BsonIgnore]
-    public ComplementType? type { get; set; }
-    [BsonIgnore]
-    public MaterialUnit unit { get; set; }
+    public List<BudgetComplementDoor>? ComplementDoor { get; set; } = new List<BudgetComplementDoor>();
+    public List<BudgetComplementRailing>? ComplementRailing { get; set; } = new List<BudgetComplementRailing>();
+    public List<BudgetComplementPartition> ComplementPartition { get; set; } = new List<BudgetComplementPartition>();
+    public decimal price { get; set; } // Precio total de los complementos
 }

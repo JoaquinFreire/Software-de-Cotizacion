@@ -13,6 +13,5 @@ namespace Domain.Entities
         public int Id { get; set; }
         public string? name { get; set; }
         public decimal price { get; set; }
-        public double height { get; set; } // Altura de la partición
     }
 }
