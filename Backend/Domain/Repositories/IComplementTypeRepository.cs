@@ -1,8 +1,8 @@
-using Domain.Entities;
+//using Domain.Entities;
 
-namespace Domain.Repositories;
+//namespace Domain.Repositories;
 
-public interface IComplementTypeRepository
-{
-    Task<IEnumerable<ComplementType>> GetAllAsync();
-}
+//public interface IComplementTypeRepository
+//{
+//    Task<IEnumerable<ComplementType>> GetAllAsync();
+//}
