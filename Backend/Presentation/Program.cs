@@ -55,9 +55,6 @@ builder.Services.AddScoped<UserServices>();
 
 builder.Services.AddAutoMapper(typeof(CreateBudgetProfile));
 
-//Convertidor PDF
-builder.Services.AddScoped<IBudgetPdfGenerator, PdfBudgetUseCase>();
-
 //VALIDACIONES DE BUDGET
 //Capa de logica de negocio
 builder.Services.AddTransient<IBudgetValidator, BudgetValidator>();
@@ -100,8 +97,8 @@ builder.Services.AddScoped<CreateCustomer>();
 builder.Services.AddScoped<IWorkTypeRepository, WorkTypeRepository>(); // Asegúrate de registrar IWorkTypeRepository
 builder.Services.AddScoped<IWorkPlaceRepository, WorkPlaceRepository>(); // Asegúrate de registrar IWorkPlaceRepository
 
-builder.Services.AddScoped<IComplementRepository, ComplementRepository>();
-builder.Services.AddScoped<IComplementTypeRepository, ComplementTypeRepository>();
+//builder.Services.AddScoped<IComplementRepository, ComplementRepository>();
+//builder.Services.AddScoped<IComplementTypeRepository, ComplementTypeRepository>();
 
 builder.Services.AddScoped<IOpeningTypeRepository, OpeningTypeRepository>();
 /* builder.Services.AddScoped<CreateOpeningType>();

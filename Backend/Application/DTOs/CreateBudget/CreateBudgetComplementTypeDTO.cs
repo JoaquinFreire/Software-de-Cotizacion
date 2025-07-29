@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs.CreateBudget
 {
-    public class CreateBudgetAccesoryDTO
+    public class CreateBudgetComplementTypeDTO
     {
         public string name { get; set; }
-        public int quantity { get; set; }
-        public decimal price { get; set; } // Precio unitario del accesorio
     }
 }
