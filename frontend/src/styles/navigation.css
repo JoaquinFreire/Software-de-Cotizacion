@@ -290,12 +290,7 @@ input:checked + .slider:before {
     transition: background-color 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s cubic-bezier(.4,2,.6,1), transform 0.3s cubic-bezier(.4,2,.6,1);
     transform: translateX(0);
 }
-body.light-mode .sidebar-link,
-body.light-mode .sidebar-admin-btn {
 
-    background: #c0d8d8; /* Fondo claro para botones en tema blanco */
-    color: #111;
-}
 body.light-mode .sidebar-link:hover,
 body.light-mode .sidebar-link.active,
 body.light-mode .sidebar-admin-btn:hover,
@@ -401,7 +396,7 @@ body {
 }
 .sidebar-nav.closed ~ .dashboard-container,
 body .dashboard-container:not(:has(.sidebar-nav.open)) {
-    margin-left: 0 !important;
+    margin-left: 0 ;
 }
 
 /* Elimina el espacio en blanco arriba a la izquierda */
@@ -419,14 +414,6 @@ body.light-mode .new-header {
     background-color: transparent;
     box-shadow: none;
 }
-/* body.light-mode .new-header {
-    background: transparent !important;
-    background-color: transparent !important;
-    box-shadow: none !important;
-} */
-
-
-
 .sidebar-toggle-btn {
     background: none;
     border: none;
@@ -472,10 +459,7 @@ body.light-mode .sidebar-show-btn {
     background-color: black; /* Por defecto negro */
     transition: background-color 0.3s cubic-bezier(.4,2,.6,1);
 }
-.new-header.light-header {
-    background-color: #fff !important;
-    /* Puedes ajustar el color claro si lo prefieres */
-}
+
 
 /* Sidebar: color de fondo y sombra según tema */
 .sidebar-nav {
@@ -612,7 +596,7 @@ body.light-mode .sidebar-show-btn {
 }
 body.light-mode .navigation-root .sidebar-nav,
 .navigation-root .sidebar-nav.sidebar-light {
-    background-color: #c0d8d8;
+    background-color: #c6cece;
 }
 .navigation-root .sidebar-nav.sidebar-dark {
     background-color: #121212;
@@ -645,21 +629,22 @@ body.light-mode .navigation-root .sidebar-nav,
     max-width: 100%;
     display: block;
 }
+/*fondo de sidebar en modo claro*/
 body.light-mode .navigation-root .sidebar-link,
 body.light-mode .navigation-root .sidebar-admin-btn {
-    background: #c0d8d8;
+    background: #cfd2d3;
     color: #111;
 }
 body.light-mode .navigation-root .sidebar-link:hover,
 body.light-mode .navigation-root .sidebar-link.active,
 body.light-mode .navigation-root .sidebar-admin-btn:hover,
 body.light-mode .navigation-root .sidebar-admin-btn.active {
-    background: #00FFFF;
+    background: #00ffffa4;
     color: #111;
 }
 .navigation-root .sidebar-link.active,
 .navigation-root .sidebar-link:hover {
-    background: #00FFFF;
+    background: #00ffff9c;
     color: #111;
 }
 
@@ -689,7 +674,7 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
 }
 .navigation-root .sidebar-admin-btn:hover,
 .navigation-root .sidebar-admin-btn.active {
-    background: #00FFFF;
+    background: #00ffffa4;
     color: #111;
 }
 
@@ -709,7 +694,7 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
     font-size: 15px;
     padding: 10px 12px;
     background: none;
-    color: #00FFFF;
+    color: #00ffffb6;
     max-width: 100%;
     overflow: hidden;
     white-space: nowrap;
@@ -812,21 +797,6 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
     }
 }
 
-/* Transiciones solo para navegación */
-.navigation-root,
-.navigation-root .new-header,
-.navigation-root .header-center-logo,
-.navigation-root .logo-centered,
-.navigation-root .header-right,
-.navigation-root .icon-btn,
-.navigation-root .user-menu-container,
-.navigation-root .user-dropdown,
-.navigation-root .sidebar-nav,
-.navigation-root .sidebar-link,
-.navigation-root .sidebar-admin-btn,
-.navigation-root .sidebar-admin-dropdown .sidebar-link {
-    transition: background-color 2.4s cubic-bezier(.4,2,.6,1), color 0.4s cubic-bezier(.4,2,.6,1), border-color 0.4s cubic-bezier(.4,2,.6,1);
-}
 
 /* Botones debajo del logo en móvil */
 .header-mobile-actions {
@@ -839,9 +809,7 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
 }
 
 @media (max-width: 768px) {
-    .header-right {
-        display: none !important;
-    }
+
     .header-mobile-actions {
         display: flex;
     }

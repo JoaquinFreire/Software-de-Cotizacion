@@ -21,38 +21,41 @@ const Home = () => {
             <h1 className="title">Bienvenido</h1>
             <div className="home-buttons-container">
                 <div className="home-main-action">
-                <button className="new-quote newqoutation" onClick={() => navigate("/quotation")}>
-                    <FilePlus2  size={24} className="home-btn-icon" />
-                    Nueva Cotización
+                <button
+                    className="new-quote newqoutation main-bg-btn"
+                    onClick={() => navigate("/quotation")}
+                >
+                    <FilePlus2 size={24} className="home-btn-icon" />
+                    <b>Nueva Cotización</b>
                 </button>
-            </div>
+                </div>
                 <button className="new-quote pending" onClick={() => navigate("/cotizaciones")}>
                     <FileText size={22} className="home-btn-icon" />
-                    Cotizaciones Pendientes
+                    <b>Cotizaciones Pendientes</b>
                 </button>
                 <button className="new-quote historial" onClick={() => navigate("/historial")}>
                     <Clock3 size={22} className="home-btn-icon" />
-                    Todas las Cotizaciones
+                    <b>Todas las Cotizaciones</b>
                 </button>
                 <button className="new-quote report" onClick={() => navigate("/reportes")}>
                     <PieChart size={22} className="home-btn-icon" />
-                    Reportes
+                    <b>Reportes</b>
                 </button>
                 <button className="new-quote cLient" onClick={() => navigate("/customers")}>
                     <Users size={22} className="home-btn-icon" />
-                    Clientes
+                    <b>Clientes</b>
                 </button>
                 <button className="new-quote material" onClick={() => navigate("/materiales")}>
                     <Layers size={22} className="home-btn-icon" />
-                    Materiales
+                    <b>Materiales</b>
                 </button>
                 <button className="new-quote openings" onClick={() => navigate("/aberturas")}>
                     <BrickWall  size={22} className="home-btn-icon" />
-                    Aberturas
+                    <b>Aberturas</b>
                 </button>
                 <button className="new-quote admin" onClick={() => navigate("/admin")}>
                     <MonitorCog  size={22} className="home-btn-icon" />
-                    Configuración de Administrador
+                    <b>Configuración de Administrador</b>
                 </button>
             </div>
             
