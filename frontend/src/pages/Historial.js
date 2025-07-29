@@ -129,10 +129,10 @@ const Historial = () => {
                                 </p>
                             </div>
                             <div className="quote-actions" style={{ display: 'flex', gap: 10 }}>
-                                <Skeleton width="100px" height="30px" baseColor="#00ffff" highlightColor="#f2f8f8" duration={1.2} />
-                                <Skeleton width="100px" height="30px" baseColor="#00bcd4" highlightColor="#f2f8f8" duration={1.2} />
-                                <Skeleton width="100px" height="30px" baseColor="#f44336" highlightColor="#f2f8f8" duration={1.2} />
-                                <Skeleton width="100px" height="30px" baseColor="#ffeb3b" highlightColor="#f2f8f8" duration={1.2} />
+                                <Skeleton width="100px" height="30px" baseColor="#5baaaaff" highlightColor="#f2f8f8" duration={1.2} />
+                                <Skeleton width="100px" height="30px" baseColor="#1ab7ccff" highlightColor="#f2f8f8" duration={1.2} />
+                                <Skeleton width="100px" height="30px" baseColor="#ac6863ff" highlightColor="#f2f8f8" duration={1.2} />
+                                <Skeleton width="100px" height="30px" baseColor="#a89d3cff" highlightColor="#f2f8f8" duration={1.2} />
                             </div>
                         </div>
                     ))}

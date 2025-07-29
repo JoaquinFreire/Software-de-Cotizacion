@@ -489,12 +489,27 @@ const Quotation = () => {
             )
         );
     };
+     const goToSlide = (index) => {
+         if (swiperRef.current && swiperRef.current.swiper) {
+        swiperRef.current.swiper.slideTo(index);
+         }
+    };
 
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
             <h2 className="title">Nueva Cotización</h2>
             <div className="quotation-layout">
+                <aside className="quotation-indice" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <h3>Índice</h3>
+                        <p onClick={() => goToSlide(0)} style={{ cursor: 'pointer' }}><b><u>Datos Cliente</u></b></p>
+                        <p onClick={() => goToSlide(1)} style={{ cursor: 'pointer' }}><b><u>Datos Agentes</u></b></p>
+                        <p onClick={() => goToSlide(2)} style={{ cursor: 'pointer' }}><b><u>Espacio de trabajo</u></b></p>
+                        <p onClick={() => goToSlide(3)} style={{ cursor: 'pointer' }}><b><u>Carga de Aberturas</u></b></p>
+                        <p onClick={() => goToSlide(4)} style={{ cursor: 'pointer' }}><b><u>Carga de Complementos</u></b></p>
+                        <p onClick={() => goToSlide(5)} style={{ cursor: 'pointer' }}><b><u>Comentarios</u></b></p>
+                    </aside>
+
                 <main className="quotation-main">
                     <form className="quotation-form" onKeyDown={handleFormKeyDown}>
                         <div className="embla-buttons-container">

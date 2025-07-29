@@ -1,31 +1,33 @@
 /* Header con botón a la derecha */
 .admin-usuarios-header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 28px;
-    margin-right: 4rem;
-    margin-left: 1rem;
+    margin-top: 40px;
 }
 
 .admin-usuarios-header h2 {
-    margin: 0;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    margin-left: 4rem;
+    flex: 1;
+    text-align: center;
+    color: #26b7cd;
+    font-size: 35px;
+    margin-bottom: 20px;
+    margin-right: 0;
 }
 
 .create-user-button {
     background: linear-gradient(90deg, #26b7cd 0%, #26b7cd 100%);
     color: #fff;
-    border: none;
+    border: 1px solid #26b7cd;
     border-radius: 6px;
     font-size: 1rem;
     font-weight: 500;
     padding: 10px 22px;
     cursor: pointer;
     transition: background 0.2s;
-    box-shadow: 0 2px 8px #26b7cd14;
+    margin-right: 127px;
+    margin-left: -270px;
 }
 
 .create-user-button:hover {
@@ -35,21 +37,22 @@
 /* Tabla mejorada */
 .users-table-wrapper {
     overflow-x: auto;
-    background: #23272f;
     border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
     padding: 0;
 }
 
 .users-table {
     width: 90%;
     border-collapse: separate;
-    border-spacing: 0;
+    border-spacing: 1;
     background: #23272f;
     border-radius: 12px;
     overflow: hidden;
     margin-left: 4rem;
-    
+}
+
+body.light-mode .users-table {
+    background: #000000;
 }
 
 .users-table th, .users-table td {
@@ -58,25 +61,45 @@
 }
 
 .users-table th {
-    background: #1a1d23;
+    background: #1b3e53;
     color: #b5c7e3;
     font-weight: 600;
     font-size: 1rem;
     border-bottom: 2px solid #2e3440;
+    text-align: center;
+}
+body.light-mode .users-table th {
+    background: #86b4d3;
+    color: #000000;
 }
 
-.users-table tr {
-    border-bottom: 1px solid #2e3440;
+/* Línea divisoria clara entre usuarios */
+.users-table tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    transition: background-color 0.2s ease-in-out;
+}
+body.light-mode .users-table tbody tr {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-.users-table tr:last-child {
-    border-bottom: none;
+/* Efecto hover en filas */
+.users-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.24);
+}
+
+
+.users-table tbody tr:nth-child(even) {
+    background-color: #363b44;
 }
 
 .users-table td {
     font-size: 0.98rem;
     vertical-align: middle;
     background-color: rgba(0, 0, 0, 0.6);
+}
+body.light-mode .users-table td {
+    background-color: rgba(255, 255, 255, 0.719);
+    color:#000000
 }
 
 /* Estado visual */
@@ -95,6 +118,7 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .actions-group button {
@@ -290,4 +314,12 @@
     min-height: 320px;
     height: 100%;
     width: 100%;
+}
+.loader {
+    border: 4px solid #26b7cd;
+    border-top: 4px solid transparent;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
 }

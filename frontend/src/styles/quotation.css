@@ -11,7 +11,7 @@
 }
 
 .quotation-form {
-    background: rgba(0, 0, 0, 0.8);
+    background: #111b1d;
     border: 1px solid #26b7cd;
     padding: 20px;
     border-radius: 10px;
@@ -37,7 +37,7 @@
     padding: 10px;
     border: none;
     border-radius: 5px;
-    background: black;
+    background: rgb(56, 56, 56);
     color: white;
     margin-bottom: 10px;
     margin-left: 2px;
@@ -119,7 +119,7 @@
     margin: 0 5px;
 }
 .botton-carusel {
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(37, 37, 37, 0.8);
     border: 1px solid #26b7cd;
     padding: 10px 20px;
     border-radius: 5px;
@@ -132,7 +132,7 @@
     width: fit-content;
 }
 .botton-DNI {
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(37, 37, 37, 0.8);
     border: 1px solid #26b7cd;
     padding: 10px 20px;
     border-radius: 5px;
@@ -170,12 +170,11 @@
 }
 
 .workplace-container, .agent-container {
-    background: rgba(0, 0, 0, 0.8);
+    background: #111b1d;
     border: 1px solid #26b7cd;
     padding: 20px;
     border-radius: 10px;
     color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     margin-top: 15px;
 }
 
@@ -208,7 +207,7 @@ input::placeholder, select::placeholder {
 }
 
 .opening-container {
-    background: rgba(0, 0, 0, 0.8);
+    background: #111b1d;
     border: 1px solid #26b7cd;
     padding: 20px;
     border-radius: 10px;
@@ -250,7 +249,7 @@ input::placeholder, select::placeholder {
 }
 
 .complements-container {
-    background: rgba(0, 0, 0, 0.8);
+    background: #111b1d;
     border: 1px solid #26b7cd;
     padding: 20px;
     border-radius: 10px;
@@ -307,7 +306,26 @@ input::placeholder, select::placeholder {
     margin: 0 auto 32px auto;
     padding: 0 16px;
 }
-
+.quotation-indice {
+    width: 20px;
+    min-width: 260px;
+    background: #111b1d;
+    border: 1px solid #11d9f3;
+    border-radius: 12px;
+    padding: 24px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    position: sticky;
+    top: 32px;
+    min-height: 300px;
+    color: #fff;
+    top: unset;
+}
+.quotation-indice h3 {
+    margin-top: 2px;
+    color: #26b7cd;
+    font-size: 1.3rem;
+    margin-bottom: 18px;
+}
 .quotation-main {
     flex: 1 1 600px;
     display: flex;
@@ -329,6 +347,7 @@ input::placeholder, select::placeholder {
     top: 32px;
     min-height: 300px;
     color: #fff;
+    margin-left: 313px;
 }
 
 .quotation-summary h3 {
@@ -576,15 +595,16 @@ body.light-mode .remove-complement-button:hover {
     background: #b71c1c;
 }
 
-.input-error {
-    border: 2px solid #ff4d4f !important;
-    background: #2a0000 !important;
-}
+
 .error-message {
     color: #ff4d4f;
-    font-size: 13px;
+    font-size: 15px;
     margin-bottom: 5px;
+    text-align: center;
     display: block;
+    border: 2px solid #ff4d4f ;
+    background: #2a0000;
+    border-radius: 5px;
 }
 
 @media (max-width: 768px) {
