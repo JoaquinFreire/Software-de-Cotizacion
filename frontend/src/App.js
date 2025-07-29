@@ -20,6 +20,11 @@ import Aberturas from './pages/Aberturas';
 import { QuotationProvider } from './context/QuotationContext'; // Importar el proveedor de contexto
 import { CustomerProvider } from './context/customerContext';
 import Home from "./components/Home";
+import AdminMaterials from "./pages/admin/AdminMaterials";
+import AdminDiscount from "./pages/admin/AdminDiscount";
+import AdminOpening from "./pages/admin/AdminOpening";
+import Administrar from "./pages/admin/Administrar";
+
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -161,6 +166,10 @@ function App() {
                         <Route path="/update-quotation/:id" element={<PrivateRoute element={<UpdateQuotation />} />} />
                         <Route path="/admin" element={<PrivateRoute element={<Admin />} />} />
                         <Route path="/admin/usuarios" element={<PrivateRoute element={<AdminUsuarios />} />} />
+                        <Route path="/admin/materiales" element={<PrivateRoute element={<AdminMaterials />} />} />
+                        <Route path="/admin/descuentos" element={<PrivateRoute element={<AdminDiscount />} />} />
+                        <Route path="/admin/aberturas" element={<PrivateRoute element={<AdminOpening />} />} />
+                        <Route path="/admin/Administrar" element={<PrivateRoute element={<Administrar />} />} />
                         <Route path="/reportes" element={<PrivateRoute element={<Reportes />} />} />
                         <Route path="/reportes/estado-cotizaciones" element={<PrivateRoute element={<ReporteEstadoCotizaciones />} />} />
                         <Route path="/quotation" element={<Quotation />} />

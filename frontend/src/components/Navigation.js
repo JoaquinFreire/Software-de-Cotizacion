@@ -285,7 +285,7 @@ const Navigation = ({ onLogout }) => {
                     transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
                     boxShadow: sidebarOpen ? "2px 0 16px #00ffff33" : "none",
                     width: sidebarOpen ? "250px" : "0px",
-                    backgroundColor: theme === "light" ? "#B4B4B4" : "#121212"
+                    backgroundColor: theme === "light" ? "#b4b4b4ff" : "#121212"
                 }}
             >
                 <button
@@ -332,8 +332,8 @@ const Navigation = ({ onLogout }) => {
                             <NavLink to="/admin/usuarios" className="sidebar-link">Administrar Usuarios</NavLink>
                             <NavLink to="/admin/materiales" className="sidebar-link">Administrar Materiales</NavLink>
                             <NavLink to="/admin/descuentos" className="sidebar-link">Administrar Descuentos</NavLink>
-                            <NavLink to="/admin" className="sidebar-link">Administrar</NavLink>
-                            <NavLink to="/admin/lineas" className="sidebar-link">Administrar Líneas</NavLink>
+                            <NavLink to="/admin/aberturas" className="sidebar-link">Administrar Lineas</NavLink>
+                            <NavLink to="/admin/Administrar" className="sidebar-link">Administrar General</NavLink>
                         </div>
                     )}
                 </div>

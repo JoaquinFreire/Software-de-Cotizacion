@@ -12,6 +12,38 @@
     justify-content: center;
     margin-top: 3rem;
 }
+.main-bg-btn {
+    position: relative;
+    background: url('../images/FondoNuevaCotizacion.jpg') no-repeat center center/cover;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    filter: brightness(0.7);
+    border: none;
+    transition: filter 0.5s, box-shadow 0.5s;
+    /* Ajusta el tamaño según necesidad */
+    min-width: 220px;
+    min-height: 90px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.main-bg-btn:hover {
+    background: url('../images/FondoNuevaCotizacion.jpg') no-repeat center center/cover;
+    filter: brightness(1.0);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    transform: scale(1.08);
+
+}
+
+/* Opcional: mejora la visibilidad del icono */
+.main-bg-btn .home-btn-icon {
+    margin-bottom: 8px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
 
 .home-main-btn {
     font-size: 1.2rem;
@@ -22,8 +54,6 @@
     color: #5a5656;
     border: none;
     box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-
-    cursor: pointer;
     min-width: 260px;
     min-height: 60px;
     font-weight: 500;
@@ -44,8 +74,8 @@
 }
 
 .home-buttons-container .new-quote {
-    width: 400px;
-    height: 210px;
+    width: 330px;
+    height: 458px;
     border-radius: 18px;
     display: flex;
     flex-direction: column;
@@ -54,7 +84,7 @@
     outline: none;
     border: none;
     user-select: none;
-    color: #f2f2f2;
+    color: #313131;
     font-size: 1.50rem;
     font-weight: 500;
     margin: 0;
@@ -63,21 +93,11 @@
 }
 
 
-.home-buttons-container .new-quote:hover,
-.home-buttons-container .new-quote:focus {
-    transform: scale(1.05);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.10);
-    background: #222a36;
-    color: #26b7cd;
-}
-
 .home-buttons-container .home-btn-icon {
     margin-bottom: 0.7rem;
     margin-right: 0;
   
 }
-
-
 
 
 @media (max-width: 1024px) {
@@ -122,60 +142,6 @@
         font-size: 0.82rem;
     }
 }
-
-/* Botones de Home con colores personalizados */
-.home-buttons-container .newqoutation{ background: #2a1a1a; }
-.home-buttons-container .pending{ background: #29281a; }
-.home-buttons-container .historial{ background: #1a2a1d; }
-.home-buttons-container .report { background: #1a232a; }
-.home-buttons-container .cLient{ background: #241a2a; }
-.home-buttons-container .material { background: #2a1a1a; }
-.home-buttons-container .openings { background: #1a2a26; }
-.home-buttons-container .admin { background: #2a241a; }
-
-.home-buttons-container .newqoutation:hover,
-.home-buttons-container .newqoutation:focus { background: #211414; }
-.home-buttons-container .pending:hover,
-.home-buttons-container .pending:focus{ background: #201d13; }
-.home-buttons-container .historial:hover,
-.home-buttons-container .report:focus{ background: #121f15; }
-.home-buttons-container .cLient:hover,
-.home-buttons-container .cLient:focus { background: #1a1420; }
-.home-buttons-container .material:hover,
-.home-buttons-container .material:focus { background: #211414; }
-.home-buttons-container .openings:hover,
-.home-buttons-container .openings:focus { background: #182522; }
-.home-buttons-container .admin:hover,
-.home-buttons-container .admin:focus { background: #221d13; }
-
-/* Botones de Home modo claro */
-body.light-mode .home-buttons-container .newqoutation { background: #fde2e2; color : #484c4d; }
-body.light-mode .home-buttons-container .pending { background: #fff0e3;  color : #484c4d; }
-body.light-mode .home-buttons-container .historial { background: #eaffea;  color : #484c4d; }
-body.light-mode .home-buttons-container .report { background: #e3f0ff;  color : #484c4d; }
-body.light-mode .home-buttons-container .cLient { background: #f0e3ff;  color : #484c4d; }
-body.light-mode .home-buttons-container .material { background: #ffe3e3;  color : #484c4d; }
-body.light-mode .home-buttons-container .openings { background: #fefbe3; color : #484c4d;  }
-body.light-mode .home-buttons-container .admin { background: #eaffea;  color : #484c4d; }
-
-body.light-mode .home-buttons-container .newqoutation:hover,
-.home-buttons-container .newqoutation:focus { background: #d4a8a8;  }
-body.light-mode .home-buttons-container .pending:hover,
-.home-buttons-container .pending:focus{ background: #dbbfa5; }
-body.light-mode .home-buttons-container .historial:hover,
-.home-buttons-container .report:focus{ background: #a6cea6; }
-body.light-mode .home-buttons-container .report:hover,
-.home-buttons-container .report:focus{ background: #91b1d6; }
-body.light-mode .home-buttons-container .cLient:hover,
-.home-buttons-container .cLient:focus { background: #c3addd; }
-body.light-mode .home-buttons-container .material:hover,
-.home-buttons-container .material:focus { background: #ecbaba; }
-body.light-mode .home-buttons-container .openings:hover,
-.home-buttons-container .openings:focus { background: #e0daa9; }
-body.light-mode .home-buttons-container .admin:hover,
-.home-buttons-container .admin:focus { background: #b1dfb1; }
-
-
 
 
 
