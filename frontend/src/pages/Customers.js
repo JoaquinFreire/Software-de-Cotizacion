@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 import "../styles/clientes.css";
@@ -6,12 +6,16 @@ import { useNavigate } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import 'react-loading-skeleton/dist/skeleton.css';
 import { CustomerContext } from "../context/customerContext";
+import logo_busqueda from "../images/logo_busqueda.png";
 
 const Customers = () => {
   const {
     customers, page, total, loading, PAGE_SIZE,
     goToCustomerPage, switchToCustomers
   } = useContext(CustomerContext);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredCustomers, setFilteredCustomers] = useState([]);
 
   const navigate = useNavigate();
 
@@ -23,6 +27,22 @@ const Customers = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [page]);
+
+  useEffect(() => {
+    if (!customers) {
+      setFilteredCustomers([]);
+      return;
+    }
+    setFilteredCustomers(
+      customers.filter((cliente) =>
+        `${cliente.name} ${cliente.lastname}`.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  }, [customers, searchTerm]);
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
   const handleUpdate = (id) => {
     navigate(`/customers/${id}/editar`);
@@ -57,6 +77,23 @@ const Customers = () => {
           + Nuevo Cliente
         </button>
       </div>
+      <div className="search-bar">
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Buscar por nombre..."
+            className="search-input"
+            value={searchTerm}
+            onChange={handleSearch}
+          />
+          <button className="clear-button-q" onClick={() => setSearchTerm("")}>
+            ✖
+          </button>
+          <button className="search-button">
+            <img src={logo_busqueda} alt="Buscar" />
+          </button>
+        </div>
+      </div>
       <div className="clientes-list-container">
         {loading ? (
           <div className="clientes-list">
@@ -76,34 +113,34 @@ const Customers = () => {
           </div>
         ) : (
           <div className="clientes-list">
-            {(!customers || customers.length === 0) ? (
+            {(!filteredCustomers || filteredCustomers.length === 0) ? (
               <div className="no-clientes">No hay clientes para mostrar.</div>
             ) : (
-              customers.map((cliente) => (
+              filteredCustomers.map((cliente) => (
                 <div className="cliente-card" key={cliente.id}>
                   <div className="cliente-info">
                     <div className="cliente-nombre">
                       <strong>{cliente.name} {cliente.lastname}</strong>
                     </div>
                     <div className="cliente-datos">
-                      <span>DNI: {cliente.dni}</span>
-                      <span>Tel: {cliente.tel}</span>
-                      <span>Mail: {cliente.mail}</span>
-                      <span>Dirección: {cliente.address}</span>
+                      <span><u><b>DNI: </b></u>{cliente.dni}</span>
+                      <span><u><b>Tel: </b></u>{cliente.tel}</span>
+                      <span><u><b>Mail: </b></u>{cliente.mail}</span>
+                      <span><u><b>Dirección: </b></u>{cliente.address}</span>
                     </div>
                   </div>
                   <div className="cliente-actions">
                     <button className="btn-detalle" onClick={() => handleDetails(cliente.id)}>
-                      Detalles
+                     <b>Detalles</b> 
                     </button>
                     <button className="btn-actualizar" onClick={() => handleUpdate(cliente.id)}>
-                      Actualizar
+                     <b>Actualizar</b> 
                     </button>
                     <button className="btn-agente" onClick={() => handleAgent(cliente.agent)}>
-                      Ver Agente
+                    <b>Ver Agente</b>
                     </button>
                     <button className="btn-contactar" onClick={() => handleContact(cliente)}>
-                      Contactar
+                      <b>Contactar</b>
                     </button>
                   </div>
                 </div>
@@ -132,4 +169,3 @@ const Customers = () => {
 
 export default Customers;
 
-         
