@@ -4,7 +4,7 @@ using AutoMapper;
 using Domain.Repositories;
 using MediatR;
 
-public class GetBudgetByBudgetIdHandler : IRequestHandler<GetBudgetByBudgetIdQuery, GetBudgetByIdDTO>
+public class GetBudgetByBudgetIdHandler : IRequestHandler<GetBudgetByBudgetIdQuery, GetBudgetByIdBudgetDTO>
 {
     private readonly IBudgetRepository _budgetRepository;
     private readonly IMapper _mapper;
@@ -15,7 +15,7 @@ public class GetBudgetByBudgetIdHandler : IRequestHandler<GetBudgetByBudgetIdQue
         _mapper = mapper;
     }
 
-    public async Task<GetBudgetByIdDTO> Handle(GetBudgetByBudgetIdQuery request, CancellationToken cancellationToken)
+    public async Task<GetBudgetByIdBudgetDTO> Handle(GetBudgetByBudgetIdQuery request, CancellationToken cancellationToken)
     {
         var budget = await _budgetRepository.GetByBudgetIdAsync(request.BudgetId);
 
@@ -25,6 +25,6 @@ public class GetBudgetByBudgetIdHandler : IRequestHandler<GetBudgetByBudgetIdQue
             throw new Exception($"No se encontró un presupuesto con el BudgetId: {request.BudgetId}");
         }
 
-        return _mapper.Map<GetBudgetByIdDTO>(budget);
+        return _mapper.Map<GetBudgetByIdBudgetDTO>(budget);
     }
 }
