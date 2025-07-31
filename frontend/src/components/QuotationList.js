@@ -26,18 +26,18 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
       {quotations.map((quotation) => (
         <div key={quotation.Id} className="quote-card">
           <div className="quote-details">
-            <p><b><u>Nombre</u>:  </b>{quotation.Customer.name} {quotation.Customer.lastname}</p>
-            <p><b><u>Fecha</u>:  </b>{new Date(quotation.CreationDate).toLocaleDateString()}</p>
+            <p><b><u>Cliente</u>:  </b>{quotation.Customer.name} {quotation.Customer.lastname}</p>
+            <p><b><u>Creación</u>:  </b>{new Date(quotation.CreationDate).toLocaleDateString()}</p>
             <p><b><u>Estado</u>:  </b>{quotation.Status}</p>
             <p><b><u>Teléfono</u>:  </b>{quotation.Customer.tel}</p>
             <p><b><u>Correo</u>:  </b>{quotation.Customer.mail}</p>
           </div>
           <div className="quote-details">
-            <p><b><u>Abertura</u>:  </b>{quotation.OpeningType?.name}</p>
-            <p><b><u>Complementos</u>:  </b>{}</p>
-            <p><b><u>Precio</u>:  </b>${quotation.Price}</p>
-            <p><b><u>Fecha de Entrega</u>:  </b>{new Date(quotation.DeliveryDate).toLocaleDateString()}</p>
-            <p><b><u>Fecha de Vencimiento</u>:  </b>{new Date(quotation.ExpirationDate).toLocaleDateString()}</p>
+            <p><b><u>Precio</u>:  </b>${quotation.TotalPrice}</p>
+            <p><b><u>Lugar</u>:  </b>{quotation.WorkPlace.name}</p>
+            <p><b><u>Dirección</u>:  </b>{quotation.WorkPlace.address}</p>
+            <p><b><u>Entrega</u>:  </b> VER ESTO</p>
+            <p><b><u>Vencimiento</u>:</b> VER ESTO</p>
           </div>
           <div className="quote-actions">
             <button className="go-button" onClick={() => navigate(`/quotation/${quotation.Id}`)}>Ver Detalles</button>

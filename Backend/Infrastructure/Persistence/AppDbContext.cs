@@ -18,6 +18,10 @@ public class AppDbContext : DbContext
     public DbSet<Price> Prices { get; set; }
     public DbSet<GlassType> GlassTypes { get; set; }
     public DbSet<UserInvitation> UserInvitations { get; set; }  // Tabla UserInvitation en la BD
+    public DbSet<ComplementDoor> ComplementDoors { get; set; }
+    public DbSet<ComplementPartition> ComplementPartitions { get; set; }
+    public DbSet<ComplementRailing> ComplementRailings { get; set; }
+    public DbSet<Coating> Coatings { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -37,6 +41,10 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Price>().ToTable("price");
         modelBuilder.Entity<GlassType>().ToTable("glass_type");
         modelBuilder.Entity<UserInvitation>().ToTable("userInvitations");
+        modelBuilder.Entity<ComplementDoor>().ToTable("complement_door");
+        modelBuilder.Entity<ComplementPartition>().ToTable("complement_partition");
+        modelBuilder.Entity<ComplementRailing>().ToTable("complement_railing");
+        modelBuilder.Entity<Coating>().ToTable("coating");
 
         // Configurar LastEdit para que se almacene como DATE en la base de datos
         modelBuilder.Entity<Quotation>()

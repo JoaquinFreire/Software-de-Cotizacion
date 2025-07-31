@@ -113,7 +113,10 @@ builder.Services.AddScoped<IPriceRepository, PriceRepository>();
 
 builder.Services.AddScoped<IGlassTypeRepository, GlassTypeRepository>();
 builder.Services.AddScoped<IUserInvitationRepository, UserInvitationRepository>();
-
+builder.Services.AddScoped<IComplementDoorRepository, ComplementDoorRepository>();
+builder.Services.AddScoped<IComplementPartitionRepository, ComplementPartitionRepository>();
+builder.Services.AddScoped<IComplementRailingRepository, ComplementRailingRepository>();
+builder.Services.AddScoped<ICoatingRepository, CoatingRepository>();
 // Agrega soporte para controladores en la API
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
