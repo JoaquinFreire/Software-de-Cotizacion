@@ -262,6 +262,23 @@ const Quotation = () => {
                 return;
             }
 
+            // --- NUEVO: Traer coatings desde la API antes de armar el payload ---
+            let coatings = [];
+            try {
+                const res = await axios.get(`${API_URL}/api/coating`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                coatings = res.data;
+            } catch {
+                coatings = [];
+            }
+
+            // --- NUEVO: Define RAILING_TREATMENTS aquí ---
+            const RAILING_TREATMENTS = [
+                { id: 0, name: "Pintura Negra" },
+                { id: 1, name: "Anodizado Mate" }
+            ];
+
             // Validar userId y dni
             if (!userId || !newCustomer.dni) {
                 setSubmitError("Debe estar autenticado y el cliente debe tener DNI.");
@@ -304,6 +321,20 @@ const Quotation = () => {
                     ? { name, lastname, tel, mail, address, dni, agentId }
                     : { name, lastname, tel, mail, address, dni };
 
+            // Mapear los complementos para el POST a SQL
+            const complementsForSql = selectedComplements.map(c => {
+                let arr = [];
+                if (c.type === 'door') arr = complementDoors;
+                else if (c.type === 'partition') arr = complementPartitions;
+                else if (c.type === 'railing') arr = complementRailings;
+                const found = arr.find(item => String(item.id ?? item.Id) === String(c.complementId));
+                return {
+                    id: found ? (found.id ?? found.Id) : 0,
+                    quantity: Number(c.quantity),
+                    price: found ? Number(found.price) * Number(c.quantity) : 0
+                };
+            });
+
             const quotationPayload = {
                 customer: customerPayload,
                 userId: userId,
@@ -312,7 +343,7 @@ const Quotation = () => {
                     workTypeId: Number(workPlace.workTypeId)
                 },
                 openings: selectedOpenings,
-                complements: selectedComplements,
+                complements: complementsForSql, // <-- usa el array mapeado aquí
                 totalPrice: totalComplements,
                 comment // <-- Usa el comentario real
             };
@@ -388,49 +419,26 @@ const Quotation = () => {
                     : { type: "" }
             };
 
-            const productsPayload = selectedOpenings.map(opening => ({
-                OpeningType: openingTypes.find(type => type.id === Number(opening.typeId)) || null,
-                Quantity: opening.quantity,
-                AlumTreatment: treatments.find(t => t.id === Number(opening.treatmentId)) || null,
-                GlassComplement: glassTypes.find(g => g.id === Number(opening.glassTypeId)) || null,
-                width: opening.width,
-                height: opening.height,
-                Accesory: []
-            }));
+            // --- NUEVO: Mapear los complementos para Mongo agrupando por tipo y usando nombres correctos ---
+            const complementsMongo = {
+                ComplementDoor: [],
+                ComplementRailing: [],
+                ComplementPartition: []
+            };
 
-            // --- NUEVO: Mapear los complementos para Mongo agrupando por tipo ---
-            // Traer coatings y treatments si es necesario (puedes cachearlos en estado si lo prefieres)
-            let coatings = [];
-            try {
-                const token = localStorage.getItem('token');
-                const res = await axios.get(`${API_URL}/api/coating`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                coatings = res.data;
-            } catch {}
-
-            const RAILING_TREATMENTS = [
-                { id: 0, name: "Pintura Negra" },
-                { id: 1, name: "Anodizado Mate" }
-            ];
-
-            const complementsMongo = {};
-
-            // Agrupa y mapea los complementos
             selectedComplements.forEach(c => {
                 if (c.type === 'door') {
-                    if (!complementsMongo.ComplementDoor) complementsMongo.ComplementDoor = [];
                     const door = complementDoors.find(d => String(d.id) === String(c.complementId));
                     const coatingObj = coatings.find(coat => String(coat.id) === String(c.custom.coating));
                     complementsMongo.ComplementDoor.push({
                         name: door ? door.name : '',
                         width: Number(c.custom.width),
                         height: Number(c.custom.height),
-                        Coating: coatingObj
-                            ? { _id: coatingObj.id, name: coatingObj.name, price: coatingObj.price, quantity: Number(c.quantity) }
+                        coating: coatingObj
+                            ? { name: coatingObj.name, price: coatingObj.price }
                             : null,
                         quantity: Number(c.quantity),
-                        Accesory: (c.custom.accesories || []).map(acc => ({
+                        accesories: (c.custom.accesories || []).map(acc => ({
                             name: acc.name,
                             quantity: Number(acc.quantity),
                             price: Number(acc.price)
@@ -439,45 +447,62 @@ const Quotation = () => {
                     });
                 }
                 if (c.type === 'partition') {
-                    if (!complementsMongo.ComplementPartition) complementsMongo.ComplementPartition = [];
-                    const partition = complementPartitions.find(p => String(p.id) === String(c.complementId));
+                    const partition = complementPartitions.find(p => String(p.id ?? p.Id) === String(c.complementId));
                     complementsMongo.ComplementPartition.push({
-                        name: partition ? partition.name : '',
-                        height: Number(c.custom.height),
-                        quantity: Number(c.quantity),
+                        name: partition ? partition.name : '', // asegúrate que nunca sea undefined
+                        height: Number(c.custom.height) || 0,
+                        quantity: Number(c.quantity) || 0,
                         simple: !!c.custom.simple,
-                        glassMilimeters: Number(c.custom.glassMilimeters),
+                        GlassMilimeters: c.custom.glassMilimeters ? `Mm${c.custom.glassMilimeters}` : '',
                         price: partition ? Number(partition.price) * Number(c.quantity) : 0
                     });
                 }
                 if (c.type === 'railing') {
-                    if (!complementsMongo.ComplementRailing) complementsMongo.ComplementRailing = [];
                     const railing = complementRailings.find(r => String(r.id) === String(c.complementId));
                     const treatmentObj = RAILING_TREATMENTS.find(t => String(t.id) === String(c.custom.treatment));
                     complementsMongo.ComplementRailing.push({
                         name: railing ? railing.name : '',
-                        AluminiumTreatmen: treatmentObj
-                            ? { treatment: treatmentObj.name, price: null }
+                        AlumTreatment: treatmentObj
+                            ? { name: treatmentObj.name }
                             : null,
-                        reinforced: !!c.custom.reinforced,
-                        quantity: Number(c.quantity),
-                        price: railing ? Number(railing.price) * Number(c.quantity) : 0
+                        Reinforced: !!c.custom.reinforced,
+                        Quantity: Number(c.quantity),
+                        Price: railing ? Number(railing.price) * Number(c.quantity) : 0
                     });
                 }
             });
 
-            // Payload para Mongo, agregando complements
+            // --- NUEVO: Mapear products con nombres correctos ---
+            const productsPayload = selectedOpenings.map(opening => ({
+                OpeningType: openingTypes.find(type => type.id === Number(opening.typeId)) || null,
+                Quantity: opening.quantity,
+                AlumTreatment: treatments.find(t => t.id === Number(opening.treatmentId)) || null,
+                GlassType: glassTypes.find(g => g.id === Number(opening.glassTypeId)) || null,
+                width: opening.width,
+                height: opening.height,
+                Accesory: [],
+                price: 0 // Ajusta si tienes el precio
+            }));
+
+            // --- NUEVO: Armar el objeto final para Mongo con mayúsculas y estructura correcta ---
             const mongoPayload = {
-                budget: {
+                Budget: {
                     budgetId: String(sqlId),
                     user: userPayload,
                     customer: customerPayloadMongo,
                     workPlace: workPlacePayload,
-                    products: productsPayload,
-                    comment,
+                    Products: productsPayload,
+                    complement: [
+                        {
+                            ComplementDoor: complementsMongo.ComplementDoor,
+                            ComplementPartition: complementsMongo.ComplementPartition,
+                            ComplementRailing: complementsMongo.ComplementRailing,
+                            price: totalComplements
+                        }
+                    ],
+                    Comment: comment,
                     DollarReference: dollarReference ?? 0,
-                    LabourReference: labourReference ?? 0,
-                    complements: complementsMongo // <--- agrega aquí los complementos mapeados
+                    LabourReference: labourReference ?? 0
                 }
             };
 
@@ -497,7 +522,7 @@ const Quotation = () => {
             }
 
             setSubmitting(false);
-            navigate('/dashboard');
+            navigate(`/quotation/${sqlId}`);
         } catch (err) {
             setSubmitError(err.message || 'Error al crear la cotización');
             setSubmitting(false);
@@ -611,7 +636,7 @@ const Quotation = () => {
                             </span>
                             <button
                                 type="button"
-                                className="embla__button embla__button--next"
+                                className="embla__button embba__button--next"
                                 onClick={handleNext}
                                 disabled={currentIndex === 5}
                             >

@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const COMPLEMENT_TYPES = [
     { key: 'door', label: 'Complemento de puerta' },
-    { key: 'partition', label: 'Complemento de partición' },
+    { key: 'partition', label: 'Complemento de tabique' },
     { key: 'railing', label: 'Complemento de baranda' }
 ];
 
@@ -36,7 +36,10 @@ const Complements = ({
     };
 
     const getComplementById = (type, id) => {
-        return getComplementsByType(type).find(c => String(c.id) === String(id));
+        // Soporta id o Id
+        return getComplementsByType(type).find(
+            c => String(c.id ?? c.Id) === String(id)
+        );
     };
 
     const handleRowChange = (idx, field, value) => {
@@ -178,7 +181,10 @@ const Complements = ({
                                 >
                                     <option value="">Complemento</option>
                                     {getComplementsByType(row.type).map(c => (
-                                        <option key={c.id} value={c.id}>
+                                        <option
+                                            key={c.id ?? c.Id}
+                                            value={c.id ?? c.Id}
+                                        >
                                             {c.name} - ${c.price}{row.type === 'door' && c.Material ? ` - ${c.Material}` : ''}
                                         </option>
                                     ))}
@@ -266,15 +272,7 @@ const Complements = ({
                             )}
                             {row.type === 'partition' && complement && (
                                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        step="1"
-                                        placeholder="Cantidad"
-                                        value={row.quantity}
-                                        onChange={e => handleRowChange(idx, 'quantity', e.target.value)}
-                                        style={{ width: 80 }}
-                                    />
+                                    {/* Alto */}
                                     <input
                                         type="number"
                                         min="1"
@@ -284,6 +282,26 @@ const Complements = ({
                                         onChange={e => handleCustomChange(idx, 'height', e.target.value)}
                                         style={{ width: 100 }}
                                     />
+                                    {/* Cantidad */}
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        step="1"
+                                        placeholder="Cantidad"
+                                        value={row.quantity}
+                                        onChange={e => handleRowChange(idx, 'quantity', e.target.value)}
+                                        style={{ width: 80 }}
+                                    />
+                                    {/* Simple */}
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            checked={!!row.custom.simple}
+                                            onChange={e => handleCustomChange(idx, 'simple', e.target.checked)}
+                                        />
+                                        Simple
+                                    </label>
+                                    {/* Espesor vidrio */}
                                     <input
                                         type="number"
                                         min="1"
@@ -293,14 +311,6 @@ const Complements = ({
                                         onChange={e => handleCustomChange(idx, 'glassMilimeters', e.target.value)}
                                         style={{ width: 120 }}
                                     />
-                                    <label>
-                                        <input
-                                            type="checkbox"
-                                            checked={!!row.custom.simple}
-                                            onChange={e => handleCustomChange(idx, 'simple', e.target.checked)}
-                                        />
-                                        Simple
-                                    </label>
                                 </div>
                             )}
                             {row.type === 'railing' && complement && (
