@@ -63,8 +63,9 @@ const Quotation = () => {
     const [treatments, setTreatments] = useState([]);
     const [glassTypes, setGlassTypes] = useState([]);
     const [selectedComplements, setSelectedComplements] = useState([]);
-    const [complementTypes, setComplementTypes] = useState([]);
-    const [complements, setComplements] = useState([]);
+    const [complementDoors, setComplementDoors] = useState([]);
+    const [complementPartitions, setComplementPartitions] = useState([]);
+    const [complementRailings, setComplementRailings] = useState([]);
     const [comment, setComment] = useState(""); // Nuevo estado para comentario
     const [dollarReference, setDollarReference] = useState(null); // <-- Nuevo estado para el valor del dólar
     const [labourReference, setLabourReference] = useState(null); // <-- Nuevo estado
@@ -203,23 +204,25 @@ const Quotation = () => {
         fetchOpeningData();
     }, []);
 
-    // Cargar tipos de complementos y complementos
+    // Cargar complementos de cada tipo desde la API
     useEffect(() => {
-        const fetchComplementsData = async () => {
+        const fetchComplements = async () => {
             const token = localStorage.getItem('token');
             if (!token) return;
             try {
-                const [typesRes, complementsRes] = await Promise.all([
-                    axios.get(`${API_URL}/api/complement-types`, { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get(`${API_URL}/api/complements`, { headers: { Authorization: `Bearer ${token}` } }),
+                const [doorsRes, partitionsRes, railingsRes] = await Promise.all([
+                    axios.get(`${API_URL}/api/door`, { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get(`${API_URL}/api/partition`, { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get(`${API_URL}/api/railing`, { headers: { Authorization: `Bearer ${token}` } }),
                 ]);
-                setComplementTypes(typesRes.data);
-                setComplements(complementsRes.data);
+                setComplementDoors(doorsRes.data);
+                setComplementPartitions(partitionsRes.data);
+                setComplementRailings(railingsRes.data);
             } catch (error) {
-                console.error('Error fetching complements data:', error);
+                console.error('Error fetching complements:', error);
             }
         };
-        fetchComplementsData();
+        fetchComplements();
     }, []);
 
     // Logout
@@ -267,7 +270,16 @@ const Quotation = () => {
             }
 
             // Calcular precio total (puedes ajustar esta lógica)
-            const totalComplements = selectedComplements.reduce((acc, c) => acc + (c.price * c.quantity), 0);
+            // Calcular precio total de complementos correctamente
+            const totalComplements = selectedComplements.reduce((acc, c) => {
+                let arr = [];
+                if (c.type === 'door') arr = complementDoors;
+                else if (c.type === 'partition') arr = complementPartitions;
+                else if (c.type === 'railing') arr = complementRailings;
+                const found = arr.find(item => String(item.id) === String(c.complementId));
+                const price = found ? Number(found.price) : 0;
+                return acc + price * Number(c.quantity);
+            }, 0);
 
             // Limpiar customer para no enviar campos innecesarios
             const { name, lastname, tel, mail, address, dni, agentId } = newCustomer;
@@ -386,7 +398,75 @@ const Quotation = () => {
                 Accesory: []
             }));
 
-            // Payload para Mongo, agregando budgetId y comment real
+            // --- NUEVO: Mapear los complementos para Mongo agrupando por tipo ---
+            // Traer coatings y treatments si es necesario (puedes cachearlos en estado si lo prefieres)
+            let coatings = [];
+            try {
+                const token = localStorage.getItem('token');
+                const res = await axios.get(`${API_URL}/api/coating`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                coatings = res.data;
+            } catch {}
+
+            const RAILING_TREATMENTS = [
+                { id: 0, name: "Pintura Negra" },
+                { id: 1, name: "Anodizado Mate" }
+            ];
+
+            const complementsMongo = {};
+
+            // Agrupa y mapea los complementos
+            selectedComplements.forEach(c => {
+                if (c.type === 'door') {
+                    if (!complementsMongo.ComplementDoor) complementsMongo.ComplementDoor = [];
+                    const door = complementDoors.find(d => String(d.id) === String(c.complementId));
+                    const coatingObj = coatings.find(coat => String(coat.id) === String(c.custom.coating));
+                    complementsMongo.ComplementDoor.push({
+                        name: door ? door.name : '',
+                        width: Number(c.custom.width),
+                        height: Number(c.custom.height),
+                        Coating: coatingObj
+                            ? { _id: coatingObj.id, name: coatingObj.name, price: coatingObj.price, quantity: Number(c.quantity) }
+                            : null,
+                        quantity: Number(c.quantity),
+                        Accesory: (c.custom.accesories || []).map(acc => ({
+                            name: acc.name,
+                            quantity: Number(acc.quantity),
+                            price: Number(acc.price)
+                        })),
+                        price: door ? Number(door.price) * Number(c.quantity) : 0
+                    });
+                }
+                if (c.type === 'partition') {
+                    if (!complementsMongo.ComplementPartition) complementsMongo.ComplementPartition = [];
+                    const partition = complementPartitions.find(p => String(p.id) === String(c.complementId));
+                    complementsMongo.ComplementPartition.push({
+                        name: partition ? partition.name : '',
+                        height: Number(c.custom.height),
+                        quantity: Number(c.quantity),
+                        simple: !!c.custom.simple,
+                        glassMilimeters: Number(c.custom.glassMilimeters),
+                        price: partition ? Number(partition.price) * Number(c.quantity) : 0
+                    });
+                }
+                if (c.type === 'railing') {
+                    if (!complementsMongo.ComplementRailing) complementsMongo.ComplementRailing = [];
+                    const railing = complementRailings.find(r => String(r.id) === String(c.complementId));
+                    const treatmentObj = RAILING_TREATMENTS.find(t => String(t.id) === String(c.custom.treatment));
+                    complementsMongo.ComplementRailing.push({
+                        name: railing ? railing.name : '',
+                        AluminiumTreatmen: treatmentObj
+                            ? { treatment: treatmentObj.name, price: null }
+                            : null,
+                        reinforced: !!c.custom.reinforced,
+                        quantity: Number(c.quantity),
+                        price: railing ? Number(railing.price) * Number(c.quantity) : 0
+                    });
+                }
+            });
+
+            // Payload para Mongo, agregando complements
             const mongoPayload = {
                 budget: {
                     budgetId: String(sqlId),
@@ -394,13 +474,14 @@ const Quotation = () => {
                     customer: customerPayloadMongo,
                     workPlace: workPlacePayload,
                     products: productsPayload,
-                    comment, // <-- Usa el comentario real
-                    DollarReference: dollarReference ?? 0, // <-- Usa la mayúscula inicial aquí
-                    LabourReference: labourReference ?? 0 // <-- Agrega mano de obra
+                    comment,
+                    DollarReference: dollarReference ?? 0,
+                    LabourReference: labourReference ?? 0,
+                    complements: complementsMongo // <--- agrega aquí los complementos mapeados
                 }
             };
 
-            console.log("Payload enviado a Mongo:", JSON.stringify(mongoPayload, null, 2)); // <-- LOG para depuración
+            console.log("Payload enviado a Mongo:", JSON.stringify(mongoPayload, null, 2));
 
             // 2. POST a Mongo (usa la ruta correcta)
             await axios.post(`${API_URL}/api/Mongo/CreateBudget`, mongoPayload, {
@@ -442,9 +523,13 @@ const Quotation = () => {
         return 'Subtotal $';
     };
 
-    // Función para obtener nombre de complemento por id
-    const getComplementName = (complementId) => {
-        const comp = complements.find(c => String(c.id) === String(complementId));
+    // Función para obtener nombre de complemento por id y tipo
+    const getComplementName = (complementId, type) => {
+        let arr = [];
+        if (type === 'door') arr = complementDoors;
+        else if (type === 'partition') arr = complementPartitions;
+        else if (type === 'railing') arr = complementRailings;
+        const comp = arr.find(c => String(c.id) === String(complementId));
         return comp ? comp.name : '';
     };
 
@@ -581,12 +666,12 @@ const Quotation = () => {
                             </SwiperSlide>
                             <SwiperSlide>
                                 <Complements
-                                    complementTypes={complementTypes}
-                                    complements={complements}
+                                    complementDoors={complementDoors}
+                                    complementPartitions={complementPartitions}
+                                    complementRailings={complementRailings}
                                     selectedComplements={selectedComplements}
                                     setSelectedComplements={setSelectedComplements}
-                                    // Quita la lista de complementos seleccionados del paso
-                                    hideSelectedList={true}
+                                    // hideSelectedList={true} // si no lo usas, puedes quitarlo
                                 />
                             </SwiperSlide>
                             <SwiperSlide>
@@ -674,7 +759,9 @@ const Quotation = () => {
                                     onClick={() => handleRemoveComplement(idx)}
                                     type="button"
                                 >×</button>
-                                <div className="summary-title">{getComplementName(complement.complementId || complement.id)}</div>
+                                <div className="summary-title">
+                                    {getComplementName(complement.complementId || complement.id, complement.type)}
+                                </div>
                                 <div className="summary-detail summary-qty-row">
                                     <button
                                         className="summary-qty-btn"

@@ -301,11 +301,14 @@ const Navigation = ({ onLogout }) => {
                         <path d="M15 6l-6 6 6 6" stroke="#00FFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                 </button>
-                <NavLink to="/dashboard" className="sidebar-link">
+                <NavLink to="/" className="sidebar-link">
                     Inicio
                 </NavLink>
+                <NavLink to="/cotizaciones" className="sidebar-link">
+                    Cotizaciones pendientes
+                </NavLink>
                 <NavLink to="/historial" className="sidebar-link">
-                    Historial
+                    Todas las cotizaciones
                 </NavLink>
                 <NavLink to="/reportes" className="sidebar-link">
                     Reportes
