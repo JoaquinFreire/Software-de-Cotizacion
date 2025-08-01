@@ -9,7 +9,7 @@ export function validateQuotation({ customer, agent, workPlace, openings, comple
     const customerResult = validateCustomer(customer);
     const agentResult = customer.agentId ? { valid: true, errors: {} } : validateAgent(agent);
     const workPlaceResult = validateWorkPlace(workPlace);
-    const openingsResult = validateOpenings(openings);
+    const openingsResult = validateOpenings(openings, complements);
     const complementsResult = validateComplements(complements);
     const extrasResult = validateExtras(comment);
 

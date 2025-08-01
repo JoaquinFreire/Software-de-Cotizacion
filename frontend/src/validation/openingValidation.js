@@ -1,8 +1,9 @@
-export function validateOpenings(openings) {
+export function validateOpenings(openings, complements = []) {
     const errors = {};
-    if (!Array.isArray(openings) || openings.length === 0) {
-        errors.openings = "Debe agregar al menos una abertura";
-    } else {
+    // Permitir que openings esté vacío si hay complementos
+    if ((!Array.isArray(openings) || openings.length === 0) && (!Array.isArray(complements) || complements.length === 0)) {
+        errors.openings = "Debe agregar al menos una abertura o un complemento";
+    } else if (Array.isArray(openings)) {
         openings.forEach((o, idx) => {
             if (!o.typeId) errors[`typeId_${idx}`] = "Tipo de abertura requerido";
             if (!o.width || o.width <= 0) errors[`width_${idx}`] = "Ancho inválido";
