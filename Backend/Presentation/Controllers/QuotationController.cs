@@ -94,7 +94,11 @@ public class QuotationController : ControllerBase
         Console.WriteLine("Contenido de customer.agent:");
         Console.WriteLine(request.customer.agent == null ? "AGENTE ES NULL" : System.Text.Json.JsonSerializer.Serialize(request.customer.agent));
 
-        if (request == null || request.totalPrice <= 0) return BadRequest("Datos inválidos.");
+        // Permitir totalPrice en 0 si hay aberturas o complementos
+        bool hasOpenings = request?.openings != null && request.openings.Count > 0;
+        bool hasComplements = request?.complements != null && request.complements.Count > 0;
+        if (request == null || (!hasOpenings && !hasComplements))
+            return BadRequest("Datos inválidos.");
 
         // 1. Agente (si viene en el payload)
         int? agentId = null;
@@ -165,6 +169,14 @@ public class QuotationController : ControllerBase
         else
         {
             return BadRequest("Datos de espacio de trabajo inválidos.");
+        }
+
+        // Validar que haya al menos una abertura o un complemento
+        hasOpenings = request.openings != null && request.openings.Count > 0;
+        hasComplements = request.complements != null && request.complements.Count > 0;
+        if (!hasOpenings && !hasComplements)
+        {
+            return BadRequest("Debe agregar al menos una abertura o un complemento.");
         }
 
         // 3. Crear la cotización
