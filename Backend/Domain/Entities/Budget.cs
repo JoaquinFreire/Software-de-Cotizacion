@@ -26,6 +26,8 @@ public class Budget
     public WorkPlace? workPlace { get; set; }
     [BsonElement("products")]
     public List<Budget_Product> Products { get; set; } = new List<Budget_Product>(); // Lista de productos
+    [BsonElement("complements")]
+    public List<Complement> Complement { get; set; } = new List<Complement>(); // Lista de complementos
     [BsonElement("expirationDate")]
     public DateTime? ExpirationDate { get; set; } = DateTime.UtcNow.AddDays(60); // Fecha de expiraci�n por defecto X d�as despu�s de la creaci�n
     [BsonElement("endDate")]

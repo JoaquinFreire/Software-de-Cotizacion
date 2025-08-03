@@ -12,19 +12,19 @@ namespace Domain.Entities
     {
         [BsonElement("Product")]
         public Opening_Type? OpeningType { get; set; }
-        [BsonElement("quantity")]
-        public int? Quantity { get; set; }
         [BsonElement("AluminiumTreatment")]
         public AlumTreatment? AlumTreatment { get; set; }  //Tiene que almacenar el tratamiento de aluminio
         [BsonElement("glassType")]
-        public Complement? GlassComplement { get; set; }  //Tiene que almacenar el tipo de vidrio
+        public GlassType? GlassType { get; set; }  //Tiene que almacenar el tipo de vidrio
         [BsonElement("width")]
         public double? width { get; set; }
         [BsonElement("height")]
         public double? height { get; set; }
+        [BsonElement("quantity")]
+        public int? Quantity { get; set; }
         [BsonElement("price")]
-        public double? price { get; set; } // Precio unitario del producto
+        public decimal? price { get; set; } // Precio unitario del producto
         [BsonElement("Accesories")]
-        public List<Budget_Accesory> Accesory { get; set; } = new List<Budget_Accesory>();
+        public List<BudgetAccesory> Accesory { get; set; } = new List<BudgetAccesory>();
     }
 }
