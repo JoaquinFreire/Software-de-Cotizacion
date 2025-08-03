@@ -35,22 +35,34 @@ public class CreateBudgetProfile : Profile
 
         // Mapeo Budget_ProductDTO a Budget_Product
         CreateMap<CreateBudgetProductDTO, Budget_Product>()
-            .ForMember(d => d.GlassComplement, o => o.MapFrom(s => s.GlassComplement))
             .ForMember(d => d.AlumTreatment, o => o.MapFrom(s => s.AlumTreatment));
 
         CreateMap<CreateBudgetOpeningTypeDTO, Opening_Type>()
             .ForMember(d => d.weight, o => o.Ignore())
             .ForMember(d => d.predefined_size, o => o.Ignore());
 
+        CreateMap<CreateBudgetGlassTypeDTO, GlassType>();
+
         //Mapeo ComplementDTO a Complement
         CreateMap<CreateBudgetComplementDTO, Complement>();
+
+        //Mapeo ComplementDoorDTO a BudgetComplementDoor
+        CreateMap<CreateBudgetComplementDoorDTO, BudgetComplementDoor>();
+
+        //Mapeo ComplementPartitionDTO a BudgetComplementPartition
+        CreateMap<CreateBudgetComplementPartitionDTO, BudgetComplementPartition>();
+
+        //Mapeo ComplementRailingDTO a BudgetComplementRailing
+        CreateMap<CreateBudgetComplementRailingDTO, BudgetComplementRailing>();
 
         //Mapeo AlumTreatmentDTO a AlumTreatment
         CreateMap<CreateBudgetAlumTreatmentDTO, AlumTreatment>();
 
-        // Mapea Budget_AccesoryDTO → Budget_Accesory
-        CreateMap<CreateBudgetAccesoryDTO, Budget_Accesory>()
-           .ForMember(d => d.Quantity, o => o.MapFrom(s => s.Quantity))
-           .ForMember(d => d.Accesory, o => o.MapFrom(s => s.Accesory));
+        //Mapeo CoatingDTO a Coating
+        CreateMap<CreateBudgetCoating, Coating>();
+
+        // Mapea Budget_AccesoryDTO → BudgetAccesory
+        CreateMap<CreateBudgetAccesoryDTO, BudgetAccesory>();
+
     }
 }

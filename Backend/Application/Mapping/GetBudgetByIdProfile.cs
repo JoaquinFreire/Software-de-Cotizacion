@@ -18,7 +18,7 @@ namespace Application.Mapping
             CreateMap<Opening_Type, GetBudgetByIdOpeningTypeDTO>();
             CreateMap<AlumTreatment, GetBudgetByIdAlumTreatmentDTO>();
             CreateMap<Complement, GetBudgetByIdComplementDTO>();
-            CreateMap<Budget_Accesory, GetBudgetByIdAccesoryDTO>();
+            CreateMap<Accesory, GetBudgetByIdAccesoryDTO>();
             CreateMap<CustomerAgent, GetBudgetByIdCustomerAgentDTO>();
 
         }

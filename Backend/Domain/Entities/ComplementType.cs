@@ -1,9 +1,9 @@
-using MongoDB.Bson.Serialization.Attributes;
+//using MongoDB.Bson.Serialization.Attributes;
 
-namespace Domain.Entities;
+//namespace Domain.Entities;
 
-public class ComplementType
-{
-    public int id { get; set; }
-    public string? name { get; set; }
-}
+//public class ComplementType
+//{
+//    public int id { get; set; }
+//    public string? name { get; set; }
+//}

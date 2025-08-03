@@ -15,14 +15,12 @@ namespace Presentation.Controllers
     public class BudgetController : ControllerBase
     {
         private readonly BudgetServices _budgetService;
-        private readonly IBudgetPdfGenerator _pdfGenerator;
         private readonly IMapper _mapper;
         private readonly IMediator _mediator;
 
-        public BudgetController(BudgetServices budgetService, IBudgetPdfGenerator pdfGenerator, IMapper mapper, IMediator mediator)
+        public BudgetController(BudgetServices budgetService, IMapper mapper, IMediator mediator)
         {
             _budgetService = budgetService;
-            _pdfGenerator = pdfGenerator;
             _mapper = mapper;
             _mediator = mediator;
         }
@@ -73,17 +71,6 @@ namespace Presentation.Controllers
             var budgets = await _budgetService.GetAllBudgetsAsync();
             return Ok(budgets);
         }
-
-        //[HttpPost("GenerarPdf")]
-        //public IActionResult GenerarPdf([FromBody] BudgetDTO budgetDTO)
-        //{
-        //    var pdfBytes = _pdfGenerator.Execute(budgetDTO);
-        //    return File(pdfBytes, "application/pdf", "Presupuesto.pdf");
-        //}
-
-        // Generar PDF
-        //var pdfBytes = _pdfGenerator.Execute(request.Budget);
-        //return File(pdfBytes, "application/pdf", "Presupuesto.pdf");
 
     }
 }
