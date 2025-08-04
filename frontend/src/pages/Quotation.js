@@ -273,12 +273,6 @@ const Quotation = () => {
                 coatings = [];
             }
 
-            // --- NUEVO: Define RAILING_TREATMENTS aquí ---
-            const RAILING_TREATMENTS = [
-                { id: 0, name: "Pintura Negra" },
-                { id: 1, name: "Anodizado Mate" }
-            ];
-
             // Validar userId y dni
             if (!userId || !newCustomer.dni) {
                 setSubmitError("Debe estar autenticado y el cliente debe tener DNI.");
@@ -459,7 +453,7 @@ const Quotation = () => {
                 }
                 if (c.type === 'railing') {
                     const railing = complementRailings.find(r => String(r.id) === String(c.complementId));
-                    const treatmentObj = RAILING_TREATMENTS.find(t => String(t.id) === String(c.custom.treatment));
+                    const treatmentObj = treatments.find(t => String(t.id) === String(c.custom.treatment));
                     complementsMongo.ComplementRailing.push({
                         name: railing ? railing.name : '',
                         AlumTreatment: treatmentObj

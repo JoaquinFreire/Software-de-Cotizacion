@@ -19,6 +19,7 @@ const Complements = ({
     const [rows, setRows] = useState(selectedComplements.length > 0 ? selectedComplements : [ { ...initialRow } ]);
     const [errors, setErrors] = useState([]);
     const [coatings, setCoatings] = useState([]);
+    const [alumTreatments, setAlumTreatments] = useState([]);
     const emptyAcc = { name: '', quantity: 1, price: '' };
 
     // Sincroniza con el estado externo
@@ -144,11 +145,22 @@ const Complements = ({
         fetchCoatings();
     }, []);
 
-    // Opciones de ejemplo para tratamientos de baranda
-    const RAILING_TREATMENTS = [
-        { id: 0, name: "Pintura Negra" },
-        { id: 1, name: "Anodizado Mate" }
-    ];
+    // Traer tratamientos de aluminio desde la API
+    useEffect(() => {
+        const fetchAlumTreatments = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const API_URL = process.env.REACT_APP_API_URL;
+                const res = await axios.get(`${API_URL}/api/alum-treatments`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setAlumTreatments(res.data);
+            } catch (err) {
+                setAlumTreatments([]);
+            }
+        };
+        fetchAlumTreatments();
+    }, []);
 
     return (
         <div className="complements-container">
@@ -329,7 +341,7 @@ const Complements = ({
                                         onChange={e => handleCustomChange(idx, 'treatment', e.target.value)}
                                     >
                                         <option value="">Tratamiento</option>
-                                        {RAILING_TREATMENTS.map(t => (
+                                        {alumTreatments.map(t => (
                                             <option key={t.id} value={t.id}>{t.name}</option>
                                         ))}
                                     </select>
