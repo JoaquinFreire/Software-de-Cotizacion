@@ -104,4 +104,38 @@ public class QuotationRepository : IQuotationRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Quotation>> AdvancedSearchAsync(
+        DateTime? from = null,
+        DateTime? to = null,
+        string? status = null,
+        decimal? approxTotalPrice = null,
+        DateTime? lastEditFrom = null,
+        int? userId = null,
+        string? customerDni = null
+    )
+    {
+        var query = _context.Quotations
+            .Include(q => q.Customer)
+            .Include(q => q.User)
+            .Include(q => q.WorkPlace)
+            .AsQueryable();
+
+        if (from.HasValue)
+            query = query.Where(q => q.CreationDate >= from.Value);
+        if (to.HasValue)
+            query = query.Where(q => q.CreationDate <= to.Value);
+        if (!string.IsNullOrEmpty(status))
+            query = query.Where(q => q.Status == status);
+        if (approxTotalPrice.HasValue)
+            query = query.Where(q => Math.Abs(q.TotalPrice - approxTotalPrice.Value) <= 100); // margen de $100, ajusta si quieres
+        if (lastEditFrom.HasValue)
+            query = query.Where(q => q.LastEdit >= lastEditFrom.Value);
+        if (userId.HasValue)
+            query = query.Where(q => q.UserId == userId.Value);
+        if (!string.IsNullOrEmpty(customerDni))
+            query = query.Where(q => q.Customer != null && q.Customer.dni == customerDni);
+
+        return await query.ToListAsync();
+    }
+
 }

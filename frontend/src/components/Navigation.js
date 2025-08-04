@@ -304,6 +304,9 @@ const Navigation = ({ onLogout }) => {
                 <NavLink to="/" className="sidebar-link">
                     Inicio
                 </NavLink>
+                <NavLink to="/quotation" className="sidebar-link">
+                    Nueva Cotización
+                </NavLink>
                 <NavLink to="/cotizaciones" className="sidebar-link">
                     Cotizaciones pendientes
                 </NavLink>
