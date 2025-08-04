@@ -223,6 +223,23 @@ public class QuotationController : ControllerBase
         await _quotationRepository.DeleteAsync(id);
         return NoContent();
     }
+
+    [HttpGet("advanced-search")]
+    public async Task<IActionResult> AdvancedSearch(
+        [FromQuery] DateTime? from = null,
+        [FromQuery] DateTime? to = null,
+        [FromQuery] string? status = null,
+        [FromQuery] decimal? approxTotalPrice = null,
+        [FromQuery] DateTime? lastEditFrom = null,
+        [FromQuery] int? userId = null,
+        [FromQuery] string? customerDni = null
+    )
+    {
+        var results = await _quotationRepository.AdvancedSearchAsync(
+            from, to, status, approxTotalPrice, lastEditFrom, userId, customerDni
+        );
+        return Ok(results);
+    }
 }
 
 public class UpdateStatusRequest
