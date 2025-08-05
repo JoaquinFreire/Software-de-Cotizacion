@@ -16,7 +16,8 @@ export function validateComplements(complements) {
         }
         if (c.type === 'railing') {
             if (!c.custom?.treatment) errors[`treatment_${idx}`] = "Seleccione tratamiento";
-            if (c.custom?.treatment && !/^[a-fA-F0-9]{24}$/.test(c.custom.treatment)) errors[`treatment_${idx}`] = "ID de tratamiento inválido";
+            // Elimina la validación estricta de ObjectId, acepta cualquier valor no vacío
+            // if (c.custom?.treatment && !/^[a-fA-F0-9]{24}$/.test(c.custom.treatment)) errors[`treatment_${idx}`] = "ID de tratamiento inválido";
         }
     });
     return { valid: Object.keys(errors).length === 0, errors };
