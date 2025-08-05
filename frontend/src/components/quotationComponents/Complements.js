@@ -314,15 +314,16 @@ const Complements = ({
                                         Simple
                                     </label>
                                     {/* Espesor vidrio */}
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        step="1"
-                                        placeholder="Espesor vidrio (mm)"
+                                    <select
                                         value={row.custom.glassMilimeters || ''}
                                         onChange={e => handleCustomChange(idx, 'glassMilimeters', e.target.value)}
                                         style={{ width: 120 }}
-                                    />
+                                    >
+                                        <option value="">Espesor vidrio (mm)</option>
+                                        <option value="6">6 mm</option>
+                                        <option value="8">8 mm</option>
+                                        <option value="10">10 mm</option>
+                                    </select>
                                 </div>
                             )}
                             {row.type === 'railing' && complement && (
