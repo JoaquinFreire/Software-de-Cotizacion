@@ -308,12 +308,15 @@ const Quotation = () => {
                 agent = { ...newAgent };
             }
 
-            // --- CAMBIO: incluir agentId si existe, y solo incluir agent si es nuevo ---
-            const customerPayload = agent
-                ? { name, lastname, tel, mail, address, dni, agent }
-                : agentId
-                    ? { name, lastname, tel, mail, address, dni, agentId }
-                    : { name, lastname, tel, mail, address, dni };
+            // --- CAMBIO: construir customerPayload SIN agent si no corresponde ---
+            let customerPayload;
+            if (agent) {
+                customerPayload = { name, lastname, tel, mail, address, dni, agent };
+            } else if (agentId) {
+                customerPayload = { name, lastname, tel, mail, address, dni, agentId };
+            } else {
+                customerPayload = { name, lastname, tel, mail, address, dni };
+            }
 
             // Mapear los complementos para el POST a SQL
             const complementsForSql = selectedComplements.map(c => {
@@ -384,9 +387,10 @@ const Quotation = () => {
                 dni: newCustomer.dni,
             };
 
-            // --- CAMBIO: incluir datos del agente si existen ---
+            // --- CAMBIO: solo agrega agent si hay datos válidos, no agregues agent: null ni agent: {} ---
             if (
-                agentData && agentData.name && agentData.lastname && agentData.tel && agentData.mail
+                agentData &&
+                agentData.name && agentData.lastname && agentData.tel && agentData.mail
             ) {
                 customerPayloadMongo.agent = {
                     name: agentData.name,
@@ -396,13 +400,12 @@ const Quotation = () => {
                 };
             } else if (
                 newAgent &&
-                newAgent.name &&
-                newAgent.lastname &&
-                newAgent.tel &&
-                newAgent.mail
+                newAgent.name && newAgent.lastname && newAgent.tel && newAgent.mail
+                && newAgent.name.trim() && newAgent.lastname.trim() && newAgent.tel.trim() && newAgent.mail.trim()
             ) {
                 customerPayloadMongo.agent = { ...newAgent };
             }
+            // No else, no agregues agent si no hay datos válidos
 
             const selectedWorkType = workTypes.find(wt => String(wt.id) === String(workPlace.workTypeId));
             const workPlacePayload = {
