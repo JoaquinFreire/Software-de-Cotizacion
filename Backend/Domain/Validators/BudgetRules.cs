@@ -30,7 +30,7 @@ namespace Domain.Validators
 
         public static void ValidateUser(Budget budget)
         {
-                       if (budget.user == null)
+            if (budget.user == null)
                 throw new BusinessException("El usuario de la cotización no puede ser nulo o vacío");
         }
         public static void ValidateAllDate(Budget budget)
@@ -57,19 +57,19 @@ namespace Domain.Validators
                 throw new BusinessException("El lugar de trabajo de la cotización no puede ser nulo o vacío");
         }
 
-        //TODO: Descomentar y validar las referencias del dólar y la mano de obra cuando se implementen(BudgetValidator tambien)
+        //Validación de referencias de precios, deben ser mayores a cero. Dolar, Mano de obra y total del presupuesto.
 
-        //public static void ValidateDollarReference(Budget budget)
-        //{
-        //    if (budget.DollarReference <= 0)
-        //        throw new BusinessException("La referencia del dólar debe ser mayor a cero");
-        //}
+        public static void ValidateDollarReference(Budget budget)
+        {
+            if (budget.DollarReference <= 0)
+                throw new BusinessException("La referencia del dólar debe ser mayor a cero");
+        }
 
-        //public static void ValidateLabourReference(Budget budget)
-        //{
-        //    if (budget.LabourReference <= 0)
-        //        throw new BusinessException("La referencia de la mano de obra debe ser mayor a cero");
-        //}
+        public static void ValidateLabourReference(Budget budget)
+        {
+            if (budget.LabourReference <= 0)
+                throw new BusinessException("La referencia de la mano de obra debe ser mayor a cero");
+        }
 
         //public static void ValidateTotal(Budget budget)
         //{
@@ -113,7 +113,14 @@ namespace Domain.Validators
         //}
 
 
+        //TODO: Validaciones de complementos
+        public static void ValidateComplement(Budget budget)
+        {
+            if (budget.Complement == null || !budget.Complement.Any())
+                throw new BusinessException("La cotización debe incluir al menos un complemento");
 
 
+
+        }
     }
 }
