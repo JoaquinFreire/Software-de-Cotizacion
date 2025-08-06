@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Application.DTOs.CreateBudget;
 using Domain.Entities;
+using Application.DTOs.BudgetDTOs.CreateBudget;
 
 public class CreateBudgetProfile : Profile
 {
