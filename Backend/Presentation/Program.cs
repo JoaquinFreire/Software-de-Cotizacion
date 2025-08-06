@@ -1,4 +1,4 @@
-using Application.DTOs.CreateBudget;
+using Application.DTOs.BudgetDTOs.CreateBudget;
 using Application.Services;
 using Application.UseCases;
 using Application.UseCases.Budget;

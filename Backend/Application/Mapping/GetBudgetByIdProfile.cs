@@ -1,4 +1,4 @@
-﻿using Application.DTOs.GetBudget;
+﻿using Application.DTOs.BudgetDTOs.GetBudget;
 using AutoMapper;
 using Domain.Entities;
 

@@ -1,5 +1,5 @@
-using Application.DTOs.CreateBudget;
-using Application.Queries.Budget;
+using Application.DTOs.BudgetDTOs.CreateBudget;
+using Application.DTOs.BudgetDTOs.GetBudget;
 using Application.Services;
 using Application.UseCases;
 using Application.UseCases.Budget;
