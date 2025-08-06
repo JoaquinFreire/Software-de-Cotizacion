@@ -13,7 +13,7 @@ namespace Application.DTOs.GetBudget
         public GetBudgetByIdOpeningTypeDTO? OpeningType { get; set; }
         public int? Quantity { get; set; }
         public GetBudgetByIdAlumTreatmentDTO? AlumTreatment { get; set; }  //Tiene que almacenar el tratamiento de aluminio
-        public GetBudgetByIdComplementDTO? GlassComplement { get; set; }  //Tiene que almacenar el tipo de vidrio
+        public GetBudgetByIdGlassTypeDTO GlassType { get; set; }  //Tiene que almacenar el tipo de vidrio
         public double? width { get; set; }
         public double? height { get; set; }
         public double? price { get; set; } // Precio unitario del producto

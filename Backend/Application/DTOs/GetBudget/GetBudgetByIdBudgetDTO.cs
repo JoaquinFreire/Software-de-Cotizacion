@@ -1,7 +1,7 @@
 ﻿using Application.DTOs.GetBudget;
 using Domain.Enums;
 
-public class GetBudgetByIdDTO
+public class GetBudgetByIdBudgetDTO
 {
 
     public string budgetId { get; set; }
@@ -12,6 +12,7 @@ public class GetBudgetByIdDTO
     public GetBudgetByIdCustomerDTO customer { get; set; }
     public GetBudgetByIdWorkPlaceDTO? workPlace { get; set; }
     public List<GetBudgetByIdProductDTO> Products { get; set; }
+    public List<GetBudgetByIdComplementDTO> Complement { get; set; }
     public DateTime? ExpirationDate { get; set; }
     public DateTime? EndDate { get; set; }
     public string Comment { get; set; }

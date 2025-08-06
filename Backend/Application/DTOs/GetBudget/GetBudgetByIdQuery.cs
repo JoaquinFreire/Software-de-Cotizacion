@@ -3,5 +3,5 @@ using MediatR;
 
 namespace Application.Queries.Budget
 {
-    public record GetBudgetByBudgetIdQuery(string BudgetId) : IRequest<GetBudgetByIdDTO>;
+    public record GetBudgetByBudgetIdQuery(string BudgetId) : IRequest<GetBudgetByIdBudgetDTO>;
 }
