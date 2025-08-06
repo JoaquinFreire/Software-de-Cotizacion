@@ -8,8 +8,8 @@ namespace Application.DTOs.CreateBudget
 {
     public class CreateBudgetAccesoryDTO
     {
-        public string name { get; set; }
-        public int quantity { get; set; }
-        public decimal price { get; set; } // Precio unitario del accesorio
+        public string Name { get; set; }
+        public int Quantity { get; set; }
+        public decimal Price { get; set; } // Precio unitario del accesorio
     }
 }

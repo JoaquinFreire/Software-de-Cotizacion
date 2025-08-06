@@ -9,12 +9,12 @@ namespace Application.DTOs.CreateBudget
 {
     public class CreateBudgetComplementDoorDTO
     {
-        public required string name { get; set; }
-        public required double width { get; set; }
-        public required double height { get; set; }
-        public CreateBudgetCoating? coating { get; set; }
-        public required int quantity { get; set; }
-        public List<CreateBudgetAccesoryDTO> accesories { get; set; } = new List<CreateBudgetAccesoryDTO>();
-        public required decimal price { get; set; }
+        public required string Name { get; set; }
+        public required double Width { get; set; }
+        public required double Height { get; set; }
+        public CreateBudgetCoating? Coating { get; set; }
+        public required int Quantity { get; set; }
+        public List<CreateBudgetAccesoryDTO> Accesory { get; set; } = new List<CreateBudgetAccesoryDTO>();
+        public required decimal Price { get; set; }
     }
 }

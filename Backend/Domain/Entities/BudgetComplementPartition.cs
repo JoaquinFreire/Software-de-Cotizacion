@@ -1,4 +1,5 @@
 ﻿using Domain.Enums;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,12 +10,18 @@ namespace Domain.Entities
 {
     public class BudgetComplementPartition //Clase auxiliar para representar un tabique en el presupuesto
     {
-        public string? name { get; set; } // Nombre del complemento del tabique
-        public double height { get; set; } // Altura del tabique
-        public int quantity { get; set; } // Cantidad de tabiques
-        public bool simple { get; set; } // Indica si el tabique es simple o doble
+        [BsonElement("name")]
+        public string? Name { get; set; } // Nombre del complemento del tabique
+        [BsonElement("height")]
+        public double Height { get; set; } // Altura del tabique
+        [BsonElement("quantity")]
+        public int Quantity { get; set; } // Cantidad de tabiques
+        [BsonElement("simple")]
+        public bool Simple { get; set; } // Indica si el tabique es simple o doble
+        [BsonElement("glassMilimeters")]
         public GlassMilimeters GlassMilimeters { get; set; } = GlassMilimeters.Mm6; // Espesor del vidrio
-        public required decimal price { get; set; } // Precio del complemento del tabique
+        [BsonElement("price")]
+        public required decimal Price { get; set; } // Precio del complemento del tabique
 
     }
 }

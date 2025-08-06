@@ -8,7 +8,9 @@ namespace Application.DTOs.GetBudget
 {
     public class GetBudgetByIdComplementDTO
     {
-        public string? name { get; set; }
-        public decimal? price { get; set; } // Verificar
+        public List<GetBudgetByIdComplementDoorDTO> ComplementDoor { get; set; } = new List<GetBudgetByIdComplementDoorDTO>();
+        public List<GetBudgetByIdComplementPartitionDTO> ComplementPartition { get; set; } = new List<GetBudgetByIdComplementPartitionDTO>();
+        public List<GetBudgetByIdComplementRailingDTO> ComplementRailing { get; set; } = new List<GetBudgetByIdComplementRailingDTO>();
+        public decimal price { get; set; } // Precio total de los complementos
     }
 }
