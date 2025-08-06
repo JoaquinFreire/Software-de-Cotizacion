@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,8 +9,11 @@ namespace Domain.Entities
 {
     public class BudgetAccesory //Clase auxiliar para representar un accesorio en el presupuesto
     {
-        public required string name { get; set; } // Nombre del accesorio
-        public required int quantity { get; set; } // Cantidad del accesorio
-        public required double price { get; set; }
+        [BsonElement("name")]
+        public required string Name { get; set; } // Nombre del accesorio
+        [BsonElement("quantity")]
+        public required int Quantity { get; set; } // Cantidad del accesorio
+        [BsonElement("price")]
+        public required double Price { get; set; }
     }
 }

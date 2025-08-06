@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Domain.Entities;
-using Application.DTOs.UpdateBudget;
+using Application.DTOs.BudgetDTOs.UpdateBudget;
 
 namespace Application.Mapping
 {
