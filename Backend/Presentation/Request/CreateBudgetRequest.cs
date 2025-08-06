@@ -1,4 +1,4 @@
-using Application.DTOs.CreateBudget;
+using Application.DTOs.BudgetDTOs.CreateBudget;
 
 namespace Presentation.Request
 {
