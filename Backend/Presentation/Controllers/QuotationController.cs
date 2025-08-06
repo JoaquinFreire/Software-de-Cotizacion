@@ -232,13 +232,36 @@ public class QuotationController : ControllerBase
         [FromQuery] decimal? approxTotalPrice = null,
         [FromQuery] DateTime? lastEditFrom = null,
         [FromQuery] int? userId = null,
-        [FromQuery] string? customerDni = null
+        [FromQuery] string? customerDni = null,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 5
     )
     {
-        var results = await _quotationRepository.AdvancedSearchAsync(
-            from, to, status, approxTotalPrice, lastEditFrom, userId, customerDni
-        );
-        return Ok(results);
+        var query = _quotationRepository.Query();
+
+        if (from.HasValue)
+            query = query.Where(q => q.CreationDate >= from.Value);
+        if (to.HasValue)
+            query = query.Where(q => q.CreationDate <= to.Value);
+        if (!string.IsNullOrEmpty(status))
+            query = query.Where(q => q.Status == status);
+        if (approxTotalPrice.HasValue)
+            query = query.Where(q => q.TotalPrice == approxTotalPrice.Value);
+        if (lastEditFrom.HasValue)
+            query = query.Where(q => q.LastEdit >= lastEditFrom.Value);
+        if (userId.HasValue)
+            query = query.Where(q => q.UserId == userId.Value);
+        if (!string.IsNullOrEmpty(customerDni))
+            query = query.Where(q => q.Customer.dni == customerDni);
+
+        var total = await query.CountAsync();
+        var quotations = await query
+            .OrderByDescending(q => q.CreationDate)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return Ok(new { total, quotations });
     }
 }
 
