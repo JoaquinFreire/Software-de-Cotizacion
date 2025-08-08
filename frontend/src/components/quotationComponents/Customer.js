@@ -131,6 +131,7 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {} }) => {
                             onChange={(e) => handleInputChange('name', e.target.value)}
                             disabled={isCustomerFound}
                             className={errors.name ? "input-error" : ""}
+                            placeholder="Ingrese nombre del cliente"
                         />
                         {errors.name && <span className="error-message">{errors.name}</span>}
                     </div>
@@ -142,6 +143,7 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {} }) => {
                             onChange={(e) => handleInputChange('lastname', e.target.value)}
                             disabled={isCustomerFound}
                             className={errors.lastname ? "input-error" : ""}
+                            placeholder="Ingrese apellido del cliente"
                         />
                         {errors.lastname && <span className="error-message">{errors.lastname}</span>}
                     </div>
@@ -153,6 +155,7 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {} }) => {
                             onChange={(e) => handleInputChange('tel', e.target.value)}
                             disabled={isCustomerFound}
                             className={errors.tel ? "input-error" : ""}
+                            placeholder="Ingrese teléfono del cliente"
                         />
                         {errors.tel && <span className="error-message">{errors.tel}</span>}
                     </div>
@@ -164,6 +167,7 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {} }) => {
                             onChange={(e) => handleInputChange('mail', e.target.value)}
                             disabled={isCustomerFound}
                             className={errors.mail ? "input-error" : ""}
+                            placeholder="Ingrese email del cliente"
                         />
                         {errors.mail && <span className="error-message">{errors.mail}</span>}
                     </div>
@@ -175,6 +179,7 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {} }) => {
                             onChange={(e) => handleInputChange('address', e.target.value)}
                             disabled={isCustomerFound}
                             className={errors.address ? "input-error" : ""}
+                            placeholder="Ingrese dirección del cliente"
                         />
                         {errors.address && <span className="error-message">{errors.address}</span>}
                     </div>
