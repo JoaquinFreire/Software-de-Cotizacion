@@ -5,7 +5,6 @@ import '../styles/footerLogo.css'; // Importar los estilos
 const FooterLogo = () => {
     return (
         <div className="footer-logo">
-            <img src={logoSecundario} alt="Logo Secundario" />
         </div>
     );
 };

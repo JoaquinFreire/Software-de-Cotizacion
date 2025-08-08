@@ -60,7 +60,7 @@ const Login = () => {
         <div className="login-container">
             <div className="login-overlay"></div>
             <div className="login-box">
-                <img src={anodalLogo} alt="Logo de Anodal" />
+                <img src={anodalLogo} alt="Logo de Anodal" height={60} width={250}/>
                 <h2 className="subtitle">Cotizaciones</h2>
                 {!showRecover ? (
                     <form onSubmit={handleLogin}>
