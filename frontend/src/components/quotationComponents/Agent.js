@@ -43,6 +43,7 @@ const Agent = ({ customerId, newAgent, setNewAgent, setIsAgentComplete, errors =
     };
 
     return (
+        <div>
         <div className="agent-container">
             <h3>Agente</h3>
             {agent ? (
@@ -102,7 +103,10 @@ const Agent = ({ customerId, newAgent, setNewAgent, setIsAgentComplete, errors =
                     </div>
                 </div>
             )}
+            
         </div>
+         <button type="submit" className="search-button-agent">Agregar Nuevo Agente </button>
+     </div>
     );
 };
 

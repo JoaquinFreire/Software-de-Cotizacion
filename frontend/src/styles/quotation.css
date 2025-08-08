@@ -177,6 +177,19 @@
     color: white;
     margin-top: 15px;
 }
+.search-button-agent {
+    margin: 10px 10px 10px 30%;
+    background: #3f9e9e;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 24px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-bottom: 10px;
+    margin-right: 16px;
+    transition: background 0.2s;
+}
 
 .workplace-container h3, .agent-container h3 {
     color: #26b7cd;
@@ -199,7 +212,6 @@ input, select {
     border-radius: 5px;
     background: black;
     color: white;
-    margin-bottom: 10px;
 }
 
 input::placeholder, select::placeholder {
