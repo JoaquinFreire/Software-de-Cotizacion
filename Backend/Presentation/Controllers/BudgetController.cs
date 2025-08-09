@@ -1,8 +1,6 @@
 using Application.DTOs.BudgetDTOs.CreateBudget;
 using Application.DTOs.BudgetDTOs.GetBudget;
 using Application.Services;
-using Application.UseCases;
-using Application.UseCases.Budget;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

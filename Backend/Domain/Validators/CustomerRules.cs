@@ -4,15 +4,15 @@ using System.Text.RegularExpressions;
 
 namespace Domain.Validators
 {
-    public class CustomerValidator
+    public class CustomerRules
     {
-        public void ValidateDni(Customer customer)
+        public static void ValidateDni(Customer customer)
         {
             if (string.IsNullOrEmpty(customer.dni)) throw new CustomerException("El DNI no puede estar vacío.");
             if (!Regex.IsMatch(customer.dni, @"^\d{1,10}$")) throw new CustomerException("El DNI debe contener solo numeros");
         }
 
-        public void ValidateName(Customer customer)
+        public static void ValidateName(Customer customer)
         {
             if (string.IsNullOrWhiteSpace(customer.name) || customer.name.Trim().Length < 2) throw new CustomerException("El nombre debe tener al menos 2 caracteres.");
             if (string.IsNullOrEmpty(customer.name)) throw new CustomerException("El nombre no puede estar vacío.");
@@ -20,7 +20,7 @@ namespace Domain.Validators
             if (customer.name.Length > 50) throw new CustomerException("El nombre no puede tener más de 50 caracteres.");
         }
 
-        public void ValidateLastName(Customer customer)
+        public static void ValidateLastName(Customer customer)
         {
             if (string.IsNullOrWhiteSpace(customer.lastname) || customer.lastname.Trim().Length < 2) throw new CustomerException("El apellido debe tener al menos 2 caracteres.");
             if (string.IsNullOrEmpty(customer.lastname)) throw new CustomerException("El apellido no puede estar vacío.");
@@ -28,7 +28,7 @@ namespace Domain.Validators
             if (customer.lastname.Length > 50) throw new CustomerException("El apellido no puede tener más de 50 caracteres.");
         }
 
-        public void ValidateTelephoneNumber(Customer customer)
+        public static void ValidateTelephoneNumber(Customer customer)
         {
             if (string.IsNullOrEmpty(customer.tel)) throw new CustomerException("El número de teléfono no puede estar vacío.");
             customer.tel = Regex.Replace(customer.tel, @"[\s\-\(\)]", "");
@@ -37,7 +37,7 @@ namespace Domain.Validators
             if (repeated.Contains(customer.tel)) throw new CustomerException("El número de teléfono ingresado no es válido.");
         }
 
-        public void ValidateEmail(Customer customer)
+        public static void ValidateEmail(Customer customer)
         {
             if (string.IsNullOrEmpty(customer.mail)) throw new CustomerException("El correo electrónico no puede estar vacío.");
             var regex = new Regex(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
@@ -48,7 +48,7 @@ namespace Domain.Validators
             customer.mail = customer.mail.Trim().ToLower();
         }
 
-        public void ValidateAddress(Customer customer)
+        public static void ValidateAddress(Customer customer)
         {
             if (string.IsNullOrEmpty(customer.address)) throw new CustomerException("La dirección no puede estar vacía.");
             if (customer.address.Length > 100) throw new CustomerException("La dirección no puede tener más de 100 caracteres.");

@@ -1,6 +1,4 @@
-using Application.DTOs;
 using Domain.Entities;
-using Domain.Enums;
 using Domain.Repositories;
 using AutoMapper;
 
@@ -10,12 +8,10 @@ namespace Application.Services
     public class BudgetServices
     {
         private readonly IBudgetRepository _budgetRepository;
-        private readonly IMapper _mapper;
 
-        public BudgetServices(IBudgetRepository budgetRepository, IMapper mapper)
+        public BudgetServices(IBudgetRepository budgetRepository)
         {
             _budgetRepository = budgetRepository;
-            _mapper = mapper;
         }
 
         public async Task<Budget> GetBudgetByIdAsync(string id)
