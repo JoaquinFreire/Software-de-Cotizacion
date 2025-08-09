@@ -20,6 +20,7 @@ const Complements = ({
     const [errors, setErrors] = useState([]);
     const [coatings, setCoatings] = useState([]);
     const [alumTreatments, setAlumTreatments] = useState([]);
+    const [touchedRows, setTouchedRows] = useState([]);
     const emptyAcc = { name: '', quantity: 1, price: '' };
 
     // Sincroniza con el estado externo
@@ -28,6 +29,10 @@ const Complements = ({
             rows.filter(row => row.type && row.complementId && Number(row.quantity) > 0)
         );
     }, [rows, setSelectedComplements]);
+
+    useEffect(() => {
+        setTouchedRows(rows.map(() => false));
+    }, [rows]);
 
     const getComplementsByType = (type) => {
         if (type === 'door') return complementDoors;
@@ -61,10 +66,17 @@ const Complements = ({
 
     const handleAddRow = () => {
         setRows(rows => [...rows, { ...initialRow }]);
+        setTouchedRows(touched => [...touched, false]);
     };
 
     const handleRemoveRow = (idx) => {
         setRows(rows => rows.filter((_, i) => i !== idx));
+        setTouchedRows(touched => touched.filter((_, i) => i !== idx));
+    };
+
+    // Cuando el usuario intenta agregar un complemento, marca la fila como "touched"
+    const handleTryAddComplement = (idx) => {
+        setTouchedRows(touched => touched.map((t, i) => i === idx ? true : t));
     };
 
     // Accesorios para doors
@@ -169,8 +181,8 @@ const Complements = ({
                 {rows.map((row, idx) => {
                     const complement = getComplementById(row.type, row.complementId);
                     return (
-                        <div key={idx} className="complement-row" style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12, border: '1px solid #eee', padding: 8, borderRadius: 6 }}>
-                            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <div key={idx} className="complement-row" style={{ display: 'flex',  flexDirection: 'column', gap: 4, marginBottom: 18,border: '0.2px solid #26b7cd', padding: 8, borderRadius: 6 }}>
+                            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                                 {/* Tipo de complemento */}
                                 <select
                                     value={row.type}
@@ -201,14 +213,10 @@ const Complements = ({
                                         </option>
                                     ))}
                                 </select>
-                                {/* Eliminar fila */}
-                                <button type="button" onClick={() => handleRemoveRow(idx)} disabled={rows.length === 1}>🗑️</button>
-                                {/* Error */}
-                                {errors[idx] && <span style={{ color: 'red', fontSize: 12 }}>{errors[idx]}</span>}
                             </div>
                             {/* Campos personalizados por tipo */}
                             {row.type === 'door' && complement && (
-                                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                                <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
                                     <input
                                         type="number"
                                         min="1"
@@ -245,6 +253,8 @@ const Complements = ({
                                             <option key={c.id} value={c.id}>{c.name} - ${c.price}</option>
                                         ))}
                                     </select>
+                                    {/* Eliminar fila */}
+                                    <button type="button" onClick={() => handleRemoveRow(idx)} disabled={rows.length === 1} style={{ width: 70, height: 40 }}>🗑️</button>
                                     {/* Accesorios */}
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                         <span>Accesorios:</span>
@@ -275,7 +285,7 @@ const Complements = ({
                                                     onChange={e => handleAccChange(idx, accIdx, 'price', e.target.value)}
                                                     style={{ width: 70 }}
                                                 />
-                                                <button type="button" onClick={() => handleRemoveAcc(idx, accIdx)}>🗑️</button>
+                                                <button type="button" onClick={() => handleRemoveAcc(idx, accIdx)} >🗑️</button>
                                             </div>
                                         ))}
                                         <button type="button" onClick={() => handleAddAcc(idx)}>+ Accesorio</button>
@@ -355,6 +365,21 @@ const Complements = ({
                                         Reforzado
                                     </label>
                                 </div>
+                            )}
+                            {/* Error debajo de la fila, solo si la fila fue "touched" */}
+                            {touchedRows[idx] && errors[idx] && (
+                                <span className="error-message">{errors[idx]}</span>
+                            )}
+                            {/* Botón para validar y marcar como touched si hay error */}
+                            {errors[idx] && (
+                                <button
+                                    type="button"
+                                    className="botton-carusel"
+                                    style={{ marginTop: 6 }}
+                                    onClick={() => handleTryAddComplement(idx)}
+                                >
+                                    Validar complemento
+                                </button>
                             )}
                         </div>
                     );
