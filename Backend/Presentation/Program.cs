@@ -1,40 +1,27 @@
 using Application.DTOs.BudgetDTOs.CreateBudget;
+using Application.DTOs.CustomerDTOs.CreateCustomer;
 using Application.Services;
 using Application.UseCases;
-using Application.UseCases.Budget;
 using Application.Validators;
-using AutoMapper;
-using Domain.Repositories;
+using Domain.Repositories; //TODO: En lo posible eliminar esta dependencia, porque no corresponde a la capa de presentación
 using DotNetEnv;
-using Infrastructure;
-// Ensure the namespace containing MongoDbSettings is included
+using Application.Mapping.CustomerProfile;
 using Infrastructure.Persistence.MongoDBContext;
 using Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using QuestPDF.Infrastructure;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using System.IO;
 using System.Text;
-using System.Text.Json.Serialization;
+using Application.Validators.CustomerValidation;
 Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
 
 Console.WriteLine("Arrancando backend...");
 var builder = WebApplication.CreateBuilder(args);
 
-//Inscripción a QuestPDF
-QuestPDF.Settings.License = LicenseType.Community;
-
 var mysqlConnectionString = Environment.GetEnvironmentVariable("MYSQL_CONNECTION_STRING");
 var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
 var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
-
-/* var configuration = builder.Configuration; */
-
 
 // Cargar variables de entorno
 var mongoConnectionString = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING");
@@ -48,25 +35,35 @@ builder.Services.Configure<MongoDbSettings>(options =>
     options.CollectionName = mongoCollectionName ?? throw new InvalidOperationException("MONGO_COLLECTION_NAME is not set in the environment variables.");
 });
 
-builder.Services.AddScoped<UserServices>(); // Registrar el servicio de aplicación
+//REGISTRO DE SERVICIOS DE APLICACIÓN
+builder.Services.AddScoped<BudgetServices>(); // Registrar el servicio de aplicación para cotizaciones
+builder.Services.AddScoped<CustomerServices>(); // Registrar el servicio de aplicación para clientes
+builder.Services.AddScoped<UserServices>(); // Registrar el servicio de aplicación para usuarios
 
 
 builder.Services.AddScoped<UserServices>();
 
-builder.Services.AddAutoMapper(typeof(CreateBudgetProfile));
+//REGISTRO DE MAPEO DE ENTIDADES DE DOMINIO
+builder.Services.AddAutoMapper(typeof(CreateBudgetProfile));//Mapeo de cotizaciones
+builder.Services.AddAutoMapper(typeof(CreateCustomerProfile));//Mapeo de clientes
 
-//VALIDACIONES DE BUDGET
+//REGISTRO DE VALIDACIONES
+
+// -Cotizaciones-
 //Capa de logica de negocio
 builder.Services.AddTransient<IBudgetValidator, BudgetValidator>();
 //Capa de aplicación
 builder.Services.AddTransient<IApplicationBudgetValidator, ApplicationBudgetValidator>();
 
-
+// -Clientes-
+//Capa de logica de negocio
+builder.Services.AddTransient<ICustomerValidator, CustomerValidator>();
 
 // Configura MediatR para manejar comandos y consultas
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(CreateBudgetCommand).Assembly);
+    cfg.RegisterServicesFromAssembly(typeof(CreateCustomerCommand).Assembly);
 });
 
 //Mongo
@@ -75,6 +72,7 @@ builder.Services.AddMediatR(cfg =>
 builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
 builder.Services.AddScoped<BudgetServices>();
 
+// REGISTRO DE ENTITY FRAMEWORK USANDO POMELO
 // Configura Entity Framework con MySQL usando Pomelo y la conexión de entorno
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(mysqlConnectionString, ServerVersion.AutoDetect(mysqlConnectionString)));
@@ -83,7 +81,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
-// Inyección de dependencias para los servicios del dominio
+// Inyección de dependencias para los servicios del dominio TODO: Verificar si es necesario usar la capa de dominio aca
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<LoginUser>();
 
@@ -117,6 +115,7 @@ builder.Services.AddScoped<IComplementDoorRepository, ComplementDoorRepository>(
 builder.Services.AddScoped<IComplementPartitionRepository, ComplementPartitionRepository>();
 builder.Services.AddScoped<IComplementRailingRepository, ComplementRailingRepository>();
 builder.Services.AddScoped<ICoatingRepository, CoatingRepository>();
+
 // Agrega soporte para controladores en la API
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -126,6 +125,7 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
     });
 
+//REGISTRO DE AUTENTICACIÓN MEDIANTE JASON WEB TOKEN (JWT)
 // Configuración de autenticación con JWT usando variables de entorno
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -142,6 +142,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+//REGISTRO DE SWAGGER
 // Configura Swagger para la documentación de la API
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
