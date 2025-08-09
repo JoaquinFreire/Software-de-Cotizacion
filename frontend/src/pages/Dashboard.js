@@ -11,17 +11,48 @@ import { QuotationContext } from "../context/QuotationContext";
 import Skeleton from "react-loading-skeleton";
 import 'react-loading-skeleton/dist/skeleton.css';
 import { ToastContainer, toast, Slide } from 'react-toastify';
+import { Calendar } from 'primereact/calendar';
+import { addLocale } from 'primereact/api';
+
 // solo uno
 const API_URL = process.env.REACT_APP_API_URL;
+
+// Configurar el calendario en español (si no está ya en otro archivo global)
+addLocale('es', {
+    firstDayOfWeek: 1,
+    dayNames: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
+    dayNamesShort: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
+    dayNamesMin: ['D','L','M','X','J','V','S'],
+    monthNames: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+    monthNamesShort: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
+    today: 'Hoy',
+    clear: 'Limpiar'
+});
+
 const Dashboard = () => {
     const {
         dashboardState, pageSize, goToDashboardPage, switchToDashboard
     } = useContext(QuotationContext);
     const { quotations, page, total, loading } = dashboardState;
     const [filteredQuotations, setFilteredQuotations] = useState([]);
-    const [searchTerm, setSearchTerm] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [quotationToDelete, setQuotationToDelete] = useState(null);
+    const [filters, setFilters] = useState({
+        from: "",
+        to: "",
+        approxTotalPrice: "",
+        lastEditFrom: "",
+        userId: "",
+        customerDni: ""
+    });
+    const [isFiltering, setIsFiltering] = useState(false);
+    const [filterPage, setFilterPage] = useState(1);
+    const [filterTotal, setFilterTotal] = useState(0);
+    const [filterResults, setFilterResults] = useState([]);
+    const [showFilters, setShowFilters] = useState(false);
+    const [date, setDate] = useState(null);
+    const [toDate, setToDate] = useState(null);
+    const [lastEditFromDate, setLastEditFromDate] = useState(null);
     const navigate = useNavigate();
 
     // Al entrar al Dashboard, siempre carga la página 1 de pendientes
@@ -81,21 +112,72 @@ const Dashboard = () => {
         }
     };
 
-    const handleSearch = (e) => {
-        const term = e.target.value.toLowerCase();
-        setSearchTerm(term);
-        setFilteredQuotations(
-            quotations.filter((quotation) =>
-                `${quotation.Customer.name} ${quotation.Customer.lastname}`
-                    .toLowerCase()
-                    .includes(term)
-            )
-        );
-    };
-
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/");
+    };
+
+    const handleFilterChange = (e) => {
+        setFilters({ ...filters, [e.target.name]: e.target.value });
+    };
+
+    const fetchFilteredQuotations = async (page = 1) => {
+        setIsFiltering(true);
+        const token = localStorage.getItem("token");
+        let params = { ...filters, page, pageSize, status: "pending" };
+        // Remove empty values except status
+        Object.keys(params).forEach(k => {
+            if (!params[k] && k !== "status") delete params[k];
+        });
+        try {
+            const res = await axios.get(`${API_URL}/api/quotations/advanced-search`, {
+                headers: { Authorization: `Bearer ${token}` },
+                params
+            });
+            setFilterResults(res.data.quotations || []);
+            setFilterTotal(res.data.total || 0);
+            setFilterPage(page);
+        } catch (err) {
+            setFilterResults([]);
+            setFilterTotal(0);
+        }
+    };
+
+    const handleFilterSubmit = (e) => {
+        e.preventDefault();
+        fetchFilteredQuotations(1);
+    };
+
+    const handleClearFilters = () => {
+        setFilters({
+            from: "",
+            to: "",
+            approxTotalPrice: "",
+            lastEditFrom: "",
+            userId: "",
+            customerDni: ""
+        });
+        setIsFiltering(false);
+        setFilterResults([]);
+        setFilterTotal(0);
+        setFilterPage(1);
+        goToDashboardPage(1);
+    };
+
+    // Handler para "Desde"
+    const handleCalendarChange = (e) => {
+        setDate(e.value);
+        setFilters({ ...filters, from: e.value ? e.value.toISOString().slice(0, 10) : "" });
+    };
+    // Handler para "Hasta"
+    const handleToCalendarChange = (e) => {
+        setToDate(e.value);
+        setFilters({ ...filters, to: e.value ? e.value.toISOString().slice(0, 10) : "" });
+    };
+    // Handler para "Última Edición Desde"
+    const handleLastEditFromCalendarChange = (e) => {
+        setLastEditFromDate(e.value);
+        setFilters({ ...filters, lastEditFrom: e.value ? e.value.toISOString().slice(0, 10) : "" });
     };
 
     // Log en el render para ver el valor en cada render
@@ -105,27 +187,90 @@ const Dashboard = () => {
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
             <h2 className="title">Cotizaciones Pendientes</h2>
-            {/* Cambia el tiempo aquí (milisegundos) */}
             <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
-            <div className="search-bar">
-                <div className="search-container">
-                    <input
-                        type="text"
-                        placeholder="Buscar por nombre..."
-                        className="search-input"
-                        value={searchTerm}
-                        onChange={handleSearch}
-                    />
-                    <button className="clear-button-q" onClick={() => setSearchTerm("")}>
-                        ✖
-                    </button>
-                    <button className="search-button">
-                        <img src={logo_busqueda} alt="Buscar" />
-                    </button>
-                </div>
-            </div>
+            {/* Filtros avanzados */}
+            <div className="advanced-filters-menu">
+                <button
+                    type="button"
+                    className="advanced-filters-toggle"
+                    onClick={() => setShowFilters(!showFilters)}
+                >
+                    Filtros avanzados {showFilters ? "▲" : "▼"}
+                </button>
+                {showFilters && (
+                    <form onSubmit={handleFilterSubmit}>
+                    <div className="advanced-filter-form">
+                        <div className="date-filter">
 
-            {loading ? (
+                            <Calendar
+                                value={date}
+                                onChange={handleCalendarChange}
+                                showIcon
+                                dateFormat="dd/mm/yy"
+                                placeholder="Desde"
+                                locale="es"
+                            />
+                        </div>
+                        <div className="date-filter">
+                            <Calendar
+                                value={toDate}
+                                onChange={handleToCalendarChange}
+                                showIcon
+                                dateFormat="dd/mm/yy"
+                                placeholder="Hasta"
+                                locale="es"
+                            />
+                        </div>
+                    </div>
+                    <div className="filter-Advanced">
+                        <input
+                            type="number"
+                            name="approxTotalPrice"
+                            value={filters.approxTotalPrice}
+                            onChange={handleFilterChange}
+                            placeholder="Precio total"
+                            className="filter-Advanced"
+                        />
+                    </div>
+                    <div className="advanced-filter-form">
+                        <Calendar
+                            value={lastEditFromDate}
+                            onChange={handleLastEditFromCalendarChange}
+                            showIcon
+                            dateFormat="dd/mm/yy"
+                            placeholder="Última edición desde"
+                            locale="es"
+                        />
+                    </div>
+                    <div className="filter-Advanced">
+                        <input
+                            type="number"
+                            name="userId"
+                            value={filters.userId}
+                            onChange={handleFilterChange}
+                            placeholder="ID Usuario"
+                            className="filter-Advanced"
+                        />
+                    </div>
+                    <div className="filter-Advanced">
+                        <input
+                            type="text"
+                            name="customerDni"
+                            value={filters.customerDni}
+                            onChange={handleFilterChange}
+                            placeholder="DNI Cliente"
+                            className="filter-Advanced"
+                        />
+                    </div>
+                    <div className="fadvanced-filter-form">
+                        <button type="submit" className="search-button">Buscar
+                            <img src={logo_busqueda} alt="Buscar" /></button>
+                        <button type="button" className="clear-button" onClick={handleClearFilters}>Borrar filtro</button>
+                    </div>
+                </form>
+                )}
+            </div>
+            {loading && !isFiltering ? (
                 <div className="quote-container">
                     {[...Array(3)].map((_, i) => (
                         <div key={i} className="quote-card">
@@ -167,7 +312,7 @@ const Dashboard = () => {
             ) : (
                 <>
                     <QuotationList
-                        quotations={filteredQuotations}
+                        quotations={isFiltering ? filterResults : filteredQuotations}
                         onDelete={handleDelete}
                         onStatusChange={handleStatusChange}
                         showModal={showModal}
@@ -177,15 +322,25 @@ const Dashboard = () => {
                     />
                     <div className="pagination-nav">
                         <button
-                            onClick={() => goToDashboardPage(page - 1)}
-                            disabled={page <= 1}
+                            onClick={() => {
+                                if (isFiltering) fetchFilteredQuotations(filterPage - 1);
+                                else goToDashboardPage(page - 1);
+                            }}
+                            disabled={isFiltering ? filterPage <= 1 : page <= 1}
                         >Anterior</button>
                         <span>
-                            Página {page} de {Math.ceil(total / pageSize)}
+                            Página {isFiltering ? filterPage : page} de {Math.ceil((isFiltering ? filterTotal : total) / pageSize)}
                         </span>
                         <button
-                            onClick={() => goToDashboardPage(page + 1)}
-                            disabled={page >= Math.ceil(total / pageSize)}
+                            onClick={() => {
+                                if (isFiltering) fetchFilteredQuotations(filterPage + 1);
+                                else goToDashboardPage(page + 1);
+                            }}
+                            disabled={
+                                isFiltering
+                                    ? filterPage >= Math.ceil(filterTotal / pageSize)
+                                    : page >= Math.ceil(total / pageSize)
+                            }
                         >Siguiente</button>
                     </div>
                 </>

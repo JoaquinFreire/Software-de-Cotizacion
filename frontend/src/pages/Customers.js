@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import 'react-loading-skeleton/dist/skeleton.css';
 import { CustomerContext } from "../context/customerContext";
-import logo_busqueda from "../images/logo_busqueda.png";
+
 
 const Customers = () => {
   const {
@@ -14,7 +14,7 @@ const Customers = () => {
     goToCustomerPage, switchToCustomers
   } = useContext(CustomerContext);
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm] = useState("");
   const [filteredCustomers, setFilteredCustomers] = useState([]);
 
   const navigate = useNavigate();
@@ -39,10 +39,6 @@ const Customers = () => {
       )
     );
   }, [customers, searchTerm]);
-
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
 
   const handleUpdate = (id) => {
     navigate(`/customers/${id}/editar`);
@@ -76,23 +72,6 @@ const Customers = () => {
         <button className="btn-nuevo-cliente" onClick={handleCreate}>
           + Nuevo Cliente
         </button>
-      </div>
-      <div className="search-bar">
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Buscar por nombre..."
-            className="search-input"
-            value={searchTerm}
-            onChange={handleSearch}
-          />
-          <button className="clear-button-q" onClick={() => setSearchTerm("")}>
-            ✖
-          </button>
-          <button className="search-button">
-            <img src={logo_busqueda} alt="Buscar" />
-          </button>
-        </div>
       </div>
       <div className="clientes-list-container">
         {loading ? (
