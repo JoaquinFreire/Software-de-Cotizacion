@@ -1,10 +1,12 @@
 using Application.DTOs;
+using Application.DTOs.CustomerDTOs.CreateCustomer;
+using Application.Services;
 using Domain.Entities;
 using Domain.Repositories;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 
 [ApiController]
 [Route("api/customers")]
@@ -12,10 +14,14 @@ using System.Threading.Tasks;
 public class CustomerController : ControllerBase
 {
     private readonly ICustomerRepository _customerRepository;
+    private readonly CustomerServices _customerServices;
+    private readonly IMediator _mediator;
 
-    public CustomerController(ICustomerRepository customerRepository)
+    public CustomerController(ICustomerRepository customerRepository, CustomerServices customerServices, IMediator mediator)
     {
         _customerRepository = customerRepository;
+        _customerServices = customerServices;
+        _mediator = mediator;
     }
 
     [HttpGet]
@@ -40,13 +46,19 @@ public class CustomerController : ControllerBase
         return Ok(customer);
     }
 
+    //TODO: Revertir si no funciona
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Customer newCustomer)
+    public async Task<IActionResult> Create([FromBody] CreateCustomerDTO customerDTO)
     {
-        if (newCustomer == null) return BadRequest("Invalid data.");
+        //if (newCustomer == null) return BadRequest("Invalid data.");
 
-        await _customerRepository.AddAsync(newCustomer);
-        return CreatedAtAction(nameof(GetById), new { id = newCustomer.id }, newCustomer);
+        var command = new CreateCustomerCommand { createCustomerDTO = customerDTO };
+        
+        var customerId = await _mediator.Send(command);
+
+        return Ok(new { Message = "Cliente creado correctamente.", CustomerId = customerId });
+        //await _customerRepository.AddAsync(newCustomer);
+        //return CreatedAtAction(nameof(GetById), new { id = newCustomer.id }, newCustomer);
     }
 
     [HttpPut("{id}")]
