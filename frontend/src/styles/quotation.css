@@ -210,7 +210,7 @@ input, select {
     padding: 10px;
     border: none;
     border-radius: 5px;
-    background: black;
+    background: rgb(56, 56, 56);
     color: white;
 }
 
