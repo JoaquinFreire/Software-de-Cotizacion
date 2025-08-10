@@ -8,7 +8,7 @@ namespace Application.DTOs.BudgetDTOs.CreateBudget
 {
     public class CreateBudgetGlassTypeDTO
     {
-        public string name { get; set; } // Nombre del tipo de vidrio
+        public required string name { get; set; } // Nombre del tipo de vidrio
         public decimal Price { get; set; } // Precio del tipo de vidrio
     }
 }

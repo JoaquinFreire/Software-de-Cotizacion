@@ -16,7 +16,7 @@ namespace Domain.Entities
         [BsonElement("reinforced")]
         public required bool Reinforced { get; set; } // Anodal ofrece refuerzos interiores para barandas
         [BsonElement("quantity")]
-        public int Quantity { get; set; } // Cantidad de barandas
+        public required int Quantity { get; set; } // Cantidad de barandas
         [BsonElement("price")]
         public required decimal Price { get; set; } // Precio del complemento de baranda
     }

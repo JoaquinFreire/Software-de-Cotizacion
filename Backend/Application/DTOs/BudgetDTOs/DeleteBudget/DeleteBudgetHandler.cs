@@ -19,7 +19,7 @@ namespace Application.DTOs.BudgetDTOs.DeleteBudget
 
         public async Task<Unit> Handle(DeleteBudgetCommand request, CancellationToken cancellationToken)
         {
-            //await _budgetServices.DeleteByBudgetIdAsync(request.budgetId);
+            await _budgetServices.DeleteBudgetAsync(request.budgetId);
             return Unit.Value;
         }
     }

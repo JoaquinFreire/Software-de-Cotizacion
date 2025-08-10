@@ -9,11 +9,11 @@ namespace Application.DTOs.BudgetDTOs.GetBudget
 {
     public class GetBudgetByIdComplementPartitionDTO
     {
-        public string Name { get; set; } // Nombre del complemento
-        public double Height { get; set; } // Alto del complemento
-        public int Quantity { get; set; } // Cantidad del complemento
-        public bool Simple { get; set; } // Simple o doble
-        public GlassMilimeters GlassMilimeters { get; set; } // Milimetraje del vidrio
+        public required string Name { get; set; } // Nombre del complemento
+        public required double Height { get; set; } // Alto del complemento
+        public required int Quantity { get; set; } // Cantidad del complemento
+        public required bool Simple { get; set; } // Simple o doble
+        public required GlassMilimeters GlassMilimeters { get; set; } // Milimetraje del vidrio
         public decimal Price { get; set; } // Precio del complemento
 
     }

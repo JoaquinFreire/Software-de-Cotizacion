@@ -25,7 +25,12 @@ namespace Application.DTOs.BudgetDTOs.CreateBudget
 
         public async Task<string> Handle(CreateBudgetCommand request, CancellationToken cancellationToken)
         {
-            //Validación de la Cotización(Capa de aplicación)
+            if (request.BudgetDTO == null)
+            {
+                throw new ArgumentNullException(nameof(request.BudgetDTO), "El objeto BudgetDTO no puede ser nulo.");
+            }
+
+            // Validación de la Cotización (Capa de aplicación)
             _applicationBudgetValidator.Validate(request.BudgetDTO);
 
             var budget = _mapper.Map<Budget>(request.BudgetDTO);

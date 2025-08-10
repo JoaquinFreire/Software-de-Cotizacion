@@ -1,16 +1,16 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs.BudgetDTOs.GetBudget
+namespace Application.DTOs.CustomerDTOs.GetCustomer
 {
-    public class GetBudgetByIdUserDTO
+    public class GetCustomerAgentDTO
     {
         public required string name { get; set; }
-        public required string lastName { get; set; }
+        public required string lastname { get; set; }
+        public required string tel { get; set; }
         public required string mail { get; set; }
     }
 }

@@ -37,8 +37,6 @@ namespace Domain.Validators
         {
             if (budget.creationDate == null || budget.creationDate == DateTime.MinValue)
                 throw new BusinessException("La fecha de la cotización no puede ser nula o vacía");
-            if (budget.ExpirationDate == null || budget.ExpirationDate == DateTime.MinValue)
-                throw new BusinessException("La fecha de expiración de la cotización no puede ser nula o vacía");
             if (budget.ExpirationDate <= budget.creationDate)
                 throw new BusinessException("La fecha de expiración debe ser posterior a la fecha de creación");
             if (budget.EndDate != null && budget.EndDate <= budget.creationDate)
