@@ -8,6 +8,6 @@ namespace Application.DTOs.BudgetDTOs.CreateBudget
 {
     public class CreateBudgetAlumTreatmentDTO
     {
-        public string? name { get; set; }
+        public required string name { get; set; }
     }
 }

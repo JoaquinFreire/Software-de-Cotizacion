@@ -8,8 +8,8 @@ namespace Application.DTOs.BudgetDTOs.GetBudget
 {
     public class GetBudgetByIdAccesoryDTO
     {
-        public string Name { get; set; }
-        public int? Quantity { get; set; }
+        public required string Name { get; set; }
+        public int Quantity { get; set; }
         public decimal Price { get; set; } // Precio del accesorio
 
     }

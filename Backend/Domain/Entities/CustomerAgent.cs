@@ -14,14 +14,14 @@ namespace Domain.Entities
         [BsonIgnore]
         public int id { get; set; }
         [BsonElement("name")]
-        public string name { get; set; } = string.Empty;
+        public required string name { get; set; }
         [BsonElement("lastName")]
         [Required]
-        public string lastname { get; set; } = string.Empty;
+        public required string lastname { get; set; }
         [BsonElement("telephoneNumber")]
-        public string tel { get; set; } = string.Empty;
+        public required string tel { get; set; }
         [BsonElement("mail")]
-        public string mail { get; set; } = string.Empty;
+        public required string mail { get; set; }
 
     }
 }

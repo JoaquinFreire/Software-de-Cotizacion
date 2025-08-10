@@ -8,7 +8,7 @@ namespace Application.DTOs.BudgetDTOs.CreateBudget
 {
     public class CreateBudgetCoating
     {
-        public string name { get; set; } // Nombre del revestimiento
+        public required string name { get; set; } // Nombre del revestimiento
         public decimal price { get; set; } // Precio del revestimiento
     }
 }

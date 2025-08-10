@@ -12,7 +12,7 @@ namespace Domain.Entities
         [BsonIgnore]
         public int id { get; set; }
         [BsonElement("treatment")]
-        public string? name { get; set; }
+        public required string name { get; set; }
         [BsonElement("price")]
         public string? pricePercentage { get; set; }
     }

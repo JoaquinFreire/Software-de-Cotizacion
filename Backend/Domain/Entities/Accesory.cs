@@ -11,9 +11,9 @@ namespace Domain.Entities
     public class Accesory
     {
         [BsonIgnore]
-        public int id { get; set; }
-        public string name { get; set; }
+        public required int id { get; set; }
+        public required string name { get; set; }
         [BsonIgnore]
-        public MaterialUnit unit { get; set; }
+        public required MaterialUnit unit { get; set; }
     }
 }

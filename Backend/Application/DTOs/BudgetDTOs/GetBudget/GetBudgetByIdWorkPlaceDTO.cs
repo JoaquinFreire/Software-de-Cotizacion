@@ -11,8 +11,8 @@ namespace Application.DTOs.BudgetDTOs.GetBudget
 {
     public class GetBudgetByIdWorkPlaceDTO
     {
-        public string? name { get; set; }
-        public string? address { get; set; }
-        public GetBudgetByIdWorkTypeDTO? WorkType { get; set; }
+        public required string name { get; set; }
+        public required string address { get; set; }
+        public required GetBudgetByIdWorkTypeDTO WorkType { get; set; }
     }
 }

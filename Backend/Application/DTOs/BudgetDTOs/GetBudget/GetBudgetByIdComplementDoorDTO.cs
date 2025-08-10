@@ -8,12 +8,12 @@ namespace Application.DTOs.BudgetDTOs.GetBudget
 {
     public class GetBudgetByIdComplementDoorDTO
     {
-        public string Name { get; set; } // Nombre del complemento
-        public string Width { get; set; } // Ancho del complemento
-        public string Height { get; set; } // Alto del complemento
-        public GetBudgetByIdCoatingDTO Coating { get; set; } // Revestimiento del complemento
+        public required string Name { get; set; } // Nombre del complemento
+        public required string Width { get; set; } // Ancho del complemento
+        public required string Height { get; set; } // Alto del complemento
+        public required GetBudgetByIdCoatingDTO Coating { get; set; } // Revestimiento del complemento
         public int Quantity { get; set; } // Cantidad del complemento
-        public GetBudgetByIdAccesoryDTO Accessory { get; set; } // Accesorio del complemento
+        public GetBudgetByIdAccesoryDTO? Accessory { get; set; } // Accesorio del complemento
         public decimal Price { get; set; } // Precio del complemento
     }
 }
