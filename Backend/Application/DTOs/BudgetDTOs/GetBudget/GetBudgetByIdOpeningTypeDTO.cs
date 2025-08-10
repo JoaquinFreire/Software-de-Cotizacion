@@ -8,6 +8,6 @@ namespace Application.DTOs.BudgetDTOs.GetBudget
 {
     public class GetBudgetByIdOpeningTypeDTO
     {
-        public string? name { get; set; }
+        public required string name { get; set; }
     }
 }

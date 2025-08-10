@@ -8,7 +8,7 @@ namespace Application.DTOs.BudgetDTOs.GetBudget
 {
     public class GetBudgetByIdGlassTypeDTO
     {
-        public string name { get; set; } // Nombre del tipo de vidrio
+        public required string name { get; set; } // Nombre del tipo de vidrio
         public decimal price { get; set; } // Precio del tipo de vidrio
     }
 }

@@ -8,7 +8,7 @@ namespace Application.DTOs.BudgetDTOs.GetBudget
 {
     public class GetBudgetByIdAlumTreatmentDTO
     {
-        public string? name { get; set; }
-        public decimal? price { get; set; }//Verificar
+        public required string name { get; set; }
+        public decimal price { get; set; }//Verificar
     }
 }

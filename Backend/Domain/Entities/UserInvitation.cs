@@ -11,5 +11,5 @@ public class UserInvitation
     public bool used { get; set; } = false;
 
     // Navegación (opcional)
-    public User user { get; set; }
+    public User? user { get; set; }
 }

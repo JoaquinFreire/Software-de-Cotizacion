@@ -17,14 +17,14 @@ namespace Domain.Entities
         [BsonElement("glassType")]
         public GlassType? GlassType { get; set; }  //Tiene que almacenar el tipo de vidrio
         [BsonElement("width")]
-        public double? width { get; set; }
+        public required double width { get; set; }
         [BsonElement("height")]
-        public double? height { get; set; }
+        public required double height { get; set; }
         [BsonElement("quantity")]
-        public int? Quantity { get; set; }
+        public required int Quantity { get; set; }
         [BsonElement("price")]
         public decimal? price { get; set; } // Precio unitario del producto
         [BsonElement("Accesories")]
-        public List<BudgetAccesory> Accesory { get; set; } = new List<BudgetAccesory>();
+        public List<BudgetAccesory>? Accesory { get; set; } = new List<BudgetAccesory>();
     }
 }
