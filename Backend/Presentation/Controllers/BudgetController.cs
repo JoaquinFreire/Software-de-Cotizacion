@@ -1,5 +1,6 @@
 using Application.DTOs.BudgetDTOs.CreateBudget;
 using Application.DTOs.BudgetDTOs.GetBudget;
+using Application.DTOs.BudgetDTOs.DeleteBudget;
 using Application.Services;
 using AutoMapper;
 using MediatR;
@@ -59,8 +60,8 @@ namespace Presentation.Controllers
         [HttpDelete("DeleteBudget")]
         public async Task<IActionResult> DeleteBudget([FromBody] string id)
         {
-            await _budgetService.DeleteBudgetAsync(id);
-            return Ok("Cotización eliminada correctamente");
+            var command = new DeleteBudgetCommand(id);
+            return Ok("Cotización con ID:" + id + ", eliminada correctamente");
         }
 
         [HttpGet("GetAllBudgets")]
