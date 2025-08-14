@@ -1,6 +1,9 @@
 using Application.DTOs;
-using Application.UseCases.AlumTreatment;
-using Domain.Repositories;
+using Application.DTOs.AlumTreatmentDTOs.CreateAlumTreatment;
+using Application.DTOs.AlumTreatmentDTOs.GetAlumTreatment;
+using Application.DTOs.AlumTreatmentDTOs.UpdateAlumTreatment;
+using Application.Services;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,50 +14,57 @@ namespace Presentation.Controllers;
 [Authorize]
 public class AlumTreatmentController : ControllerBase
 {
-    private readonly IAlumTreatmentRepository _repository;
+    private readonly AlumTreatmentServices _services;
+    private readonly IMediator _mediator;
 
-    public AlumTreatmentController(IAlumTreatmentRepository repository)
+    public AlumTreatmentController(AlumTreatmentServices services, IMediator mediator)
     {
-        _repository = repository;
+        _services = services;
+        _mediator = mediator;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var useCase = new GetAllAlumTreatments(_repository);
-        var result = await useCase.ExecuteAsync();
+        var result = await _services.GetAllAsync();
+        if (result == null || !result.Any())
+            return NotFound("No se encontraron tratamientos.");
+
         return Ok(result);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var useCase = new GetAlumTreatmentById(_repository);
-        var result = await useCase.ExecuteAsync(id);
-        return result is not null ? Ok(result) : NotFound();
+        var query = new GetAlumTreatmentQuery(id);
+        var result = await _mediator.Send(query);
+        if (result is null) return NotFound($"Tratamiento con ID {id} no encontrado.");
+        return Ok(result);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] AlumTreatmentDTO dto)
+    public async Task<IActionResult> Create([FromBody] CreateAlumTreatmentDTO alumTreatmentDTO)
     {
-        var useCase = new CreateAlumTreatment(_repository);
-        await useCase.ExecuteAsync(dto);
-        return CreatedAtAction(nameof(GetAll), null);
+        var command = new CreateAlumTreatmentCommand { alumTreatmentDTO = alumTreatmentDTO};
+        var result = await _mediator.Send(command);
+        return Ok(new {Message = "Tratamiento creado correctamente: ", result});
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] AlumTreatmentDTO dto)
-    {
-        var useCase = new UpdateAlumTreatment(_repository);
-        var success = await useCase.Execute(id, dto);
-        return success ? NoContent() : NotFound();
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateAlumTreatmentDTO dto)
+    { 
+        var result = await _mediator.Send(new UpdateAlumTreatmentCommand(id, dto));
+        return result ? Ok(new {Message = "Tratamiento actualizado correctamente."}) : NotFound($"Tratamiento con ID {id} no encontrado.");
+        //var useCase = new UpdateAlumTreatment(_repository);
+        //var success = await useCase.Execute(id, dto);
+        //return success ? NoContent() : NotFound();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var useCase = new DeleteAlumTreatment(_repository);
-        await useCase.ExecuteAsync(id);
-        return NoContent();
+        await _services.DeleteAsync(id);
+        return Ok(new { Message = $"Tratamiento con id:{id}, eliminado correctamente." });
+
     }
 }
