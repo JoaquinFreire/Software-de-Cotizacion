@@ -36,6 +36,7 @@ builder.Services.Configure<MongoDbSettings>(options =>
 });
 
 //REGISTRO DE SERVICIOS DE APLICACIÓN
+builder.Services.AddScoped<AlumTreatmentServices>(); // Registrar el servicio de aplicación para tratamientos de aluminio
 builder.Services.AddScoped<BudgetServices>(); // Registrar el servicio de aplicación para cotizaciones
 builder.Services.AddScoped<CustomerServices>(); // Registrar el servicio de aplicación para clientes
 builder.Services.AddScoped<UserServices>(); // Registrar el servicio de aplicación para usuarios
