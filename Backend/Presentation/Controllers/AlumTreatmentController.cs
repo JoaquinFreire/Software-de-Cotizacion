@@ -55,9 +55,6 @@ public class AlumTreatmentController : ControllerBase
     { 
         var result = await _mediator.Send(new UpdateAlumTreatmentCommand(id, dto));
         return result ? Ok(new {Message = "Tratamiento actualizado correctamente."}) : NotFound($"Tratamiento con ID {id} no encontrado.");
-        //var useCase = new UpdateAlumTreatment(_repository);
-        //var success = await useCase.Execute(id, dto);
-        //return success ? NoContent() : NotFound();
     }
 
     [HttpDelete("{id}")]

@@ -1,6 +1,9 @@
-using Domain.Entities;
-using Domain.Repositories;
+using Application.Services;
+using Application.DTOs.CoatingDTOs.CreateCoating;
+using Application.DTOs.CoatingDTOs.GetCoating;
+using Application.DTOs.CoatingDTOs.UpdateCoating;
 using Microsoft.AspNetCore.Mvc;
+using MediatR;
 
 namespace Presentation.Controllers
 {
@@ -8,48 +11,54 @@ namespace Presentation.Controllers
     [Route("api/coating")]
     public class CoatingController : ControllerBase
     {
-        private readonly ICoatingRepository _repository;
+        private readonly CoatingServices _services;
+        private readonly IMediator _mediator;
 
-        public CoatingController(ICoatingRepository repository)
+        public CoatingController(CoatingServices coatingServices, IMediator mediator)
         {
-            _repository = repository;
+            _services = coatingServices;
+            _mediator = mediator;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var items = await _repository.GetAllAsync();
-            return Ok(items);
+            var result = await _services.GetAllAsync();
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var item = await _repository.GetByIdAsync(id);
-            if (item == null) return NotFound();
-            return Ok(item);
+            var coating = await _mediator.Send(new GetCoatingQuery(id));
+            if (coating == null) return NotFound($"No se encontró un revestimiento con el ID: {id}");
+            return Ok(coating);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Coating coating)
+        public async Task<IActionResult> Create([FromBody] CreateCoatingDTO coating)
         {
-            await _repository.AddAsync(coating);
-            return CreatedAtAction(nameof(GetById), new { id = coating.id }, coating);
+            var command = new CreateCoatingCommand { Coating = coating };
+            var coatingId = await _mediator.Send(command);
+            return Ok(new { Message = "Revestimiento creado correctamente, Id: ", coatingId });
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] Coating coating)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateCoatingDTO coating)
         {
-            if (id != coating.id) return BadRequest();
-            await _repository.UpdateAsync(coating);
-            return NoContent();
+            var result = await _mediator.Send(new UpdateCoatingCommand(id, coating));
+            if (result.Equals(Unit.Value))
+            {
+                return Ok(new { Message = "Revestimiento actualizado correctamente." });
+            }
+            return NotFound($"No se encontró un revestimiento con el ID: {id}");
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _repository.DeleteAsync(id);
-            return NoContent();
+            await _services.DeleteAsync(id);
+            return Ok(new { Message = "Revestimiento eliminado correctamente." });
         }
     }
 }
