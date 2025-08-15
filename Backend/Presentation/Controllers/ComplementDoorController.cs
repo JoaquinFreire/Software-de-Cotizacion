@@ -1,6 +1,10 @@
-using Domain.Entities;
-using Domain.Repositories;
+using Application.Services;
+using Application.DTOs.ComplementDoorDTOs.CreateComplementDoor;
+using Application.DTOs.ComplementDoorDTOs.GetComplementDoor;
+using Application.DTOs.ComplementDoorDTOs.UpdateComplementDoor;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace Presentation.Controllers
 {
@@ -8,48 +12,52 @@ namespace Presentation.Controllers
     [Route("api/door")]
     public class ComplementDoorController : ControllerBase
     {
-        private readonly IComplementDoorRepository _repository;
+        private readonly ComplementDoorServices _services;
+        private readonly IMediator _mediator;
 
-        public ComplementDoorController(IComplementDoorRepository repository)
+        public ComplementDoorController(ComplementDoorServices services, IMediator mediator)
         {
-            _repository = repository;
+            _services = services;
+            _mediator = mediator;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var items = await _repository.GetAllAsync();
-            return Ok(items);
+            var doors = await _services.GetAllAsync();
+            if (doors == null || !doors.Any())
+            {
+                return NotFound("No doors found.");
+            }
+            return Ok(doors);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var item = await _repository.GetByIdAsync(id);
-            if (item == null) return NotFound();
-            return Ok(item);
+            var result = await _mediator.Send(new GetComplementDoorQuery(id));
+            return Ok(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ComplementDoor door)
+        public async Task<IActionResult> Create([FromBody] CreateComplementDoorDTO door)
         {
-            await _repository.AddAsync(door);
-            return CreatedAtAction(nameof(GetById), new { id = door.id }, door);
+            var result = await _mediator.Send(new CreateComplementDoorCommand { ComplementDoor = door });
+            return CreatedAtAction(nameof(GetById), new { id = result }, result);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] ComplementDoor door)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateComplementDoorDTO door)
         {
-            if (id != door.id) return BadRequest();
-            await _repository.UpdateAsync(door);
-            return NoContent();
+            var result = await _mediator.Send(new UpdateComplementDoorCommand { id = id, ComplementDoor = door });
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _repository.DeleteAsync(id);
-            return NoContent();
+            await _services.DeleteAsync(id);
+            return Ok(new { message = "Puerta eliminada correctamente" });
         }
     }
 }
