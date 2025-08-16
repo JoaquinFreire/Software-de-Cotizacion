@@ -1,5 +1,3 @@
-using Domain.Entities;
-using Domain.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.ComplementPartitionDTOs.CreateComplementPartition;
 using Application.DTOs.ComplementPartitionDTOs.GetComplementPartition;
@@ -13,13 +11,11 @@ namespace Presentation.Controllers
     [Route("api/partition")]
     public class ComplementPartitionController : ControllerBase
     {
-        private readonly IComplementPartitionRepository _repository;
         private readonly ComplementPartitionServices _services;
         private readonly IMediator _mediator;
 
-        public ComplementPartitionController(IComplementPartitionRepository repository, ComplementPartitionServices services, IMediator mediator)
+        public ComplementPartitionController(ComplementPartitionServices services, IMediator mediator)
         {
-            _repository = repository;
             _services = services;
             _mediator = mediator;
         }
