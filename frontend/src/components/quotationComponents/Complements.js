@@ -216,7 +216,14 @@ const Complements = ({
                             </div>
                             {/* Campos personalizados por tipo */}
                             {row.type === 'door' && complement && (
+                                <div>
+                                    <div style={{ display: 'flex', gap: 36, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', marginTop: 12}}>  
+                                    <h5> Cantidad </h5>
+                                    <h5> Ancho(cm) </h5>
+                                      <h5> Alto(cm) </h5>
+                                    </div>
                                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
+                                    
                                     <input
                                         type="number"
                                         min="1"
@@ -226,6 +233,7 @@ const Complements = ({
                                         onChange={e => handleRowChange(idx, 'quantity', e.target.value)}
                                         style={{ width: 80 }}
                                     />
+                                    
                                     <input
                                         type="number"
                                         min="1"
@@ -235,6 +243,7 @@ const Complements = ({
                                         onChange={e => handleCustomChange(idx, 'width', e.target.value)}
                                         style={{ width: 100 }}
                                     />
+                                  
                                     <input
                                         type="number"
                                         min="1"
@@ -254,41 +263,55 @@ const Complements = ({
                                         ))}
                                     </select>
                                     {/* Eliminar fila */}
-                                    <button type="button" onClick={() => handleRemoveRow(idx)} disabled={rows.length === 1} style={{ width: 70, height: 40 }}>🗑️</button>
-                                    {/* Accesorios */}
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                        <span>Accesorios:</span>
-                                        {(row.custom.accesories || []).map((acc, accIdx) => (
-                                            <div key={accIdx} style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                                                <input
-                                                    type="text"
-                                                    placeholder="Nombre"
-                                                    value={acc.name}
-                                                    onChange={e => handleAccChange(idx, accIdx, 'name', e.target.value)}
-                                                    style={{ width: 90 }}
-                                                />
-                                                <input
-                                                    type="number"
-                                                    min="1"
-                                                    step="1"
-                                                    placeholder="Cantidad"
-                                                    value={acc.quantity}
-                                                    onChange={e => handleAccChange(idx, accIdx, 'quantity', e.target.value)}
-                                                    style={{ width: 60 }}
-                                                />
-                                                <input
-                                                    type="number"
-                                                    min="0"
-                                                    step="0.01"
-                                                    placeholder="Precio"
-                                                    value={acc.price}
-                                                    onChange={e => handleAccChange(idx, accIdx, 'price', e.target.value)}
-                                                    style={{ width: 70 }}
-                                                />
-                                                <button type="button" onClick={() => handleRemoveAcc(idx, accIdx)} >🗑️</button>
-                                            </div>
+                                    <button type="button" onClick={() => handleRemoveRow(idx)} className='BottonDelete' disabled={rows.length === 1}>Borrar 🗑️</button>
+                                 </div>
+                                 <div>
+                                <div>
+                                <button type="button" onClick={() => handleAddAcc(idx)} className='BottonAccesories'>+ Accesorio</button>
+
+                                {row.custom.accesories && row.custom.accesories.length > 0 && (
+                                    <>
+                                        <div style={{ display: 'flex', gap: 46, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', marginTop: 10, marginRight:120 }}>  
+                                            <h5>Nombre del Accesorio</h5>
+                                            <h5>Cantidad</h5>
+                                            <h5>Precio</h5>
+                                        </div>
+                                
+                                        {row.custom.accesories.map((acc, accIdx) => (                           
+                <div key={accIdx} style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
+                    <input
+                        type="text"
+                        placeholder="Nombre del accesorio"
+                        value={acc.name}
+                        onChange={e => handleAccChange(idx, accIdx, 'name', e.target.value)}
+                        style={{ width: 190 }}
+                    />
+                    <input
+                        type="number"
+                        placeholder="Cantidad"
+                        min="1"
+                        step="1"
+                        value={acc.quantity}
+                        onChange={e => handleAccChange(idx, accIdx, 'quantity', e.target.value)}
+                        style={{ width: 100 }}
+                    />
+                    <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="Precio"
+                        value={acc.price}
+                        onChange={e => handleAccChange(idx, accIdx, 'price', e.target.value)}
+                        style={{ width: 120 }}
+                    />
+                    <button type="button" onClick={() => handleRemoveAcc(idx, accIdx)} className='BottonDelete'>🗑️</button>
+                </div>
                                         ))}
-                                        <button type="button" onClick={() => handleAddAcc(idx)}>+ Accesorio</button>
+                                    </>
+                                )}
+                            </div>
+
+                                        
                                     </div>
                                 </div>
                             )}

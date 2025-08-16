@@ -34,6 +34,13 @@
     
 }
 
+.home-logo {
+    background-attachment: fixed;
+    width: 100%;
+}
+    
+
+
 /* Fondo para cada botón */
 .newqoutation {
     background: url('../images/FondoNuevaCotizacion.webp') no-repeat center center/cover;

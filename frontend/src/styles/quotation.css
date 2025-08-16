@@ -19,6 +19,8 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     max-width: 600px;
     margin: 0 auto;
+    transition: background-color 2s, color 0.4s, border-color 0.4s, box-shadow 0.4s;
+
 }
 
 .form-group {
@@ -331,12 +333,25 @@ input::placeholder, select::placeholder {
     min-height: 300px;
     color: #fff;
     top: unset;
+    transition: background-color 2s, color 0.4s, border-color 0.4s, box-shadow 0.4s;
+
 }
 .quotation-indice h3 {
     margin-top: 2px;
     color: #26b7cd;
     font-size: 1.3rem;
     margin-bottom: 18px;
+}
+body.light-mode .quotation-indice {
+    background: #fff;
+    color: #222;
+    border: 1px solid #26b7cd;
+   
+}
+body.light-mode .quotation-indice h3 {
+    color: #26b7cd;
+        
+
 }
 .quotation-main {
     flex: 1 1 600px;
@@ -360,6 +375,8 @@ input::placeholder, select::placeholder {
     min-height: 300px;
     color: #fff;
     margin-left: 313px;
+    transition: background-color 2s, color 0.4s, border-color 0.4s, box-shadow 0.4s;
+
 }
 
 .quotation-summary h3 {
@@ -369,6 +386,16 @@ input::placeholder, select::placeholder {
     margin-bottom: 18px;
 }
 
+body.light-mode .quotation-summary {
+    background: #fff;
+    color: #222;
+    border: 1px solid #26b7cd;
+
+}
+body.light-mode .quotation-summary h3 {
+    color: #26b7cd;
+
+}
 .summary-item {
     border-bottom: 1px solid #e0e0e0;
     padding: 8px 0;
@@ -401,7 +428,28 @@ input::placeholder, select::placeholder {
     font-size: 14px;
     margin: 8px 0;
 }
-
+.BottonDelete {
+    background: #e65151;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+.BottonAccesories {
+    background: #26b7cd;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
 /* Botón agregar abertura y complemento */
 .add-opening-btn,
 .add-complement-btn {

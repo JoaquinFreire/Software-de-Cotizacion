@@ -282,13 +282,9 @@ const Navigation = ({ onLogout }) => {
                 src={theme === "light" ? "open" : "closed"}
                 className={`sidebar-nav${sidebarOpen ? " open" : " closed"}`}
                 style={{
-                    transition: "transform 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s",
-                    transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
-                    boxShadow: sidebarOpen ? "2px 0 16px #00ffff33" : "none",
-
                     width: sidebarOpen ? "250px" : "0px",
-                    backgroundColor: theme === "light" ? "#b4b4b4ff" : "#121212"
-
+                    backgroundColor: theme === "light" ? "#ffffffff" : "#121212",
+    
                 }}
             >
                 <button
@@ -330,7 +326,7 @@ const Navigation = ({ onLogout }) => {
                         className="sidebar-link sidebar-admin-btn"
                         onClick={() => setAdminMenuOpen((prev) => !prev)}
                     >
-                        Admin
+                        Administrar
                         <span style={{ marginLeft: 6, fontSize: 14 }}>{adminMenuOpen ? "▲" : "▼"}</span>
                     </button>
                     {adminMenuOpen && (
