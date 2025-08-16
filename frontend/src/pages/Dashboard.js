@@ -221,6 +221,16 @@ const Dashboard = () => {
                                 locale="es"
                             />
                         </div>
+                        <div className="advanced-filter-form">
+                        <Calendar
+                            value={lastEditFromDate}
+                            onChange={handleLastEditFromCalendarChange}
+                            showIcon
+                            dateFormat="dd/mm/yy"
+                            placeholder="Última edición desde"
+                            locale="es"
+                        />
+                    </div>
                     </div>
                     <div className="filter-Advanced">
                         <input
@@ -231,18 +241,6 @@ const Dashboard = () => {
                             placeholder="Precio total"
                             className="filter-Advanced"
                         />
-                    </div>
-                    <div className="advanced-filter-form">
-                        <Calendar
-                            value={lastEditFromDate}
-                            onChange={handleLastEditFromCalendarChange}
-                            showIcon
-                            dateFormat="dd/mm/yy"
-                            placeholder="Última edición desde"
-                            locale="es"
-                        />
-                    </div>
-                    <div className="filter-Advanced">
                         <input
                             type="number"
                             name="userId"
@@ -251,8 +249,6 @@ const Dashboard = () => {
                             placeholder="ID Usuario"
                             className="filter-Advanced"
                         />
-                    </div>
-                    <div className="filter-Advanced">
                         <input
                             type="text"
                             name="customerDni"

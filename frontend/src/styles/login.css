@@ -86,9 +86,6 @@ input {
 
 }
 
-button:hover {
-    background: #26b7cd;
-}
 
 /* Mensaje de error */
 .error-message {

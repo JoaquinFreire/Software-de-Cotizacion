@@ -1,4 +1,3 @@
-
 .nav-links {
     background-color: #080808; /* Fondo más oscuro */
     padding: 20px 30px;
@@ -291,14 +290,15 @@ input:checked + .slider:before {
     transform: translateX(0);
 }
 
-body.light-mode .sidebar-link:hover,
-body.light-mode .sidebar-link.active,
-body.light-mode .sidebar-admin-btn:hover,
-body.light-mode .sidebar-admin-btn.active {
-    background: #26b7cd;
-    color: #111;
+body.light-mode .sidebar-link,
+body.light-mode .sidebar-admin-btn {
+    color: #111 ;
 }
-    
+
+body.light-mode .sidebar-admin-dropdown .sidebar-link {
+    color: #00c3ff;
+}
+
 body {
   background-color: #111;;
 }
@@ -426,7 +426,7 @@ body.light-mode .new-header {
 }
 .sidebar-toggle-btn:hover {
     background: #26b7cd22;
-    border-radius: 0 20px 20px 0;
+    border-radius: 23px 0px 0px 28px;
 }
 
 .sidebar-show-btn {
@@ -594,10 +594,7 @@ body.light-mode .sidebar-show-btn {
     transition: background-color 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s cubic-bezier(.4,2,.6,1), transform 0.3s cubic-bezier(.4,2,.6,1);
     transform: translateX(0);
 }
-body.light-mode .navigation-root .sidebar-nav,
-.navigation-root .sidebar-nav.sidebar-light {
-    background-color: #c6cece;
-}
+
 .navigation-root .sidebar-nav.sidebar-dark {
     background-color: #121212;
 }
@@ -629,22 +626,28 @@ body.light-mode .navigation-root .sidebar-nav,
     max-width: 100%;
     display: block;
 }
-/*fondo de sidebar en modo claro*/
-body.light-mode .navigation-root .sidebar-link,
-body.light-mode .navigation-root .sidebar-admin-btn {
-    background: #cfd2d3;
-    color: #111;
+body.light-mode.navigation-root .sidebar-admin-dropdown .sidebar-link
+ {
+    color: #000000;
+    font-size: 15px;
+    padding: 10px 12px;
+    background: none;
+    color: #4fceced0;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 body.light-mode .navigation-root .sidebar-link:hover,
 body.light-mode .navigation-root .sidebar-link.active,
 body.light-mode .navigation-root .sidebar-admin-btn:hover,
 body.light-mode .navigation-root .sidebar-admin-btn.active {
-    background: #00ffffa4;
+    background: #00ffff78;
     color: #111;
 }
 .navigation-root .sidebar-link.active,
 .navigation-root .sidebar-link:hover {
-    background: #00ffff9c;
+    background: #00ffff78;
     color: #111;
 }
 
@@ -674,7 +677,7 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
 }
 .navigation-root .sidebar-admin-btn:hover,
 .navigation-root .sidebar-admin-btn.active {
-    background: #00ffffa4;
+    background: #00ffff78;
     color: #111;
 }
 
@@ -718,17 +721,17 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
 }
 .navigation-root .sidebar-toggle-btn:hover {
     background: #00FFFF22;
-    border-radius: 0 20px 20px 0;
+
 }
 
 .navigation-root .sidebar-show-btn {
     position: fixed;
-    top: 18px;
+    top: 10px;
     left: 0;
     z-index: 210;
     background: #111;
     border: none;
-    border-radius: 0 20px 20px 0;
+    
     padding: 6px 8px 6px 2px;
     cursor: pointer;
     box-shadow: 2px 0 16px #00ffff33;
@@ -737,17 +740,7 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
     height: 48px;
 }
 
-/* Sidebar overlay para móvil */
-.sidebar-nav.sidebar-mobile {
-    width: 100vw !important;
-    height: 100vh !important;
-    left: 0;
-    top: 0;
-    z-index: 200;
-    box-shadow: 0 0 0 100vw rgba(0,0,0,0.5);
-    background: inherit;
-    transition: transform 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s;
-}
+
 .sidebar-nav.sidebar-mobile.closed {
     transform: translateX(-100%);
     box-shadow: none;

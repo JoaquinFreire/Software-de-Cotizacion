@@ -1,6 +1,6 @@
 .dashboard-container {
-    /* background: url('../images/fondo-login.jpg') no-repeat center center/cover; */
-    background-color: #1f1f20;
+    background: #115a69;
+    background: linear-gradient(90deg,#115a69 0%, rgb(7, 33, 37) 50%, rgba(11, 49, 56, 1) 100%);
     min-height: 100vh;
     padding: 0;
     margin: 0;
@@ -66,8 +66,10 @@
 
 
 body.light-mode .dashboard-container {
-    background-color: #e2e5e7 ;
+    background: #93D3DB;
+background: linear-gradient(90deg,#26b7cd 0%, rgba(204, 227, 225, 1) 50%, #26b7cd 100%);
 }
+
 
 
 body.light-mode .dashboard-header {
@@ -114,7 +116,6 @@ body,
 .filtro::after,
 .quote-details,
 .quote-actions,
-.quotation-form,
 .embla__slide,
 .embla__container {
     transition: background-color 2s, color 0.4s, border-color 0.4s, box-shadow 0.4s;

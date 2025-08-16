@@ -32,7 +32,6 @@
 
 .footer-content-vertical {
     width: 96%;
-    max-width: 900px;
     margin: 32px auto 0 auto;
     padding: 24px 232px 18px 292px;
     background: rgb(18, 18, 18);
@@ -170,10 +169,8 @@
     flex-direction: row;
     align-items: center;
     gap: 14px;
-    width: 100%;
     justify-content: flex-start;
     margin-top: 10px;
-    margin-left: 156px;
 }
 
 .footer-right {

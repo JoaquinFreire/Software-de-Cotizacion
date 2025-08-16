@@ -31,6 +31,7 @@ addLocale('es', {
     clear: 'Limpiar'
 });
 
+
 const Historial = () => {
     const {
         historialState, pageSize, goToHistorialPage, switchToHistorial
@@ -212,6 +213,16 @@ const Historial = () => {
                                 placeholder="Hasta"
                                 locale="es"
                             />
+                            <div className="advanced-filter-form">
+                            <Calendar
+                                value={lastEditFromDate}
+                                onChange={handleLastEditFromCalendarChange}
+                                showIcon
+                                dateFormat="dd/mm/yy"
+                                placeholder="Ultima modificacion Desde"
+                                locale="es"
+                            />
+                        </div>
                         </div>
                         <div className="filter-Advanced">
                             <select
@@ -227,21 +238,11 @@ const Historial = () => {
                                 <option className="filter-status-select" value="finished">Finalizado</option>
                             </select>
                             <input type="number" name="approxTotalPrice" value={filters.approxTotalPrice} onChange={handleFilterChange} placeholder="Precio total" className="filter-Advanced"/>
-                        </div>
-                        <div className="advanced-filter-form">
-                            <Calendar
-                                value={lastEditFromDate}
-                                onChange={handleLastEditFromCalendarChange}
-                                showIcon
-                                dateFormat="dd/mm/yy"
-                                placeholder="Ultima modificacion Desde"
-                                locale="es"
-                            />
-                        </div>
-                        <div className="filter-Advanced">
+                       
                             <input type="number" name="userId" value={filters.userId} onChange={handleFilterChange} placeholder="ID Usuario" className="filter-Advanced"/>
                             <input type="text" name="customerDni" value={filters.customerDni} onChange={handleFilterChange} placeholder="DNI Cliente" className="filter-Advanced"/>
                         </div>
+
                         <div className="advanced-filter-form">
                             <button type="submit" className="search-button">Buscar
                                 <img src={logo_busqueda} alt="Buscar" />
