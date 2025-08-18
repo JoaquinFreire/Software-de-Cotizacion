@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Domain.UseCases;
-using System.Threading.Tasks;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
@@ -8,7 +6,6 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Domain.Repositories;
 using Application.Services;
-using DotNetEnv;
 
 [ApiController]
 [Route("api/auth")]

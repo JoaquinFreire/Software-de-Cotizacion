@@ -1,6 +1,7 @@
-using Application.DTOs;
-using Application.UseCases.OpeningType;
-using Domain.Repositories;
+using Application.Services;
+using Application.DTOs.OpeningTypeDTOs.CreateOpeningType;
+using Application.DTOs.OpeningTypeDTOs.UpdateOpeningType;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,50 +12,47 @@ namespace Presentation.Controllers;
 [Authorize]
 public class OpeningTypeController : ControllerBase
 {
-    private readonly IOpeningTypeRepository _repository;
+    private readonly OpeningTypeServices _services;
+    private IMediator _mediator;
 
-    public OpeningTypeController(IOpeningTypeRepository repository)
+    public OpeningTypeController(OpeningTypeServices services, IMediator mediator)
     {
-        _repository = repository;
+        _services = services;
+        _mediator = mediator;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var useCase = new GetAllOpeningTypes(_repository);
-        var result = await useCase.Execute();
+        var result = await _services.GetAllAsync();
         return Ok(result);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var useCase = new GetOpeningTypeById(_repository);
-        var result = await useCase.Execute(id);
+        var result = await _services.GetByIdAsync(id);
         return result is not null ? Ok(result) : NotFound();
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Opening_TypeDTO dto)
+    public async Task<IActionResult> Create([FromBody] CreateOpeningTypeDTO dto)
     {
-        var useCase = new CreateOpeningType(_repository);
-        await useCase.Execute(dto);
-        return CreatedAtAction(nameof(GetAll), null);
+        var command = _mediator.Send(new CreateOpeningTypeCommand { OpeningType = dto });
+        return Ok(await command);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Opening_TypeDTO dto)
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateOpeningTypeDTO dto)
     {
-        var useCase = new UpdateOpeningType(_repository);
-        var success = await useCase.Execute(id, dto);
-        return success ? NoContent() : NotFound();
+        var command = _mediator.Send(new UpdateOpeningTypeCommand { id = id, OpeningType = dto });
+        return Ok(await command);
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var useCase = new DeleteOpeningType(_repository);
-        var success = await useCase.Execute(id);
-        return success ? NoContent() : NotFound();
+        await _services.DeleteAsync(id);
+        return Ok();
     }
 }

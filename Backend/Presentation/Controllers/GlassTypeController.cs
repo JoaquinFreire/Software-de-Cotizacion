@@ -1,6 +1,10 @@
 using Application.DTOs;
+using Application.DTOs.GlassTypeDTOs.CreateGlassType;
+using Application.DTOs.GlassTypeDTOs.UpdateGlassType;
+using Application.Services;
 using Application.UseCases.Glass;
 using Domain.Repositories;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,51 +16,52 @@ namespace Presentation.Controllers;
 public class GlassTypeController : ControllerBase
 {
     private readonly IGlassTypeRepository _repository;
+    private readonly IMediator _mediator;
+    private readonly GlassTypeServices _services;
 
-    public GlassTypeController(IGlassTypeRepository repository)
+    public GlassTypeController(IGlassTypeRepository repository, IMediator mediator, GlassTypeServices services)
     {
         _repository = repository;
+        _mediator = mediator;
+        _services = services;
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll() // aca lo que hace es llamar al
+    public async Task<IActionResult> GetAll()
     {
-        var useCase = new GetAllGlassTypes(_repository);
-        var result = await useCase.ExecuteAsync();
+        var result = await _services.GetAllAsync();
         return Ok(result);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var useCase = new GetGlassTypeById(_repository);
-        var result = await useCase.ExecuteAsync(id);
-        return result == null ? NotFound() : Ok(result);
+        var result = await _services.GetByIdAsync(id);
+        if (result == null)
+        {
+            return NotFound();
+        }
+        return Ok(result);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] GlassTypeDTO dto)
+    public async Task<IActionResult> Create([FromBody] CreateGlassTypeDTO dto)
     {
-        var useCase = new CreateGlassType(_repository);
-        await useCase.ExecuteAsync(dto);
-        return Ok();
+        var result = await _mediator.Send(new CreateGlassTypeCommand { GlassType = dto });
+        return Ok(result);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] GlassTypeDTO dto)
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateGlassTypeDTO dto)
     {
-        dto.id = id;
-        var useCase = new UpdateGlassType(_repository);
-        await useCase.ExecuteAsync(dto);
-        return Ok();
+        var result = await _mediator.Send(new UpdateGlassTypeCommand { id = id, glassType = dto });
+        return Ok(result);
     }
-    /* Console.WriteLine($"ID: {id}");
-    Console.WriteLine($"DTO ID: {dto.id}"); */
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var useCase = new DeleteGlassType(_repository);
-        await useCase.ExecuteAsync(id);
+        await _services.DeleteAsync(id);
         return Ok();
+
     }
 }
