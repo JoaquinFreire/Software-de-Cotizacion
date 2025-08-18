@@ -1,6 +1,7 @@
-using Application.DTOs;
-using Application.UseCases.Price;
-using Domain.Repositories;
+using Application.DTOs.PriceDTOs.CreatePrice;
+using Application.DTOs.PriceDTOs.UpdatePrice;
+using Application.Services;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,50 +12,47 @@ namespace Presentation.Controllers;
 [Authorize]
 public class PriceController : ControllerBase
 {
-    private readonly IPriceRepository _repository;
+    private readonly PriceServices _services;
+    private readonly IMediator _mediator;
 
-    public PriceController(IPriceRepository repository)
+    public PriceController(PriceServices services, IMediator mediator)
     {
-        _repository = repository;
+        _services = services;
+        _mediator = mediator;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var useCase = new GetAllPrices(_repository);
-        var result = await useCase.Execute();
+        var result = await _services.GetAllAsync();
         return Ok(result);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var useCase = new GetPriceById(_repository);
-        var result = await useCase.Execute(id);
+        var result = await _services.GetByIdAsync(id);
         return result is not null ? Ok(result) : NotFound();
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] PriceDTO dto)
+    public async Task<IActionResult> Create([FromBody] CreatePriceDTO dto)
     {
-        var useCase = new CreatePrice(_repository);
-        await useCase.Execute(dto);
-        return CreatedAtAction(nameof(GetAll), null);
+        var command = await _mediator.Send(new CreatePriceCommand { PriceDTO = dto});
+        return Ok(command);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] PriceDTO dto)
+    public async Task<IActionResult> Update(int id, [FromBody] UpdatePriceDTO dto)
     {
-        var useCase = new UpdatePrice(_repository);
-        var success = await useCase.Execute(id, dto);
-        return success ? NoContent() : NotFound();
+        var command = await _mediator.Send(new UpdatePriceCommand { Id = id, Price = dto});
+        return Ok(command);
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var useCase = new DeletePrice(_repository);
-        var success = await useCase.Execute(id);
-        return success ? NoContent() : NotFound();
+        await _services.DeleteAsync(id);
+        return Ok();
     }
 }

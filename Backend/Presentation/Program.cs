@@ -44,6 +44,8 @@ builder.Services.AddScoped<ComplementPartitionServices>(); // Registrar el servi
 builder.Services.AddScoped<ComplementRailingServices>(); // Registrar el servicio de aplicación para barandas
 builder.Services.AddScoped<CustomerServices>(); // Registrar el servicio de aplicación para clientes
 builder.Services.AddScoped<GlassTypeServices>(); // Registrar el servicio de aplicación para tipos de vidrio
+builder.Services.AddScoped<OpeningTypeServices>(); // Registrar el servicio de aplicación para tipos de aberturas
+builder.Services.AddScoped<PriceServices>(); // Registrar el servicio de aplicación para precios
 builder.Services.AddScoped<UserServices>(); // Registrar el servicio de aplicación para usuarios
 
 
