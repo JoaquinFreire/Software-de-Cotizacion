@@ -41,7 +41,9 @@ builder.Services.AddScoped<BudgetServices>(); // Registrar el servicio de aplica
 builder.Services.AddScoped<CoatingServices>(); // Registrar el servicio de aplicación para revestimientos
 builder.Services.AddScoped<ComplementDoorServices>(); // Registrar el servicio de aplicación para puertas
 builder.Services.AddScoped<ComplementPartitionServices>(); // Registrar el servicio de aplicación para tabiques
+builder.Services.AddScoped<ComplementRailingServices>(); // Registrar el servicio de aplicación para barandas
 builder.Services.AddScoped<CustomerServices>(); // Registrar el servicio de aplicación para clientes
+builder.Services.AddScoped<GlassTypeServices>(); // Registrar el servicio de aplicación para tipos de vidrio
 builder.Services.AddScoped<UserServices>(); // Registrar el servicio de aplicación para usuarios
 
 
