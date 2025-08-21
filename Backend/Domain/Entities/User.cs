@@ -20,9 +20,9 @@ public class User
     [BsonIgnore]
     public int role_id { get; set; }  // Clave foránea hacia UserRole
     [BsonIgnore]
-    public UserRole role { get; set; } = new UserRole();  // Relación con UserRole (navegación)
+    public UserRole role { get; set; }
     [BsonElement("mail")]
-    public string mail { get; set; } = string.Empty; // Nueva columna
+    public string mail { get; set; } = string.Empty; 
                                                      // TODO : @Joaquin: Agregar Telefono
     // acá saqué el BsonIgnore, posible error con mongo TODO: @Joaquin: Ver si es necesario
     public int status { get; set; } = 1; // Nueva columna (0 = inactivo, 1 = activo)

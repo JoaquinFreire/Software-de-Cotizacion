@@ -1,4 +1,7 @@
 using Domain.Entities;
+using MediatR;
+using Application.Services;
+using Application.DTOs.UserDTOs.CreateUser;
 using Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,10 +16,14 @@ using Microsoft.EntityFrameworkCore; // Para AppDbContext
 public class UserController : ControllerBase
 {
     private readonly IUserRepository _userRepository;
+    private readonly IMediator _mediator; // aca joaquin
+    private readonly UserServices _userServices;
 
-    public UserController(IUserRepository userRepository)
+    public UserController(IUserRepository userRepository, IMediator mediator, UserServices userServices)
     {
         _userRepository = userRepository;
+        _mediator = mediator;
+        _userServices = userServices;
     }
 
     [HttpGet]
@@ -35,22 +42,16 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] User newUser)
+    public async Task<IActionResult> Create([FromBody] CreateUserDTO newUser)
     {
-        if (newUser == null || string.IsNullOrEmpty(newUser.name) || string.IsNullOrEmpty(newUser.lastName) || newUser.role_id == 0)
-            return BadRequest("Invalid data.");
-
-        // Si no se recibe password_hash, hashear "1234"
         if (string.IsNullOrEmpty(newUser.password_hash))
         {
             newUser.password_hash = BCrypt.Net.BCrypt.HashPassword("1234");
         }
+        var command = new CreateuserCommand { User = newUser };
+        await _mediator.Send(command);
 
-        // Evita que EF intente crear un nuevo UserRole
-        newUser.role = null;
-
-        await _userRepository.AddAsync(newUser);
-        return CreatedAtAction(nameof(GetById), new { id = newUser.id }, newUser);
+        return Ok(new { message = "Usuario creado exitosamente." });
     }
 
     [HttpPut("{id}")]

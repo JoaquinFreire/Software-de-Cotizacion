@@ -7,11 +7,13 @@ using System.Net.Mail;
 using System.Net;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Presentation.Controllers;
 
 [ApiController]
 [Route("api/user-invitations")]
+[Authorize]
 public class UserInvitationController : ControllerBase
 {
     private readonly IUserInvitationRepository _invitationRepo;
@@ -83,6 +85,12 @@ public class UserInvitationController : ControllerBase
         var fromMail = _config["MAIL"];
         var host = _config["HOST"];
 
+        if (string.IsNullOrWhiteSpace(apiKey))
+            throw new Exception("API_KEY de SendGrid no configurada.");
+
+        // Debug: log apiKey (remove in production)
+        Console.WriteLine("SendGrid API Key: " + apiKey);
+
         var client = new SendGridClient(apiKey);
         var from = new EmailAddress(fromMail, "Mi App");
         var subject = "Invitación para crear contraseña";
@@ -116,7 +124,11 @@ public class UserInvitationController : ControllerBase
         var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
         var response = await client.SendEmailAsync(msg);
         if (!response.IsSuccessStatusCode)
+        {
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                throw new Exception("Error enviando mail: API Key inválida o sin permisos. Verifica que la API Key tenga permisos de 'Mail Send' y esté correctamente configurada en SendGrid.");
             throw new Exception("Error enviando mail: " + response.StatusCode);
+        }
     }
 
     // POST: api/user-invitations/recover
@@ -167,6 +179,12 @@ public class UserInvitationController : ControllerBase
         var fromMail = _config["MAIL"];
         var host = _config["HOST"];
 
+        if (string.IsNullOrWhiteSpace(apiKey))
+            throw new Exception("API_KEY de SendGrid no configurada.");
+
+        // Debug: log apiKey (remove in production)
+        Console.WriteLine("SendGrid API Key: " + apiKey);
+
         var client = new SendGridClient(apiKey);
         var from = new EmailAddress(fromMail, "Mi App");
         var subject = "Recuperar contraseña";
@@ -199,7 +217,11 @@ public class UserInvitationController : ControllerBase
         var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
         var response = await client.SendEmailAsync(msg);
         if (!response.IsSuccessStatusCode)
+        {
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                throw new Exception("Error enviando mail: API Key inválida o sin permisos. Verifica que la API Key tenga permisos de 'Mail Send' y esté correctamente configurada en SendGrid.");
             throw new Exception("Error enviando mail: " + response.StatusCode);
+        }
     }
 }
 
