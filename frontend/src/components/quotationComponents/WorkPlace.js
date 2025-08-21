@@ -1,6 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import ciudadesBarriosRaw from '../../json/ciudadesBarriosCordoba.json';
+
+// Accede correctamente a la propiedad ciudades
+const ciudadesBarrios = ciudadesBarriosRaw?.default || ciudadesBarriosRaw;
+const ciudades = Array.isArray(ciudadesBarrios?.Cordoba?.ciudades) ? ciudadesBarrios.Cordoba.ciudades : [];
+console.log(ciudadesBarrios, "ciudades1");
+console.log(ciudades, "ciudades2");
 
 const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
+    const [selectedCiudad, setSelectedCiudad] = useState('');
+    const [selectedBarrio, setSelectedBarrio] = useState('');
+    const [calle, setCalle] = useState('');
+    const [numero, setNumero] = useState('');
+
+    useEffect(() => {
+        // Actualiza el nombre con ciudad y barrio
+        if (selectedCiudad && selectedBarrio) {
+            setWorkPlace(prev => ({
+                ...prev,
+                name: `${selectedCiudad} - ${selectedBarrio}`
+            }));
+        }
+    }, [selectedCiudad, selectedBarrio, setWorkPlace]);
+
+    useEffect(() => {
+        // Actualiza la dirección combinando calle y número
+        setWorkPlace(prev => ({
+            ...prev,
+            address: calle && numero ? `${calle} ${numero}` : ''
+        }));
+    }, [calle, numero, setWorkPlace]);
+
     const handleInputChange = (field, value) => {
         setWorkPlace({ ...workPlace, [field]: value });
         if (errors[field]) {
@@ -8,32 +38,72 @@ const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
         }
     };
 
+    const barrios = selectedCiudad
+        ? (ciudades.find(c => c.nombre === selectedCiudad)?.barrios || [])
+        : [];
+
     return (
         <div className="workplace-container">
             <h3>Espacio de Trabajo</h3>
             <div className="form-group">
-                <label>Nombre:</label>
-                <input
-                    type="text"
-                    value={workPlace.name}
-                    onChange={e => handleInputChange("name", e.target.value)}
+                <label>Ciudad de Córdoba:</label>
+                <select
+                    value={selectedCiudad}
+                    onChange={e => {
+                        setSelectedCiudad(e.target.value);
+                        setSelectedBarrio('');
+                    }}
                     className={errors.name ? "input-error" : ""}
-                    placeholder="Ingrese el nombre del espacio de trabajo"
                     required
-                />
+                >
+                    <option value="">Seleccione ciudad</option>
+                    {ciudades.map(ciudad => (
+                        <option key={ciudad.nombre} value={ciudad.nombre}>
+                            {ciudad.nombre}
+                        </option>
+                    ))}
+                </select>
                 {errors.name && <span className="error-message">{errors.name}</span>}
             </div>
+            {selectedCiudad && (
+                <div className="form-group">
+                    <label>Barrio:</label>
+                    <select
+                        value={selectedBarrio}
+                        onChange={e => setSelectedBarrio(e.target.value)}
+                        className={errors.name ? "input-error" : ""}
+                        required
+                    >
+                        <option value="">Seleccione barrio</option>
+                        {barrios.map(barrio => (
+                            <option key={barrio} value={barrio}>
+                                {barrio}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            )}
             <div className="form-group">
-                <label>Dirección:</label>
+                <label>Calle:</label>
                 <input
                     type="text"
-                    value={workPlace.address}
-                    onChange={e => handleInputChange("address", e.target.value)}
+                    value={calle}
+                    onChange={e => setCalle(e.target.value)}
                     className={errors.address ? "input-error" : ""}
-                    placeholder="Ingrese la dirección"
+                    placeholder="Ingrese la calle"
                     required
                 />
-                {errors.address && <span className="error-message">{errors.address}</span>}
+            </div>
+            <div className="form-group">
+                <label>Número:</label>
+                <input
+                    type="text"
+                    value={numero}
+                    onChange={e => setNumero(e.target.value)}
+                    className={errors.address ? "input-error" : ""}
+                    placeholder="Ingrese el número"
+                    required
+                />
             </div>
             <div className="form-group">
                 <label>Tipo de Trabajo:</label>

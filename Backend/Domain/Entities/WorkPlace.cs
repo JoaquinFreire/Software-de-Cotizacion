@@ -14,6 +14,8 @@ namespace Domain.Entities
         public int id { get; set; }
         [BsonElement("name")]
         public string? name { get; set; }
+        [BsonElement("location")]
+        public string? location { get; set; }
         [BsonElement("address")]
         public string? address { get; set; }
         // Clave foránea para WorkType
