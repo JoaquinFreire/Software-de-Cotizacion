@@ -63,7 +63,7 @@ const reportCards = [
     title: "Análisis de Proyectos por Ubicación Geográfica",
     icon: <MapPin size={40} />,
     className: "reporte-proyectos-ubicacion",
-    route: "/reportes/proyectos-ubicacion"
+    route: "/reportes/ubicacion-geografica"
   },
   {
     title: "Análisis de Ciclo de Vida de los Proyectos",

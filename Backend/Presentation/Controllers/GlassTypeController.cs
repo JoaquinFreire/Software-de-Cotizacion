@@ -1,9 +1,6 @@
-using Application.DTOs;
 using Application.DTOs.GlassTypeDTOs.CreateGlassType;
 using Application.DTOs.GlassTypeDTOs.UpdateGlassType;
 using Application.Services;
-using Application.UseCases.Glass;
-using Domain.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,13 +12,11 @@ namespace Presentation.Controllers;
 [Route("api/glass-types")]
 public class GlassTypeController : ControllerBase
 {
-    private readonly IGlassTypeRepository _repository;
     private readonly IMediator _mediator;
     private readonly GlassTypeServices _services;
 
-    public GlassTypeController(IGlassTypeRepository repository, IMediator mediator, GlassTypeServices services)
+    public GlassTypeController(IMediator mediator, GlassTypeServices services)
     {
-        _repository = repository;
         _mediator = mediator;
         _services = services;
     }

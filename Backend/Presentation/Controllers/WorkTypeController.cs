@@ -1,20 +1,17 @@
-using Domain.Entities;
-using Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Application.Services;
 
 [ApiController]
 [Route("api/worktypes")] // Asegúrate de que la ruta sea correcta
 [Authorize]
 public class WorkTypeController : ControllerBase
 {
-    private readonly IWorkTypeRepository _workTypeRepository;
+    private readonly WorkTypeServices _services;
 
-    public WorkTypeController(IWorkTypeRepository workTypeRepository)
+    public WorkTypeController(WorkTypeServices services)
     {
-        _workTypeRepository = workTypeRepository;
+        _services = services;
     }
 
     [HttpGet]
@@ -22,7 +19,7 @@ public class WorkTypeController : ControllerBase
     {
         try
         {
-            var workTypes = await _workTypeRepository.GetAllAsync();
+            var workTypes = await _services.GetAllAsync();
             Console.WriteLine("WorkTypes fetched: " + workTypes.Count()); // Verificar la cantidad de workTypes
             return Ok(workTypes);
         }

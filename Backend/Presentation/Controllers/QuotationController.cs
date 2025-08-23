@@ -3,7 +3,7 @@ using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore; // Agrega esto para usar IQueryable y Skip/Take
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,7 +16,7 @@ public class QuotationController : ControllerBase
     private readonly CreateQuotation _createQuotation;
     private readonly ICustomerRepository _customerRepository;
     private readonly IUserRepository _userRepository;
-    private readonly IWorkPlaceRepository _workPlaceRepository; // Cambiado a IWorkPlaceRepository
+    private readonly IWorkPlaceRepository _workPlaceRepository;
 
     public QuotationController(IQuotationRepository quotationRepository, CreateQuotation createQuotation, ICustomerRepository customerRepository, IUserRepository userRepository, IWorkPlaceRepository workPlaceRepository) // Cambiado a IWorkPlaceRepository
     {
@@ -79,6 +79,7 @@ public class QuotationController : ControllerBase
             {
                 quotation.WorkPlace?.id,
                 quotation.WorkPlace?.name,
+                quotation.WorkPlace?.location,
                 quotation.WorkPlace?.address,
                 quotation.WorkPlace?.workTypeId
             }
