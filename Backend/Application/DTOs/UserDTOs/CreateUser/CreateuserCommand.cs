@@ -2,9 +2,7 @@
 
 namespace Application.DTOs.UserDTOs.CreateUser
 {
-    public class CreateUserCommand : IRequest<Unit>
+    public class CreateuserCommand : IRequest<Unit>
     {
-        public required CreateUserDTO user { get; set; }
-
     }
 }
