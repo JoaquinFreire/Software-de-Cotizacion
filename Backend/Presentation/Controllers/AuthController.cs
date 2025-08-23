@@ -4,7 +4,6 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
-using Domain.Repositories;
 using Application.Services;
 
 [ApiController]
@@ -12,14 +11,12 @@ using Application.Services;
 public class AuthController : ControllerBase
 {
     private readonly LoginUser _loginUser;
-    private readonly IUserRepository _userRepository;
-    private readonly UserServices _userServices;
+    private readonly UserServices _services;
 
-    public AuthController(LoginUser loginUser, IUserRepository userRepository, UserServices userServices)
+    public AuthController(LoginUser loginUser, UserServices services)
     {
         _loginUser = loginUser;
-        _userRepository = userRepository;
-        _userServices = userServices;
+        _services = services;
     }
 
     [HttpPost("login")]
@@ -66,7 +63,7 @@ public class AuthController : ControllerBase
     {
         var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
         if (userId == null) return Unauthorized();
-        var user = await _userServices.GetUserData(int.Parse(userId));
+        var user = await _services.GetUserData(int.Parse(userId));
         if (user == null) return NotFound();
 
         return Ok(new
@@ -85,7 +82,7 @@ public class AuthController : ControllerBase
         var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
         if (userId == null) return Unauthorized();
 
-        var user = await _userRepository.GetByIdAsync(int.Parse(userId));
+        var user = await _services.GetByIdAsync(int.Parse(userId));
         if (user == null) return NotFound();
 
         var token = GenerateJwtToken(user);

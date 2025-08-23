@@ -5,7 +5,6 @@ using Application.DTOs.ComplementDoorDTOs.UpdateComplementDoor;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-
 namespace Presentation.Controllers
 {
     [ApiController]
