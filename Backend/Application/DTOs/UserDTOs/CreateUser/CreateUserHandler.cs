@@ -4,7 +4,7 @@ using Application.Services;
 using Domain.Entities;
 namespace Application.DTOs.UserDTOs.CreateUser;
 
-public class CreateUserHandler : IRequestHandler<CreateuserCommand, Unit>
+public class CreateUserHandler : IRequestHandler<CreateUserCommand, Unit>
 {
     private readonly UserServices _services;
     private readonly IMapper _mapper;
@@ -13,7 +13,7 @@ public class CreateUserHandler : IRequestHandler<CreateuserCommand, Unit>
         _services = services;
         _mapper = mapper;
     }
-    public async Task<Unit> Handle(CreateuserCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
         var user = _mapper.Map<User>(request.User);
         await _services.AddAsync(user);

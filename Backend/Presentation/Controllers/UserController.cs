@@ -46,7 +46,7 @@ public class UserController : ControllerBase
         {
             newUser.password_hash = BCrypt.Net.BCrypt.HashPassword("1234");
         }
-        var command = await _mediator.Send(new CreateuserCommand{ User = newUser });
+        var command = await _mediator.Send(new CreateUserCommand{ User = newUser });
         await _mediator.Send(command);
 
         return Ok(new { message = "Usuario creado exitosamente." });
