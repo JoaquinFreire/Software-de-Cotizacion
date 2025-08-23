@@ -17,11 +17,12 @@ namespace Application.DTOs.UserDTOs.UpdateUserStatus
         public async Task<Unit> Handle(UpdateUserStatusCommand request, CancellationToken cancellationToken)
         {
             var user = await _services.GetByIdAsync(request.Id);
-            if (user == null)
-            {
-                throw new KeyNotFoundException("User not found");
-            }
-            user.status = request.status;
+            //Instancia de validación
+            if(user.status == 1){
+                user.status = 0;
+                } else{
+                    user.status = 1;
+                }
             await _services.UpdateAsync(user);
             return Unit.Value;
         }

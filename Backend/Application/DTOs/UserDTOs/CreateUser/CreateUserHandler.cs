@@ -1,18 +1,23 @@
 ﻿using AutoMapper;
 using MediatR;
 using Application.Services;
-using MediatR;
-using AutoMapper;
 using Domain.Entities;
 namespace Application.DTOs.UserDTOs.CreateUser;
 
-public class CreateUserHandler : IRequestHandler<CreateuserCommand, int>
+public class CreateUserHandler : IRequestHandler<CreateuserCommand, Unit>
 {
+    private readonly UserServices _services;
     private readonly IMapper _mapper;
+    public CreateUserHandler(UserServices services, IMapper mapper)
     {
+        _services = services;
         _mapper = mapper;
     }
+    public async Task<Unit> Handle(CreateuserCommand request, CancellationToken cancellationToken)
     {
+        var user = _mapper.Map<User>(request.User);
+        await _services.AddAsync(user);
+        return Unit.Value;
     }
 }
 
