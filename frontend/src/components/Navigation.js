@@ -334,7 +334,7 @@ const Navigation = ({ onLogout }) => {
                             <NavLink to="/admin/usuarios" className="sidebar-link">Administrar Usuarios</NavLink>
                             <NavLink to="/admin/materiales" className="sidebar-link">Administrar Materiales</NavLink>
                             <NavLink to="/admin/descuentos" className="sidebar-link">Administrar Descuentos</NavLink>
-                            <NavLink to="/admin/aberturas" className="sidebar-link">Administrar Lineas</NavLink>
+                            <NavLink to="/admin/aberturas" className="sidebar-link">Administrar Aberturas</NavLink>
                             <NavLink to="/admin/Administrar" className="sidebar-link">Administrar General</NavLink>
                         </div>
                     )}
