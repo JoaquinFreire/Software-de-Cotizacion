@@ -15,8 +15,8 @@ import BudgetDetail from './pages/BudgetDetail';
 import CreatePassword from './pages/CreatePassword';
 import SessionModal from './components/SessionModal';
 import Customers from './pages/Customers';
-import Materiales from './pages/Materiales';
-import Aberturas from './pages/Aberturas';
+import Materiales from './pages/Materials/Materiales';
+import Aberturas from './pages/openings/Aberturas';
 import { QuotationProvider } from './context/QuotationContext'; // Importar el proveedor de contexto
 import { CustomerProvider } from './context/customerContext';
 import Home from "./components/Home";
@@ -24,6 +24,15 @@ import AdminMaterials from "./pages/admin/AdminMaterials";
 import AdminDiscount from "./pages/admin/AdminDiscount";
 import AdminOpening from "./pages/admin/AdminOpening";
 import Administrar from "./pages/admin/Administrar";
+import Coating from './pages/Materials/coating';
+import AluminumTreatment from './pages/Materials/aluminumTreatment'; 
+import TypeGlass from './pages/Materials/TypeGlass';
+import Accesories from './pages/openings/Accesories';
+import TypeLine from './pages/openings/TypeLine';
+import Complement from './pages/openings/Complement';
+
+
+
 
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -178,6 +187,15 @@ function App() {
                         <Route path="/customers" element={<PrivateRoute element={<Customers />} />} />
                         <Route path="/materiales" element={<PrivateRoute element={<Materiales />} />} />
                         <Route path="/aberturas" element={<PrivateRoute element={<Aberturas />} />} />
+                        <Route path="/openings/accessories" element={<PrivateRoute element={<Accesories />} />} />
+                        <Route path="/openings/Complement" element={<PrivateRoute element={<Complement />} />} />
+                        <Route path="/openings/typesLines" element={<PrivateRoute element={<TypeLine />} />} />
+                        <Route path="/materials/coating" element={<PrivateRoute element={<Coating />} />} />
+                        <Route path="/materials/aluminumTreatment" element={<PrivateRoute element={<AluminumTreatment />} />} />
+                        <Route path="/materials/typeglass" element={<PrivateRoute element={<TypeGlass />} />} />
+
+
+
 
                         {/* Ruta catch-all para redirigir a la página principal */}
                         <Route path="*" element={<Navigate to="/" />} />
