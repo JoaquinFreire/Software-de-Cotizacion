@@ -15,7 +15,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Unit>
     }
     public async Task<Unit> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
-        var user = _mapper.Map<User>(request.User);
+        var user = _mapper.Map<User>(request.user);
         await _services.AddAsync(user);
         return Unit.Value;
     }
