@@ -43,7 +43,6 @@ public class GetQuotationsByPeriodAndLocationHandler : IRequestHandler<GetQuotat
                 Location = q.WorkPlace.location,
                 Address = q.WorkPlace.address,
                 WorkTypeId = q.WorkPlace.workTypeId,
-                WorkTypeName = q.WorkPlace.WorkType != null ? q.WorkPlace.WorkType.name : null // Nuevo campo
             },
             Customer = q.Customer == null ? null : new CustomerDTO
             {
