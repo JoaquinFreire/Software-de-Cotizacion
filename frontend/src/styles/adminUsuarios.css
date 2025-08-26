@@ -148,7 +148,9 @@ body.light-mode .users-table td {
     color: #26b7cd;
     border: 1px solid #26b7cd;
 }
-
+.status-button {
+    width: 7rem
+}
 .status-button:hover {
     background: #26b7cd;
     color: #fff;
