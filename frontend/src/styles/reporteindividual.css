@@ -80,7 +80,7 @@
 .reporte-cotizaciones-filtros {
     display: flex;
     gap: 24px;
-    align-items: flex-end;
+    align-items:first baseline;
     background: #fff;
     padding: 18px 32px 18px 32px;
     border-radius: 10px;
@@ -255,6 +255,86 @@
 .reporte-cotizaciones-footer-logo {
     height: 44px;
     margin-right: 32px;
+}
+
+/* Estilos adicionales */
+.reporte-cotizaciones-select {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #1976d2;
+    background: #f6f8fa;
+    font-size: 16px;
+    min-width: 180px;
+    color: #222;
+}
+
+.reporte-cotizaciones-select option {
+    background: #fff;
+    color: #222;
+}
+
+/* Botón Ver/Ocultar barrio */
+.btn-ver-barrio {
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 4px 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-ver-barrio:hover {
+    background: #1565c0;
+}
+.btn-ver-barrio:active {
+    background: #0d47a1;
+}
+
+/* Botón Ver/Ocultar todo */
+.btn-ver-todo {
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 4px 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-ver-todo:hover {
+    background: #1565c0;
+}
+.btn-ver-todo:active {
+    background: #0d47a1;
+}
+
+/* Botón PDF debajo del Generar Reporte */
+.reporte-cotizaciones-pdf-btn-container {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 8px;
+    flex-direction: column;
+}
+
+.reporte-cotizaciones-btn-pdf {
+    background: #43a047;
+    margin-left: 0;
+    min-width: 150px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Título de barrio en detalle centrado */
+.titulo-barrio-detalle {
+    text-align: center;
+    color: #1976d2;
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+    font-weight: 600;
 }
 
 /* Ajustes para impresión/pdf */
