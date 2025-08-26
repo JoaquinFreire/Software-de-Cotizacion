@@ -17,7 +17,8 @@ public class GetQuotationsByPeriodAndLocationHandler : IRequestHandler<GetQuotat
     {
         var query = _quotationRepository.Query()
             .Include(q => q.WorkPlace)
-            .Include(q => q.Customer) // <--- Incluye el cliente
+                .ThenInclude(wp => wp.WorkType) // Incluye el tipo de obra
+            .Include(q => q.Customer)
             .Where(q => q.CreationDate >= request.From && q.CreationDate <= request.To);
 
         if (!string.IsNullOrEmpty(request.Location))
@@ -41,7 +42,8 @@ public class GetQuotationsByPeriodAndLocationHandler : IRequestHandler<GetQuotat
                 Name = q.WorkPlace.name,
                 Location = q.WorkPlace.location,
                 Address = q.WorkPlace.address,
-                WorkTypeId = q.WorkPlace.workTypeId
+                WorkTypeId = q.WorkPlace.workTypeId,
+                WorkTypeName = q.WorkPlace.WorkType != null ? q.WorkPlace.WorkType.name : null // Nuevo campo
             },
             Customer = q.Customer == null ? null : new CustomerDTO
             {

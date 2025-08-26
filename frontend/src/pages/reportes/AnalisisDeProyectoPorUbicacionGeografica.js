@@ -43,6 +43,15 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log(res.data, " esta es la respuesta");
+      // Nuevo: log de los datos de cliente de cada cotización
+      if (Array.isArray(res.data)) {
+        res.data.forEach((q, idx) => {
+          console.log(`Cotización #${idx} - Cliente:`, q.Customer);
+          if (q.WorkPlace) {
+            console.log(`Cotización #${idx} - WorkPlace:`, q.WorkPlace);
+          }
+        });
+      }
       const data = res.data || [];
       // Agrupa por barrio
       const barriosMap = {};
@@ -58,7 +67,17 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
         }
         console.log(q.WorkPlace.Location, " location");
 
-        const tipoObra = q.WorkPlace?.workTypeId || '';
+        // Si no viene el nombre, mapea el número a texto
+        let tipoObra = q.WorkPlace?.WorkTypeName || q.WorkPlace?.workTypeName || '';
+        if (!tipoObra) {
+          const workTypeId = q.WorkPlace?.WorkTypeId || q.WorkPlace?.workTypeId;
+          if (workTypeId === 1) tipoObra = "Instalación";
+          else if (workTypeId === 2) tipoObra = "Reparación";
+          else if (workTypeId === 3) tipoObra = "Continuación";
+          else if (workTypeId) tipoObra = `Tipo ${workTypeId}`;
+          else tipoObra = '';
+        }
+
         if (!barriosMap[barrio]) {
           barriosMap[barrio] = { count: 0, tipoObra, cotizaciones: [] };
         }
@@ -70,7 +89,7 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
         barrio,
         count: info.count,
         porcentaje: total ? ((info.count / total) * 100).toFixed(1) + '%' : '0%',
-        tipoObra: info.cotizaciones[0]?.WorkPlace?.workTypeId || '',
+        tipoObra: info.tipoObra,
         cotizaciones: info.cotizaciones
       }));
       setResultados(resultadosTabla);
