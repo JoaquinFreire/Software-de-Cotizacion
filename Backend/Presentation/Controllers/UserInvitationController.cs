@@ -1,31 +1,28 @@
 using Microsoft.AspNetCore.Mvc;
 using Domain.Repositories;
 using Domain.Entities;
-using System;
-using System.Threading.Tasks;
-using System.Net.Mail;
-using System.Net;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using Microsoft.AspNetCore.Authorization;
+using Application.Services;
 
 namespace Presentation.Controllers;
-
+//TODO: Terminar de eliminar referencias a la capa de dominio
 [ApiController]
 [Route("api/user-invitations")]
 [Authorize]
 public class UserInvitationController : ControllerBase
 {
     private readonly IUserInvitationRepository _invitationRepo;
-    private readonly IUserRepository _userRepo;
     private readonly IConfiguration _config;
-    public UserInvitationController(IUserInvitationRepository invitationRepo, IUserRepository userRepo, IConfiguration config)
+    private readonly UserServices _services;
+    public UserInvitationController(IUserInvitationRepository invitationRepo, IConfiguration config, UserServices services)
     {
         _config = config;
         {
             _invitationRepo = invitationRepo;
-            _userRepo = userRepo;
             _config = config;
+            _services = services;
         }
     }
 
@@ -34,7 +31,7 @@ public class UserInvitationController : ControllerBase
     [HttpPost("invite")]
     public async Task<IActionResult> Invite([FromBody] InviteRequest req)
     {
-        var user = await _userRepo.GetByIdAsync(req.userId);
+        var user = await _services.GetByIdAsync(req.userId);
         if (user == null || string.IsNullOrEmpty(user.mail))
             return BadRequest("Usuario no encontrado o sin email.");
 
@@ -70,11 +67,11 @@ public class UserInvitationController : ControllerBase
         if (invitation == null || invitation.used || invitation.expires_at < DateTime.UtcNow)
             return BadRequest("Token inválido o expirado.");
 
-        var user = await _userRepo.GetByIdAsync(invitation.user_id);
+        var user = await _services.GetByIdAsync(invitation.user_id);
         if (user == null) return NotFound();
 
         user.password_hash = BCrypt.Net.BCrypt.HashPassword(req.NewPassword);
-        await _userRepo.UpdateAsync(user);
+        await _services.UpdateAsync(user);
         await _invitationRepo.MarkAsUsedAsync(invitation.id);
 
         return Ok("Contraseña actualizada.");
@@ -136,7 +133,7 @@ public class UserInvitationController : ControllerBase
     public async Task<IActionResult> Recover([FromBody] RecoverRequest req)
     {
         // Buscar usuario por dni
-        var user = await _userRepo.GetByDniAsync(req.Dni);
+        var user = await _services.GetByDniAsync(req.Dni);
         if (user == null || string.IsNullOrEmpty(user.mail))
             return Ok(new { error = "DNI no encontrado" });
 

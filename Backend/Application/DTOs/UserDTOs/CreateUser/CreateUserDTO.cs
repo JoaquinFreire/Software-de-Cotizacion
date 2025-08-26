@@ -1,11 +1,10 @@
-namespace Application.DTOs.UserDTOs.CreateUser;
-
+﻿namespace Application.DTOs.UserDTOs.CreateUser;
 public class CreateUserDTO
 {
-    public required string name { get; set; } // Nombre del usuario
-    public required string lastName { get; set; } // Apellido del usuario
-    public string? legajo { get; set; } // Identificador único para login,
-    public string? password_hash { get; set; } // Contraseña encriptada, opcional
-    public required int role_id { get; set; } // Clave foránea hacia UserRole
-    public required string mail { get; set; } // Correo electrónico del usuario
+    public required string name { get; set; }
+    public required string lastName { get; set; }
+    public string? legajo { get; set; }
+    public string? password_hash { get; set; }
+    public required int role_id { get; set; }
+    public required string mail { get; set; }
 }

@@ -1,8 +1,9 @@
-using MediatR;
-namespace Application.DTOs.UserDTOs.CreateUser;
+﻿using MediatR;
 
-public class CreateuserCommand : IRequest<int>
+namespace Application.DTOs.UserDTOs.CreateUser
 {
-    public required CreateUserDTO User { get; set; } // DTO para crear un usuario
+    public class CreateUserCommand : IRequest<Unit>
+    {
+        public required CreateUserDTO user { get; set; }
+    }
 }
-
