@@ -10,7 +10,7 @@ namespace Presentation.Controllers;
 //TODO: Terminar de eliminar referencias a la capa de dominio
 [ApiController]
 [Route("api/user-invitations")]
-[Authorize]
+/* [Authorize] */
 public class UserInvitationController : ControllerBase
 {
     private readonly IUserInvitationRepository _invitationRepo;
@@ -29,6 +29,7 @@ public class UserInvitationController : ControllerBase
     public class InviteRequest { public int userId { get; set; } }
     // POST: api/user-invitations/invite
     [HttpPost("invite")]
+    [Authorize]
     public async Task<IActionResult> Invite([FromBody] InviteRequest req)
     {
         var user = await _services.GetByIdAsync(req.userId);
@@ -129,9 +130,11 @@ public class UserInvitationController : ControllerBase
     }
 
     // POST: api/user-invitations/recover
+    [AllowAnonymous]
     [HttpPost("recover")]
     public async Task<IActionResult> Recover([FromBody] RecoverRequest req)
     {
+        Console.WriteLine("Entro a recover");
         // Buscar usuario por dni
         var user = await _services.GetByDniAsync(req.Dni);
         if (user == null || string.IsNullOrEmpty(user.mail))
