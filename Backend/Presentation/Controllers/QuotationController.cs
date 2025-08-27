@@ -5,6 +5,10 @@ using Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Application.DTOs.QuotationDTOs; // Agrega el using para los DTOs
+using MediatR; // Agrega el using para MediatR
 
 [ApiController]
 [Route("api/quotations")]
@@ -17,15 +21,25 @@ public class QuotationController : ControllerBase
     private readonly ICustomerRepository _customerRepository;
     private readonly IUserRepository _userRepository;
     private readonly IWorkPlaceRepository _workPlaceRepository;
+    private readonly IMediator _mediator; // Agrega la propiedad IMediator
 
-    public QuotationController(QuotationServices services, IQuotationRepository quotationRepository, CreateQuotation createQuotation, ICustomerRepository customerRepository, IUserRepository userRepository, IWorkPlaceRepository workPlaceRepository) // Cambiado a IWorkPlaceRepository
+    public QuotationController(
+        QuotationServices services,
+        IQuotationRepository quotationRepository,
+        CreateQuotation createQuotation,
+        ICustomerRepository customerRepository,
+        IUserRepository userRepository,
+        IWorkPlaceRepository workPlaceRepository,
+        IMediator mediator // Agrega el parámetro IMediator
+    )
     {
         _services = services;
         _quotationRepository = quotationRepository;
         _createQuotation = createQuotation;
         _customerRepository = customerRepository;
         _userRepository = userRepository;
-        _workPlaceRepository = workPlaceRepository; // Asignado
+        _workPlaceRepository = workPlaceRepository;
+        _mediator = mediator; // Asigna el mediator
     }
 
     [HttpGet]
@@ -264,6 +278,20 @@ public class QuotationController : ControllerBase
             .ToListAsync();
 
         return Ok(new { total, quotations });
+    }
+
+    [HttpGet("by-period-location")]
+    public async Task<IActionResult> GetByPeriodAndLocation([FromQuery] DateTime from, [FromQuery] DateTime to, [FromQuery] string location)
+    {
+        var query = new GetQuotationsByPeriodAndLocationQuery
+        {
+            From = from,
+            To = to,
+            Location = location
+        };
+        var result = await _mediator.Send(query);
+        // El resultado ya debe incluir datos de cliente en cada cotización
+        return Ok(result);
     }
 }
 

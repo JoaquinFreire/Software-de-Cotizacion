@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Presentation.Controllers;
 [ApiController]
 [Route("api/user-invitations")]
-[Authorize]
+/* [Authorize] */
 public class UserInvitationController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -24,6 +24,7 @@ public class UserInvitationController : ControllerBase
     public class InviteRequest { public int userId { get; set; } }
 
     [HttpPost("invite")]
+    [Authorize]
     public async Task<IActionResult> Invite([FromBody] InviteRequest req)
     {
         var token = await _mediator.Send(new CreateUserInvitationCommand { UserId = req.userId });
@@ -49,9 +50,11 @@ public class UserInvitationController : ControllerBase
     }
 
     // POST: api/user-invitations/recover
+    [AllowAnonymous]
     [HttpPost("recover")]
     public async Task<IActionResult> Recover([FromBody] RecoverRequest req, [FromServices] IMailServices mailService)
     {
+        // Buscar usuario por dni
         var user = await _services.GetByDniAsync(req.Dni);
         if (user == null || string.IsNullOrEmpty(user.mail))
             return Ok(new { error = "DNI no encontrado" });
