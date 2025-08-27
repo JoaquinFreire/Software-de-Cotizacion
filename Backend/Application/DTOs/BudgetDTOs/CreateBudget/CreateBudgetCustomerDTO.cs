@@ -14,6 +14,6 @@ namespace Application.DTOs.BudgetDTOs.CreateBudget
         public string? mail { get; set; }
         public string? address { get; set; }
         public string? dni { get; set; }
-        public CreateBudgetCustomerAgentDTO? agent { get; set; }
+        public List<CreateBudgetCustomerAgentDTO>? agents { get; set; } // Soporta múltiples agentes
     }
 }

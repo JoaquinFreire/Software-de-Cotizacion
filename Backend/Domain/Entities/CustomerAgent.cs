@@ -22,6 +22,9 @@ namespace Domain.Entities
         public required string tel { get; set; }
         [BsonElement("mail")]
         public required string mail { get; set; }
+        // NUEVO: Relación muchos a muchos
+        [BsonIgnore]
+        public List<Customer> Customers { get; set; } = new();
 
     }
 }

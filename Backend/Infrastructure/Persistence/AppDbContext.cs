@@ -90,11 +90,28 @@ public class AppDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
 
         // Relación entre Customer y CustomerAgent
+        // NUEVO: Relación muchos a muchos
         modelBuilder.Entity<Customer>()
-            .HasOne(c => c.agent)
-            .WithMany()
-            .HasForeignKey(c => c.agentId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasMany(c => c.Agents)
+            .WithMany(a => a.Customers)
+            .UsingEntity<Dictionary<string, object>>(
+                "customer_customeragent",
+                j => j
+                    .HasOne<CustomerAgent>()
+                    .WithMany()
+                    .HasForeignKey("agent_id")
+                    .HasConstraintName("FK_CustomerAgent_Customer"),
+                j => j
+                    .HasOne<Customer>()
+                    .WithMany()
+                    .HasForeignKey("customer_id")
+                    .HasConstraintName("FK_Customer_CustomerAgent"),
+                j =>
+                {
+                    j.HasKey("customer_id", "agent_id");
+                    j.ToTable("customer_customeragent");
+                }
+            );
 
         modelBuilder.Entity<Customer>()
             .Property(c => c.registration_date)
@@ -109,7 +126,7 @@ public class AppDbContext : DbContext
         //modelBuilder.Entity<Complement>()
         //    .Property(co => co.unit)
         //    .HasConversion<int>(); // Guarda el enum como INT en la base de datos
-        
+
         modelBuilder.Entity<UserInvitation>()
         .HasOne(ui => ui.user)
         .WithMany()

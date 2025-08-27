@@ -20,9 +20,7 @@ public class CreateBudgetProfile : Profile
 
         //Mapeo CustomerDTO a Customer
         CreateMap<CreateBudgetCustomerDTO, Customer>()
-            .ForMember(d => d.agentId, o => o.Ignore())
-            .ForMember(d => d.registration_date, o => o.Ignore())
-            .ForMember(d => d.agent, o => o.MapFrom(s => s.agent)); // <-- Asegura el mapeo del agente
+            .ForMember(d => d.Agents, o => o.MapFrom(s => s.agents)); // <-- Mapea la colección Agents
 
         //Mapeo CustomerAgentDTO a CustomerAgent
         CreateMap<CreateBudgetCustomerAgentDTO, CustomerAgent>();

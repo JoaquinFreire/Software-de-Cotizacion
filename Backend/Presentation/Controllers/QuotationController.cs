@@ -87,7 +87,15 @@ public class QuotationController : ControllerBase
                     quotation.Customer.mail,
                     quotation.Customer.address,
                     RegistrationDate = quotation.Customer.registration_date.ToString("yyyy-MM-ddTHH:mm:ssZ"), // Formatear DateTime a string
-                    quotation.Customer.agentId
+                    // Elimina agentId y agent
+                    // Si quieres mostrar los agentes asociados:
+                    Agents = quotation.Customer.Agents?.Select(a => new {
+                        a.id,
+                        a.name,
+                        a.lastname,
+                        a.tel,
+                        a.mail
+                    }).ToList()
                 }
             },
             WorkPlace = new
@@ -108,7 +116,7 @@ public class QuotationController : ControllerBase
         Console.WriteLine("Request recibido en /api/quotations:");
         Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(request));
         Console.WriteLine("Contenido de customer.agent:");
-        Console.WriteLine(request.customer.agent == null ? "AGENTE ES NULL" : System.Text.Json.JsonSerializer.Serialize(request.customer.agent));
+        Console.WriteLine(request.customer.Agents == null ? "AGENTE ES NULL" : System.Text.Json.JsonSerializer.Serialize(request.customer.Agents));
 
         // Permitir totalPrice en 0 si hay aberturas o complementos
         bool hasOpenings = request?.openings != null && request.openings.Count > 0;
@@ -116,27 +124,24 @@ public class QuotationController : ControllerBase
         if (request == null || (!hasOpenings && !hasComplements))
             return BadRequest("Datos inválidos.");
 
-        // 1. Agente (si viene en el payload)
-        int? agentId = null;
-        if (request.customer.agent != null)
+        // 1. Agentes (si vienen en el payload)
+        List<CustomerAgent> agents = new();
+        if (request.customer?.Agents != null && request.customer.Agents.Count > 0)
         {
-            Console.WriteLine("Creando agente...");
-            var agent = new CustomerAgent
-            {
-                name = request.customer.agent.name,
-                lastname = request.customer.agent.lastname,
-                tel = request.customer.agent.tel,
-                mail = request.customer.agent.mail
-            };
             var dbContext = HttpContext.RequestServices.GetService(typeof(AppDbContext)) as AppDbContext;
-            dbContext.CustomerAgents.Add(agent);
+            foreach (var agentDto in request.customer.Agents)
+            {
+                var agent = new CustomerAgent
+                {
+                    name = agentDto.name,
+                    lastname = agentDto.lastname,
+                    tel = agentDto.tel,
+                    mail = agentDto.mail
+                };
+                dbContext.CustomerAgents.Add(agent);
+                agents.Add(agent);
+            }
             await dbContext.SaveChangesAsync();
-            agentId = agent.id;
-            Console.WriteLine($"Agente creado con id: {agentId}");
-        }
-        else
-        {
-            Console.WriteLine("No se recibió agente en el payload.");
         }
 
         // 2. Cliente
@@ -154,14 +159,15 @@ public class QuotationController : ControllerBase
                     mail = request.customer.mail,
                     address = request.customer.address,
                     dni = request.customer.dni,
-                    agentId = agentId // Asocia el agente creado
+                    // Asocia los agentes creados
+                    Agents = agents
                 };
                 await _customerRepository.AddAsync(customer);
-                Console.WriteLine($"Cliente creado con id: {customer.id} y agentId: {customer.agentId}");
             }
             else
             {
-                Console.WriteLine($"Cliente ya existe con id: {customer.id} y agentId: {customer.agentId}");
+                // Si el cliente ya existe, puedes actualizar la lista de agentes si es necesario
+                // customer.Agents = ... (merge/update logic if needed)
             }
         }
         else
