@@ -1,25 +1,26 @@
 using Application.UseCases;
+using Application.Services;
 using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 [ApiController]
 [Route("api/quotations")]
 [Authorize]
 public class QuotationController : ControllerBase
 {
+    private readonly QuotationServices _services;
     private readonly IQuotationRepository _quotationRepository;
     private readonly CreateQuotation _createQuotation;
     private readonly ICustomerRepository _customerRepository;
     private readonly IUserRepository _userRepository;
     private readonly IWorkPlaceRepository _workPlaceRepository;
 
-    public QuotationController(IQuotationRepository quotationRepository, CreateQuotation createQuotation, ICustomerRepository customerRepository, IUserRepository userRepository, IWorkPlaceRepository workPlaceRepository) // Cambiado a IWorkPlaceRepository
+    public QuotationController(QuotationServices services, IQuotationRepository quotationRepository, CreateQuotation createQuotation, ICustomerRepository customerRepository, IUserRepository userRepository, IWorkPlaceRepository workPlaceRepository) // Cambiado a IWorkPlaceRepository
     {
+        _services = services;
         _quotationRepository = quotationRepository;
         _createQuotation = createQuotation;
         _customerRepository = customerRepository;
@@ -30,7 +31,7 @@ public class QuotationController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 5, [FromQuery] string? status = null)
     {
-        var query = _quotationRepository.Query();
+        var query = _services.Query();
         if (!string.IsNullOrEmpty(status))
         {
             query = query.Where(q => q.Status == status);
@@ -49,7 +50,7 @@ public class QuotationController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var quotation = await _quotationRepository.GetByIdAsync(id);
+        var quotation = await _services.GetByIdAsync(id);
         if (quotation == null) return NotFound();
         return Ok(new
         {

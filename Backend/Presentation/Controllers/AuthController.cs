@@ -1,10 +1,12 @@
+using Application.DTOs.UserDTOs.GetUser;
+using Application.Services;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.AspNetCore.Authorization;
-using Application.Services;
 
 [ApiController]
 [Route("api/auth")]
@@ -12,11 +14,13 @@ public class AuthController : ControllerBase
 {
     private readonly LoginUser _loginUser;
     private readonly UserServices _services;
+    private readonly IMediator _mediator;
 
-    public AuthController(LoginUser loginUser, UserServices services)
+    public AuthController(LoginUser loginUser, UserServices services, IMediator mediator)
     {
         _loginUser = loginUser;
         _services = services;
+        _mediator = mediator;
     }
 
     [HttpPost("login")]
@@ -58,20 +62,19 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("me")]
-    [Authorize] // Solo permite acceso si el usuario está autenticado
+    [Authorize]
     public async Task<IActionResult> GetUserData()
     {
         var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
         if (userId == null) return Unauthorized();
-        var user = await _services.GetUserData(int.Parse(userId));
-        if (user == null) return NotFound();
+
+        var query = new GetUserQuery { id = int.Parse(userId) };
+        var userDto = await _mediator.Send(query);
 
         return Ok(new
         {
-            user,
-            userId = user.id,
- /*            mail = user.mail, // Nueva propiedad
-            status = user.status // Nueva propiedad */
+            user = userDto,
+            userId = userDto.id
         });
     }
 

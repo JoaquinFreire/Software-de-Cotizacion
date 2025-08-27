@@ -38,17 +38,10 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    //TODO: Solucionar el encriptado de contraseña(se esta subiendo tal cual se carga la contraseña)
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateUserDTO newUser)
     {
-        if (string.IsNullOrEmpty(newUser.password_hash))
-        {
-            newUser.password_hash = BCrypt.Net.BCrypt.HashPassword("1234");
-        }
-        var command = await _mediator.Send(new CreateUserCommand{ user = newUser });
-        await _mediator.Send(command);
-
+        await _mediator.Send(new CreateUserCommand { user = newUser });
         return Ok(new { message = "Usuario creado exitosamente." });
     }
 

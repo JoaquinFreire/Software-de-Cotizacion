@@ -1,6 +1,5 @@
 ﻿using Domain.Repositories;
 using Domain.Entities;
-//TODO: Utilizar DTOs
 
 namespace Application.Services
 {

@@ -2,7 +2,7 @@
 using AutoMapper;
 using Application.Services;
 using MediatR;
-using Application.Validators;
+using Application.Validators.BudgetValidation;
 
 namespace Application.DTOs.BudgetDTOs.CreateBudget
 {

@@ -2,6 +2,7 @@
 using MediatR;
 using Application.Services;
 using Domain.Entities;
+
 namespace Application.DTOs.UserDTOs.CreateUser;
 
 public class CreateUserHandler : IRequestHandler<CreateUserCommand, Unit>

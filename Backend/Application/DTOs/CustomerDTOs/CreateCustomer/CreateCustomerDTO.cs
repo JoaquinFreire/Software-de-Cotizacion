@@ -8,7 +8,7 @@ namespace Application.DTOs.CustomerDTOs.CreateCustomer
 {
     public class CreateCustomerDTO
     {
-        //TODO: Verificar si esta bien para SQL
+        //TODO:@leo Actualizar cuando se realicen los cambios en el modelo de datos
         public required string name { get; set; }
         public required string lastname { get; set; }
         public required string tel { get; set; }

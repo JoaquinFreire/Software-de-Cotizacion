@@ -1,4 +1,3 @@
-using Application.DTOs;
 using Application.DTOs.CustomerDTOs.CreateCustomer;
 using Application.DTOs.CustomerDTOs.GetCustomer;
 using Application.DTOs.CustomerDTOs.UpdateCustomer;
@@ -66,10 +65,6 @@ public class CustomerController : ControllerBase
     {
         var result = await _mediator.Send(new UpdateCustomerCommand (dni, updatedCustomer));
         return result ? Ok(new { Message = "Cliente actualizado correctamente." }) : BadRequest("No se pudo actualizar el cliente.");
-        //if (updatedCustomer == null || updatedCustomer.id != id) return BadRequest("Invalid data.");
-
-        //await _customerRepository.UpdateAsync(updatedCustomer);
-        //return NoContent();
     }
 
     [HttpDelete("{id}")]

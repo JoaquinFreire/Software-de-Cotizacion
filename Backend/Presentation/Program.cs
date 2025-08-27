@@ -1,18 +1,19 @@
 using Application.DTOs.BudgetDTOs.CreateBudget;
 using Application.DTOs.CustomerDTOs.CreateCustomer;
+using Application.Mapping.CustomerProfile;
 using Application.Services;
 using Application.UseCases;
-using Application.Validators;
+using Application.Validators.BudgetValidation;
+using Application.Validators.CustomerValidation;
 using Domain.Repositories; //TODO: En lo posible eliminar esta dependencia, porque no corresponde a la capa de presentación
 using DotNetEnv;
-using Application.Mapping.CustomerProfile;
 using Infrastructure.Persistence.MongoDBContext;
 using Infrastructure.Persistence.Repositories;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Application.Validators.CustomerValidation;
 Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
 
 Console.WriteLine("Arrancando backend...");
@@ -46,11 +47,10 @@ builder.Services.AddScoped<CustomerServices>(); // Registrar el servicio de apli
 builder.Services.AddScoped<GlassTypeServices>(); // Registrar el servicio de aplicación para tipos de vidrio
 builder.Services.AddScoped<OpeningTypeServices>(); // Registrar el servicio de aplicación para tipos de aberturas
 builder.Services.AddScoped<PriceServices>(); // Registrar el servicio de aplicación para precios
+builder.Services.AddScoped<QuotationServices>(); // Registrar el servicio de aplicación para cotizaciones
 builder.Services.AddScoped<UserServices>(); // Registrar el servicio de aplicación para usuarios
+builder.Services.AddScoped<UserInvitationServices>(); // Registrar el servicio de aplicación para invitaciones de usuario
 
-
-
-builder.Services.AddScoped<UserServices>();
 
 //REGISTRO DE MAPEO DE ENTIDADES DE DOMINIO
 builder.Services.AddAutoMapper(typeof(CreateBudgetProfile));//Mapeo de cotizaciones
@@ -92,6 +92,8 @@ builder.Logging.AddConsole();
 
 // Inyección de dependencias para los servicios del dominio TODO: Verificar si es necesario usar la capa de dominio aca
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserInvitationRepository, UserInvitationRepository>();
+builder.Services.AddScoped<IMailServices, SendGridMailService>();
 builder.Services.AddScoped<LoginUser>();
 
 builder.Services.AddScoped<IQuotationRepository, QuotationRepository>();
@@ -99,7 +101,6 @@ builder.Services.AddScoped<CreateQuotation>();
 
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICustomerAgentRepository, CustomerAgentRepository>();
-builder.Services.AddScoped<CreateCustomer>();
 
 builder.Services.AddScoped<IWorkTypeRepository, WorkTypeRepository>(); // Asegúrate de registrar IWorkTypeRepository
 builder.Services.AddScoped<IWorkPlaceRepository, WorkPlaceRepository>(); // Asegúrate de registrar IWorkPlaceRepository
