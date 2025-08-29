@@ -46,7 +46,13 @@ const Quotation = () => {
         name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: ''
     });
     // const [isCustomerComplete, setIsCustomerComplete] = useState(false); // <-- ELIMINAR ESTA LÍNEA
-    const [newAgent, setNewAgent] = useState({ name: '', lastname: '', tel: '', mail: '' });
+    const [agents, setAgents] = useState([]); // Lista de agentes asociados al customer
+    const [agentSearchDni, setAgentSearchDni] = useState(""); // DNI para buscar agente
+    const [agentSearchResult, setAgentSearchResult] = useState(null); // Resultado de búsqueda de agente
+    const [agentSearchError, setAgentSearchError] = useState("");
+    const [agentSearched, setAgentSearched] = useState(false); // Nuevo: para saber si ya buscó
+    const [newAgent, setNewAgent] = useState({ dni: '', name: '', lastname: '', tel: '', mail: '' });
+    const [customerAgentsSuggestion, setCustomerAgentsSuggestion] = useState([]); // Sugerencias de agentes para customer existente
 
     const [workPlace, setWorkPlace] = useState({ name: '', address: '', workTypeId: '' });
     const [workTypes, setWorkTypes] = useState([]);
@@ -117,6 +123,30 @@ const Quotation = () => {
         };
         fetchAgentData();
     }, [newCustomer.agentId]);
+
+    // Buscar agentes asociados si el customer ya existe
+    useEffect(() => {
+        const fetchCustomerAgents = async () => {
+            if (!newCustomer.dni || newCustomer.dni.length !== 8 || !/^\d+$/.test(newCustomer.dni)) {
+                setCustomerAgentsSuggestion([]);
+                return;
+            }
+            try {
+                const token = localStorage.getItem('token');
+                const res = await axios.get(`${API_URL}/api/customers/dni/${newCustomer.dni}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.data && res.data.agents) {
+                    setCustomerAgentsSuggestion(res.data.agents);
+                } else {
+                    setCustomerAgentsSuggestion([]);
+                }
+            } catch {
+                setCustomerAgentsSuggestion([]);
+            }
+        };
+        fetchCustomerAgents();
+    }, [newCustomer.dni]);
 
     // Carousel navigation
     const handlePrev = useCallback(() => {
@@ -240,6 +270,7 @@ const Quotation = () => {
         const validation = validateQuotation({
             customer: newCustomer,
             agent: newAgent,
+            agents, // <-- pasa el array de agentes aquí
             workPlace,
             openings: selectedOpenings,
             complements: selectedComplements,
@@ -602,6 +633,97 @@ const Quotation = () => {
          }
     };
 
+    // Buscar agente por DNI
+    const handleAgentSearch = async () => {
+        setAgentSearchError("");
+        setAgentSearchResult(null);
+        if (!agentSearchDni.trim() || agentSearchDni.length !== 8 || !/^\d+$/.test(agentSearchDni)) {
+            setAgentSearchError("Debe ingresar un DNI de 8 dígitos.");
+            return;
+        }
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get(`${API_URL}/api/customer-agents/dni/${agentSearchDni}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.data) {
+                setAgentSearchResult(res.data);
+            } else {
+                setAgentSearchResult(null);
+            }
+        } catch (err) {
+            if (err.response && err.response.status === 404) {
+                setAgentSearchResult(null); // No encontrado, permite alta
+            } else {
+                setAgentSearchError("Error buscando agente.");
+            }
+        }
+    };
+
+    // Agregar agente existente al array de agentes
+    const handleAddExistingAgent = () => {
+        if (agentSearchResult && !agents.some(a => a.dni === agentSearchResult.dni)) {
+            setAgents(prev => [...prev, agentSearchResult]);
+            setAgentSearchResult(null);
+            setAgentSearchDni("");
+        }
+    };
+
+    // Agregar nuevo agente al array de agentes
+    const handleAddNewAgent = () => {
+        if (
+            newAgent.dni && newAgent.name && newAgent.lastname &&
+            newAgent.tel && newAgent.mail &&
+            !agents.some(a => a.dni === newAgent.dni)
+        ) {
+            setAgents(prev => [...prev, { ...newAgent }]);
+            setNewAgent({ dni: '', name: '', lastname: '', tel: '', mail: '' });
+        }
+    };
+
+    // Eliminar agente de la lista
+    const handleRemoveAgent = (dni) => {
+        setAgents(prev => prev.filter(a => a.dni !== dni));
+    };
+
+    // Agregar agente sugerido (de customer existente)
+    const handleAddSuggestedAgent = (agent) => {
+        if (!agents.some(a => a.dni === agent.dni)) {
+            setAgents(prev => [...prev, agent]);
+        }
+    };
+
+    // Buscar automáticamente agente al ingresar 8 dígitos
+    useEffect(() => {
+        if (agentSearchDni.length === 8 && /^\d+$/.test(agentSearchDni)) {
+            (async () => {
+                setAgentSearchError("");
+                setAgentSearchResult(null);
+                setAgentSearched(true);
+                try {
+                    const token = localStorage.getItem('token');
+                    const res = await axios.get(`${API_URL}/api/customer-agents/dni/${agentSearchDni}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (res.data) {
+                        setAgentSearchResult(res.data);
+                    } else {
+                        setAgentSearchResult(null);
+                    }
+                } catch (err) {
+                    if (err.response && err.response.status === 404) {
+                        setAgentSearchResult(null); // No encontrado, permite alta
+                    } else {
+                        setAgentSearchError("Error buscando agente.");
+                    }
+                }
+            })();
+        } else {
+            setAgentSearchResult(null);
+            setAgentSearched(false);
+        }
+    }, [agentSearchDni]);
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
@@ -656,13 +778,96 @@ const Quotation = () => {
                                 />
                             </SwiperSlide>
                             <SwiperSlide>
-                                <Agent
-                                    customerId={newCustomer.agentId}
-                                    newAgent={newAgent}
-                                    setNewAgent={setNewAgent}
-                                    setIsAgentComplete={() => { }}
-                                    errors={currentIndex === 1 ? stepErrors : {}}
-                                />
+                                {/* AGENTES */}
+                                <div className="agent-step-container">
+                                    <h3>Agentes del Cliente</h3>
+                                    {/* Sugerencias de agentes asociados al cliente */}
+                                    {customerAgentsSuggestion.length > 0 && (
+                                        <div className="suggested-agents">
+                                            <h4>Agentes ya asociados a este cliente:</h4>
+                                            {customerAgentsSuggestion.map((agent, idx) => (
+                                                <div key={idx} className="agent-suggestion-row">
+                                                    <span>
+                                                        {agent.name} {agent.lastname} - {agent.dni}
+                                                    </span>
+                                                    <button type="button" className="add-agent-btn" onClick={() => handleAddSuggestedAgent(agent)}>
+                                                        +
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                    {/* Buscar agente por DNI */}
+                                    <div className="agent-search">
+                                        <label>DNI del agente:</label>
+                                        <input
+                                            type="text"
+                                            value={agentSearchDni}
+                                            onChange={e => setAgentSearchDni(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                                            placeholder="Ingrese DNI del agente"
+                                            maxLength={8}
+                                            className="dni-agent-input"
+                                        />
+                                        {agentSearchError && <span className="error-message">{agentSearchError}</span>}
+                                    </div>
+                                    {/* Resultado de búsqueda */}
+                                    {agentSearched && agentSearchDni.length === 8 && (
+                                        agentSearchResult ? (
+                                            <div className="agent-found">
+                                                <p>Agente encontrado: <b>{agentSearchResult.name} {agentSearchResult.lastname}</b> - {agentSearchResult.dni}</p>
+                                                <button type="button" className="add-agent-btn" onClick={handleAddExistingAgent}>Agregar este agente</button>
+                                            </div>
+                                        ) : (
+                                            <div className="new-agent-form">
+                                                <h4>Nuevo agente</h4>
+                                                <label>Nombre:</label>
+                                                <input
+                                                    type="text"
+                                                    value={newAgent.name}
+                                                    onChange={e => setNewAgent(prev => ({ ...prev, name: e.target.value, dni: agentSearchDni }))
+                                                    }
+                                                />
+                                                <label>Apellido:</label>
+                                                <input
+                                                    type="text"
+                                                    value={newAgent.lastname}
+                                                    onChange={e => setNewAgent(prev => ({ ...prev, lastname: e.target.value, dni: agentSearchDni }))
+                                                    }
+                                                />
+                                                <label>Teléfono:</label>
+                                                <input
+                                                    type="text"
+                                                    value={newAgent.tel}
+                                                    onChange={e => setNewAgent(prev => ({ ...prev, tel: e.target.value, dni: agentSearchDni }))
+                                                    }
+                                                />
+                                                <label>Email:</label>
+                                                <input
+                                                    type="email"
+                                                    value={newAgent.mail}
+                                                    onChange={e => setNewAgent(prev => ({ ...prev, mail: e.target.value, dni: agentSearchDni }))
+                                                    }
+                                                />
+                                                <button type="button" className="add-agent-btn" onClick={handleAddNewAgent}>Agregar nuevo agente</button>
+                                            </div>
+                                        )
+                                    )}
+                                    {/* Lista de agentes agregados */}
+                                    <div className="agents-list">
+                                        <h4>Agentes seleccionados:</h4>
+                                        {agents.length === 0 && <div>No hay agentes agregados.</div>}
+                                        {agents.map((agent, idx) => (
+                                            <div key={idx} className="agent-selected-row">
+                                                <span>
+                                                    {agent.name} {agent.lastname} - {agent.dni}
+                                                </span>
+                                                <button type="button" className="remove-agent-btn" onClick={() => handleRemoveAgent(agent.dni)}>
+                                                    ×
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </SwiperSlide>
                             <SwiperSlide>
                                 <WorkPlace

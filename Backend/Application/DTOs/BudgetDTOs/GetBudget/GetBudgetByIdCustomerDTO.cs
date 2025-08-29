@@ -16,6 +16,5 @@ namespace Application.DTOs.BudgetDTOs.GetBudget
         public required string mail { get; set; }
         public required string address { get; set; }
         public required string dni { get; set; }
-        public GetBudgetByIdCustomerAgentDTO? agent { get; set; }
     }
 }

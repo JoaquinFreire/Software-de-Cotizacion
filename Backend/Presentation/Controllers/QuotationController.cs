@@ -56,8 +56,7 @@ public class QuotationController : ControllerBase
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
-        Console.WriteLine("prueba!"+quotations);
-        // Asegura que quotations siempre sea un array (nunca null)
+        Console.WriteLine("prueba!" + quotations);
         return Ok(new { total, quotations = quotations ?? new List<Quotation>() });
     }
 
@@ -74,8 +73,8 @@ public class QuotationController : ControllerBase
             quotation.WorkPlaceId,
             quotation.Status,
             quotation.TotalPrice,
-            LastEdit = quotation.LastEdit.ToString("yyyy-MM-ddTHH:mm:ssZ"), // Formatear DateTime a string
-            CreationDate = quotation.CreationDate.ToString("yyyy-MM-ddTHH:mm:ssZ"), // Formatear DateTime a string
+            LastEdit = quotation.LastEdit.ToString("yyyy-MM-ddTHH:mm:ssZ"),
+            CreationDate = quotation.CreationDate.ToString("yyyy-MM-ddTHH:mm:ssZ"),
             Customer = new
             {
                 Customer = quotation.Customer == null ? null : new
@@ -86,9 +85,7 @@ public class QuotationController : ControllerBase
                     quotation.Customer.tel,
                     quotation.Customer.mail,
                     quotation.Customer.address,
-                    RegistrationDate = quotation.Customer.registration_date.ToString("yyyy-MM-ddTHH:mm:ssZ"), // Formatear DateTime a string
-                    // Elimina agentId y agent
-                    // Si quieres mostrar los agentes asociados:
+                    RegistrationDate = quotation.Customer.registration_date.ToString("yyyy-MM-ddTHH:mm:ssZ"),
                     Agents = quotation.Customer.Agents?.Select(a => new {
                         a.id,
                         a.name,
@@ -135,6 +132,7 @@ public class QuotationController : ControllerBase
                 {
                     name = agentDto.name,
                     lastname = agentDto.lastname,
+                    dni = agentDto.dni,
                     tel = agentDto.tel,
                     mail = agentDto.mail
                 };
@@ -175,15 +173,17 @@ public class QuotationController : ControllerBase
             return BadRequest("Datos de cliente inválidos.");
         }
 
-        // 2. WorkPlace
+        // 3. WorkPlace
         WorkPlace workPlace = null;
         if (request.workPlace != null)
         {
-            // Puedes buscar por nombre y dirección para evitar duplicados, o simplemente crear uno nuevo
+            // Asegúrate de asignar un valor a location
             workPlace = new WorkPlace
             {
                 name = request.workPlace.name,
                 address = request.workPlace.address,
+                // Asigna location, usa "" si no tienes un campo específico
+                location = request.workPlace.location ?? "", // <-- Cambia esto según tu DTO, o usa string.Empty
                 workTypeId = int.TryParse(request.workPlace.workTypeId.ToString(), out var wtid) ? wtid : 1
             };
             await _workPlaceRepository.AddAsync(workPlace);
@@ -201,7 +201,7 @@ public class QuotationController : ControllerBase
             return BadRequest("Debe agregar al menos una abertura o un complemento.");
         }
 
-        // 3. Crear la cotización
+        // 4. Crear la cotización
         var quotation = new Quotation
         {
             CustomerId = customer.id,
@@ -296,11 +296,11 @@ public class QuotationController : ControllerBase
             Location = location
         };
         var result = await _mediator.Send(query);
-        // El resultado ya debe incluir datos de cliente en cada cotización
         return Ok(result);
     }
 }
 
+// DTOs internos
 public class UpdateStatusRequest
 {
     public string? Status { get; set; }
@@ -320,6 +320,7 @@ public class WorkPlaceDto
 {
     public string name { get; set; }
     public string address { get; set; }
+    public string location { get; set; }
     public int workTypeId { get; set; }
 }
 

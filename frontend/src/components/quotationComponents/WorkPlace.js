@@ -14,16 +14,6 @@ const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
     const [numero, setNumero] = useState('');
 
     useEffect(() => {
-        // Actualiza el nombre con ciudad y barrio
-        if (selectedCiudad && selectedBarrio) {
-            setWorkPlace(prev => ({
-                ...prev,
-                name: `${selectedCiudad} - ${selectedBarrio}`
-            }));
-        }
-    }, [selectedCiudad, selectedBarrio, setWorkPlace]);
-
-    useEffect(() => {
         // Actualiza la dirección combinando calle y número
         setWorkPlace(prev => ({
             ...prev,
@@ -46,6 +36,18 @@ const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
         <div className="workplace-container">
             <h3>Espacio de Trabajo</h3>
             <div className="form-group">
+                <label>Nombre del espacio de trabajo:</label>
+                <input
+                    type="text"
+                    value={workPlace.name}
+                    onChange={e => setWorkPlace(prev => ({ ...prev, name: e.target.value }))}
+                    className={errors.name ? "input-error" : ""}
+                    placeholder="Ej: Obra Barrio Centro, Casa Sra. Pérez"
+                    required
+                />
+                {errors.name && <span className="error-message">{errors.name}</span>}
+            </div>
+            <div className="form-group">
                 <label>Ciudad de Córdoba:</label>
                 <select
                     value={selectedCiudad}
@@ -53,7 +55,7 @@ const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
                         setSelectedCiudad(e.target.value);
                         setSelectedBarrio('');
                     }}
-                    className={errors.name ? "input-error" : ""}
+                    className={errors.ciudad ? "input-error" : ""}
                     required
                 >
                     <option value="">Seleccione ciudad</option>
@@ -63,7 +65,7 @@ const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
                         </option>
                     ))}
                 </select>
-                {errors.name && <span className="error-message">{errors.name}</span>}
+                {errors.ciudad && <span className="error-message">{errors.ciudad}</span>}
             </div>
             {selectedCiudad && (
                 <div className="form-group">
@@ -71,7 +73,7 @@ const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
                     <select
                         value={selectedBarrio}
                         onChange={e => setSelectedBarrio(e.target.value)}
-                        className={errors.name ? "input-error" : ""}
+                        className={errors.barrio ? "input-error" : ""}
                         required
                     >
                         <option value="">Seleccione barrio</option>
@@ -81,6 +83,7 @@ const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
                             </option>
                         ))}
                     </select>
+                    {errors.barrio && <span className="error-message">{errors.barrio}</span>}
                 </div>
             )}
             <div className="form-group">
