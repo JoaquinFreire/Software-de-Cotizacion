@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
-import anodalLogo from "../images/anodal_logo.png";
-import Logonegro from "../images/anodal_logo_Negro.png";
+import anodalLogo from "../images/anodal_logo.webp";
+import Logonegro from "../images/anodal_logo_Negro.webp";
 import "../styles/navigation.css";
 import "../styles/scrollbar.css";
 

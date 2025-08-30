@@ -1,12 +1,12 @@
 .Line{
-    background: url('../images/Abertura.jpg') no-repeat center center/cover;
+    background: url('../images/Abertura.webp') no-repeat center center/cover;
 }
 .Complement{
-    background: url('../images/Complemento.jpg') no-repeat center center/cover;
+    background: url('../images/Complemento.webp') no-repeat center center/cover;
 }
 
 .Accesories{
-    background: url('../images/Accesorio.jpg') no-repeat center center/cover;
+    background: url('../images/Accesorio.webp') no-repeat center center/cover;
 }
 
 .Descritions{

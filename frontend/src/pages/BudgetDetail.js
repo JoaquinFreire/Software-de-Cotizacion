@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import logoAnodal from '../images/logo_secundario.png';
-import miniLogo from '../images/logo_secundario.png';
+import logoAnodal from '../images/logo_secundario.webp';
+import miniLogo from '../images/logo_secundario.webp';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import ReactLoading from 'react-loading';

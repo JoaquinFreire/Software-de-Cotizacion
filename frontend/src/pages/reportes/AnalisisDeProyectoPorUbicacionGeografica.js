@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+/*import React, { useState, useRef } from 'react';
 
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -13,4 +13,4 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
     </>
   );
 };
-export default AnalisisDeProyectoPorUbicacionGeografica;
+export default AnalisisDeProyectoPorUbicacionGeografica;*/

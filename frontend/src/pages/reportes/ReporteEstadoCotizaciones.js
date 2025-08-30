@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Pie } from 'react-chartjs-2';
 import axios from 'axios';
 import 'chart.js/auto';
-import logoAnodal from '../../images/logo_secundario.png';
+import logoAnodal from '../../images/logo_secundario.webp';
 import '../../styles/reportes.css';
 import '../../styles/reporteindividual.css';
 /* import jsPDF from 'jspdf';
@@ -237,6 +237,7 @@ const ReporteEstadoCotizaciones = () => {
               justifyContent: 'center',
               minHeight: 500
             }}>
+              {/* BRUNO VER */}
               <ReactLoading type="spin" color="#1976d2" height={80} width={80} />
               <div style={{marginTop: 24, fontSize: 18, color: '#1976d2'}}>Cargando reporte...</div>
             </div>
