@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { safeArray } from '../utils/safeArray';
 
 const API_URL = process.env.REACT_APP_API_URL;
 export const QuotationContext = createContext();
@@ -40,7 +41,7 @@ export const QuotationProvider = ({ children }) => {
             console.log(`Fetched ${view} quotations:`, response.data.quotations);
             const arr = Array.isArray(response.data.quotations) ? response.data.quotations : [];
             setState({
-                quotations: arr,
+                quotations: safeArray(response.data.quotations),
                 page,
                 total: response.data.total,
                 loading: false,

@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import ReactLoading from 'react-loading';
 import Navbar from '../components/Navigation';
+import { safeArray } from '../utils/safeArray';
 import '../styles/reporteindividual.css';
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5187";
@@ -155,7 +156,7 @@ const BudgetDetail = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {budget.Products.map((p, i) => (
+                  {safeArray(budget.Products).map((p, i) => (
                     <React.Fragment key={i}>
                       <tr style={{ borderBottom: '1px solid #ddd' }}>
                         <td>{p.OpeningType?.name || '-'}</td>
@@ -170,7 +171,7 @@ const BudgetDetail = () => {
                           {p.Accesory?.length > 0 ? (
                             <div>
                               <strong style={{ textDecoration: 'underline' }}>Accesorios:</strong>
-                              {p.Accesory.map((a, j) => (
+                              {safeArray(p.Accesory).map((a, j) => (
                                 <div key={j} style={{ display: 'flex', justifyContent: 'space-between' }}>
                                   <span>• {a.Name || '-'}</span>
                                   <span>x{a.Quantity}</span>

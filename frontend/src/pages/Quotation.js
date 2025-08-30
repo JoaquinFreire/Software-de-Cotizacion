@@ -486,39 +486,39 @@ const Quotation = () => {
             selectedComplements.forEach(c => {
                 if (c.type === 'door') {
                     const door = complementDoors.find(d => String(d.id) === String(c.complementId));
-                    const coatingObj = coatings.find(coat => String(coat.id) === String(c.custom.coating)); // coatings es array seguro
+                    const coatingObj = coatings.find(coat => String(coat.id) === String(c.custom.coating));
                     complementsMongo.ComplementDoor.push({
-                        name: door ? door.name : '',
-                        width: Number(c.custom.width),
-                        height: Number(c.custom.height),
-                        coating: coatingObj
+                        Name: door ? door.name : '',
+                        Width: Number(c.custom.width),
+                        Height: Number(c.custom.height),
+                        Coating: coatingObj
                             ? { name: coatingObj.name, price: coatingObj.price }
                             : null,
-                        quantity: Number(c.quantity),
-                        accesories: (c.custom.accesories || []).map(acc => ({
-                            name: acc.name,
-                            quantity: Number(acc.quantity),
-                            price: Number(acc.price)
+                        Quantity: Number(c.quantity),
+                        Accesory: (c.custom.accesories || []).map(acc => ({
+                            Name: acc.name,
+                            Quantity: Number(acc.quantity),
+                            Price: Number(acc.price)
                         })),
-                        price: door ? Number(door.price) * Number(c.quantity) : 0
+                        Price: door ? Number(door.price) * Number(c.quantity) : 0
                     });
                 }
                 if (c.type === 'partition') {
                     const partition = complementPartitions.find(p => String(p.id ?? p.Id) === String(c.complementId));
                     complementsMongo.ComplementPartition.push({
-                        name: partition ? partition.name : '', // asegúrate que nunca sea undefined
-                        height: Number(c.custom.height) || 0,
-                        quantity: Number(c.quantity) || 0,
-                        simple: !!c.custom.simple,
+                        Name: partition ? partition.name : '',
+                        Height: Number(c.custom.height) || 0,
+                        Quantity: Number(c.quantity) || 0,
+                        Simple: !!c.custom.simple,
                         GlassMilimeters: c.custom.glassMilimeters ? `Mm${c.custom.glassMilimeters}` : '',
-                        price: partition ? Number(partition.price) * Number(c.quantity) : 0
+                        Price: partition ? Number(partition.price) * Number(c.quantity) : 0
                     });
                 }
                 if (c.type === 'railing') {
                     const railing = complementRailings.find(r => String(r.id) === String(c.complementId));
                     const treatmentObj = treatments.find(t => String(t.id) === String(c.custom.treatment));
                     complementsMongo.ComplementRailing.push({
-                        name: railing ? railing.name : '',
+                        Name: railing ? railing.name : '',
                         AlumTreatment: treatmentObj
                             ? { name: treatmentObj.name }
                             : null,
@@ -531,13 +531,19 @@ const Quotation = () => {
 
             // --- NUEVO: Mapear products con nombres correctos ---
             const productsPayload = selectedOpenings.map(opening => ({
-                OpeningType: openingTypes.find(type => type.id === Number(opening.typeId)) || null,
+                OpeningType: openingTypes.find(type => type.id === Number(opening.typeId))
+                    ? { name: openingTypes.find(type => type.id === Number(opening.typeId)).name }
+                    : { name: "" },
                 Quantity: opening.quantity,
-                AlumTreatment: treatments.find(t => t.id === Number(opening.treatmentId)) || null,
-                GlassType: glassTypes.find(g => g.id === Number(opening.glassTypeId)) || null,
+                AlumTreatment: treatments.find(t => t.id === Number(opening.treatmentId))
+                    ? { name: treatments.find(t => t.id === Number(opening.treatmentId)).name }
+                    : { name: "" },
+                GlassType: glassTypes.find(g => g.id === Number(opening.glassTypeId))
+                    ? { name: glassTypes.find(g => g.id === Number(opening.glassTypeId)).name, Price: glassTypes.find(g => g.id === Number(opening.glassTypeId)).price }
+                    : { name: "", Price: 0 },
                 width: opening.width,
                 height: opening.height,
-                Accesory: [],
+                Accesory: [], // Si tienes accesorios, mapea aquí
                 price: 0 // Ajusta si tienes el precio
             }));
 
@@ -547,7 +553,15 @@ const Quotation = () => {
                     budgetId: String(sqlId),
                     user: userPayload,
                     customer: customerPayloadMongo,
-                    workPlace: workPlacePayload,
+                    agent: customerPayloadMongo.agent || {}, // Asegura que siempre haya un objeto agent
+                    workPlace: {
+                        name: workPlace.name,
+                        location: workPlace.location,
+                        address: workPlace.address,
+                        workType: selectedWorkType
+                            ? { type: selectedWorkType.name || selectedWorkType.type || "" }
+                            : { type: "" }
+                    },
                     Products: productsPayload,
                     complement: [
                         {
