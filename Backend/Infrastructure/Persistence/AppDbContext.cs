@@ -95,21 +95,21 @@ public class AppDbContext : DbContext
             .HasMany(c => c.Agents)
             .WithMany(a => a.Customers)
             .UsingEntity<Dictionary<string, object>>(
-                "customer_customeragent",
+                "customer_agent_relation",
                 j => j
                     .HasOne<CustomerAgent>()
                     .WithMany()
-                    .HasForeignKey("agent_id")
+                    .HasForeignKey("id_agent") // <-- nombre real de la columna
                     .HasConstraintName("FK_CustomerAgent_Customer"),
                 j => j
                     .HasOne<Customer>()
                     .WithMany()
-                    .HasForeignKey("customer_id")
-                    .HasConstraintName("FK_Customer_CustomerAgent"),
+                    .HasForeignKey("id_customer") // <-- nombre real de la columna
+                    .HasConstraintName("FK_customer_agent_relation"),
                 j =>
                 {
-                    j.HasKey("customer_id", "agent_id");
-                    j.ToTable("customer_customeragent");
+                    j.HasKey("id_customer", "id_agent");
+                    j.ToTable("customer_agent_relation");
                 }
             );
 

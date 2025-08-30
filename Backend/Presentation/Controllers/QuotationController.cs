@@ -123,21 +123,33 @@ public class QuotationController : ControllerBase
 
         // 1. Agentes (si vienen en el payload)
         List<CustomerAgent> agents = new();
+        var dbContext = HttpContext.RequestServices.GetService(typeof(AppDbContext)) as AppDbContext;
+
         if (request.customer?.Agents != null && request.customer.Agents.Count > 0)
         {
-            var dbContext = HttpContext.RequestServices.GetService(typeof(AppDbContext)) as AppDbContext;
             foreach (var agentDto in request.customer.Agents)
             {
-                var agent = new CustomerAgent
+                // Buscar agente existente por DNI
+                var existingAgent = await dbContext.CustomerAgents.FirstOrDefaultAsync(a => a.dni == agentDto.dni);
+                if (existingAgent != null)
                 {
-                    name = agentDto.name,
-                    lastname = agentDto.lastname,
-                    dni = agentDto.dni,
-                    tel = agentDto.tel,
-                    mail = agentDto.mail
-                };
-                dbContext.CustomerAgents.Add(agent);
-                agents.Add(agent);
+                    Console.WriteLine($"[AGENTE] Encontrado existente: id={existingAgent.id}, dni={existingAgent.dni}");
+                    agents.Add(existingAgent);
+                }
+                else
+                {
+                    var agent = new CustomerAgent
+                    {
+                        name = agentDto.name,
+                        lastname = agentDto.lastname,
+                        dni = agentDto.dni,
+                        tel = agentDto.tel,
+                        mail = agentDto.mail
+                    };
+                    dbContext.CustomerAgents.Add(agent);
+                    agents.Add(agent);
+                    Console.WriteLine($"[AGENTE] Nuevo agregado: dni={agent.dni}");
+                }
             }
             await dbContext.SaveChangesAsync();
         }
@@ -161,15 +173,43 @@ public class QuotationController : ControllerBase
                     Agents = agents
                 };
                 await _customerRepository.AddAsync(customer);
+                Console.WriteLine($"[CLIENTE] Nuevo cliente creado: dni={customer.dni}");
             }
             else
             {
-                // Si el cliente ya existe, puedes actualizar la lista de agentes si es necesario
-                // customer.Agents = ... (merge/update logic if needed)
+                Console.WriteLine($"[CLIENTE] Cliente existente: id={customer.id}, dni={customer.dni}");
+                // Si el cliente ya existe, asegurate de asociar los agentes (relación n a n)
+                foreach (var agent in agents)
+                {
+                    Console.WriteLine($"[RELACION] Intentando asociar cliente {customer.id} con agente {agent.id}");
+                    // Verifica si la relación ya existe usando LINQ
+                    var exists = await dbContext.Set<Dictionary<string, object>>("customer_agent_relation")
+                        .AnyAsync(r =>
+                            EF.Property<int>(r, "id_customer") == customer.id &&
+                            EF.Property<int>(r, "id_agent") == agent.id
+                        );
+                    Console.WriteLine($"[RELACION] ¿Ya existe relación ({customer.id},{agent.id})?: {exists}");
+                    if (!exists)
+                    {
+                        Console.WriteLine($"[RELACION] Insertando relación ({customer.id},{agent.id})");
+                        var relation = new Dictionary<string, object>
+                        {
+                            { "id_customer", customer.id },
+                            { "id_agent", agent.id }
+                        };
+                        dbContext.Set<Dictionary<string, object>>("customer_agent_relation").Add(relation);
+                        await dbContext.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[RELACION] Ya existe relación ({customer.id},{agent.id})");
+                    }
+                }
             }
         }
         else
         {
+            Console.WriteLine("[ERROR] Datos de cliente inválidos.");
             return BadRequest("Datos de cliente inválidos.");
         }
 

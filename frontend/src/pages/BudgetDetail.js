@@ -172,9 +172,9 @@ const BudgetDetail = () => {
                               <strong style={{ textDecoration: 'underline' }}>Accesorios:</strong>
                               {p.Accesory.map((a, j) => (
                                 <div key={j} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                  <span>• {a.Accesory?.name || '-'}</span>
+                                  <span>• {a.Name || '-'}</span>
                                   <span>x{a.Quantity}</span>
-                                  <span>Precio de accesorio</span>
+                                  <span>${a.Price}</span>
                                 </div>
                               ))}
                             </div>

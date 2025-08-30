@@ -1,4 +1,5 @@
 import React from 'react';
+import { safeArray } from '../../utils/safeArray';
 
 const OpeningType = ({
     openingForm,
@@ -80,7 +81,7 @@ const OpeningType = ({
                     className={errors.typeId ? "input-error" : ""}
                 >
                     <option value="">Seleccione tipo</option>
-                    {openingTypes.map(type => (
+                    {safeArray(openingTypes).map(type => (
                         <option key={type.id} value={type.id}>{type.name}</option>
                     ))}
                 </select>
@@ -127,7 +128,7 @@ const OpeningType = ({
                     className={errors.treatmentId ? "input-error" : ""}
                 >
                     <option value="">Seleccione tratamiento</option>
-                    {treatments.map(t => (
+                    {safeArray(treatments).map(t => (
                         <option key={t.id} value={t.id}>{t.name}</option>
                     ))}
                 </select>
@@ -141,7 +142,7 @@ const OpeningType = ({
                     className={errors.glassTypeId ? "input-error" : ""}
                 >
                     <option value="">Seleccione tipo de vidrio</option>
-                    {glassTypes.map(g => (
+                    {safeArray(glassTypes).map(g => (
                         <option key={g.id} value={g.id}>{g.name}</option>
                     ))}
                 </select>

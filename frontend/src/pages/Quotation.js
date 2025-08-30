@@ -18,6 +18,7 @@ import { validateCustomer } from "../validation/customerValidation";
 import { validateAgent } from "../validation/agentValidation";
 import { validateWorkPlace } from "../validation/workPlaceValidation";
 import { validateOpenings } from "../validation/openingValidation";
+import { safeArray } from '../utils/safeArray';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -33,6 +34,13 @@ function getUserIdFromToken() {
     } catch {
         return '';
     }
+}
+
+// Utilidad para normalizar arrays serializados con $values
+function toArray(data) {
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.$values)) return data.$values;
+    return [];
 }
 
 const Quotation = () => {
@@ -86,6 +94,7 @@ const Quotation = () => {
     // Agrega estado para el usuario logueado
     const [loggedUser, setLoggedUser] = useState(null);
     const [agentData, setAgentData] = useState(null); // <-- Nuevo estado para datos del agente
+    const [isCustomerFound, setIsCustomerFound] = useState(false); // <--- Agrega este estado
 
     // Obtiene los datos del usuario logueado al montar el componente
     useEffect(() => {
@@ -161,7 +170,8 @@ const Quotation = () => {
             case 0:
                 return validateCustomer(newCustomer);
             case 1:
-                return newCustomer.agentId ? { valid: true, errors: {} } : validateAgent(newAgent);
+                // Permitir avanzar siempre en el paso de agentes
+                return { valid: true, errors: {} };
             case 2:
                 return validateWorkPlace(workPlace);
             case 3:
@@ -205,8 +215,9 @@ const Quotation = () => {
                 const response = await axios.get(`${API_URL}/api/worktypes`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                setWorkTypes(response.data);
+                setWorkTypes(toArray(response.data));
             } catch (error) {
+                setWorkTypes([]);
                 console.error('Error fetching work types:', error);
             }
         };
@@ -224,10 +235,13 @@ const Quotation = () => {
                     axios.get(`${API_URL}/api/alum-treatments`, { headers: { Authorization: `Bearer ${token}` } }),
                     axios.get(`${API_URL}/api/glass-types`, { headers: { Authorization: `Bearer ${token}` } }),
                 ]);
-                setOpeningTypes(openingTypesRes.data);
-                setTreatments(treatmentsRes.data);
-                setGlassTypes(glassTypesRes.data);
+                setOpeningTypes(toArray(openingTypesRes.data));
+                setTreatments(toArray(treatmentsRes.data));
+                setGlassTypes(toArray(glassTypesRes.data));
             } catch (error) {
+                setOpeningTypes([]);
+                setTreatments([]);
+                setGlassTypes([]);
                 console.error('Error fetching opening data:', error);
             }
         };
@@ -245,10 +259,13 @@ const Quotation = () => {
                     axios.get(`${API_URL}/api/partition`, { headers: { Authorization: `Bearer ${token}` } }),
                     axios.get(`${API_URL}/api/railing`, { headers: { Authorization: `Bearer ${token}` } }),
                 ]);
-                setComplementDoors(doorsRes.data);
-                setComplementPartitions(partitionsRes.data);
-                setComplementRailings(railingsRes.data);
+                setComplementDoors(toArray(doorsRes.data));
+                setComplementPartitions(toArray(partitionsRes.data));
+                setComplementRailings(toArray(railingsRes.data));
             } catch (error) {
+                setComplementDoors([]);
+                setComplementPartitions([]);
+                setComplementRailings([]);
                 console.error('Error fetching complements:', error);
             }
         };
@@ -299,7 +316,7 @@ const Quotation = () => {
                 const res = await axios.get(`${API_URL}/api/coating`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                coatings = res.data;
+                coatings = toArray(res.data); // <-- Normaliza aquí
             } catch {
                 coatings = [];
             }
@@ -324,11 +341,23 @@ const Quotation = () => {
             }, 0);
 
             // Limpiar customer para no enviar campos innecesarios
-            const { name, lastname, tel, mail, address, dni, agentId } = newCustomer;
+            const { name, lastname, tel, mail, address, dni } = newCustomer;
+
+            // Construir el array de agentes para el payload si hay agentes seleccionados
+            let agentsPayload = [];
+            if (agents && agents.length > 0) {
+                agentsPayload = agents.map(a => ({
+                    name: a.name,
+                    lastname: a.lastname,
+                    dni: a.dni,
+                    tel: a.tel,
+                    mail: a.mail
+                }));
+            }
 
             // Solo incluir agent si el cliente es nuevo y los datos están completos
             let agent = undefined;
-            const isNewCustomer = !agentId; // Si no tiene agentId, es nuevo
+            const isNewCustomer = !isCustomerFound; // Usa el flag de cliente encontrado
             if (
                 isNewCustomer &&
                 newAgent.name.trim() &&
@@ -339,14 +368,13 @@ const Quotation = () => {
                 agent = { ...newAgent };
             }
 
-            // --- CAMBIO: construir customerPayload SIN agent si no corresponde ---
-            let customerPayload;
+            // --- Construir customerPayload correctamente ---
+            let customerPayload = { name, lastname, tel, mail, address, dni };
             if (agent) {
-                customerPayload = { name, lastname, tel, mail, address, dni, agent };
-            } else if (agentId) {
-                customerPayload = { name, lastname, tel, mail, address, dni, agentId };
-            } else {
-                customerPayload = { name, lastname, tel, mail, address, dni };
+                customerPayload.agent = agent;
+            }
+            if (agentsPayload.length > 0) {
+                customerPayload.Agents = agentsPayload;
             }
 
             // Mapear los complementos para el POST a SQL
@@ -368,12 +396,13 @@ const Quotation = () => {
                 userId: userId,
                 workPlace: {
                     ...workPlace,
-                    workTypeId: Number(workPlace.workTypeId)
+                    workTypeId: Number(workPlace.workTypeId),
+                    location: workPlace.location || "" // Usa el campo location (ciudad - barrio)
                 },
                 openings: selectedOpenings,
-                complements: complementsForSql, // <-- usa el array mapeado aquí
+                complements: complementsForSql,
                 totalPrice: totalComplements,
-                comment // <-- Usa el comentario real
+                comment
             };
 
             console.log("Payload enviado a /api/quotations:", quotationPayload);
@@ -457,7 +486,7 @@ const Quotation = () => {
             selectedComplements.forEach(c => {
                 if (c.type === 'door') {
                     const door = complementDoors.find(d => String(d.id) === String(c.complementId));
-                    const coatingObj = coatings.find(coat => String(coat.id) === String(c.custom.coating));
+                    const coatingObj = coatings.find(coat => String(coat.id) === String(c.custom.coating)); // coatings es array seguro
                     complementsMongo.ComplementDoor.push({
                         name: door ? door.name : '',
                         width: Number(c.custom.width),
@@ -775,6 +804,8 @@ const Quotation = () => {
                                     newCustomer={newCustomer}
                                     setNewCustomer={setNewCustomer}
                                     errors={currentIndex === 0 ? stepErrors : {}}
+                                    isCustomerFound={isCustomerFound}
+                                    setIsCustomerFound={setIsCustomerFound}
                                 />
                             </SwiperSlide>
                             <SwiperSlide>

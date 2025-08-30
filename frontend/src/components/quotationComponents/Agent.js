@@ -4,14 +4,18 @@ import axios from 'axios';
 const API_URL = process.env.REACT_APP_API_URL;
 const Agent = ({ customerId, newAgent, setNewAgent, setIsAgentComplete, errors = {} }) => {
     const [agent, setAgent] = useState(null); // Estado para almacenar el agente del cliente seleccionado
+    const [loading, setLoading] = useState(false); // Nuevo: estado de carga
+    const [searched, setSearched] = useState(false); // Nuevo: indica si ya buscó
 
     useEffect(() => {
         const fetchAgent = async () => {
             if (!customerId) {
-                setAgent(null); // Limpiar agente si no hay cliente seleccionado
+                setAgent(null);
+                setSearched(false);
                 return;
             }
-
+            setLoading(true);
+            setSearched(true);
             const token = localStorage.getItem('token');
             try {
                 const response = await axios.get(`${API_URL}/api/customer-agents/${customerId}`, {
@@ -19,8 +23,9 @@ const Agent = ({ customerId, newAgent, setNewAgent, setIsAgentComplete, errors =
                 });
                 setAgent(response.data);
             } catch (error) {
-                console.error('Error fetching agent:', error);
-                setAgent(null); // Si no hay agente, permitir completar uno nuevo
+                setAgent(null);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -44,69 +49,73 @@ const Agent = ({ customerId, newAgent, setNewAgent, setIsAgentComplete, errors =
 
     return (
         <div>
-        <div className="agent-container">
-            <h3>Agente</h3>
-            {agent ? (
-                <div className="agent-details">
-                    <h4>Datos del Agente</h4>
-                    <p><strong>Nombre:</strong> {agent.name}</p>
-                    <p><strong>Apellido:</strong> {agent.lastname}</p>
-                    <p><strong>Teléfono:</strong> {agent.tel}</p>
-                    <p><strong>Email:</strong> {agent.mail}</p>
-                </div>
-            ) : (
-                <div>
-                    <p>No hay agente asociado. Complete los datos del agente:</p>
-                    <div className="form-group">
-                        <label>Nombre:</label>
-                        <input
-                            type="text"
-                            value={newAgent.name}
-                            onChange={e => handleInputChange("name", e.target.value)}
-                            className={errors.name ? "input-error" : ""}
-                            placeholder="Ingrese el nombre del agente"
-                        />
-                        {errors.name && <span className="error-message">{errors.name}</span>}
+            <div className="agent-container">
+                <h3>Agente</h3>
+                {loading ? (
+                    <div>Cargando...</div>
+                ) : agent ? (
+                    <div className="agent-details">
+                        <h4>Datos del Agente</h4>
+                        <p><strong>Nombre:</strong> {agent.name}</p>
+                        <p><strong>Apellido:</strong> {agent.lastname}</p>
+                        <p><strong>Teléfono:</strong> {agent.tel}</p>
+                        <p><strong>Email:</strong> {agent.mail}</p>
                     </div>
-                    <div className="form-group">
-                        <label>Apellido:</label>
-                        <input
-                            type="text"
-                            value={newAgent.lastname}
-                            onChange={e => handleInputChange("lastname", e.target.value)}
-                            className={errors.lastname ? "input-error" : ""}
-                            placeholder="Ingrese el apellido del agente"
-                        />
-                        {errors.lastname && <span className="error-message">{errors.lastname}</span>}
+                ) : searched ? (
+                    <div>
+                        <p>No hay agente asociado. Complete los datos del agente:</p>
+                        <div className="form-group">
+                            <label>Nombre:</label>
+                            <input
+                                type="text"
+                                value={newAgent.name}
+                                onChange={e => handleInputChange("name", e.target.value)}
+                                className={errors.name ? "input-error" : ""}
+                                placeholder="Ingrese el nombre del agente"
+                            />
+                            {errors.name && <span className="error-message">{errors.name}</span>}
+                        </div>
+                        <div className="form-group">
+                            <label>Apellido:</label>
+                            <input
+                                type="text"
+                                value={newAgent.lastname}
+                                onChange={e => handleInputChange("lastname", e.target.value)}
+                                className={errors.lastname ? "input-error" : ""}
+                                placeholder="Ingrese el apellido del agente"
+                            />
+                            {errors.lastname && <span className="error-message">{errors.lastname}</span>}
+                        </div>
+                        <div className="form-group">
+                            <label>Teléfono:</label>
+                            <input
+                                type="text"
+                                value={newAgent.tel}
+                                onChange={e => handleInputChange("tel", e.target.value)}
+                                className={errors.tel ? "input-error" : ""}
+                                placeholder="Ingrese el teléfono del agente"
+                            />
+                            {errors.tel && <span className="error-message">{errors.tel}</span>}
+                        </div>
+                        <div className="form-group">
+                            <label>Email:</label>
+                            <input
+                                type="email"
+                                value={newAgent.mail}
+                                onChange={e => handleInputChange("mail", e.target.value)}
+                                className={errors.mail ? "input-error" : ""}
+                                placeholder="Ingrese el email del agente"
+                            />
+                            {errors.mail && <span className="error-message">{errors.mail}</span>}
+                        </div>
                     </div>
-                    <div className="form-group">
-                        <label>Teléfono:</label>
-                        <input
-                            type="text"
-                            value={newAgent.tel}
-                            onChange={e => handleInputChange("tel", e.target.value)}
-                            className={errors.tel ? "input-error" : ""}
-                            placeholder="Ingrese el teléfono del agente"
-                        />
-                        {errors.tel && <span className="error-message">{errors.tel}</span>}
+                ) : (
+                    <div>
+                        {/* No mostrar nada si no se ha buscado aún */}
                     </div>
-                    <div className="form-group">
-                        <label>Email:</label>
-                        <input
-                            type="email"
-                            value={newAgent.mail}
-                            onChange={e => handleInputChange("mail", e.target.value)}
-                            className={errors.mail ? "input-error" : ""}
-                            placeholder="Ingrese el email del agente"
-                        />
-                        {errors.mail && <span className="error-message">{errors.mail}</span>}
-                    </div>
-                </div>
-            )}
-            
+                )}
+            </div>
         </div>
-         <button type="submit" className="search-button-agent">Agregar Nuevo Agente </button>
-     </div>
     );
 };
 

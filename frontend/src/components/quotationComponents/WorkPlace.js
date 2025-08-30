@@ -21,6 +21,21 @@ const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
         }));
     }, [calle, numero, setWorkPlace]);
 
+    // Nuevo: Actualiza location cuando cambia ciudad o barrio
+    useEffect(() => {
+        if (selectedCiudad && selectedBarrio) {
+            setWorkPlace(prev => ({
+                ...prev,
+                location: `${selectedCiudad} - ${selectedBarrio}`
+            }));
+        } else {
+            setWorkPlace(prev => ({
+                ...prev,
+                location: ''
+            }));
+        }
+    }, [selectedCiudad, selectedBarrio, setWorkPlace]);
+
     const handleInputChange = (field, value) => {
         setWorkPlace({ ...workPlace, [field]: value });
         if (errors[field]) {
@@ -54,6 +69,8 @@ const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
                     onChange={e => {
                         setSelectedCiudad(e.target.value);
                         setSelectedBarrio('');
+                        // Limpiar location si cambia ciudad
+                        setWorkPlace(prev => ({ ...prev, location: '' }));
                     }}
                     className={errors.ciudad ? "input-error" : ""}
                     required
