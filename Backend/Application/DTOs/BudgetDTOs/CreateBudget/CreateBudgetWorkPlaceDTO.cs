@@ -8,8 +8,9 @@ namespace Application.DTOs.BudgetDTOs.CreateBudget
 {
     public class CreateBudgetWorkPlaceDTO
     {
-        public string? name { get; set; }
-        public string? address { get; set; }
+        public required string name { get; set; }
+        public required string location { get; set; }
+        public required string address { get; set; }
         public CreateBudgetWorkTypeDTO? workType { get; set; }
     }
 }

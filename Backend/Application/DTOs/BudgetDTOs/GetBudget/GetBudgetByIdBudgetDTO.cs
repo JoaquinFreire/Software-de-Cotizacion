@@ -10,6 +10,7 @@ public class GetBudgetByIdBudgetDTO
     public BudgetStatus? status { get; set; }
     public GetBudgetByIdUserDTO? user { get; set; }
     public required GetBudgetByIdCustomerDTO customer { get; set; }
+    public required GetBudgetByIdCustomerAgentDTO agent { get; set; }
     public required GetBudgetByIdWorkPlaceDTO? workPlace { get; set; }
     public required List<GetBudgetByIdProductDTO> Products { get; set; }
     public List<GetBudgetByIdComplementDTO>? Complement { get; set; }
