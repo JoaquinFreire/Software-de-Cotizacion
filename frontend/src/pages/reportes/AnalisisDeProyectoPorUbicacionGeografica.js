@@ -369,3 +369,4 @@ function formatFechaCorta(fecha) {
 }
 
 export default AnalisisDeProyectoPorUbicacionGeografica;
+

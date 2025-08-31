@@ -135,45 +135,48 @@ body.light-mode .users-table td {
 }
 
 .edit-button {
-    background: #4f8cff;
-    color: #fff;
+    background: #0ecdfda9;
+    color: #05404e;
 }
 
 .edit-button:hover {
-    background: #357ae8;
-}
-
-.status-button {
-    background: #23272f;
-    color: #26b7cd;
-    border: 1px solid #26b7cd;
-}
-.status-button {
-    width: 7rem
-}
-.status-button:hover {
-    background: #26b7cd;
+    background: #05404e;
     color: #fff;
 }
 
+.status-button {
+    background: #df4848;
+    color: #000000;
+    width: 7rem
+
+}
+.status-button:hover {
+    background: rgb(172, 48, 48);
+    color: #fff;
+
+    
+}
+
 .details-button {
-    background: #23272f;
-    color: #b5c7e3;
+    background: #c2c95f;
+    color: #000000;
     border: 1px solid #b5c7e3;
 }
 
 .details-button:hover {
-    background: #b5c7e3;
-    color: #23272f;
+    background: #afa620;
+    color: #ffffff;
 }
 
 .invite-button {
-    background: #26b7cd;
-    color: #fff;
+    background: #52d479;
+    color: #0f0f0f;
 }
 
 .invite-button:hover {
-    background: #26b7cd;
+    background: #198f58;
+    color: #ffffff;
+
 }
 
 /* Modal igual que antes */
@@ -265,7 +268,7 @@ body.light-mode .users-table td {
 
 .modal-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 12px;
     margin-top: 22px;
 }
@@ -283,13 +286,8 @@ body.light-mode .users-table td {
     box-shadow: 0 2px 8px #26b7cd14;
 }
 
-.modal-submit-btn:disabled {
-    background: #444;
-    cursor: not-allowed;
-}
-
-.modal-submit-btn:hover:not(:disabled) {
-    background: linear-gradient(90deg, #26b7cd 0%, #26b7cd 100%);
+.modal-submit-btn:hover {
+    background: linear-gradient(90deg, #1e8f99 0%, #1e8f99 100%);
 }
 
 .modal-cancel-btn {
@@ -305,8 +303,8 @@ body.light-mode .users-table td {
 }
 
 .modal-cancel-btn:hover {
-    background: #b5c7e3;
-    color: #23272f;
+    background: #eb303094;
+    color: #ffffff;
 }
 
 /* Estilos para el loader centrado */
