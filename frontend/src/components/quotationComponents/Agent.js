@@ -105,7 +105,7 @@ const Agent = ({ customerId, newAgent, setNewAgent, setIsAgentComplete, errors =
             )}
             
         </div>
-         <button type="submit" className="search-button-agent">Agregar Nuevo Agente </button>
+         <button type="submit" className="botton-carusel">Agregar Nuevo Agente </button>
      </div>
     );
 };

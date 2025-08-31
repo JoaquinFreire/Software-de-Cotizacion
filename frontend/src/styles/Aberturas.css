@@ -41,6 +41,13 @@
     visibility: visible;
 }
 
+body.light-mode .Descritions{
+    background: #dce0e4;
+    color: #000;
+    border: 1px solid #14a5b8;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 .Conteiner{
     display: flex;
     justify-content: space-between;
