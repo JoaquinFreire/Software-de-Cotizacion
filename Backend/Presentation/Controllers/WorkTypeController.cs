@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Application.Services;
 
 [ApiController]
-[Route("api/worktypes")] // Asegúrate de que la ruta sea correcta
+[Route("api/worktypes")]
 [Authorize]
 public class WorkTypeController : ControllerBase
 {
@@ -20,12 +20,17 @@ public class WorkTypeController : ControllerBase
         try
         {
             var workTypes = await _services.GetAllAsync();
-            Console.WriteLine("WorkTypes fetched: " + workTypes.Count()); // Verificar la cantidad de workTypes
-            return Ok(workTypes);
+            if (workTypes == null)
+            {
+                Console.WriteLine("WorkTypes is null!");
+                return StatusCode(500, "No se pudo obtener la lista de tipos de trabajo.");
+            }
+            var list = workTypes.ToList();
+            Console.WriteLine("WorkTypes fetched: " + list.Count);
+            return Ok(list);
         }
         catch (Exception ex)
         {
-            // Agrega más detalles de depuración
             Console.WriteLine("Error fetching work types: " + ex.Message);
             Console.WriteLine("Stack Trace: " + ex.StackTrace);
             return StatusCode(500, $"Internal server error: {ex.Message}\n{ex.StackTrace}");

@@ -56,8 +56,7 @@ public class QuotationController : ControllerBase
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
-        Console.WriteLine("prueba!"+quotations);
-        // Asegura que quotations siempre sea un array (nunca null)
+        Console.WriteLine("prueba!" + quotations);
         return Ok(new { total, quotations = quotations ?? new List<Quotation>() });
     }
 
@@ -74,8 +73,8 @@ public class QuotationController : ControllerBase
             quotation.WorkPlaceId,
             quotation.Status,
             quotation.TotalPrice,
-            LastEdit = quotation.LastEdit.ToString("yyyy-MM-ddTHH:mm:ssZ"), // Formatear DateTime a string
-            CreationDate = quotation.CreationDate.ToString("yyyy-MM-ddTHH:mm:ssZ"), // Formatear DateTime a string
+            LastEdit = quotation.LastEdit.ToString("yyyy-MM-ddTHH:mm:ssZ"),
+            CreationDate = quotation.CreationDate.ToString("yyyy-MM-ddTHH:mm:ssZ"),
             Customer = new
             {
                 Customer = quotation.Customer == null ? null : new
@@ -86,8 +85,14 @@ public class QuotationController : ControllerBase
                     quotation.Customer.tel,
                     quotation.Customer.mail,
                     quotation.Customer.address,
-                    RegistrationDate = quotation.Customer.registration_date.ToString("yyyy-MM-ddTHH:mm:ssZ"), // Formatear DateTime a string
-                    quotation.Customer.agentId
+                    RegistrationDate = quotation.Customer.registration_date.ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                    Agents = quotation.Customer.Agents?.Select(a => new {
+                        a.id,
+                        a.name,
+                        a.lastname,
+                        a.tel,
+                        a.mail
+                    }).ToList()
                 }
             },
             WorkPlace = new
@@ -108,7 +113,7 @@ public class QuotationController : ControllerBase
         Console.WriteLine("Request recibido en /api/quotations:");
         Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(request));
         Console.WriteLine("Contenido de customer.agent:");
-        Console.WriteLine(request.customer.agent == null ? "AGENTE ES NULL" : System.Text.Json.JsonSerializer.Serialize(request.customer.agent));
+        Console.WriteLine(request.customer.Agents == null ? "AGENTE ES NULL" : System.Text.Json.JsonSerializer.Serialize(request.customer.Agents));
 
         // Permitir totalPrice en 0 si hay aberturas o complementos
         bool hasOpenings = request?.openings != null && request.openings.Count > 0;
@@ -116,27 +121,37 @@ public class QuotationController : ControllerBase
         if (request == null || (!hasOpenings && !hasComplements))
             return BadRequest("Datos inválidos.");
 
-        // 1. Agente (si viene en el payload)
-        int? agentId = null;
-        if (request.customer.agent != null)
+        // 1. Agentes (si vienen en el payload)
+        List<CustomerAgent> agents = new();
+        var dbContext = HttpContext.RequestServices.GetService(typeof(AppDbContext)) as AppDbContext;
+
+        if (request.customer?.Agents != null && request.customer.Agents.Count > 0)
         {
-            Console.WriteLine("Creando agente...");
-            var agent = new CustomerAgent
+            foreach (var agentDto in request.customer.Agents)
             {
-                name = request.customer.agent.name,
-                lastname = request.customer.agent.lastname,
-                tel = request.customer.agent.tel,
-                mail = request.customer.agent.mail
-            };
-            var dbContext = HttpContext.RequestServices.GetService(typeof(AppDbContext)) as AppDbContext;
-            dbContext.CustomerAgents.Add(agent);
+                // Buscar agente existente por DNI
+                var existingAgent = await dbContext.CustomerAgents.FirstOrDefaultAsync(a => a.dni == agentDto.dni);
+                if (existingAgent != null)
+                {
+                    Console.WriteLine($"[AGENTE] Encontrado existente: id={existingAgent.id}, dni={existingAgent.dni}");
+                    agents.Add(existingAgent);
+                }
+                else
+                {
+                    var agent = new CustomerAgent
+                    {
+                        name = agentDto.name,
+                        lastname = agentDto.lastname,
+                        dni = agentDto.dni,
+                        tel = agentDto.tel,
+                        mail = agentDto.mail
+                    };
+                    dbContext.CustomerAgents.Add(agent);
+                    agents.Add(agent);
+                    Console.WriteLine($"[AGENTE] Nuevo agregado: dni={agent.dni}");
+                }
+            }
             await dbContext.SaveChangesAsync();
-            agentId = agent.id;
-            Console.WriteLine($"Agente creado con id: {agentId}");
-        }
-        else
-        {
-            Console.WriteLine("No se recibió agente en el payload.");
         }
 
         // 2. Cliente
@@ -154,30 +169,61 @@ public class QuotationController : ControllerBase
                     mail = request.customer.mail,
                     address = request.customer.address,
                     dni = request.customer.dni,
-                    agentId = agentId // Asocia el agente creado
+                    // Asocia los agentes creados
+                    Agents = agents
                 };
                 await _customerRepository.AddAsync(customer);
-                Console.WriteLine($"Cliente creado con id: {customer.id} y agentId: {customer.agentId}");
+                Console.WriteLine($"[CLIENTE] Nuevo cliente creado: dni={customer.dni}");
             }
             else
             {
-                Console.WriteLine($"Cliente ya existe con id: {customer.id} y agentId: {customer.agentId}");
+                Console.WriteLine($"[CLIENTE] Cliente existente: id={customer.id}, dni={customer.dni}");
+                // Si el cliente ya existe, asegurate de asociar los agentes (relación n a n)
+                foreach (var agent in agents)
+                {
+                    Console.WriteLine($"[RELACION] Intentando asociar cliente {customer.id} con agente {agent.id}");
+                    // Verifica si la relación ya existe usando LINQ
+                    var exists = await dbContext.Set<Dictionary<string, object>>("customer_agent_relation")
+                        .AnyAsync(r =>
+                            EF.Property<int>(r, "id_customer") == customer.id &&
+                            EF.Property<int>(r, "id_agent") == agent.id
+                        );
+                    Console.WriteLine($"[RELACION] ¿Ya existe relación ({customer.id},{agent.id})?: {exists}");
+                    if (!exists)
+                    {
+                        Console.WriteLine($"[RELACION] Insertando relación ({customer.id},{agent.id})");
+                        var relation = new Dictionary<string, object>
+                        {
+                            { "id_customer", customer.id },
+                            { "id_agent", agent.id }
+                        };
+                        dbContext.Set<Dictionary<string, object>>("customer_agent_relation").Add(relation);
+                        await dbContext.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[RELACION] Ya existe relación ({customer.id},{agent.id})");
+                    }
+                }
             }
         }
         else
         {
+            Console.WriteLine("[ERROR] Datos de cliente inválidos.");
             return BadRequest("Datos de cliente inválidos.");
         }
 
-        // 2. WorkPlace
+        // 3. WorkPlace
         WorkPlace workPlace = null;
         if (request.workPlace != null)
         {
-            // Puedes buscar por nombre y dirección para evitar duplicados, o simplemente crear uno nuevo
+            // Asegúrate de asignar un valor a location
             workPlace = new WorkPlace
             {
                 name = request.workPlace.name,
                 address = request.workPlace.address,
+                // Asigna location, usa "" si no tienes un campo específico
+                location = request.workPlace.location ?? "", // <-- Cambia esto según tu DTO, o usa string.Empty
                 workTypeId = int.TryParse(request.workPlace.workTypeId.ToString(), out var wtid) ? wtid : 1
             };
             await _workPlaceRepository.AddAsync(workPlace);
@@ -195,7 +241,7 @@ public class QuotationController : ControllerBase
             return BadRequest("Debe agregar al menos una abertura o un complemento.");
         }
 
-        // 3. Crear la cotización
+        // 4. Crear la cotización
         var quotation = new Quotation
         {
             CustomerId = customer.id,
@@ -290,11 +336,11 @@ public class QuotationController : ControllerBase
             Location = location
         };
         var result = await _mediator.Send(query);
-        // El resultado ya debe incluir datos de cliente en cada cotización
         return Ok(result);
     }
 }
 
+// DTOs internos
 public class UpdateStatusRequest
 {
     public string? Status { get; set; }
@@ -314,6 +360,7 @@ public class WorkPlaceDto
 {
     public string name { get; set; }
     public string address { get; set; }
+    public string location { get; set; }
     public int workTypeId { get; set; }
 }
 

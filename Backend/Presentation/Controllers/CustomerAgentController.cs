@@ -3,6 +3,7 @@ using Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 [ApiController]
@@ -27,6 +28,15 @@ public class CustomerAgentController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var agent = await _customerAgentRepository.GetByIdAsync(id);
+        if (agent == null) return NotFound();
+        return Ok(agent);
+    }
+
+    [HttpGet("dni/{dni}")]
+    public async Task<IActionResult> GetByDni(string dni)
+    {
+        var agents = await _customerAgentRepository.GetAllAsync();
+        var agent = agents.FirstOrDefault(a => a.dni == dni);
         if (agent == null) return NotFound();
         return Ok(agent);
     }

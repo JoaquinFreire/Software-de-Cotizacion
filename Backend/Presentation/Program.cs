@@ -50,7 +50,7 @@ builder.Services.AddScoped<PriceServices>(); // Registrar el servicio de aplicac
 builder.Services.AddScoped<QuotationServices>(); // Registrar el servicio de aplicación para cotizaciones
 builder.Services.AddScoped<UserServices>(); // Registrar el servicio de aplicación para usuarios
 builder.Services.AddScoped<UserInvitationServices>(); // Registrar el servicio de aplicación para invitaciones de usuario
-
+builder.Services.AddScoped<WorkTypeServices>(); // Registrar el servicio de aplicación para tipos de trabajo
 
 //REGISTRO DE MAPEO DE ENTIDADES DE DOMINIO
 builder.Services.AddAutoMapper(typeof(CreateBudgetProfile));//Mapeo de cotizaciones
@@ -133,6 +133,7 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
         options.JsonSerializerOptions.PropertyNamingPolicy = null;
         options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve; // <-- AGREGA ESTA LÍNEA
     });
 
 //REGISTRO DE AUTENTICACIÓN MEDIANTE JASON WEB TOKEN (JWT)

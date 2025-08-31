@@ -18,6 +18,7 @@ import { validateCustomer } from "../validation/customerValidation";
 import { validateAgent } from "../validation/agentValidation";
 import { validateWorkPlace } from "../validation/workPlaceValidation";
 import { validateOpenings } from "../validation/openingValidation";
+import { safeArray } from '../utils/safeArray';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -35,6 +36,13 @@ function getUserIdFromToken() {
     }
 }
 
+// Utilidad para normalizar arrays serializados con $values
+function toArray(data) {
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.$values)) return data.$values;
+    return [];
+}
+
 const Quotation = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const swiperRef = useRef(null);
@@ -46,7 +54,13 @@ const Quotation = () => {
         name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: ''
     });
     // const [isCustomerComplete, setIsCustomerComplete] = useState(false); // <-- ELIMINAR ESTA LÍNEA
-    const [newAgent, setNewAgent] = useState({ name: '', lastname: '', tel: '', mail: '' });
+    const [agents, setAgents] = useState([]); // Lista de agentes asociados al customer
+    const [agentSearchDni, setAgentSearchDni] = useState(""); // DNI para buscar agente
+    const [agentSearchResult, setAgentSearchResult] = useState(null); // Resultado de búsqueda de agente
+    const [agentSearchError, setAgentSearchError] = useState("");
+    const [agentSearched, setAgentSearched] = useState(false); // Nuevo: para saber si ya buscó
+    const [newAgent, setNewAgent] = useState({ dni: '', name: '', lastname: '', tel: '', mail: '' });
+    const [customerAgentsSuggestion, setCustomerAgentsSuggestion] = useState([]); // Sugerencias de agentes para customer existente
 
     const [workPlace, setWorkPlace] = useState({ name: '', address: '', workTypeId: '' });
     const [workTypes, setWorkTypes] = useState([]);
@@ -80,6 +94,7 @@ const Quotation = () => {
     // Agrega estado para el usuario logueado
     const [loggedUser, setLoggedUser] = useState(null);
     const [agentData, setAgentData] = useState(null); // <-- Nuevo estado para datos del agente
+    const [isCustomerFound, setIsCustomerFound] = useState(false); // <--- Agrega este estado
 
     // Obtiene los datos del usuario logueado al montar el componente
     useEffect(() => {
@@ -118,6 +133,30 @@ const Quotation = () => {
         fetchAgentData();
     }, [newCustomer.agentId]);
 
+    // Buscar agentes asociados si el customer ya existe
+    useEffect(() => {
+        const fetchCustomerAgents = async () => {
+            if (!newCustomer.dni || newCustomer.dni.length !== 8 || !/^\d+$/.test(newCustomer.dni)) {
+                setCustomerAgentsSuggestion([]);
+                return;
+            }
+            try {
+                const token = localStorage.getItem('token');
+                const res = await axios.get(`${API_URL}/api/customers/dni/${newCustomer.dni}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.data && res.data.agents) {
+                    setCustomerAgentsSuggestion(res.data.agents);
+                } else {
+                    setCustomerAgentsSuggestion([]);
+                }
+            } catch {
+                setCustomerAgentsSuggestion([]);
+            }
+        };
+        fetchCustomerAgents();
+    }, [newCustomer.dni]);
+
     // Carousel navigation
     const handlePrev = useCallback(() => {
         if (swiperRef.current && swiperRef.current.swiper) {
@@ -131,7 +170,8 @@ const Quotation = () => {
             case 0:
                 return validateCustomer(newCustomer);
             case 1:
-                return newCustomer.agentId ? { valid: true, errors: {} } : validateAgent(newAgent);
+                // Permitir avanzar siempre en el paso de agentes
+                return { valid: true, errors: {} };
             case 2:
                 return validateWorkPlace(workPlace);
             case 3:
@@ -175,8 +215,9 @@ const Quotation = () => {
                 const response = await axios.get(`${API_URL}/api/worktypes`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                setWorkTypes(response.data);
+                setWorkTypes(toArray(response.data));
             } catch (error) {
+                setWorkTypes([]);
                 console.error('Error fetching work types:', error);
             }
         };
@@ -194,10 +235,13 @@ const Quotation = () => {
                     axios.get(`${API_URL}/api/alum-treatments`, { headers: { Authorization: `Bearer ${token}` } }),
                     axios.get(`${API_URL}/api/glass-types`, { headers: { Authorization: `Bearer ${token}` } }),
                 ]);
-                setOpeningTypes(openingTypesRes.data);
-                setTreatments(treatmentsRes.data);
-                setGlassTypes(glassTypesRes.data);
+                setOpeningTypes(toArray(openingTypesRes.data));
+                setTreatments(toArray(treatmentsRes.data));
+                setGlassTypes(toArray(glassTypesRes.data));
             } catch (error) {
+                setOpeningTypes([]);
+                setTreatments([]);
+                setGlassTypes([]);
                 console.error('Error fetching opening data:', error);
             }
         };
@@ -215,10 +259,13 @@ const Quotation = () => {
                     axios.get(`${API_URL}/api/partition`, { headers: { Authorization: `Bearer ${token}` } }),
                     axios.get(`${API_URL}/api/railing`, { headers: { Authorization: `Bearer ${token}` } }),
                 ]);
-                setComplementDoors(doorsRes.data);
-                setComplementPartitions(partitionsRes.data);
-                setComplementRailings(railingsRes.data);
+                setComplementDoors(toArray(doorsRes.data));
+                setComplementPartitions(toArray(partitionsRes.data));
+                setComplementRailings(toArray(railingsRes.data));
             } catch (error) {
+                setComplementDoors([]);
+                setComplementPartitions([]);
+                setComplementRailings([]);
                 console.error('Error fetching complements:', error);
             }
         };
@@ -240,6 +287,7 @@ const Quotation = () => {
         const validation = validateQuotation({
             customer: newCustomer,
             agent: newAgent,
+            agents, // <-- pasa el array de agentes aquí
             workPlace,
             openings: selectedOpenings,
             complements: selectedComplements,
@@ -268,7 +316,7 @@ const Quotation = () => {
                 const res = await axios.get(`${API_URL}/api/coating`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                coatings = res.data;
+                coatings = toArray(res.data); // <-- Normaliza aquí
             } catch {
                 coatings = [];
             }
@@ -293,11 +341,23 @@ const Quotation = () => {
             }, 0);
 
             // Limpiar customer para no enviar campos innecesarios
-            const { name, lastname, tel, mail, address, dni, agentId } = newCustomer;
+            const { name, lastname, tel, mail, address, dni } = newCustomer;
+
+            // Construir el array de agentes para el payload si hay agentes seleccionados
+            let agentsPayload = [];
+            if (agents && agents.length > 0) {
+                agentsPayload = agents.map(a => ({
+                    name: a.name,
+                    lastname: a.lastname,
+                    dni: a.dni,
+                    tel: a.tel,
+                    mail: a.mail
+                }));
+            }
 
             // Solo incluir agent si el cliente es nuevo y los datos están completos
             let agent = undefined;
-            const isNewCustomer = !agentId; // Si no tiene agentId, es nuevo
+            const isNewCustomer = !isCustomerFound; // Usa el flag de cliente encontrado
             if (
                 isNewCustomer &&
                 newAgent.name.trim() &&
@@ -308,14 +368,13 @@ const Quotation = () => {
                 agent = { ...newAgent };
             }
 
-            // --- CAMBIO: construir customerPayload SIN agent si no corresponde ---
-            let customerPayload;
+            // --- Construir customerPayload correctamente ---
+            let customerPayload = { name, lastname, tel, mail, address, dni };
             if (agent) {
-                customerPayload = { name, lastname, tel, mail, address, dni, agent };
-            } else if (agentId) {
-                customerPayload = { name, lastname, tel, mail, address, dni, agentId };
-            } else {
-                customerPayload = { name, lastname, tel, mail, address, dni };
+                customerPayload.agent = agent;
+            }
+            if (agentsPayload.length > 0) {
+                customerPayload.Agents = agentsPayload;
             }
 
             // Mapear los complementos para el POST a SQL
@@ -337,12 +396,13 @@ const Quotation = () => {
                 userId: userId,
                 workPlace: {
                     ...workPlace,
-                    workTypeId: Number(workPlace.workTypeId)
+                    workTypeId: Number(workPlace.workTypeId),
+                    location: workPlace.location || "" // Usa el campo location (ciudad - barrio)
                 },
                 openings: selectedOpenings,
-                complements: complementsForSql, // <-- usa el array mapeado aquí
+                complements: complementsForSql,
                 totalPrice: totalComplements,
-                comment // <-- Usa el comentario real
+                comment
             };
 
             console.log("Payload enviado a /api/quotations:", quotationPayload);
@@ -428,37 +488,37 @@ const Quotation = () => {
                     const door = complementDoors.find(d => String(d.id) === String(c.complementId));
                     const coatingObj = coatings.find(coat => String(coat.id) === String(c.custom.coating));
                     complementsMongo.ComplementDoor.push({
-                        name: door ? door.name : '',
-                        width: Number(c.custom.width),
-                        height: Number(c.custom.height),
-                        coating: coatingObj
+                        Name: door ? door.name : '',
+                        Width: Number(c.custom.width),
+                        Height: Number(c.custom.height),
+                        Coating: coatingObj
                             ? { name: coatingObj.name, price: coatingObj.price }
                             : null,
-                        quantity: Number(c.quantity),
-                        accesories: (c.custom.accesories || []).map(acc => ({
-                            name: acc.name,
-                            quantity: Number(acc.quantity),
-                            price: Number(acc.price)
+                        Quantity: Number(c.quantity),
+                        Accesory: (c.custom.accesories || []).map(acc => ({
+                            Name: acc.name,
+                            Quantity: Number(acc.quantity),
+                            Price: Number(acc.price)
                         })),
-                        price: door ? Number(door.price) * Number(c.quantity) : 0
+                        Price: door ? Number(door.price) * Number(c.quantity) : 0
                     });
                 }
                 if (c.type === 'partition') {
                     const partition = complementPartitions.find(p => String(p.id ?? p.Id) === String(c.complementId));
                     complementsMongo.ComplementPartition.push({
-                        name: partition ? partition.name : '', // asegúrate que nunca sea undefined
-                        height: Number(c.custom.height) || 0,
-                        quantity: Number(c.quantity) || 0,
-                        simple: !!c.custom.simple,
+                        Name: partition ? partition.name : '',
+                        Height: Number(c.custom.height) || 0,
+                        Quantity: Number(c.quantity) || 0,
+                        Simple: !!c.custom.simple,
                         GlassMilimeters: c.custom.glassMilimeters ? `Mm${c.custom.glassMilimeters}` : '',
-                        price: partition ? Number(partition.price) * Number(c.quantity) : 0
+                        Price: partition ? Number(partition.price) * Number(c.quantity) : 0
                     });
                 }
                 if (c.type === 'railing') {
                     const railing = complementRailings.find(r => String(r.id) === String(c.complementId));
                     const treatmentObj = treatments.find(t => String(t.id) === String(c.custom.treatment));
                     complementsMongo.ComplementRailing.push({
-                        name: railing ? railing.name : '',
+                        Name: railing ? railing.name : '',
                         AlumTreatment: treatmentObj
                             ? { name: treatmentObj.name }
                             : null,
@@ -471,13 +531,19 @@ const Quotation = () => {
 
             // --- NUEVO: Mapear products con nombres correctos ---
             const productsPayload = selectedOpenings.map(opening => ({
-                OpeningType: openingTypes.find(type => type.id === Number(opening.typeId)) || null,
+                OpeningType: openingTypes.find(type => type.id === Number(opening.typeId))
+                    ? { name: openingTypes.find(type => type.id === Number(opening.typeId)).name }
+                    : { name: "" },
                 Quantity: opening.quantity,
-                AlumTreatment: treatments.find(t => t.id === Number(opening.treatmentId)) || null,
-                GlassType: glassTypes.find(g => g.id === Number(opening.glassTypeId)) || null,
+                AlumTreatment: treatments.find(t => t.id === Number(opening.treatmentId))
+                    ? { name: treatments.find(t => t.id === Number(opening.treatmentId)).name }
+                    : { name: "" },
+                GlassType: glassTypes.find(g => g.id === Number(opening.glassTypeId))
+                    ? { name: glassTypes.find(g => g.id === Number(opening.glassTypeId)).name, Price: glassTypes.find(g => g.id === Number(opening.glassTypeId)).price }
+                    : { name: "", Price: 0 },
                 width: opening.width,
                 height: opening.height,
-                Accesory: [],
+                Accesory: [], // Si tienes accesorios, mapea aquí
                 price: 0 // Ajusta si tienes el precio
             }));
 
@@ -487,7 +553,15 @@ const Quotation = () => {
                     budgetId: String(sqlId),
                     user: userPayload,
                     customer: customerPayloadMongo,
-                    workPlace: workPlacePayload,
+                    agent: customerPayloadMongo.agent || {}, // Asegura que siempre haya un objeto agent
+                    workPlace: {
+                        name: workPlace.name,
+                        location: workPlace.location,
+                        address: workPlace.address,
+                        workType: selectedWorkType
+                            ? { type: selectedWorkType.name || selectedWorkType.type || "" }
+                            : { type: "" }
+                    },
                     Products: productsPayload,
                     complement: [
                         {
@@ -602,6 +676,97 @@ const Quotation = () => {
          }
     };
 
+    // Buscar agente por DNI
+    const handleAgentSearch = async () => {
+        setAgentSearchError("");
+        setAgentSearchResult(null);
+        if (!agentSearchDni.trim() || agentSearchDni.length !== 8 || !/^\d+$/.test(agentSearchDni)) {
+            setAgentSearchError("Debe ingresar un DNI de 8 dígitos.");
+            return;
+        }
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get(`${API_URL}/api/customer-agents/dni/${agentSearchDni}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.data) {
+                setAgentSearchResult(res.data);
+            } else {
+                setAgentSearchResult(null);
+            }
+        } catch (err) {
+            if (err.response && err.response.status === 404) {
+                setAgentSearchResult(null); // No encontrado, permite alta
+            } else {
+                setAgentSearchError("Error buscando agente.");
+            }
+        }
+    };
+
+    // Agregar agente existente al array de agentes
+    const handleAddExistingAgent = () => {
+        if (agentSearchResult && !agents.some(a => a.dni === agentSearchResult.dni)) {
+            setAgents(prev => [...prev, agentSearchResult]);
+            setAgentSearchResult(null);
+            setAgentSearchDni("");
+        }
+    };
+
+    // Agregar nuevo agente al array de agentes
+    const handleAddNewAgent = () => {
+        if (
+            newAgent.dni && newAgent.name && newAgent.lastname &&
+            newAgent.tel && newAgent.mail &&
+            !agents.some(a => a.dni === newAgent.dni)
+        ) {
+            setAgents(prev => [...prev, { ...newAgent }]);
+            setNewAgent({ dni: '', name: '', lastname: '', tel: '', mail: '' });
+        }
+    };
+
+    // Eliminar agente de la lista
+    const handleRemoveAgent = (dni) => {
+        setAgents(prev => prev.filter(a => a.dni !== dni));
+    };
+
+    // Agregar agente sugerido (de customer existente)
+    const handleAddSuggestedAgent = (agent) => {
+        if (!agents.some(a => a.dni === agent.dni)) {
+            setAgents(prev => [...prev, agent]);
+        }
+    };
+
+    // Buscar automáticamente agente al ingresar 8 dígitos
+    useEffect(() => {
+        if (agentSearchDni.length === 8 && /^\d+$/.test(agentSearchDni)) {
+            (async () => {
+                setAgentSearchError("");
+                setAgentSearchResult(null);
+                setAgentSearched(true);
+                try {
+                    const token = localStorage.getItem('token');
+                    const res = await axios.get(`${API_URL}/api/customer-agents/dni/${agentSearchDni}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (res.data) {
+                        setAgentSearchResult(res.data);
+                    } else {
+                        setAgentSearchResult(null);
+                    }
+                } catch (err) {
+                    if (err.response && err.response.status === 404) {
+                        setAgentSearchResult(null); // No encontrado, permite alta
+                    } else {
+                        setAgentSearchError("Error buscando agente.");
+                    }
+                }
+            })();
+        } else {
+            setAgentSearchResult(null);
+            setAgentSearched(false);
+        }
+    }, [agentSearchDni]);
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
@@ -653,16 +818,101 @@ const Quotation = () => {
                                     newCustomer={newCustomer}
                                     setNewCustomer={setNewCustomer}
                                     errors={currentIndex === 0 ? stepErrors : {}}
+                                    isCustomerFound={isCustomerFound}
+                                    setIsCustomerFound={setIsCustomerFound}
                                 />
                             </SwiperSlide>
                             <SwiperSlide>
-                                <Agent
-                                    customerId={newCustomer.agentId}
-                                    newAgent={newAgent}
-                                    setNewAgent={setNewAgent}
-                                    setIsAgentComplete={() => { }}
-                                    errors={currentIndex === 1 ? stepErrors : {}}
-                                />
+                                {/* AGENTES */}
+                                <div className="agent-step-container">
+                                    <h3>Agentes del Cliente</h3>
+                                    {/* Sugerencias de agentes asociados al cliente */}
+                                    {customerAgentsSuggestion.length > 0 && (
+                                        <div className="suggested-agents">
+                                            <h4>Agentes ya asociados a este cliente:</h4>
+                                            {customerAgentsSuggestion.map((agent, idx) => (
+                                                <div key={idx} className="agent-suggestion-row">
+                                                    <span>
+                                                        {agent.name} {agent.lastname} - {agent.dni}
+                                                    </span>
+                                                    <button type="button" className="add-agent-btn" onClick={() => handleAddSuggestedAgent(agent)}>
+                                                        +
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                    {/* Buscar agente por DNI */}
+                                    <div className="agent-search">
+                                        <label>DNI del agente:</label>
+                                        <input
+                                            type="text"
+                                            value={agentSearchDni}
+                                            onChange={e => setAgentSearchDni(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                                            placeholder="Ingrese DNI del agente"
+                                            maxLength={8}
+                                            className="dni-agent-input"
+                                        />
+                                        {agentSearchError && <span className="error-message">{agentSearchError}</span>}
+                                    </div>
+                                    {/* Resultado de búsqueda */}
+                                    {agentSearched && agentSearchDni.length === 8 && (
+                                        agentSearchResult ? (
+                                            <div className="agent-found">
+                                                <p>Agente encontrado: <b>{agentSearchResult.name} {agentSearchResult.lastname}</b> - {agentSearchResult.dni}</p>
+                                                <button type="button" className="add-agent-btn" onClick={handleAddExistingAgent}>Agregar este agente</button>
+                                            </div>
+                                        ) : (
+                                            <div className="new-agent-form">
+                                                <h4>Nuevo agente</h4>
+                                                <label>Nombre:</label>
+                                                <input
+                                                    type="text"
+                                                    value={newAgent.name}
+                                                    onChange={e => setNewAgent(prev => ({ ...prev, name: e.target.value, dni: agentSearchDni }))
+                                                    }
+                                                />
+                                                <label>Apellido:</label>
+                                                <input
+                                                    type="text"
+                                                    value={newAgent.lastname}
+                                                    onChange={e => setNewAgent(prev => ({ ...prev, lastname: e.target.value, dni: agentSearchDni }))
+                                                    }
+                                                />
+                                                <label>Teléfono:</label>
+                                                <input
+                                                    type="text"
+                                                    value={newAgent.tel}
+                                                    onChange={e => setNewAgent(prev => ({ ...prev, tel: e.target.value, dni: agentSearchDni }))
+                                                    }
+                                                />
+                                                <label>Email:</label>
+                                                <input
+                                                    type="email"
+                                                    value={newAgent.mail}
+                                                    onChange={e => setNewAgent(prev => ({ ...prev, mail: e.target.value, dni: agentSearchDni }))
+                                                    }
+                                                />
+                                                <button type="button" className="add-agent-btn" onClick={handleAddNewAgent}>Agregar nuevo agente</button>
+                                            </div>
+                                        )
+                                    )}
+                                    {/* Lista de agentes agregados */}
+                                    <div className="agents-list">
+                                        <h4>Agentes seleccionados:</h4>
+                                        {agents.length === 0 && <div>No hay agentes agregados.</div>}
+                                        {agents.map((agent, idx) => (
+                                            <div key={idx} className="agent-selected-row">
+                                                <span>
+                                                    {agent.name} {agent.lastname} - {agent.dni}
+                                                </span>
+                                                <button type="button" className="remove-agent-btn" onClick={() => handleRemoveAgent(agent.dni)}>
+                                                    ×
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </SwiperSlide>
                             <SwiperSlide>
                                 <WorkPlace

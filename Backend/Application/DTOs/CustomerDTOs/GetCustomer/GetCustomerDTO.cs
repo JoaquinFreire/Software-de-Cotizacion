@@ -1,5 +1,4 @@
-﻿
-using Application.DTOs.BudgetDTOs.GetBudget;
+﻿using Application.DTOs.BudgetDTOs.GetBudget;
 
 namespace Application.DTOs.CustomerDTOs.GetCustomer
 {
@@ -13,7 +12,8 @@ namespace Application.DTOs.CustomerDTOs.GetCustomer
         public required string address { get; set; }
         public required string dni { get; set; }
         public required DateTime registration_date { get; set; }
-        public GetCustomerAgentDTO? agent { get; set; }
+        public List<GetCustomerAgentDTO>? agents { get; set; }
 
     }
 }
+

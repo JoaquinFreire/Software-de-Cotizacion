@@ -28,12 +28,15 @@ namespace Domain.Entities
         [Column(TypeName = "datetime")]
         public DateTime registration_date { get; set; } = DateTime.UtcNow; // Inicializar con la fecha actual
 
-        // Clave foránea para CustomerAgent
+        // Relación muchos a muchos (principal)
         [BsonIgnore]
-        [Column("id_agent")]
-        public int? agentId { get; set; }
+        public List<CustomerAgent> Agents { get; set; } = new();
+
+        // Solo para MongoDB, ignora en EF Core
         [BsonElement("agent")]
+        [NotMapped]
         public CustomerAgent? agent { get; set; }
     }
 }
+
 

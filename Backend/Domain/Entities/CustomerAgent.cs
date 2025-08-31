@@ -18,10 +18,18 @@ namespace Domain.Entities
         [BsonElement("lastName")]
         [Required]
         public required string lastname { get; set; }
+
+        [BsonElement("dni")]
+        [Required]
+        public required string dni { get; set; }
+
         [BsonElement("telephoneNumber")]
         public required string tel { get; set; }
         [BsonElement("mail")]
         public required string mail { get; set; }
+        // NUEVO: Relación muchos a muchos
+        [BsonIgnore]
+        public List<Customer> Customers { get; set; } = new();
 
     }
 }
