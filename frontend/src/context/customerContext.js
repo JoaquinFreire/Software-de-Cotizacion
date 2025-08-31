@@ -1,5 +1,6 @@
 import React, { createContext, useState, useCallback } from "react";
 import axios from "axios";
+import { safeArray } from "../utils/safeArray"; // agrega este import
 
 const API_URL = process.env.REACT_APP_API_URL;
 export const CustomerContext = createContext();
@@ -19,7 +20,8 @@ export const CustomerProvider = ({ children }) => {
                 `${API_URL}/api/customers/paged?page=${pageToLoad}&pageSize=${PAGE_SIZE}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            setCustomers(Array.isArray(res.data.Items) ? res.data.Items : []);
+            // Normaliza el array aquí
+            setCustomers(safeArray(res.data.Items));
             setTotal(typeof res.data.Total === "number" ? res.data.Total : 0);
             setPage(pageToLoad);
         } catch (err) {

@@ -13,6 +13,7 @@ import { Chart } from 'chart.js/auto';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import html2pdf from 'html2pdf.js';
 import ReactLoading from 'react-loading'; // <--- agregar import
+import { safeArray } from '../../utils/safeArray'; // agrega este import
 Chart.register(ChartDataLabels);
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -71,7 +72,7 @@ const ReporteEstadoCotizaciones = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       // Contar por estado
-      const data = res.data;
+      const data = safeArray(res.data); // <-- Normaliza aquí
       setCotizaciones(data); // Guardar todas las cotizaciones
       const newCounts = [
         data.filter(q => q.Status === 'pending').length,

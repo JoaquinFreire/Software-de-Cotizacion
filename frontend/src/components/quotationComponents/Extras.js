@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { safeArray } from '../../utils/safeArray'; // agrega este import
 
 const Extras = ({ comment, setComment, setDollarReference, setLabourReference }) => {
     const [dolarVenta, setDolarVenta] = useState(null);
@@ -7,7 +8,6 @@ const Extras = ({ comment, setComment, setDollarReference, setLabourReference })
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-  /*       let labourValue = null; */
         setLoading(true);
         fetch('https://dolarapi.com/v1/dolares/oficial')
             .then(res => res.json())
@@ -15,8 +15,11 @@ const Extras = ({ comment, setComment, setDollarReference, setLabourReference })
                 setDolarVenta(data.venta);
                 setDolarCompra(data.compra);
                 if (setDollarReference) setDollarReference(data.venta);
+                console.log("Dólar oficial:", data);
             })
-            .catch(() => {})
+            .catch((err) => {
+                console.log("Error obteniendo dólar oficial:", err);
+            })
             .finally(() => setLoading(false));
 
         // Obtener mano de obra desde la API interna
@@ -25,14 +28,26 @@ const Extras = ({ comment, setComment, setDollarReference, setLabourReference })
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(res => res.json())
-            .then(prices => {
-                const labourObj = prices.find(p => p.name?.toLowerCase().includes("manoobra") || p.name?.toLowerCase().includes("manodeobra") || p.name?.toLowerCase().includes("mano de obra"));
+            .then(pricesRaw => {
+                const prices = safeArray(pricesRaw);
+                console.log("Precios recibidos de /api/prices:", prices);
+                const labourObj = prices.find(p =>
+                    p.name?.toLowerCase().includes("manoobra") ||
+                    p.name?.toLowerCase().includes("manodeobra") ||
+                    p.name?.toLowerCase().includes("mano de obra")
+                );
+                console.log("Objeto mano de obra encontrado:", labourObj);
                 if (labourObj) {
                     setLabour(labourObj.price);
                     if (setLabourReference) setLabourReference(labourObj.price);
+                } else {
+                    setLabour(null);
+                    if (setLabourReference) setLabourReference(null);
                 }
             })
-            .catch(() => {});
+            .catch((err) => {
+                console.log("Error obteniendo precios de mano de obra:", err);
+            });
     }, [setDollarReference, setLabourReference]);
 
     return (

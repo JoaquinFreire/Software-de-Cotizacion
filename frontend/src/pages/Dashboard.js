@@ -13,6 +13,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import { ToastContainer, toast, Slide } from 'react-toastify';
 import { Calendar } from 'primereact/calendar';
 import { addLocale } from 'primereact/api';
+import { safeArray } from '../utils/safeArray'; // agrega este import
 
 // solo uno
 const API_URL = process.env.REACT_APP_API_URL;
@@ -64,7 +65,11 @@ const Dashboard = () => {
 
     // Ya no necesitas filtrar pendientes aquí, quotations ya viene filtrado
     useEffect(() => {
-        setFilteredQuotations(Array.isArray(quotations) ? quotations : []);
+        // Log para ver el dashboardState y quotations crudos
+        console.log("dashboardState:", dashboardState);
+        console.log("quotations (raw):", quotations);
+
+        setFilteredQuotations(Array.isArray(quotations) ? quotations : safeArray(quotations));
     }, [quotations]);
 
     // Scroll arriba al cambiar de página

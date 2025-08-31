@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { safeArray } from '../../utils/safeArray'; // agrega este import si no existe
 
 const COMPLEMENT_TYPES = [
     { key: 'door', label: 'Complemento de puerta' },
@@ -149,7 +150,7 @@ const Complements = ({
                 const res = await axios.get(`${API_URL}/api/coating`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                setCoatings(res.data);
+                setCoatings(safeArray(res.data));
             } catch (err) {
                 setCoatings([]);
             }
@@ -166,7 +167,7 @@ const Complements = ({
                 const res = await axios.get(`${API_URL}/api/alum-treatments`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                setAlumTreatments(res.data);
+                setAlumTreatments(safeArray(res.data));
             } catch (err) {
                 setAlumTreatments([]);
             }
@@ -258,7 +259,7 @@ const Complements = ({
                                         onChange={e => handleCustomChange(idx, 'coating', e.target.value)}
                                     >
                                         <option value="">Revestimiento</option>
-                                        {coatings.map(c => (
+                                        {safeArray(coatings).map(c => (
                                             <option key={c.id} value={c.id}>{c.name} - ${c.price}</option>
                                         ))}
                                     </select>
@@ -375,7 +376,7 @@ const Complements = ({
                                         onChange={e => handleCustomChange(idx, 'treatment', e.target.value)}
                                     >
                                         <option value="">Tratamiento</option>
-                                        {alumTreatments.map(t => (
+                                        {safeArray(alumTreatments).map(t => (
                                             <option key={t.id} value={t.id}>{t.name}</option>
                                         ))}
                                     </select>

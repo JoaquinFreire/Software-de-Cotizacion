@@ -6,7 +6,9 @@ namespace Domain.Entities
     {
         [BsonIgnore]
         public int id { get; set; }
+        [BsonElement("nombre")]
         public string? name { get; set; }
+        [BsonElement("precio")]
         public decimal? price { get; set; }
     }
 }

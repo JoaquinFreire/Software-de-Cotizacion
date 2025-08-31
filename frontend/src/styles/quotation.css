@@ -735,3 +735,34 @@ body.light-mode .remove-complement-button:hover {
     }
 }
 
+
+.agent-suggestion-row, .agent-selected-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.remove-agent-btn {
+    background: #ff4d4f;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.remove-agent-btn:hover {
+    background: #b71c1c;
+}
+.dni-agent-input {
+    width: 160px;
+    display: inline-block;
+    margin-right: 8px;
+}

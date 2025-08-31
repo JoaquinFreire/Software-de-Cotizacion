@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import 'react-loading-skeleton/dist/skeleton.css';
 import { CustomerContext } from "../context/customerContext";
+import { safeArray } from "../utils/safeArray";
 
 
 const Customers = () => {
@@ -33,8 +34,9 @@ const Customers = () => {
       setFilteredCustomers([]);
       return;
     }
+    const arr = safeArray(customers); // <-- Normaliza aquí
     setFilteredCustomers(
-      customers.filter((cliente) =>
+      arr.filter((cliente) =>
         `${cliente.name} ${cliente.lastname}`.toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
@@ -95,7 +97,7 @@ const Customers = () => {
             {(!filteredCustomers || filteredCustomers.length === 0) ? (
               <div className="no-clientes">No hay clientes para mostrar.</div>
             ) : (
-              filteredCustomers.map((cliente) => (
+              safeArray(filteredCustomers).map((cliente) => (
                 <div className="cliente-card" key={cliente.id}>
                   <div className="cliente-info">
                     <div className="cliente-nombre">

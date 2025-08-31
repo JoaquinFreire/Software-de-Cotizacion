@@ -3,9 +3,8 @@ import axios from 'axios';
 import "../../styles/quotation.css";
 
 const API_URL = process.env.REACT_APP_API_URL;
-const Customer = ({ newCustomer, setNewCustomer, errors = {} }) => {
+const Customer = ({ newCustomer, setNewCustomer, errors = {}, isCustomerFound, setIsCustomerFound }) => {
     const [loading, setLoading] = useState(false);
-    const [isCustomerFound, setIsCustomerFound] = useState(false);
     const debounceTimeout = useRef(null);
 
     const searchCustomerByDni = async (dniValue) => {
@@ -23,16 +22,15 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {} }) => {
                     tel: customer.tel,
                     mail: customer.mail,
                     address: customer.address,
-                    agentId: customer.agentId,
                     dni: customer.dni
                 });
                 setIsCustomerFound(true);
             } else {
-                setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: dniValue });
+                setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', dni: dniValue });
                 setIsCustomerFound(false);
             }
         } catch (error) {
-            setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: dniValue });
+            setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', dni: dniValue });
             setIsCustomerFound(false);
         } finally {
             setLoading(false);
@@ -46,7 +44,7 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {} }) => {
         if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
 
         if (enteredDni.trim() === '') {
-            setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: '' });
+            setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', dni: '' });
             setIsCustomerFound(false);
             return;
         }
@@ -65,8 +63,7 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {} }) => {
                 lastname: '',
                 tel: '',
                 mail: '',
-                address: '',
-                agentId: null
+                address: ''
             }));
         }
     };
@@ -103,7 +100,7 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {} }) => {
                         className="botton-DNI"
                         onClick={() => {
                             setIsCustomerFound(false);
-                            setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', agentId: null, dni: '' });
+                            setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', dni: '' });
                         }}
                     >
                         Buscar otro DNI
@@ -190,3 +187,4 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {} }) => {
 };
 
 export default Customer;
+
