@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 import QuotationList from "../components/QuotationList";
-import logo_busqueda from "../images/logo_busqueda.png";
+import logo_busqueda from "../images/logo_busqueda.webp";
 import { QuotationContext } from "../context/QuotationContext";
 import Skeleton from "react-loading-skeleton";
 import 'react-loading-skeleton/dist/skeleton.css';

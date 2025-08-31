@@ -4,8 +4,8 @@ import Navigation from "./Navigation";
 import Footer from "./Footer";
 import "../styles/dashboard.css";
 import "../styles/Home.css";
-import Banner from "../images/Banner.png";
-import BannerBlanco from "../images/BannerBlanco.png";
+import Banner from "../images/Banner.webp";
+import BannerBlanco from "../images/BannerBlanco.webp";
 import { FilePlus2, FileText, Clock3, PieChart, Users, Layers, BrickWall, MonitorCog } from "lucide-react";
 
 const Home = () => {

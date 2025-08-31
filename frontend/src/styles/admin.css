@@ -1,15 +1,15 @@
 .AdminUser {
-  background: url('../images/AdministrarGeneral.jpg') no-repeat center center/cover;
+  background: url('../images/AdministrarGeneral.webp') no-repeat center center/cover;
 }
 .AdminMaterials{
-  background: url('../images/AdministrarAluminio.jpg') no-repeat center center/cover;
+  background: url('../images/AdministrarAluminio.webp') no-repeat center center/cover;
 }
 .AdminDescuent {
-  background: url('../images/AdministrarDescuentos.jpg') no-repeat center center/cover;
+  background: url('../images/AdministrarDescuentos.webp') no-repeat center center/cover;
 }
 .AdminLine {
-  background: url('../images/AdministrarLineas.jpg') no-repeat center center/cover;
+  background: url('../images/AdministrarLineas.webp') no-repeat center center/cover;
 }
 .AdminGeneal {
-    background: url('../images/AdministrarMateriales.jpg') no-repeat center center/cover;
+    background: url('../images/AdministrarMateriales.webp') no-repeat center center/cover;
 }

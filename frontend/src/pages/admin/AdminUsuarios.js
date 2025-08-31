@@ -9,21 +9,26 @@ import { validateUser } from "../../validation/userValidation"; // Asumiendo que
 import { safeArray } from "../../utils/safeArray"; // agrega este import
 
 const API_URL = process.env.REACT_APP_API_URL;
+
 const AdminUsuarios = () => {
     const [users, setUsers] = useState([]);
     const [roles, setRoles] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [notificationMessage, setNotificationMessage] = useState(null);
+    const [notificationType, setNotificationType] = useState("success");
     const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         name: "",
         lastName: "",
         legajo: "",
         mail: "",
-        status: 0, // Siempre inactivo al crear
-        role_id: "", // Agrega role_id
+        status: 0,
+        role_id: "",
     });
+
     const [validationErrors, setValidationErrors] = useState({});
 
     useEffect(() => {
@@ -65,9 +70,8 @@ const AdminUsuarios = () => {
                 ? {
                       ...user,
                       role_id: user.role_id || (user.role && user.role.id) || "",
-                      // Eliminar password_hash y role si existen
                       password_hash: undefined,
-                      role: undefined
+                      role: undefined,
                   }
                 : {
                       name: "",
@@ -79,6 +83,7 @@ const AdminUsuarios = () => {
                   }
         );
         setShowModal(true);
+        
     };
 
     const handleCloseModal = () => {
@@ -94,7 +99,6 @@ const AdminUsuarios = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setValidationErrors({});
-        // Validar antes de enviar
         const errors = validateUser({
             ...formData,
             status: editingUser ? formData.status : 0,
@@ -106,37 +110,31 @@ const AdminUsuarios = () => {
         const token = localStorage.getItem("token");
         setLoading(true);
         try {
-            // Solo los campos permitidos y sin undefined/null
             const payload = {
                 name: formData.name,
                 lastName: formData.lastName,
                 legajo: formData.legajo,
                 mail: formData.mail,
                 status: editingUser ? formData.status : 0,
-                role_id: typeof formData.role_id === "string" ? parseInt(formData.role_id) : formData.role_id
+                role_id: typeof formData.role_id === "string" ? parseInt(formData.role_id) : formData.role_id,
             };
             if (editingUser) {
                 payload.id = editingUser.id;
-                // Elimina cualquier campo extra que pueda venir del backend
-                // (por ejemplo, password_hash, role, etc.)
             }
-
-            // Limpieza final: elimina cualquier campo undefined o null
             Object.keys(payload).forEach(
                 (key) => (payload[key] === undefined || payload[key] === null) && delete payload[key]
             );
 
             if (editingUser) {
-                await axios.put(
-                    `${API_URL}/api/users/${editingUser.id}`,
-                    payload,
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
+                await axios.put(`${API_URL}/api/users/${editingUser.id}`, payload, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
             } else {
                 await axios.post(`${API_URL}/api/users`, payload, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
             }
+
             fetchUsers();
             handleCloseModal();
         } catch (error) {
@@ -149,20 +147,33 @@ const AdminUsuarios = () => {
     };
 
     const handleToggleStatus = async (user) => {
-        const token = localStorage.getItem("token");
-        setLoading(true);
-        try {
-            await axios.put(
-                `${API_URL}/api/users/${user.id}/status`,
-                { status: user.status === 1 ? 0 : 1 },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-            await fetchUsers();
-        } catch (error) {
-            console.error("Error toggling user status:", error);
-        }
-        setLoading(false);
-    };
+    const token = localStorage.getItem("token");
+    setLoading(true);
+    try {
+        const newStatus = user.status === 1 ? 0 : 1;
+        await axios.put(
+            `${API_URL}/api/users/${user.id}/status`,
+            { status: newStatus },
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        await fetchUsers();
+
+        setNotificationMessage(
+            newStatus === 1 ? "Usuario activado correctamente." : "Usuario desactivado correctamente."
+        );
+        setNotificationType("success");
+    } catch (error) {
+        console.error("Error toggling user status:", error);
+        setNotificationMessage("Error al cambiar el estado del usuario.");
+        setNotificationType("error");
+    }
+    setLoading(false);
+
+    setTimeout(() => {
+        setNotificationMessage(null);
+    }, 3000);
+};
+
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/");
@@ -178,17 +189,30 @@ const AdminUsuarios = () => {
                         Crear Usuario
                     </button>
                 </div>
+
+                {/* Notificación interna */}
+                {notificationMessage && (
+                    <div
+                        style={{
+                            marginBottom: "15px",
+                            padding: "10px",
+                            borderRadius: "5px",
+                            backgroundColor: notificationType === "success" ? "#d4edda" : "#f8d7da",
+                            color: notificationType === "success" ? "#155724" : "#721c24",
+                            border: notificationType === "success" ? "1px solid #c3e6cb" : "1px solid #f5c6cb",
+                            textAlign: "center",
+                            maxWidth: "600px",
+                            marginInline: "auto",
+                        }}
+                    >
+                        {notificationMessage}
+                    </div>
+                )}
+
                 <div className="users-table-wrapper" style={{ minHeight: 320 }}>
                     {loading ? (
                         <div className="loader-center">
-                            <TailSpin
-                                height={60}
-                                width={60}
-                                color="#1cb5e0"
-                                ariaLabel="tail-spin-loading"
-                                radius="1"
-                                visible={true}
-                            />
+                            <TailSpin height={60} width={60} color="#1cb5e0" ariaLabel="tail-spin-loading" radius="1" visible={true} />
                         </div>
                     ) : (
                         <table className="users-table">
@@ -216,16 +240,10 @@ const AdminUsuarios = () => {
                                         </td>
                                         <td>
                                             <div className="actions-group">
-                                                <button
-                                                    className="edit-button"
-                                                    onClick={() => handleOpenModal(user)}
-                                                >
+                                                <button className="edit-button" onClick={() => handleOpenModal(user)}>
                                                     Actualizar
                                                 </button>
-                                                <button
-                                                    className="status-button"
-                                                    onClick={() => handleToggleStatus(user)}
-                                                >
+                                                <button className="status-button" onClick={() => handleToggleStatus(user)}>
                                                     {user.status === 1 ? "Desactivar" : "Activar"}
                                                 </button>
                                                 <button className="details-button">Detalles</button>
@@ -242,11 +260,16 @@ const AdminUsuarios = () => {
                                                                 },
                                                                 body: JSON.stringify({ userId: user.id }),
                                                             });
-                                                            alert("Invitación enviada por email.");
+                                                            setNotificationMessage("Invitación enviada por email.");
+                                                            setNotificationType("success");
                                                         } catch (err) {
-                                                            alert("Error al enviar la invitación.");
+                                                            setNotificationMessage("Error al enviar la invitación.");
+                                                            setNotificationType("error");
                                                         }
                                                         setLoading(false);
+                                                        setTimeout(() => {
+                                                            setNotificationMessage(null);
+                                                        }, 3000);
                                                     }}
                                                 >
                                                     Invitar
@@ -259,10 +282,11 @@ const AdminUsuarios = () => {
                         </table>
                     )}
                 </div>
+
                 {showModal && (
                     <div className="modal">
                         <div className="modal-content modal-user-form">
-                            <h3 style={{ textAlign: "center", color: "#4f8cff", marginBottom: 18 }}>
+                            <h3 style={{ textAlign: "center", color: "#26b7cd", marginBottom: 18 }}>
                                 {editingUser ? "Actualizar Usuario" : "Crear Usuario"}
                             </h3>
                             <form onSubmit={handleSubmit} noValidate>
@@ -351,11 +375,7 @@ const AdminUsuarios = () => {
                                         className="modal-submit-btn"
                                         disabled={loading}
                                     >
-                                        {loading
-                                            ? "Guardando..."
-                                            : editingUser
-                                            ? "Actualizar"
-                                            : "Crear"}
+                                        {loading ? "Guardando..." : editingUser ? "Actualizar" : "Crear"}
                                     </button>
                                     <button type="button" onClick={handleCloseModal} className="modal-cancel-btn">
                                         Cancelar
@@ -365,6 +385,7 @@ const AdminUsuarios = () => {
                         </div>
                     </div>
                 )}
+
                 <Footer />
             </div>
         </>

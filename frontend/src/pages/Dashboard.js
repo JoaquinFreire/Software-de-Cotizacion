@@ -5,7 +5,7 @@ import "../styles/dashboard.css";
 import "../styles/pagination.css";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
-import logo_busqueda from "../images/logo_busqueda.png";
+import logo_busqueda from "../images/logo_busqueda.webp";
 import QuotationList from "../components/QuotationList";
 import { QuotationContext } from "../context/QuotationContext";
 import Skeleton from "react-loading-skeleton";
