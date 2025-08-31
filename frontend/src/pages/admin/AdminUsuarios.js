@@ -6,6 +6,7 @@ import Footer from "../../components/Footer";
 import "../../styles/adminUsuarios.css";
 import { TailSpin } from "react-loader-spinner";
 import { validateUser } from "../../validation/userValidation"; // Asumiendo que existe
+import { safeArray } from "../../utils/safeArray"; // agrega este import
 
 const API_URL = process.env.REACT_APP_API_URL;
 const AdminUsuarios = () => {
@@ -37,7 +38,7 @@ const AdminUsuarios = () => {
             const response = await axios.get(`${API_URL}/api/users`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setUsers(response.data);
+            setUsers(safeArray(response.data)); // <-- Normaliza aquí
         } catch (error) {
             console.error("Error fetching users:", error);
         }
@@ -50,7 +51,7 @@ const AdminUsuarios = () => {
             const response = await axios.get(`${API_URL}/api/userroles`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setRoles(response.data);
+            setRoles(safeArray(response.data)); // <-- Normaliza aquí
         } catch (error) {
             console.error("Error fetching roles:", error);
         }
@@ -202,7 +203,7 @@ const AdminUsuarios = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {users.map((user) => (
+                                {safeArray(users).map((user) => (
                                     <tr key={user.id}>
                                         <td>{user.name}</td>
                                         <td>{user.lastName}</td>
@@ -334,7 +335,7 @@ const AdminUsuarios = () => {
                                         className={validationErrors.role_id ? "input-error" : ""}
                                     >
                                         <option value="">Seleccione un rol</option>
-                                        {roles.map((role) => (
+                                        {safeArray(roles).map((role) => (
                                             <option key={role.id} value={role.id}>
                                                 {role.role_name}
                                             </option>
