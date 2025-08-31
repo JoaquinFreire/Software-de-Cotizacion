@@ -16,6 +16,7 @@ import { addLocale } from 'primereact/api';
 import 'primereact/resources/themes/saga-blue/theme.css'; // PrimeReact theme
 import 'primereact/resources/primereact.min.css';         // PrimeReact core css
 import 'primeicons/primeicons.css';                       // PrimeIcons
+import { safeArray } from '../utils/safeArray'; // agrega este import
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -66,7 +67,7 @@ const Historial = () => {
     }, []);
 
     useEffect(() => {
-        setFilteredQuotations(Array.isArray(quotations) ? quotations : []);
+        setFilteredQuotations(Array.isArray(quotations) ? quotations : safeArray(quotations));
     }, [quotations]);
 
     // Scroll arriba al cambiar de página
