@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
-import logoAnodal from '../../images/logo_secundario.png';
+import logoAnodal from '../../images/logo_secundario.webp';
 import ciudadesBarrios from '../../json/ciudadesBarriosCordoba.json';
 import html2pdf from 'html2pdf.js';
 import ReactLoading from 'react-loading';
