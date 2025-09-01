@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import ConfirmationModal from "./ConfirmationModal";
 import "../styles/quotationList.css"; // Importar los estilos
 import 'react-loading-skeleton/dist/skeleton.css'
+import { safeArray } from "../utils/safeArray"; // agrega este import
 
 const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setShowModal, setQuotationToDelete, onDeleteSuccess }) => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
 
   return (
     <div className="quote-container">
-      {quotations.map((quotation) => (
+      {safeArray(quotations).map((quotation) => (
         <div key={quotation.Id} className="quote-card">
           <div className="quote-details">
             <p><b><u>Cliente</u>:  </b>{quotation.Customer.name} {quotation.Customer.lastname}</p>

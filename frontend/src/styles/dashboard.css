@@ -1,6 +1,6 @@
 .dashboard-container {
     background: #115a69;
-    background: linear-gradient(90deg,#115a69 0%, rgb(7, 33, 37) 50%, rgba(11, 49, 56, 1) 100%);
+    background: linear-gradient(90deg, #115a69 0%, rgb(7, 33, 37) 50%, rgba(11, 49, 56, 1) 100%);
     min-height: 100vh;
     padding: 0;
     margin: 0;
@@ -47,27 +47,31 @@
     margin-right: 16px;
     transition: background 0.2s;
 }
+
 .search-button img {
-        width: 18px;
-        height: 18px;
-        margin-left: 10px;
-    }
+    width: 18px;
+    height: 18px;
+    margin-left: 10px;
+}
+
 .filtro::after {
-    content: "";    
+    content: "";
     position: fixed;
     top: 0;
-    left: 0;    
+    left: 0;
     width: 100vw;
     height: 100vh;
     background: rgba(255, 189, 9, 0.144);
-    pointer-events: none; /* Permite interactuar con los elementos debajo */
-    z-index: 9999; /* Se asegura de que esté en la parte superior */
+    pointer-events: none;
+    /* Permite interactuar con los elementos debajo */
+    z-index: 9999;
+    /* Se asegura de que esté en la parte superior */
 }
 
 
 body.light-mode .dashboard-container {
     background: #93D3DB;
-background: linear-gradient(90deg,#26b7cd 0%, rgba(204, 227, 225, 1) 50%, #26b7cd 100%);
+    background: linear-gradient(90deg, #26b7cd 0%, rgba(204, 227, 225, 1) 50%, #26b7cd 100%);
 }
 
 
@@ -83,7 +87,11 @@ body.light-mode .clear-button-q {
 body.light-mode {
     background: #00bcd4;
     color: #fff;
-  }
+}
+
+.new-quote {
+    cursor: pointer;
+}
 
 body.light-mode .new-quote {
     background-color: #00bcd4;
@@ -130,6 +138,7 @@ body,
         padding-right: 0;
     }
 }
+
 @media (max-width: 768px) {
     .dashboard-container {
         margin-left: 12px;
@@ -137,23 +146,25 @@ body,
         padding-left: 0;
         padding-right: 0;
     }
+
     .dashboard-container {
         padding: 0 2vw;
     }
+
     .title {
         font-size: 24px;
         margin-top: 1rem;
         margin-bottom: 12px;
     }
 
-    .clear-button-q{
+    .clear-button-q {
         width: 40px;
         height: 38px;
         margin: 0 2px 0 0;
         font-size: 18px;
     }
-    
-    
+
+
     .dashboard-header {
         flex-direction: column;
         padding: 8px 0;
@@ -167,11 +178,13 @@ body,
         padding-left: 0;
         padding-right: 0;
     }
+
     .dashboard-container {
         padding: 0 1vw;
     }
+
     .title {
         font-size: 18px;
     }
-    
+
 }

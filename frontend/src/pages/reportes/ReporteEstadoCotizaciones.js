@@ -41,6 +41,31 @@ const formatFechaCorta = (fecha) => {
   return `${d}-${m}-${y.slice(2)}`;
 };
 
+// Utilidad para resolver referencias $ref en un array de cotizaciones
+function resolveRefs(array) {
+  const byId = {};
+  // Indexa todos los objetos con $id
+  array.forEach(obj => {
+    if (obj && obj.$id) byId[obj.$id] = obj;
+    // También indexa Customer y WorkPlace si tienen $id
+    if (obj.Customer && obj.Customer.$id) byId[obj.Customer.$id] = obj.Customer;
+    if (obj.WorkPlace && obj.WorkPlace.$id) byId[obj.WorkPlace.$id] = obj.WorkPlace;
+  });
+  // Reemplaza $ref por el objeto real
+  function resolve(obj) {
+    if (!obj || typeof obj !== "object") return obj;
+    // Si es una referencia
+    if (obj.$ref) return byId[obj.$ref] || {};
+    // Si es un objeto normal, resuelve recursivamente sus propiedades
+    const out = Array.isArray(obj) ? [] : {};
+    for (const k in obj) {
+      out[k] = resolve(obj[k]);
+    }
+    return out;
+  }
+  return array.map(resolve);
+}
+
 const ReporteEstadoCotizaciones = () => {
   const defaultDates = getDefaultDates();
   const [fechaDesde, setFechaDesde] = useState(defaultDates.desde);
@@ -71,9 +96,10 @@ const ReporteEstadoCotizaciones = () => {
         `${API_URL}/api/quotations/by-period?from=${fechaDesde}&to=${fechaHasta}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // Contar por estado
-      const data = safeArray(res.data); // <-- Normaliza aquí
-      setCotizaciones(data); // Guardar todas las cotizaciones
+      // Normaliza y resuelve referencias
+      let data = safeArray(res.data);
+      data = resolveRefs(data); // <-- Resuelve $ref aquí
+      setCotizaciones(data);
       const newCounts = [
         data.filter(q => q.Status === 'pending').length,
         data.filter(q => q.Status === 'approved').length,
@@ -102,12 +128,12 @@ const ReporteEstadoCotizaciones = () => {
 
     // Opciones para html2pdf.js
     const opt = {
-      margin:       [0.2, 0.2, 0.2, 0.2], // pulgadas
-      filename:     `reporte_estado_cotizaciones_${fechaDesde}_a_${fechaHasta}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true, logging: false, scrollY: 0 },
-      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' },
-      pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+      margin: [0.2, 0.2, 0.2, 0.2], // pulgadas
+      filename: `reporte_estado_cotizaciones_${fechaDesde}_a_${fechaHasta}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, logging: false, scrollY: 0 },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
 
     // Espera un pequeño delay para asegurar que todo se renderice bien
@@ -211,10 +237,10 @@ const ReporteEstadoCotizaciones = () => {
             className="reporte-cotizaciones-btn-pdf"
             onClick={handleDescargarPDF}
             disabled={!generar}
-            /*  onClick={() => window.print()}
-            disabled={!generar} */
+          /*  onClick={() => window.print()}
+          disabled={!generar} */
           >
-          Guardar PDF
+            Guardar PDF
           </button>
         </div>
       </div>
@@ -240,7 +266,7 @@ const ReporteEstadoCotizaciones = () => {
             }}>
               {/* BRUNO VER */}
               <ReactLoading type="spin" color="#1976d2" height={80} width={80} />
-              <div style={{marginTop: 24, fontSize: 18, color: '#1976d2'}}>Cargando reporte...</div>
+              <div style={{ marginTop: 24, fontSize: 18, color: '#1976d2' }}>Cargando reporte...</div>
             </div>
           ) : !generar ? (
             <div style={{
@@ -253,7 +279,7 @@ const ReporteEstadoCotizaciones = () => {
               fontSize: 20
             }}>
               <span>El reporte aún no fue generado.</span>
-              <span style={{fontSize: 16, marginTop: 8}}>Seleccione un rango de fechas y presione <b>Generar Reporte</b>.</span>
+              <span style={{ fontSize: 16, marginTop: 8 }}>Seleccione un rango de fechas y presione <b>Generar Reporte</b>.</span>
             </div>
           ) : (
             generar && !loading && (
@@ -371,7 +397,7 @@ const ReporteEstadoCotizaciones = () => {
                 </section>
 
                 {/* Switches para mostrar/ocultar grupos */}
-                <section style={{margin: '30px 0 10px 0', display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'center'}}>
+                <section style={{ margin: '30px 0 10px 0', display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'center' }}>
                   <label>
                     <input type="checkbox" checked={mostrarPendientes} onChange={e => setMostrarPendientes(e.target.checked)} />
                     Mostrar Pendientes
@@ -391,10 +417,10 @@ const ReporteEstadoCotizaciones = () => {
                 </section>
 
                 {/* Detalle de cotizaciones por estado, siempre visible, dentro del PDF */}
-                <section style={{marginTop: 10}}>
+                <section style={{ marginTop: 10 }}>
                   {mostrarPendientes && (
                     <>
-                      <h2 className='estadosreporte' ref={pendientesRef} style={{marginBottom: 10, color: '#1976d2'}}>Pendientes</h2>
+                      <h2 className='estadosreporte' ref={pendientesRef} style={{ marginBottom: 10, color: '#1976d2' }}>Pendientes</h2>
                       {cotizacionesPorEstado.pending.length === 0 ? (
                         <div>No hay cotizaciones pendientes.</div>
                       ) : (
@@ -424,7 +450,7 @@ const ReporteEstadoCotizaciones = () => {
                                   <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
                                   <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
                                   <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
-                                  <td style={{whiteSpace: 'nowrap'}}>${q.TotalPrice || q.totalPrice}</td>
+                                  <td style={{ whiteSpace: 'nowrap' }}>${q.TotalPrice || q.totalPrice}</td>
                                 </tr>
                               ))}
                             </tbody>
@@ -435,7 +461,7 @@ const ReporteEstadoCotizaciones = () => {
                   )}
                   {mostrarAprobados && (
                     <>
-                      <h2 className='estadosreporte' ref={aprobadosRef} style={{marginBottom: 10, color: '#388e3c'}}>Aprobados</h2>
+                      <h2 className='estadosreporte' ref={aprobadosRef} style={{ marginBottom: 10, color: '#388e3c' }}>Aprobados</h2>
                       {cotizacionesPorEstado.approved.length === 0 ? (
                         <div>No hay cotizaciones aprobadas.</div>
                       ) : (
@@ -465,7 +491,7 @@ const ReporteEstadoCotizaciones = () => {
                                   <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
                                   <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
                                   <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
-                                  <td style={{whiteSpace: 'nowrap'}}>${q.TotalPrice || q.totalPrice}</td>
+                                  <td style={{ whiteSpace: 'nowrap' }}>${q.TotalPrice || q.totalPrice}</td>
                                 </tr>
                               ))}
                             </tbody>
@@ -476,7 +502,7 @@ const ReporteEstadoCotizaciones = () => {
                   )}
                   {mostrarRechazados && (
                     <>
-                      <h2 className='estadosreporte' ref={rechazadosRef} style={{marginBottom: 10, color: '#d32f2f'}}>Rechazados</h2>
+                      <h2 className='estadosreporte' ref={rechazadosRef} style={{ marginBottom: 10, color: '#d32f2f' }}>Rechazados</h2>
                       {cotizacionesPorEstado.rejected.length === 0 ? (
                         <div>No hay cotizaciones rechazadas.</div>
                       ) : (
@@ -506,7 +532,7 @@ const ReporteEstadoCotizaciones = () => {
                                   <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
                                   <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
                                   <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
-                                  <td style={{whiteSpace: 'nowrap'}}>${q.TotalPrice || q.totalPrice}</td>
+                                  <td style={{ whiteSpace: 'nowrap' }}>${q.TotalPrice || q.totalPrice}</td>
                                 </tr>
                               ))}
                             </tbody>
@@ -517,7 +543,7 @@ const ReporteEstadoCotizaciones = () => {
                   )}
                   {mostrarFinalizados && (
                     <>
-                      <h2 className='estadosreporte' ref={finalizadosRef} style={{marginBottom: 10, color: '#fbc02d'}}>Finalizados</h2>
+                      <h2 className='estadosreporte' ref={finalizadosRef} style={{ marginBottom: 10, color: '#fbc02d' }}>Finalizados</h2>
                       {cotizacionesPorEstado.finished.length === 0 ? (
                         <div>No hay cotizaciones finalizadas.</div>
                       ) : (
@@ -547,7 +573,7 @@ const ReporteEstadoCotizaciones = () => {
                                   <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
                                   <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
                                   <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
-                                  <td style={{whiteSpace: 'nowrap'}}>${q.TotalPrice || q.totalPrice}</td>
+                                  <td style={{ whiteSpace: 'nowrap' }}>${q.TotalPrice || q.totalPrice}</td>
                                 </tr>
                               ))}
                             </tbody>
