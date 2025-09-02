@@ -104,27 +104,18 @@ builder.Services.AddScoped<ICustomerAgentRepository, CustomerAgentRepository>();
 
 builder.Services.AddScoped<IWorkTypeRepository, WorkTypeRepository>(); // Asegúrate de registrar IWorkTypeRepository
 builder.Services.AddScoped<IWorkPlaceRepository, WorkPlaceRepository>(); // Asegúrate de registrar IWorkPlaceRepository
-
 //builder.Services.AddScoped<IComplementRepository, ComplementRepository>();
 //builder.Services.AddScoped<IComplementTypeRepository, ComplementTypeRepository>();
-
 builder.Services.AddScoped<IOpeningTypeRepository, OpeningTypeRepository>();
-/* builder.Services.AddScoped<CreateOpeningType>();
-builder.Services.AddScoped<DeleteOpeningType>();
-builder.Services.AddScoped<UpdateOpeningType>();
-builder.Services.AddScoped<GetAllOpeningTypes>();
-builder.Services.AddScoped<GetOpeningTypeById>(); */
-
 builder.Services.AddScoped<IAlumTreatmentRepository, AlumTreatmentRepository>();    
-
 builder.Services.AddScoped<IPriceRepository, PriceRepository>();
-
 builder.Services.AddScoped<IGlassTypeRepository, GlassTypeRepository>();
 builder.Services.AddScoped<IUserInvitationRepository, UserInvitationRepository>();
 builder.Services.AddScoped<IComplementDoorRepository, ComplementDoorRepository>();
 builder.Services.AddScoped<IComplementPartitionRepository, ComplementPartitionRepository>();
 builder.Services.AddScoped<IComplementRailingRepository, ComplementRailingRepository>();
 builder.Services.AddScoped<ICoatingRepository, CoatingRepository>();
+builder.Services.AddScoped<IOpeningConfigurationRepository, OpeningConfigurationRepository>();
 
 // Agrega soporte para controladores en la API
 builder.Services.AddControllers()

@@ -22,6 +22,7 @@ public class AppDbContext : DbContext
     public DbSet<ComplementPartition> ComplementPartitions { get; set; }
     public DbSet<ComplementRailing> ComplementRailings { get; set; }
     public DbSet<Coating> Coatings { get; set; }
+    public DbSet<Opening_Configuration> Opening_Configurations { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -45,6 +46,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<ComplementPartition>().ToTable("complement_partition");
         modelBuilder.Entity<ComplementRailing>().ToTable("complement_railing");
         modelBuilder.Entity<Coating>().ToTable("coating");
+        modelBuilder.Entity<Opening_Configuration>().ToTable("opening_configuration");
 
         // Configurar LastEdit para que se almacene como DATE en la base de datos
         modelBuilder.Entity<Quotation>()
@@ -132,5 +134,11 @@ public class AppDbContext : DbContext
         .WithMany()
         .HasForeignKey(ui => ui.user_id)
         .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Opening_Configuration>()
+        .HasOne(oc => oc.Opening_Type)
+        .WithMany()
+        .HasForeignKey(oc => oc.opening_type_id)
+        .OnDelete(DeleteBehavior.Restrict);
     }
 }
