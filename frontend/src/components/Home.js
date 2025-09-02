@@ -66,17 +66,17 @@ const Home = () => {
         className="home-logo"
       />
       <div className="home-buttons-container">
-        <div className="home-main-action">
-          <button
-            className="new-quote newqoutation"
-            onClick={() => navigate("/quotation")}
-          >
-            <div className="quote-overlay">
-              <FilePlus2 size={24} className="home-btn-icon" />
-              <b>Nueva Cotización</b>
-            </div>
-          </button>
-        </div>
+
+        <button
+          className="new-quote newqoutation"
+          onClick={() => navigate("/quotation")}
+        >
+          <div className="quote-overlay">
+            <FilePlus2 size={24} className="home-btn-icon" />
+            <b>Nueva Cotización</b>
+          </div>
+        </button>
+
         <button className="new-quote pending" onClick={() => navigate("/cotizaciones")}>
           <div className="quote-overlay">
             <FileText size={22} className="home-btn-icon" />
@@ -95,8 +95,8 @@ const Home = () => {
             <b>Reportes</b>
           </div>
         </button>
-          </div>
-       <div className="home-buttons-container">
+      </div>
+      <div className="home-buttons-container">
         <button className="new-quote client" onClick={() => navigate("/customers")}>
           <div className="quote-overlay">
             <Users size={22} className="home-btn-icon" />

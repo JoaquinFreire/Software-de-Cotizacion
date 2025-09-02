@@ -5,7 +5,6 @@ import "../styles/quotation.css";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 import Customer from "../components/quotationComponents/Customer";
-import Agent from "../components/quotationComponents/Agent";
 import WorkPlace from "../components/quotationComponents/WorkPlace";
 import OpeningType from "../components/quotationComponents/Opening";
 import Complements from "../components/quotationComponents/Complements";
@@ -15,10 +14,8 @@ import 'swiper/css';
 import { QuotationContext } from "../context/QuotationContext";
 import { validateQuotation } from "../validation/quotationValidation";
 import { validateCustomer } from "../validation/customerValidation";
-import { validateAgent } from "../validation/agentValidation";
 import { validateWorkPlace } from "../validation/workPlaceValidation";
 import { validateOpenings } from "../validation/openingValidation";
-import { safeArray } from '../utils/safeArray';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -183,10 +180,6 @@ const Quotation = () => {
     }, [newCustomer, newAgent, workPlace, selectedOpenings]);
 
     useEffect(() => {
-        /*   const validation = validateStep(currentIndex); */
-        // Elimina setStepHasError porque no existe ni es necesario
-        // setStepHasError && setStepHasError(!validation.valid);
-        // No hace falta nada aquí, la validación por paso ya se maneja en handleNext
     }, [currentIndex, validateStep]);
 
     const handleNext = useCallback(() => {
@@ -1041,10 +1034,7 @@ const Quotation = () => {
                                         onClick={() => handleChangeComplementQty(idx, -1)}
                                     >−</button>
                                     <span className="summary-qty">{complement.quantity}</span>
-                                    <button
-                                        className="summary-qty-btn"
-                                        type="button"
-                                        onClick={() => handleChangeComplementQty(idx, 1)}
+                                    <button className="summary-qty-btn" type="button" onClick={() => handleChangeComplementQty(idx, 1)}
                                     >+</button>
                                 </div>
                                 <div className="summary-subtotal">
