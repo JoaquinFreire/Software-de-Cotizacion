@@ -9,10 +9,7 @@ namespace Application.Mapping.CustomerProfile
         public CreateCustomerProfile()
         {
             // Mapeo CreateCustomerDTO a Customer
-            CreateMap<CreateCustomerDTO, Customer>()
-                .ForMember(d => d.Agents, o => o.MapFrom(s => s.agents)); // Nuevo: mapea la colección de agentes
-            // Mapeo CreateCustomerAgentDTO a CustomerAgent
-            CreateMap<CreateCustomerAgentDTO, CustomerAgent>();
+            CreateMap<CreateCustomerDTO, Customer>();
         }
     }
 }

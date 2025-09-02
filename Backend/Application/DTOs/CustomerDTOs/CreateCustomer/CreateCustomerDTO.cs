@@ -15,7 +15,5 @@ namespace Application.DTOs.CustomerDTOs.CreateCustomer
         public required string mail { get; set; }
         public required string address { get; set; }
         public required string dni { get; set; }
-        public CreateCustomerAgentDTO? agent { get; set; }
-        public List<CreateCustomerAgentDTO>? agents { get; set; } // NUEVO: Soporte para múltiples agentes
     }
 }

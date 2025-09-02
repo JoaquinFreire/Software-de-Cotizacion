@@ -12,7 +12,6 @@ namespace Application.DTOs.CustomerDTOs.GetCustomer
         public required string address { get; set; }
         public required string dni { get; set; }
         public required DateTime registration_date { get; set; }
-        public List<GetCustomerAgentDTO>? agents { get; set; }
 
     }
 }

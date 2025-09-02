@@ -22,6 +22,8 @@ public class Budget
     public required User user { get; set; }
     [BsonElement("customer")]
     public required Customer customer { get; set; }
+    [BsonElement("agent")]
+    public required CustomerAgent agent { get; set; } // Agente asociado al cliente
     [BsonElement("workPlace")]
     public required WorkPlace workPlace { get; set; }
     [BsonElement("products")]

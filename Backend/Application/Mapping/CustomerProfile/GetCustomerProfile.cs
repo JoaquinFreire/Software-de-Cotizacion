@@ -9,10 +9,7 @@ namespace Application.Mapping.CustomerProfile
         public GetCustomerProfile()
         {
             // Mapeo Customer a GetCustomerDTO
-            CreateMap<Customer, GetCustomerDTO>()
-                .ForMember(dest => dest.agents, opt => opt.MapFrom(src => src.Agents)); // Corrige: mapea la colección
-            // Mapeo CustomerAgent a GetCustomerAgentDTO
-            CreateMap<CustomerAgent, GetCustomerAgentDTO>();
+            CreateMap<Customer, GetCustomerDTO>();
         }
     }
 }

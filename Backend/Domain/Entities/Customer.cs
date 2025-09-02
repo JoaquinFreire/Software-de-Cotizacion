@@ -33,9 +33,9 @@ namespace Domain.Entities
         public List<CustomerAgent> Agents { get; set; } = new();
 
         // Solo para MongoDB, ignora en EF Core
-        [BsonElement("agent")]
-        [NotMapped]
-        public CustomerAgent? agent { get; set; }
+        //[BsonElement("agent")]
+        //[NotMapped]
+        //public CustomerAgent? agent { get; set; }
     }
 }
 
