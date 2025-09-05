@@ -98,7 +98,6 @@ const Quotation = () => {
     const [openingConfigurations, setOpeningConfigurations] = useState([]);
     const [alumPrice, setAlumPrice] = useState(0);
     const [labourPrice, setLabourPrice] = useState(0);
-    const [ivaPercentage, setIvaPercentage] = useState(21); // Puedes ajustar el IVA
 
     // Obtiene los datos del usuario logueado al montar el componente
     useEffect(() => {
@@ -184,7 +183,7 @@ const Quotation = () => {
             default:
                 return { valid: true, errors: {} };
         }
-    }, [newCustomer, newAgent, workPlace, selectedOpenings]);
+    }, [newCustomer, workPlace, selectedOpenings]); // <-- newAgent removido
 
     useEffect(() => {
     }, [currentIndex, validateStep]);
@@ -498,13 +497,13 @@ const Quotation = () => {
             // No else, no agregues agent si no hay datos válidos
 
             const selectedWorkType = workTypes.find(wt => String(wt.id) === String(workPlace.workTypeId));
-            const workPlacePayload = {
-                name: workPlace.name,
-                address: workPlace.address,
-                workType: selectedWorkType
-                    ? { type: selectedWorkType.name || selectedWorkType.type || "" }
-                    : { type: "" }
-            };
+            // const workPlacePayload = {
+            //     name: workPlace.name,
+            //     address: workPlace.address,
+            //     workType: selectedWorkType
+            //         ? { type: selectedWorkType.name || selectedWorkType.type || "" }
+            //         : { type: "" }
+            // }; // <-- ELIMINADO, no se usa
 
             // --- NUEVO: Mapear los complementos para Mongo agrupando por tipo y usando nombres correctos ---
             const complementsMongo = {
@@ -750,31 +749,31 @@ const Quotation = () => {
     };
 
     // Buscar agente por DNI
-    const handleAgentSearch = async () => {
-        setAgentSearchError("");
-        setAgentSearchResult(null);
-        if (!agentSearchDni.trim() || agentSearchDni.length !== 8 || !/^\d+$/.test(agentSearchDni)) {
-            setAgentSearchError("Debe ingresar un DNI de 8 dígitos.");
-            return;
-        }
-        try {
-            const token = localStorage.getItem('token');
-            const res = await axios.get(`${API_URL}/api/customer-agents/dni/${agentSearchDni}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            if (res.data) {
-                setAgentSearchResult(res.data);
-            } else {
-                setAgentSearchResult(null);
-            }
-        } catch (err) {
-            if (err.response && err.response.status === 404) {
-                setAgentSearchResult(null); // No encontrado, permite alta
-            } else {
-                setAgentSearchError("Error buscando agente.");
-            }
-        }
-    };
+    // const handleAgentSearch = async () => {
+    //     setAgentSearchError("");
+    //     setAgentSearchResult(null);
+    //     if (!agentSearchDni.trim() || agentSearchDni.length !== 8 || !/^\d+$/.test(agentSearchDni)) {
+    //         setAgentSearchError("Debe ingresar un DNI de 8 dígitos.");
+    //         return;
+    //     }
+    //     try {
+    //         const token = localStorage.getItem('token');
+    //         const res = await axios.get(`${API_URL}/api/customer-agents/dni/${agentSearchDni}`, {
+    //             headers: { Authorization: `Bearer ${token}` }
+    //         });
+    //         if (res.data) {
+    //             setAgentSearchResult(res.data);
+    //         } else {
+    //             setAgentSearchResult(null);
+    //         }
+    //     } catch (err) {
+    //         if (err.response && err.response.status === 404) {
+    //             setAgentSearchResult(null); // No encontrado, permite alta
+    //         } else {
+    //             setAgentSearchError("Error buscando agente.");
+    //         }
+    //     }
+    // }
 
     // Agregar agente existente al array de agentes
     const handleAddExistingAgent = () => {
@@ -933,7 +932,7 @@ const Quotation = () => {
                             </SwiperSlide>
                             <SwiperSlide>
                                 {/* AGENTES */}
-                                <div className="agent-step-container">
+                                <div className="agent-container">
                                     <h3>Agentes del Cliente</h3>
                                     {/* Sugerencias de agentes asociados al cliente */}
                                     {customerAgentsSuggestion.length > 0 && (
@@ -960,7 +959,7 @@ const Quotation = () => {
                                             onChange={e => setAgentSearchDni(e.target.value.replace(/\D/g, '').slice(0, 8))}
                                             placeholder="Ingrese DNI del agente"
                                             maxLength={8}
-                                            className="dni-agent-input"
+                                            className="agent-details"
                                         />
                                         {agentSearchError && <span className="error-message">{agentSearchError}</span>}
                                     </div>
@@ -969,10 +968,10 @@ const Quotation = () => {
                                         agentSearchResult ? (
                                             <div className="agent-found">
                                                 <p>Agente encontrado: <b>{agentSearchResult.name} {agentSearchResult.lastname}</b> - {agentSearchResult.dni}</p>
-                                                <button type="button" className="add-agent-btn" onClick={handleAddExistingAgent}>Agregar este agente</button>
+                                                <button type="button" className="botton-carusel" onClick={handleAddExistingAgent}>Agregar este agente</button>
                                             </div>
                                         ) : (
-                                            <div className="new-agent-form">
+                                            <div className="form-group">
                                                 <h4>Nuevo agente</h4>
                                                 <label>Nombre:</label>
                                                 <input
@@ -1002,7 +1001,7 @@ const Quotation = () => {
                                                     onChange={e => setNewAgent(prev => ({ ...prev, mail: e.target.value, dni: agentSearchDni }))
                                                     }
                                                 />
-                                                <button type="button" className="add-agent-btn" onClick={handleAddNewAgent}>Agregar nuevo agente</button>
+                                                <button type="button" className="botton-carusel" onClick={handleAddNewAgent}>Agregar nuevo agente</button>
                                             </div>
                                         )
                                     )}
@@ -1090,7 +1089,21 @@ const Quotation = () => {
                 <aside className="quotation-summary">
                     <h3>Resumen</h3>
                     <div>
-                        <strong>Aberturas agregadas:</strong>
+                        {/* Lista de agentes agregados */}
+                            
+                        <div className="agents-list">
+                            <h4 className='h4'>Agentes seleccionados:</h4>
+                            {agents.length === 0 && <div className="summary-empty">No tiene agentes.</div>}
+                            {agents.map((agent, idx) => (
+                                <div key={idx} className="agent-selected-row">
+                                    <span>
+                                        {agent.name} {agent.lastname} - {agent.dni}
+                                        
+                                    </span>
+                                 </div>
+                            ))}
+                        </div>
+                        <h4 className='h4'>Aberturas agregadas:</h4>
                         {selectedOpenings.length === 0 && (
                             <div className="summary-empty">No hay aberturas agregadas.</div>
                         )}
@@ -1127,7 +1140,7 @@ const Quotation = () => {
                         </div>
                     </div>
                     <div style={{ marginTop: 24 }}>
-                        <strong>Complementos agregados:</strong>
+                        <h4 className='h4'>Complementos agregados:</h4>
                         {selectedComplements.length === 0 && (
                             <div className="summary-empty">No hay complementos agregados.</div>
                         )}

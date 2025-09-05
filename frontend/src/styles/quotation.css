@@ -166,7 +166,13 @@ body.light-mode .botton-carusel:hover {
     display: block;
     width: fit-content;
 }
-
+.h4{
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    background: #1b9eaf;
+    border-radius: 5px;
+    }
 .customer-option.active {
     background: #26b7cd;
     color: black;
@@ -201,9 +207,10 @@ body.light-mode .botton-carusel:hover {
 }
 
 .workplace-container h3, .agent-container h3 {
-    color: #26b7cd;
+    color: #ffffff;
     margin-bottom: 15px;
 }
+
 
 .agent-details, .form-group {
     margin-bottom: 15px;
@@ -319,13 +326,10 @@ input::placeholder, select::placeholder {
 }
 
 .quotation-layout {
-    display: flex;
+     display: flex;
     align-items: flex-start;
     justify-content: center;
-    gap: 40px;
-    max-width: 1200px;
-    margin: 0 auto 32px auto;
-    padding: 0 16px;
+    margin-left: 150px;
 }
 .quotation-indice {
     width: 20px;
@@ -361,7 +365,8 @@ body.light-mode .quotation-indice h3 {
 
 }
 .quotation-main {
-    flex: 1 1 600px;
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -370,18 +375,15 @@ body.light-mode .quotation-indice h3 {
 }
 
 .quotation-summary {
-    width: 340px;
+    width: 400px;
     min-width: 260px;
     background: #111b1d;
     border: 1px solid #11d9f3;
     border-radius: 12px;
     padding: 24px 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    position: sticky;
-    top: 32px;
     min-height: 300px;
     color: #fff;
-    margin-left: 313px;
     transition: background-color 2s, color 0.4s, border-color 0.4s, box-shadow 0.4s;
 
 }
@@ -734,13 +736,16 @@ body.light-mode .remove-complement-button:hover {
         padding: 6px;
     }
 }
-
+.agent-search{
+    color: #26b7cd;
+}
 
 .agent-suggestion-row, .agent-selected-row {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 6px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .remove-agent-btn {

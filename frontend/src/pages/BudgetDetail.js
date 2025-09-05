@@ -17,6 +17,8 @@ const BudgetDetail = () => {
   const [budget, setBudget] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [mailLoading, setMailLoading] = useState(false);
+  const [whatsAppLoading, setWhatsAppLoading] = useState(false);
   const pdfRef = useRef();
 
   useEffect(() => {
@@ -37,9 +39,9 @@ const BudgetDetail = () => {
 
   const show = (val) => val !== undefined && val !== null && val !== "" ? val : "No especificado";
 
-  const handleDescargarPDF = async () => {
-    if (!pdfRef.current) return;
-    setPdfLoading(true);
+  // Generador de PDF en memoria
+  const generatePDF = async () => {
+    if (!pdfRef.current) return null;
     const input = pdfRef.current;
     const canvas = await html2canvas(input, { scale: 3, useCORS: true });
     const imgData = canvas.toDataURL('image/jpeg', 1.0);
@@ -64,19 +66,77 @@ const BudgetDetail = () => {
       pageNumber++;
     }
 
-    pdf.save(`detalle_cotizacion_${show(budget.budgetId)}.pdf`);
+    return pdf;
+  };
+
+  // Descargar PDF
+  const handleDescargarPDF = async () => {
+    setPdfLoading(true);
+    const pdf = await generatePDF();
+    if (pdf) pdf.save(`detalle_cotizacion_${show(budget.budgetId)}.pdf`);
     setPdfLoading(false);
+  };
+
+  // Enviar por Email (usa backend para mandar adjunto)
+  const handleEnviarEmail = async () => {
+    setMailLoading(true);
+    const pdf = await generatePDF();
+    if (!pdf) return;
+
+    const pdfBlob = pdf.output('blob');
+    const formData = new FormData();
+    formData.append("file", pdfBlob, `cotizacion_${budget.budgetId}.pdf`);
+    formData.append("to", budget.customer?.mail || "cliente@ejemplo.com");
+//VER ESTO FALTA endpoint
+    try {
+      await axios.post(`${API_URL}/api/SendMail`, formData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      alert("Correo enviado correctamente ✅");
+    } catch (err) {
+      console.error(err);
+      alert("Error enviando el correo ❌");
+    }
+
+    setMailLoading(false);
+  };
+
+  // Compartir por WhatsApp (con link al PDF en el backend)
+  const handleEnviarWhatsApp = async () => {
+    setWhatsAppLoading(true);
+
+    // 👇 lo ideal es que el backend te genere un link al PDF
+    const pdfLink = `${API_URL}/files/cotizacion_${budget.budgetId}.pdf`;
+    const phone = budget.customer?.tel || "5493510000000"; // con código de país
+    const mensaje = `Hola ${budget.customer?.name}, aquí tienes tu cotización:\n${pdfLink}`;
+
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`, "_blank");
+
+    setWhatsAppLoading(false);
   };
 
   return (
     <>
       <Navbar />
-      <div className="only-screen" style={{ display: 'flex', justifyContent: 'center', margin: '24px 0' }}>
-        <button className="reporte-cotizaciones-btn-pdf" onClick={handleDescargarPDF} disabled={pdfLoading}>
-          {pdfLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Descargar PDF"}
-        </button>
+      <div className="Content-bottom" style={{ display: 'flex', justifyContent: 'center' }}>
+        <div className="only-screen" style={{ margin: '24px 20px' }}>
+          <button className="reporte-cotizaciones-btn-pdf" onClick={handleDescargarPDF} disabled={pdfLoading}>
+            {pdfLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Descargar PDF"}
+          </button>
+        </div>
+        <div className="only-screen" style={{ margin: '24px 20px' }}>
+          <button className="reporte-cotizaciones-btn-email" onClick={handleEnviarEmail} disabled={mailLoading}>
+            {mailLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Enviar por Email"}
+          </button>
+        </div>
+        <div className="only-screen" style={{ margin: '24px 20px' }}>
+          <button className="reporte-cotizaciones-btn-WhatsApp" onClick={handleEnviarWhatsApp} disabled={whatsAppLoading}>
+            {whatsAppLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Enviar por WhatsApp"}
+          </button>
+        </div>
       </div>
 
+      {/* Contenido del PDF */}
       <div style={{ backgroundColor: '#ccc', padding: 40, display: 'flex', justifyContent: 'center' }}>
         {loading ? (
           <ReactLoading type="spin" color="#1976d2" height={80} width={80} />
@@ -97,6 +157,7 @@ const BudgetDetail = () => {
               justifyContent: 'space-between'
             }}
           >
+            {/* Header del PDF */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                 <img src={logoAnodal} alt="Logo" style={{ height: 30, marginLeft: 80 }} />
@@ -110,6 +171,7 @@ const BudgetDetail = () => {
               </div>
               <hr style={{ marginBottom: 20, borderTop: '1px solid #ccc' }} />
 
+              {/* Datos principales */}
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
                 <div style={{ fontSize: 18, fontWeight: 'bold' }}>Cotización N°: {show(budget.budgetId)}</div>
                 <div style={{ textAlign: 'right', fontSize: 14 }}>
@@ -117,9 +179,9 @@ const BudgetDetail = () => {
                   <div>Válido hasta: {new Date(budget.ExpirationDate).toLocaleDateString()}</div>
                 </div>
               </div>
-
               <hr style={{ margin: '10px 0', borderTop: '1px solid #ccc' }} />
 
+              {/* Cliente, lugar y vendedor */}
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, fontSize: 14 }}>
                 <div style={{ flex: 1 }}>
                   <strong style={{ fontSize: 16 }}>Cliente</strong><br />
@@ -142,16 +204,17 @@ const BudgetDetail = () => {
 
               <hr style={{ margin: '20px 0', borderTop: '1px solid #ccc' }} />
 
+              {/* Productos */}
               <h3 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Productos</h3>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, border: '1px solid #ccc' }}>
                 <thead style={{ backgroundColor: '#f0f0f0' }}>
                   <tr>
-                    <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>Producto</th>
-                    <th style={{ borderBottom: '1px solid #ccc' }}>Cant.</th>
-                    <th style={{ borderBottom: '1px solid #ccc' }}>Dimensiones</th>
-                    <th style={{ borderBottom: '1px solid #ccc' }}>Vidrio</th>
-                    <th style={{ borderBottom: '1px solid #ccc' }}>Tratamiento</th>
-                    <th style={{ borderBottom: '1px solid #ccc' }}>Precio/u</th>
+                    <th>Producto</th>
+                    <th>Cant.</th>
+                    <th>Dimensiones</th>
+                    <th>Vidrio</th>
+                    <th>Tratamiento</th>
+                    <th>Precio/u</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -183,7 +246,7 @@ const BudgetDetail = () => {
                       </tr>
                       <tr>
                         <td colSpan={6} style={{ textAlign: 'right', paddingBottom: 15, borderBottom: '1px solid #ccc' }}>
-                          <b>Subtotal:</b> 
+                          <b>Subtotal:</b>
                         </td>
                       </tr>
                     </React.Fragment>
@@ -191,17 +254,61 @@ const BudgetDetail = () => {
                 </tbody>
               </table>
 
+              {/* Totales */}
               <div style={{ textAlign: 'right', marginTop: 20, fontSize: 16 }}>
                 <div><b>Total:</b> </div>
                 <div><b>Dólar Ref:</b> {show(budget.DollarReference)}</div>
                 <div><b>Mano de Obra:</b> {show(budget.LabourReference)}</div>
               </div>
 
+              {/* Observaciones */}
               <div style={{ marginTop: 20, fontSize: 14 }}>
                 <b>Observaciones:</b> {show(budget.Comment)}
               </div>
             </div>
+            
 
+            {/* Encuesta mejorada */}
+            <div
+              style={{
+                marginTop: 30,
+                padding: 20,
+                border: '1px solid #26b7cd',
+                borderRadius: 10,
+                background: '#f5feffff',
+                textAlign: 'center',
+                boxShadow: '0 2px 8px rgba(25, 118, 210, 0.08)'
+              }}
+            >
+              <h3 style={{ color: '#26b7cd', marginBottom: 10 }}>Encuesta de Satisfacción</h3>
+              <div style={{ marginBottom: 12, fontSize: 15 }}>
+                Nos gustaría conocer tu opinión sobre nuestro servicio.<br />
+                Por favor, completa la siguiente encuesta:
+              </div>
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSciI6afTuXOIujR1CjCTo3-HCOBaBo6cOdo7MfU_WtZ_SgvEA/viewform?usp=sharing&ouid=105538931547743841857"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: 'none' }}
+              >
+                <button
+                  style={{
+                    background: '#26b7cd',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 6,
+                    padding: '10px 24px',
+                    fontSize: 16,
+                    cursor: 'pointer',
+                    boxShadow: '0 1px 4px rgba(25, 118, 210, 0.12)'
+                  }}
+                >
+                  Ir a la Encuesta
+                </button>
+              </a>
+            </div>
+
+            {/* Footer */}
             <div style={{ textAlign: 'center', fontSize: 12, borderTop: '1px solid #ccc', paddingTop: 10 }}>
               <img src={miniLogo} alt="Mini Logo" style={{ height: 16, marginBottom: 4 }} /><br />
               Avenida Japón 1292 / Córdoba / Argentina<br />

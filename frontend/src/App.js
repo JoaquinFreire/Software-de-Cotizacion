@@ -31,10 +31,7 @@ import TypeGlass from './pages/Materials/TypeGlass';
 import Accesories from './pages/openings/Accesories';
 import TypeLine from './pages/openings/TypeLine';
 import Complement from './pages/openings/Complement';
-
-
-
-
+import AnalisisSatisfaccionCliente from './pages/reportes/AnalisisSatisfaccionCliente';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -183,6 +180,7 @@ function App() {
                         <Route path="/reportes" element={<PrivateRoute element={<Reportes />} />} />
                         <Route path="/reportes/estado-cotizaciones" element={<PrivateRoute element={<ReporteEstadoCotizaciones />} />} />
                         <Route path="/reportes/ubicacion-geografica" element={<PrivateRoute element={<AnalisisDeProyectoPorUbicacionGeografica />} />} />
+                        <Route path="/reportes/analisis-satisfaccion-cliente" element={<AnalisisSatisfaccionCliente />} />
                         <Route path="/quotation" element={<PrivateRoute element={<Quotation />} />} />
                         <Route path="/quotation/:id" element={<PrivateRoute element={<BudgetDetail />} />} />
                         <Route path="/crear-password" element={<PublicRoute element={<CreatePassword />} />} />
