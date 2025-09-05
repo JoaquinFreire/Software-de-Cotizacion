@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { safeArray } from '../../utils/safeArray';
 
 const OpeningType = ({
@@ -9,18 +9,55 @@ const OpeningType = ({
     glassTypes,
     selectedOpenings,
     setSelectedOpenings,
-    errors = {}
+    errors = {},
+    openingConfigurations = []
 }) => {
+    useEffect(() => {
+        console.log("openingConfigurations:", safeArray(openingConfigurations));
+    }, [openingConfigurations]);
+
+    // Buscar configuración sugerida según tipo, ancho y alto
+    const suggestedConfig = useMemo(() => {
+        const configs = safeArray(openingConfigurations);
+        if (!openingForm.typeId || !openingForm.width || !openingForm.height) return null;
+        return configs.find(cfg =>
+            Number(openingForm.typeId) === Number(cfg.opening_type_id) &&
+            openingForm.width >= cfg.min_width_mm &&
+            openingForm.width <= cfg.max_width_mm &&
+            openingForm.height >= cfg.min_height_mm &&
+            openingForm.height <= cfg.max_height_mm
+        );
+    }, [openingForm.typeId, openingForm.width, openingForm.height, openingConfigurations]);
+
+    // Paneles sugeridos
+    const suggestedPanels = {
+        numPanelsWidth: suggestedConfig?.num_panels_width || 1,
+        numPanelsHeight: suggestedConfig?.num_panels_height || 1,
+        anchoPanel: suggestedConfig ? (openingForm.width / suggestedConfig.num_panels_width) : '',
+        altoPanel: suggestedConfig ? (openingForm.height / suggestedConfig.num_panels_height) : ''
+    };
+
+    // Inputs controlados para ancho/alto panel
+    const panelWidth = openingForm.panelWidth !== undefined
+        ? openingForm.panelWidth
+        : suggestedPanels.anchoPanel || '';
+    const panelHeight = openingForm.panelHeight !== undefined
+        ? openingForm.panelHeight
+        : suggestedPanels.altoPanel || '';
+
+    // Advierte si el usuario cambió los valores sugeridos
+    const panelDiffers =
+        panelWidth !== '' && panelHeight !== '' &&
+        (Number(panelWidth) !== Number(suggestedPanels.anchoPanel) ||
+         Number(panelHeight) !== Number(suggestedPanels.altoPanel));
+
     const handleAddOpening = () => {
         const { typeId, width, height, quantity, treatmentId, glassTypeId } = openingForm;
-
         // Validar que todos los campos estén completos
         if (!typeId || !width || !height || quantity <= 0 || !treatmentId || !glassTypeId) {
-            console.log(typeId, " ", width, " ", height, " ", quantity, " ", treatmentId, " ", glassTypeId);
             console.error('Todos los campos son obligatorios');
             return;
         }
-
         // Verificar si ya existe una abertura con las mismas características
         const existingOpening = selectedOpenings.find(
             (opening) =>
@@ -28,11 +65,11 @@ const OpeningType = ({
                 opening.width === parseFloat(width) &&
                 opening.height === parseFloat(height) &&
                 opening.treatmentId === treatmentId &&
-                opening.glassTypeId === glassTypeId
+                opening.glassTypeId === glassTypeId &&
+                Number(opening.panelWidth) === Number(panelWidth) &&
+                Number(opening.panelHeight) === Number(panelHeight)
         );
-
         if (existingOpening) {
-            // Si ya existe, actualizar la cantidad
             setSelectedOpenings((prev) =>
                 prev.map((opening) =>
                     opening.id === existingOpening.id
@@ -41,26 +78,27 @@ const OpeningType = ({
                 )
             );
         } else {
-            // Si no existe, agregar una nueva abertura
             setSelectedOpenings((prev) => [
                 ...prev,
                 {
                     id: Date.now(),
                     typeId,
-                    typeName: openingTypes.find((type) => type.id === parseInt(typeId)).name,
+                    typeName: openingTypes.find((type) => type.id === parseInt(typeId))?.name,
                     width: parseFloat(width),
                     height: parseFloat(height),
                     quantity: parseInt(quantity),
                     treatmentId,
-                    treatmentName: treatments.find((t) => t.id === parseInt(treatmentId)).name,
+                    treatmentName: treatments.find((t) => t.id === parseInt(treatmentId))?.name,
                     glassTypeId,
-                    glassTypeName: glassTypes.find((g) => g.id === parseInt(glassTypeId)).name,
+                    glassTypeName: glassTypes.find((g) => g.id === parseInt(glassTypeId))?.name,
+                    numPanelsWidth: suggestedConfig?.num_panels_width,
+                    numPanelsHeight: suggestedConfig?.num_panels_height,
+                    panelWidth: Number(panelWidth),
+                    panelHeight: Number(panelHeight)
                 },
             ]);
         }
-
-        // Reiniciar el formulario
-        setOpeningForm({ typeId: '', width: '', height: '', quantity: 1, treatmentId: '', glassTypeId: '' });
+        setOpeningForm({ typeId: '', width: '', height: '', quantity: 1, treatmentId: '', glassTypeId: '', panelWidth: undefined, panelHeight: undefined });
     };
 
     const handleInputChange = (field, value) => {
@@ -76,7 +114,7 @@ const OpeningType = ({
             <div className="form-group">
                 <label>Tipo de abertura</label>
                 <select
-                    value={openingForm.typeId}
+                    value={openingForm.typeId || ''}
                     onChange={e => handleInputChange("typeId", e.target.value)}
                     className={errors.typeId ? "input-error" : ""}
                 >
@@ -88,32 +126,60 @@ const OpeningType = ({
                 {errors.typeId && <span className="error-message">{errors.typeId}</span>}
             </div>
             <div className="form-group">
-                <label>Ancho</label>
+                <label>Ancho (mm)</label>
                 <input
                     type="number"
-                    value={openingForm.width}
+                    value={openingForm.width || ''}
                     onChange={e => handleInputChange("width", e.target.value)}
                     className={errors.width ? "input-error" : ""}
-                    placeholder="Ancho"
+                    placeholder="Ancho en milímetros"
                 />
                 {errors.width && <span className="error-message">{errors.width}</span>}
             </div>
             <div className="form-group">
-                <label>Alto</label>
+                <label>Alto (mm)</label>
                 <input
                     type="number"
-                    value={openingForm.height}
+                    value={openingForm.height || ''}
                     onChange={e => handleInputChange("height", e.target.value)}
                     className={errors.height ? "input-error" : ""}
-                    placeholder="Alto"
+                    placeholder="Alto en milímetros"
                 />
                 {errors.height && <span className="error-message">{errors.height}</span>}
             </div>
+            {suggestedConfig && (
+                <div className="panel-suggestion" style={{ marginTop: 12, color: "#26b7cd" }}>
+                    <strong>Sugerencia:</strong> {suggestedConfig.num_panels_width} panel(es) de ancho x {suggestedConfig.num_panels_height} panel(es) de alto
+                </div>
+            )}
+            <div className="form-group">
+                <label>Ancho de panel (mm)</label>
+                <input
+                    type="number"
+                    value={panelWidth}
+                    onChange={e => handleInputChange("panelWidth", e.target.value)}
+                    placeholder="Ancho de panel"
+                />
+            </div>
+            <div className="form-group">
+                <label>Alto de panel (mm)</label>
+                <input
+                    type="number"
+                    value={panelHeight}
+                    onChange={e => handleInputChange("panelHeight", e.target.value)}
+                    placeholder="Alto de panel"
+                />
+            </div>
+            {panelDiffers && (
+                <div style={{ color: "#e67e22", marginBottom: 8 }}>
+                    <b>Advertencia:</b> Se recomienda usar los valores sugeridos ({suggestedPanels.anchoPanel} x {suggestedPanels.altoPanel} mm), pero puede modificarlos si lo desea.
+                </div>
+            )}
             <div className="form-group">
                 <label>Cantidad</label>
                 <input
                     type="number"
-                    value={openingForm.quantity}
+                    value={openingForm.quantity || 1}
                     onChange={e => handleInputChange("quantity", e.target.value)}
                     className={errors.quantity ? "input-error" : ""}
                     placeholder="Cantidad"
@@ -123,7 +189,7 @@ const OpeningType = ({
             <div className="form-group">
                 <label>Tratamiento</label>
                 <select
-                    value={openingForm.treatmentId}
+                    value={openingForm.treatmentId || ''}
                     onChange={e => handleInputChange("treatmentId", e.target.value)}
                     className={errors.treatmentId ? "input-error" : ""}
                 >
@@ -137,7 +203,7 @@ const OpeningType = ({
             <div className="form-group">
                 <label>Tipo de vidrio</label>
                 <select
-                    value={openingForm.glassTypeId}
+                    value={openingForm.glassTypeId || ''}
                     onChange={e => handleInputChange("glassTypeId", e.target.value)}
                     className={errors.glassTypeId ? "input-error" : ""}
                 >

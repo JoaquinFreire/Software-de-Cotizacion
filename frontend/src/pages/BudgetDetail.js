@@ -26,7 +26,6 @@ const BudgetDetail = () => {
         const res = await axios.get(`${API_URL}/api/Mongo/GetBudgetByBudgetId/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log(res.data, "res.data");
         setBudget(res.data);
       } catch {
         setBudget(null);

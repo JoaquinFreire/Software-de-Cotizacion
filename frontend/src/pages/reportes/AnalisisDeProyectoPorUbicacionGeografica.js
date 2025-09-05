@@ -43,12 +43,11 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
         `${API_URL}/api/quotations/by-period-location?from=${fechaDesde}&to=${fechaHasta}&location=${encodeURIComponent(ciudad)}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log(res.data, " esta es la respuesta");
+
       // Nuevo: log de los datos de cliente de cada cotización
       const data = safeArray(res.data) || []; // <-- Normaliza aquí
       if (Array.isArray(data)) {
         data.forEach((q, idx) => {
-          console.log(`Cotización #${idx} - Cliente:`, q.Customer);
           if (q.WorkPlace) {
             console.log(`Cotización #${idx} - WorkPlace:`, q.WorkPlace);
           }
@@ -68,7 +67,6 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
         } else {
           barrio = '(Sin barrio)';
         }
-        console.log(q.WorkPlace.Location, " location");
 
         // Si no viene el nombre, mapea el número a texto
         let tipoObra = q.WorkPlace?.WorkTypeName || q.WorkPlace?.workTypeName || '';
@@ -141,7 +139,7 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
       setMostrarBarrio(nuevoMostrar);
       setMostrarTodos(true);
     } else {
-      // Ocultar todos
+      // Ocultar todos  
       setMostrarBarrio({});
       setMostrarTodos(false);
     }
@@ -149,7 +147,6 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
 
   // Total general
   const totalProyectos = resultados.reduce((acc, r) => acc + r.count, 0);
-  console.log(mostrarTodos, " mostrar barrio");
   return (
     <div className="reporte-cotizaciones-root">
       <div className="reporte-cotizaciones-toolbar">

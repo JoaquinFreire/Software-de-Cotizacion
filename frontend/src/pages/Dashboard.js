@@ -83,10 +83,6 @@ const Dashboard = () => {
 
     // Ya no necesitas filtrar pendientes aquí, quotations ya viene filtrado
     useEffect(() => {
-        // Log para ver el dashboardState y quotations crudos
-        console.log("dashboardState:", dashboardState);
-        console.log("quotations (raw):", quotations);
-
         let arr = Array.isArray(quotations) ? quotations : safeArray(quotations);
         arr = resolveRefs(arr); // <-- Resuelve $ref aquí
         setFilteredQuotations(arr);
@@ -204,10 +200,6 @@ const Dashboard = () => {
         setLastEditFromDate(e.value);
         setFilters({ ...filters, lastEditFrom: e.value ? e.value.toISOString().slice(0, 10) : "" });
     };
-
-    // Log en el render para ver el valor en cada render
-    console.log("Dashboard render - quotations:", quotations, "filteredQuotations:", filteredQuotations);
-
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />

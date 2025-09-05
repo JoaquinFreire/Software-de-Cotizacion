@@ -4,8 +4,6 @@ import ciudadesBarriosRaw from '../../json/ciudadesBarriosCordoba.json';
 // Accede correctamente a la propiedad ciudades
 const ciudadesBarrios = ciudadesBarriosRaw?.default || ciudadesBarriosRaw;
 const ciudades = Array.isArray(ciudadesBarrios?.Cordoba?.ciudades) ? ciudadesBarrios.Cordoba.ciudades : [];
-console.log(ciudadesBarrios, "ciudades1");
-console.log(ciudades, "ciudades2");
 
 const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
     const [selectedCiudad, setSelectedCiudad] = useState('');
@@ -94,8 +92,8 @@ const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
                         required
                     >
                         <option value="">Seleccione barrio</option>
-                        {barrios.map(barrio => (
-                            <option key={barrio} value={barrio}>
+                        {barrios.map((barrio, idx) => (
+                            <option key={barrio + '-' + idx} value={barrio}>
                                 {barrio}
                             </option>
                         ))}

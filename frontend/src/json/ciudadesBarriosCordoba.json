@@ -6,7 +6,7 @@
         "parcial": true,
         "nota": "Lista representativa (no exhaustiva). Para una lista más completa, consultar el Anexo de Wikipedia y el Observatorio Urbano municipal.",
         "barrios": [
-            "Otro",
+          "Otro",
           "Alberdi",
           "Alta Córdoba",
           "Altamira",
@@ -56,7 +56,6 @@
           "Matienzo",
           "Nueva Córdoba",
           "Observatorio",
-          "Otro(si no está en la lista)",
           "Parque Capital",
           "Parque Liceo",
           "Parque Vélez Sarsfield",
@@ -89,7 +88,7 @@
       {
         "nombre": "Villa Carlos Paz",
         "barrios": [
-            "Otro",
+          "Otro",
           "Altos del valle",
           "Altos de las Vertientes",
           "Becciú",
@@ -117,7 +116,6 @@
           "Los Manantiales",
           "Miguel Muñóz A",
           "Miguel Muñóz B",
-          "Otro",
           "Peperina",
           "Poleo",
           "Granadilla",
@@ -156,7 +154,7 @@
       {
         "nombre": "Villa María",
         "barrios": [
-            "Otro",
+          "Otro",
           "Almirante Brown",
           "Barrancas del Río",
           "Bello Horizonte",
@@ -202,7 +200,7 @@
        {
         "nombre": "Villa Allende",
         "barrios": [
-            "Otro",
+          "Otro",
           "Barrio Cumbres",
           "Barrio Industrial",
           "Barrio El ceibo",
@@ -221,7 +219,7 @@
       {
         "nombre": "Cosquín",
         "barrios": [
-            "Otro",
+          "Otro",
           "AATRA",
           "Acceso Sur",
           "Alto Cementerio",
@@ -248,7 +246,7 @@
       {
         "nombre": "Río Segundo",
         "barrios": [
-            "Otro",
+          "Otro",
           "Centro histórico",
           "Margen sur del río"
         ]
@@ -256,7 +254,7 @@
       {
         "nombre": "Río Tercero",
         "barrios": [
-            "Otro",
+          "Otro",
           "Centro",
           "Barrio Industrial",
           "Barrio Unión",

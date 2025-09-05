@@ -7,7 +7,6 @@ import '../../styles/reportes.css';
 import '../../styles/reporteindividual.css';
 /* import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas'; */
-import autoTable from 'jspdf-autotable';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Chart } from 'chart.js/auto';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
@@ -17,8 +16,6 @@ import { safeArray } from '../../utils/safeArray'; // agrega este import
 Chart.register(ChartDataLabels);
 
 const API_URL = process.env.REACT_APP_API_URL;
-const au = autoTable;
-console.log(au);
 const getDefaultDates = () => {
   const year = new Date().getFullYear();
   return {
