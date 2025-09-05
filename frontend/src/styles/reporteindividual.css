@@ -1,10 +1,9 @@
 /* Reset básico */
 .reporte-cotizaciones-pdf {
     font-family: 'Segoe UI', Arial, sans-serif;
-    background: #fff;
-    color: #222;
     min-height: 100vh;
     padding: 0;
+    color: #222;
     margin: 0;
     box-sizing: border-box;
     display: flex;
@@ -15,7 +14,6 @@
 /* Simulación de hoja A4 */
 .reporte-cotizaciones-root {
     min-height: 100vh;
-    background: rgb(51, 57, 71);
     padding: 32px 0;
     display: flex;
     flex-direction: column;
@@ -59,7 +57,7 @@
     margin: 0;
     letter-spacing: 1px;
     font-weight: 700;
-    color: #1a237e;
+    color: #000000;
 }
 
 .reporte-cotizaciones-logo-placeholder {
@@ -80,7 +78,7 @@
 .reporte-cotizaciones-filtros {
     display: flex;
     gap: 24px;
-    align-items:first baseline;
+    align-items: stretch;
     background: #fff;
     padding: 18px 32px 18px 32px;
     border-radius: 10px;
@@ -96,6 +94,9 @@
     font-weight: 500;
     color: #333;
     font-size: 1.08rem;
+
+
+
 }
 
 .reporte-cotizaciones-filtros input[type="date"] {
@@ -108,8 +109,11 @@
     color: black;
 }
 
-.reporte-cotizaciones-filtros button,
-.reporte-cotizaciones-btn-pdf {
+
+.reporte-cotizaciones-btn-pdf,
+.reporte-cotizaciones-btn-email,
+.reporte-cotizaciones-btn-WhatsApp
+ {
     padding: 10px 22px;
     background: #1976d2;
     color: #fff;
@@ -123,24 +127,49 @@
     margin-bottom: 8px;
 }
 
-.reporte-cotizaciones-filtros button:disabled,
-.reporte-cotizaciones-btn-pdf:disabled {
-    background: #bdbdbd;
-    cursor: not-allowed;
-}
-
-.reporte-cotizaciones-btn-pdf {
-    background: #43a047;
-    margin-left: 12px;
-    min-width: 150px;
+.botton-Save{
+    background: rgba(37, 37, 37, 0.8);
+    border: 1px solid #26b7cd;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
     text-align: center;
-    margin: 0 auto;
-    display: flex;
-
+    margin: 5px 0px 4px -90px;
+    display: block;
+    width: fit-content;
+}
+.botton-Report:hover {
+    background: #49cbcf;
+    color: rgb(255, 255, 255);
+    transform: scale(1.05);
+}
+.botton-Report{
+    background: #26b7cd;
+    border: 1px solid #26b7cd;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    text-align: center;
+    margin: 5px auto;
+    display: block;
+    width: fit-content;
+}
+.botton-Save:hover {
+    background: #537c7e;
+    color: rgb(255, 255, 255);
+    transform: scale(1.05);
+}
+.reporte-cotizaciones-btn-pdf {
+    background: #882c1c;  
 }
 
-.reporte-cotizaciones-btn-pdf:disabled {
-    background: #bdbdbd;
+.reporte-cotizaciones-btn-email {
+    background: #19416e;
+}
+.reporte-cotizaciones-btn-WhatsApp {
+    background: #1f5f23;
 }
 
 /* Info superior */
@@ -318,15 +347,6 @@
     flex-direction: column;
 }
 
-.reporte-cotizaciones-btn-pdf {
-    background: #43a047;
-    margin-left: 0;
-    min-width: 150px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
 
 /* Título de barrio en detalle centrado */
 .titulo-barrio-detalle {
