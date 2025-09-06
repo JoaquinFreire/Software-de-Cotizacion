@@ -10,7 +10,8 @@ const OpeningType = ({
     selectedOpenings,
     setSelectedOpenings,
     errors = {},
-    openingConfigurations = []
+    openingConfigurations = [],
+    onLogOpening, // <-- nueva prop
 }) => {
     useEffect(() => {
         console.log("openingConfigurations:", safeArray(openingConfigurations));
@@ -58,8 +59,8 @@ const OpeningType = ({
     const handleAddOpening = () => {
         const { typeId, quantity, treatmentId, glassTypeId } = openingForm;
         // Convierte cm a mm antes de guardar
-        const width = widthMm;
-        const height = heightMm;
+        const width = openingForm.widthCm ? Number(openingForm.widthCm) * 10 : undefined;
+        const height = openingForm.heightCm ? Number(openingForm.heightCm) * 10 : undefined;
         // Validar que todos los campos estén completos
         if (!typeId || !width || !height || quantity <= 0 || !treatmentId || !glassTypeId) {
             console.error('Todos los campos son obligatorios');
@@ -76,6 +77,22 @@ const OpeningType = ({
                 Number(opening.panelWidth) === Number(panelWidth) &&
                 Number(opening.panelHeight) === Number(panelHeight)
         );
+        const newOpening = {
+            id: Date.now(),
+            typeId,
+            typeName: openingTypes.find((type) => type.id === parseInt(typeId))?.name,
+            width, // <-- en mm
+            height, // <-- en mm
+            quantity: parseInt(quantity),
+            treatmentId,
+            treatmentName: treatments.find((t) => t.id === parseInt(treatmentId))?.name,
+            glassTypeId,
+            glassTypeName: glassTypes.find((g) => g.id === parseInt(glassTypeId))?.name,
+            numPanelsWidth: suggestedConfig?.num_panels_width,
+            numPanelsHeight: suggestedConfig?.num_panels_height,
+            panelWidth: openingForm.panelWidth ? Number(openingForm.panelWidth) * 10 : undefined, // en mm
+            panelHeight: openingForm.panelHeight ? Number(openingForm.panelHeight) * 10 : undefined // en mm
+        };
         if (existingOpening) {
             setSelectedOpenings((prev) =>
                 prev.map((opening) =>
@@ -84,26 +101,15 @@ const OpeningType = ({
                         : opening
                 )
             );
+            // Solo loguea si se suma a una existente
+            if (onLogOpening) onLogOpening(existingOpening);
         } else {
             setSelectedOpenings((prev) => [
                 ...prev,
-                {
-                    id: Date.now(),
-                    typeId,
-                    typeName: openingTypes.find((type) => type.id === parseInt(typeId))?.name,
-                    width,
-                    height,
-                    quantity: parseInt(quantity),
-                    treatmentId,
-                    treatmentName: treatments.find((t) => t.id === parseInt(treatmentId))?.name,
-                    glassTypeId,
-                    glassTypeName: glassTypes.find((g) => g.id === parseInt(glassTypeId))?.name,
-                    numPanelsWidth: suggestedConfig?.num_panels_width,
-                    numPanelsHeight: suggestedConfig?.num_panels_height,
-                    panelWidth: Number(panelWidth),
-                    panelHeight: Number(panelHeight)
-                },
+                newOpening,
             ]);
+            // Solo loguea si es nueva
+            if (onLogOpening) onLogOpening(newOpening);
         }
         setOpeningForm({ typeId: '', widthCm: '', heightCm: '', quantity: 1, treatmentId: '', glassTypeId: '', panelWidth: undefined, panelHeight: undefined });
     };
@@ -114,6 +120,12 @@ const OpeningType = ({
             errors[field] = undefined;
         }
     };
+
+    // Cuando muestres sugerencias y campos de panel, usa cm en vez de mm
+    // Ejemplo para sugerencia:
+    const sugerencia = suggestedConfig
+        ? `Sugerencia: ${suggestedConfig.num_panels_width} panel(es) de ancho x ${suggestedConfig.num_panels_height} panel(es) de alto. Ancho de panel (cm): ${(Number(openingForm.widthCm) / suggestedConfig.num_panels_width).toFixed(1)}`
+        : "";
 
     return (
         <div className="opening-container">
@@ -162,13 +174,13 @@ const OpeningType = ({
                 />
                 {errors.height && <span className="error-message">{errors.height}</span>}
             </div>
-            {suggestedConfig && (
+            {sugerencia && (
                 <div className="panel-suggestion" style={{ marginTop: 12, color: "#26b7cd" }}>
-                    <strong>Sugerencia:</strong> {suggestedConfig.num_panels_width} panel(es) de ancho x {suggestedConfig.num_panels_height} panel(es) de alto
+                    <strong>{sugerencia}</strong>
                 </div>
             )}
             <div className="form-group">
-                <label>Ancho de panel (mm)</label>
+                <label>Ancho de panel (cm)</label>
                 <input
                     type="number"
                     value={panelWidth}
@@ -177,7 +189,7 @@ const OpeningType = ({
                 />
             </div>
             <div className="form-group">
-                <label>Alto de panel (mm)</label>
+                <label>Alto de panel (cm)</label>
                 <input
                     type="number"
                     value={panelHeight}
@@ -187,7 +199,7 @@ const OpeningType = ({
             </div>
             {panelDiffers && (
                 <div style={{ color: "#e67e22", marginBottom: 8 }}>
-                    <b>Advertencia:</b> Se recomienda usar los valores sugeridos ({suggestedPanels.anchoPanel} x {suggestedPanels.altoPanel} mm), pero puede modificarlos si lo desea.
+                    <b>Advertencia:</b> Se recomienda usar los valores sugeridos ({suggestedPanels.anchoPanel} x {suggestedPanels.altoPanel} cm), pero puede modificarlos si lo desea.
                 </div>
             )}
             <div className="form-group">

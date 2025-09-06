@@ -99,6 +99,9 @@ const Quotation = () => {
     const [alumPrice, setAlumPrice] = useState(0);
     const [labourPrice, setLabourPrice] = useState(0);
 
+    // Nuevo estado para mostrar el log de cálculo de abertura solo una vez
+    const [lastOpeningLog, setLastOpeningLog] = useState(null);
+
     // Obtiene los datos del usuario logueado al montar el componente
     useEffect(() => {
         const fetchLoggedUser = async () => {
@@ -476,7 +479,7 @@ const Quotation = () => {
                 dni: newCustomer.dni,
             };
 
-            // --- CAMBIO: solo agrega agent si hay datos válidos, no agregues agent: null ni agent: {} ---
+            // --- SIEMPRE agrega agent, aunque sea null o vacío ---
             if (
                 agentData &&
                 agentData.name && agentData.lastname && agentData.tel && agentData.mail
@@ -493,17 +496,12 @@ const Quotation = () => {
                 && newAgent.name.trim() && newAgent.lastname.trim() && newAgent.tel.trim() && newAgent.mail.trim()
             ) {
                 customerPayloadMongo.agent = { ...newAgent };
+            } else {
+                customerPayloadMongo.agent = {}; // <-- SIEMPRE incluir el campo agent
             }
-            // No else, no agregues agent si no hay datos válidos
 
-            const selectedWorkType = workTypes.find(wt => String(wt.id) === String(workPlace.workTypeId));
-            // const workPlacePayload = {
-            //     name: workPlace.name,
-            //     address: workPlace.address,
-            //     workType: selectedWorkType
-            //         ? { type: selectedWorkType.name || selectedWorkType.type || "" }
-            //         : { type: "" }
-            // }; // <-- ELIMINADO, no se usa
+            // LOG para ver el agente que se envía a Mongo
+            console.log("Agente enviado a Mongo:", customerPayloadMongo.agent);
 
             // --- NUEVO: Mapear los complementos para Mongo agrupando por tipo y usando nombres correctos ---
             const complementsMongo = {
@@ -576,13 +574,16 @@ const Quotation = () => {
                 price: 0 // Ajusta si tienes el precio
             }));
 
+            // --- ARREGLADO: Definir selectedWorkType antes de usarlo ---
+            const selectedWorkType = workTypes.find(wt => String(wt.id) === String(workPlace.workTypeId));
+
             // --- NUEVO: Armar el objeto final para Mongo con mayúsculas y estructura correcta ---
             const mongoPayload = {
                 Budget: {
                     budgetId: String(sqlId),
                     user: userPayload,
                     customer: customerPayloadMongo,
-                    agent: customerPayloadMongo.agent || {}, // Asegura que siempre haya un objeto agent
+                    agent: customerPayloadMongo.agent, // <-- SIEMPRE presente
                     workPlace: {
                         name: workPlace.name,
                         location: workPlace.location,
@@ -643,64 +644,102 @@ const Quotation = () => {
     };
 
     // --- Cálculo de subtotal de abertura ---
-    const getOpeningSubtotal = (opening) => {
+    const getOpeningSubtotal = (opening, logOnce = false) => {
         const configsArr = safeArray(openingConfigurations);
+        const widthMM = opening.width > 100 ? opening.width : opening.width * 10;
+        const heightMM = opening.height > 100 ? opening.height : opening.height * 10;
         const config = configsArr.find(cfg =>
-            opening.width >= cfg.min_width_mm &&
-            opening.width <= cfg.max_width_mm &&
-            opening.height >= cfg.min_height_mm &&
-            opening.height <= cfg.max_height_mm &&
+            widthMM >= cfg.min_width_mm &&
+            widthMM <= cfg.max_width_mm &&
+            heightMM >= cfg.min_height_mm &&
+            heightMM <= cfg.max_height_mm &&
             Number(opening.typeId) === Number(cfg.opening_type_id)
         );
         if (!config) return "Sin configuración";
 
+        // Paso 1 — Determinar cantidad de paneles
         const numPanelsWidth = config.num_panels_width;
         const numPanelsHeight = config.num_panels_height;
         const totalPanels = numPanelsWidth * numPanelsHeight;
-        const anchoPanel = opening.panelWidth !== undefined ? Number(opening.panelWidth) : opening.width / numPanelsWidth;
-        const altoPanel = opening.panelHeight !== undefined ? Number(opening.panelHeight) : opening.height / numPanelsHeight;
 
-        // Debug: mostrar todos los valores usados en el cálculo
-        console.log("---- Cálculo de abertura ----");
-        console.log("Abertura:", opening);
-        console.log("Config:", config);
-        console.log("numPanelsWidth:", numPanelsWidth, "numPanelsHeight:", numPanelsHeight, "totalPanels:", totalPanels);
-        console.log("anchoPanel:", anchoPanel, "altoPanel:", altoPanel);
-        const perimetroPanel = 2 * (anchoPanel + altoPanel) / 1000; // mm -> m
-        console.log("Perímetro panel (m):", perimetroPanel);
-        const totalAluminio = perimetroPanel * totalPanels * opening.quantity;
-        console.log("Total aluminio (m):", totalAluminio);
+        // Paso 2 — Calcular aluminio
+        const anchoPanel = opening.panelWidth !== undefined
+            ? (opening.panelWidth > 100 ? opening.panelWidth : opening.panelWidth * 10)
+            : widthMM / numPanelsWidth;
+        const altoPanel = opening.panelHeight !== undefined
+            ? (opening.panelHeight > 100 ? opening.panelHeight : opening.panelHeight * 10)
+            : heightMM / numPanelsHeight;
+
+        // Perímetro de cada panel (mm)
+        const perimetroPanel = 2 * (anchoPanel + altoPanel);
+        // Total de aluminio (mm)
+        const totalAluminioMM = perimetroPanel * totalPanels * opening.quantity;
+        // Convertir a metros
+        const totalAluminioM = totalAluminioMM / 1000;
+
+        // Peso total aluminio (kg)
         const openingType = safeArray(openingTypes).find(t => Number(t.id) === Number(opening.typeId));
-        console.log("openingType:", openingType);
-        const pesoAluminio = openingType && openingType.weight ? totalAluminio * Number(openingType.weight) : 0;
-        console.log("Peso aluminio (kg):", pesoAluminio, "weight:", openingType?.weight);
-        console.log("Precio aluminio unitario:", alumPrice);
+        const pesoAluminio = openingType && openingType.weight ? totalAluminioM * Number(openingType.weight) : 0;
+
+        // Costo aluminio
         const costoAluminio = pesoAluminio * alumPrice;
-        console.log("Costo aluminio:", costoAluminio);
 
-        const areaPanel = (anchoPanel / 1000) * (altoPanel / 1000); // mm -> m
-        console.log("Área panel (m2):", areaPanel);
+        // Paso 3 — Calcular vidrio
+        // Área de cada panel (m²)
+        const areaPanel = (anchoPanel / 1000) * (altoPanel / 1000);
+        // Área total vidrio (m²)
         const areaTotalVidrio = areaPanel * totalPanels * opening.quantity;
-        console.log("Área total vidrio (m2):", areaTotalVidrio);
+        // Costo vidrio
         const glassType = safeArray(glassTypes).find(g => Number(g.id) === Number(opening.glassTypeId));
-        console.log("glassType:", glassType);
         const costoVidrio = glassType ? areaTotalVidrio * Number(glassType.price) : 0;
-        console.log("Costo vidrio:", costoVidrio);
 
+        // Paso 4 — Aplicar tratamiento aluminio
         const treatment = safeArray(treatments).find(t => Number(t.id) === Number(opening.treatmentId));
-        console.log("treatment:", treatment);
         const tratamientoPorc = treatment && treatment.pricePercentage ? Number(treatment.pricePercentage) : 0;
-        console.log("Porcentaje tratamiento:", tratamientoPorc);
         const costoTratamiento = costoAluminio * (tratamientoPorc / 100);
-        console.log("Costo tratamiento:", costoTratamiento);
 
-        console.log("Mano de obra:", labourPrice);
+        // Paso 5 — Sumar mano de obra
         const costoManoObra = labourPrice;
 
+        // Paso 6 — Subtotal (sin IVA)
         const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
-        console.log("Subtotal:", subtotal);
 
-        return `Aluminio: $${costoAluminio.toFixed(2)}, Tratamiento: $${costoTratamiento.toFixed(2)}, Vidrio: $${costoVidrio.toFixed(2)}, Mano de obra: $${costoManoObra.toFixed(2)}, Subtotal: $${subtotal.toFixed(2)}`;
+        // LOG DETALLADO DEL PROCESO SOLO SI logOnce === true
+        if (logOnce) {
+            const logMsg = [
+                "==== CÁLCULO DE ABERTURA ====",
+                "Abertura:", opening,
+                "Config encontrada:", config,
+                "Paso 1 — Paneles: numPanelsWidth:", numPanelsWidth, "numPanelsHeight:", numPanelsHeight, "totalPanels:", totalPanels,
+                "Paso 2 — Aluminio: anchoPanel(mm):", anchoPanel, "altoPanel(mm):", altoPanel,
+                "Perímetro panel (mm):", perimetroPanel,
+                "Total aluminio (mm):", totalAluminioMM, "Total aluminio (m):", totalAluminioM,
+                "Peso aluminio (kg):", pesoAluminio, "weight:", openingType?.weight,
+                "Precio aluminio unitario:", alumPrice,
+                "Costo aluminio:", costoAluminio,
+                "Paso 3 — Vidrio: área panel (m2):", areaPanel, "Área total vidrio (m2):", areaTotalVidrio,
+                "Precio vidrio unitario:", glassType?.price, "Costo vidrio:", costoVidrio,
+                "Paso 4 — Tratamiento: %:", tratamientoPorc, "Costo tratamiento:", costoTratamiento,
+                "Paso 5 — Mano de obra:", costoManoObra,
+                "Paso 6 — Subtotal:", subtotal,
+                "============================="
+            ];
+            setLastOpeningLog(logMsg);
+            // También lo mostramos en consola
+            logMsg.forEach(line => console.log(line));
+        }
+
+        // Sugerencia en cm
+        const sugerencia = `Sugerencia: ${numPanelsWidth} panel(es) de ancho x ${numPanelsHeight} panel(es) de alto. Ancho de panel (cm): ${(anchoPanel / 10).toFixed(1)}`;
+
+        return (
+            <>
+                <div>{sugerencia}</div>
+                <div>
+                    Aluminio: ${costoAluminio.toFixed(2)}, Tratamiento: ${costoTratamiento.toFixed(2)}, Vidrio: ${costoVidrio.toFixed(2)}, Mano de obra: ${costoManoObra.toFixed(2)}, Subtotal: ${subtotal.toFixed(2)}
+                </div>
+            </>
+        );
     };
 
     // --- Total de aberturas ---
@@ -708,25 +747,34 @@ const Quotation = () => {
         let total = 0;
         const configsArr = safeArray(openingConfigurations);
         selectedOpenings.forEach(opening => {
+            const widthMM = opening.width > 100 ? opening.width : opening.width * 10;
+            const heightMM = opening.height > 100 ? opening.height : opening.height * 10;
             const config = configsArr.find(cfg =>
-                opening.width >= cfg.min_width_mm &&
-                opening.width <= cfg.max_width_mm &&
-                opening.height >= cfg.min_height_mm &&
-                opening.height <= cfg.max_height_mm &&
+                widthMM >= cfg.min_width_mm &&
+                widthMM <= cfg.max_width_mm &&
+                heightMM >= cfg.min_height_mm &&
+                heightMM <= cfg.max_height_mm &&
                 Number(opening.typeId) === Number(cfg.opening_type_id)
             );
             if (!config) return;
             const numPanelsWidth = config.num_panels_width;
             const numPanelsHeight = config.num_panels_height;
             const totalPanels = numPanelsWidth * numPanelsHeight;
-            const anchoPanel = opening.panelWidth !== undefined ? Number(opening.panelWidth) : opening.width / numPanelsWidth;
-            const altoPanel = opening.panelHeight !== undefined ? Number(opening.panelHeight) : opening.height / numPanelsHeight;
-            const perimetroPanel = 2 * (anchoPanel + altoPanel) / 1000;
+            const anchoPanel = opening.panelWidth !== undefined
+                ? (opening.panelWidth > 100 ? opening.panelWidth : opening.panelWidth * 10)
+                : widthMM / numPanelsWidth;
+            const altoPanel = opening.panelHeight !== undefined
+                ? (opening.panelHeight > 100 ? opening.panelHeight : opening.panelHeight * 10)
+                : heightMM / numPanelsHeight;
+            // --- ARREGLADO: calcular subtotal aquí ---
+            const anchoPanelMM = anchoPanel * 10;
+            const altoPanelMM = altoPanel * 10;
+            const perimetroPanel = 2 * (anchoPanelMM + altoPanelMM) / 1000;
             const totalAluminio = perimetroPanel * totalPanels * opening.quantity;
             const openingType = openingTypes.find(t => Number(t.id) === Number(opening.typeId));
             const pesoAluminio = openingType && openingType.weight ? totalAluminio * Number(openingType.weight) : 0;
             const costoAluminio = pesoAluminio * alumPrice;
-            const areaPanel = (anchoPanel / 1000) * (altoPanel / 1000);
+            const areaPanel = (anchoPanelMM / 1000) * (altoPanelMM / 1000);
             const areaTotalVidrio = areaPanel * totalPanels * opening.quantity;
             const glassType = glassTypes.find(g => Number(g.id) === Number(opening.glassTypeId));
             const costoVidrio = glassType ? areaTotalVidrio * Number(glassType.price) : 0;
@@ -770,33 +818,6 @@ const Quotation = () => {
         swiperRef.current.swiper.slideTo(index);
          }
     };
-
-    // Buscar agente por DNI
-    // const handleAgentSearch = async () => {
-    //     setAgentSearchError("");
-    //     setAgentSearchResult(null);
-    //     if (!agentSearchDni.trim() || agentSearchDni.length !== 8 || !/^\d+$/.test(agentSearchDni)) {
-    //         setAgentSearchError("Debe ingresar un DNI de 8 dígitos.");
-    //         return;
-    //     }
-    //     try {
-    //         const token = localStorage.getItem('token');
-    //         const res = await axios.get(`${API_URL}/api/customer-agents/dni/${agentSearchDni}`, {
-    //             headers: { Authorization: `Bearer ${token}` }
-    //         });
-    //         if (res.data) {
-    //             setAgentSearchResult(res.data);
-    //         } else {
-    //             setAgentSearchResult(null);
-    //         }
-    //     } catch (err) {
-    //         if (err.response && err.response.status === 404) {
-    //             setAgentSearchResult(null); // No encontrado, permite alta
-    //         } else {
-    //             setAgentSearchError("Error buscando agente.");
-    //         }
-    //     }
-    // }
 
     // Agregar agente existente al array de agentes
     const handleAddExistingAgent = () => {
@@ -897,6 +918,14 @@ const Quotation = () => {
         });
         return `Total complementos: $${total.toFixed(2)}`;
     };
+
+    // Mostrar el log de la última abertura agregada (solo una vez)
+    useEffect(() => {
+        if (lastOpeningLog && lastOpeningLog.length > 0) {
+            // Mostrar en consola solo una vez
+            // (ya se muestra en getOpeningSubtotal, pero si quieres mostrarlo en UI, puedes hacerlo aquí)
+        }
+    }, [lastOpeningLog]);
 
     return (
         <div className="dashboard-container">
@@ -1000,29 +1029,25 @@ const Quotation = () => {
                                                 <input
                                                     type="text"
                                                     value={newAgent.name}
-                                                    onChange={e => setNewAgent(prev => ({ ...prev, name: e.target.value, dni: agentSearchDni }))
-                                                    }
+                                                    onChange={e => setNewAgent(prev => ({ ...prev, name: e.target.value, dni: agentSearchDni }))}
                                                 />
                                                 <label>Apellido:</label>
                                                 <input
                                                     type="text"
                                                     value={newAgent.lastname}
-                                                    onChange={e => setNewAgent(prev => ({ ...prev, lastname: e.target.value, dni: agentSearchDni }))
-                                                    }
+                                                    onChange={e => setNewAgent(prev => ({ ...prev, lastname: e.target.value, dni: agentSearchDni }))}
                                                 />
                                                 <label>Teléfono:</label>
                                                 <input
                                                     type="text"
                                                     value={newAgent.tel}
-                                                    onChange={e => setNewAgent(prev => ({ ...prev, tel: e.target.value, dni: agentSearchDni }))
-                                                    }
+                                                    onChange={e => setNewAgent(prev => ({ ...prev, tel: e.target.value, dni: agentSearchDni }))}
                                                 />
                                                 <label>Email:</label>
                                                 <input
                                                     type="email"
                                                     value={newAgent.mail}
-                                                    onChange={e => setNewAgent(prev => ({ ...prev, mail: e.target.value, dni: agentSearchDni }))
-                                                    }
+                                                    onChange={e => setNewAgent(prev => ({ ...prev, mail: e.target.value, dni: agentSearchDni }))}
                                                 />
                                                 <button type="button" className="botton-carusel" onClick={handleAddNewAgent}>Agregar nuevo agente</button>
                                             </div>
@@ -1063,8 +1088,9 @@ const Quotation = () => {
                                     selectedOpenings={selectedOpenings}
                                     setSelectedOpenings={setSelectedOpenings}
                                     errors={currentIndex === 3 ? stepErrors : {}}
-                                    openingConfigurations={openingConfigurations} // <-- pasa la prop aquí
-                                    // Quita la lista de aberturas seleccionadas del paso
+                                    openingConfigurations={openingConfigurations}
+                                    // Nueva prop para loguear solo al agregar
+                                    onLogOpening={opening => getOpeningSubtotal(opening, true)}
                                     hideSelectedList={true}
                                 />
                             </SwiperSlide>
@@ -1140,7 +1166,8 @@ const Quotation = () => {
                                 >×</button>
                                 <div className="summary-title">{getOpeningTypeName(opening.typeId)}</div>
                                 <div className="summary-detail">
-                                    Medidas: {opening.width} x {opening.height} mm
+                                    {/* Mostrar medidas en cm */}
+                                    Medidas: {(opening.width > 100 ? opening.width / 10 : opening.width)} x {(opening.height > 100 ? opening.height / 10 : opening.height)} cm
                                 </div>
                                 <div className="summary-detail summary-qty-row">
                                     <button
