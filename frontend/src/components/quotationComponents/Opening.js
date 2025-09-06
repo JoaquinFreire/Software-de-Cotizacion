@@ -16,25 +16,29 @@ const OpeningType = ({
         console.log("openingConfigurations:", safeArray(openingConfigurations));
     }, [openingConfigurations]);
 
-    // Buscar configuración sugerida según tipo, ancho y alto
+    // Convierte cm a mm para la búsqueda de sugerencia y cálculos
+    const widthMm = openingForm.widthCm ? Number(openingForm.widthCm) * 10 : undefined;
+    const heightMm = openingForm.heightCm ? Number(openingForm.heightCm) * 10 : undefined;
+
+    // Buscar configuración sugerida según tipo, ancho y alto (en mm)
     const suggestedConfig = useMemo(() => {
         const configs = safeArray(openingConfigurations);
-        if (!openingForm.typeId || !openingForm.width || !openingForm.height) return null;
+        if (!openingForm.typeId || !widthMm || !heightMm) return null;
         return configs.find(cfg =>
             Number(openingForm.typeId) === Number(cfg.opening_type_id) &&
-            openingForm.width >= cfg.min_width_mm &&
-            openingForm.width <= cfg.max_width_mm &&
-            openingForm.height >= cfg.min_height_mm &&
-            openingForm.height <= cfg.max_height_mm
+            widthMm >= cfg.min_width_mm &&
+            widthMm <= cfg.max_width_mm &&
+            heightMm >= cfg.min_height_mm &&
+            heightMm <= cfg.max_height_mm
         );
-    }, [openingForm.typeId, openingForm.width, openingForm.height, openingConfigurations]);
+    }, [openingForm.typeId, widthMm, heightMm, openingConfigurations]);
 
     // Paneles sugeridos
     const suggestedPanels = {
         numPanelsWidth: suggestedConfig?.num_panels_width || 1,
         numPanelsHeight: suggestedConfig?.num_panels_height || 1,
-        anchoPanel: suggestedConfig ? (openingForm.width / suggestedConfig.num_panels_width) : '',
-        altoPanel: suggestedConfig ? (openingForm.height / suggestedConfig.num_panels_height) : ''
+        anchoPanel: suggestedConfig ? (widthMm / suggestedConfig.num_panels_width) : '',
+        altoPanel: suggestedConfig ? (heightMm / suggestedConfig.num_panels_height) : ''
     };
 
     // Inputs controlados para ancho/alto panel
@@ -52,7 +56,10 @@ const OpeningType = ({
          Number(panelHeight) !== Number(suggestedPanels.altoPanel));
 
     const handleAddOpening = () => {
-        const { typeId, width, height, quantity, treatmentId, glassTypeId } = openingForm;
+        const { typeId, quantity, treatmentId, glassTypeId } = openingForm;
+        // Convierte cm a mm antes de guardar
+        const width = widthMm;
+        const height = heightMm;
         // Validar que todos los campos estén completos
         if (!typeId || !width || !height || quantity <= 0 || !treatmentId || !glassTypeId) {
             console.error('Todos los campos son obligatorios');
@@ -62,8 +69,8 @@ const OpeningType = ({
         const existingOpening = selectedOpenings.find(
             (opening) =>
                 opening.typeId === typeId &&
-                opening.width === parseFloat(width) &&
-                opening.height === parseFloat(height) &&
+                opening.width === width &&
+                opening.height === height &&
                 opening.treatmentId === treatmentId &&
                 opening.glassTypeId === glassTypeId &&
                 Number(opening.panelWidth) === Number(panelWidth) &&
@@ -84,8 +91,8 @@ const OpeningType = ({
                     id: Date.now(),
                     typeId,
                     typeName: openingTypes.find((type) => type.id === parseInt(typeId))?.name,
-                    width: parseFloat(width),
-                    height: parseFloat(height),
+                    width,
+                    height,
                     quantity: parseInt(quantity),
                     treatmentId,
                     treatmentName: treatments.find((t) => t.id === parseInt(treatmentId))?.name,
@@ -98,7 +105,7 @@ const OpeningType = ({
                 },
             ]);
         }
-        setOpeningForm({ typeId: '', width: '', height: '', quantity: 1, treatmentId: '', glassTypeId: '', panelWidth: undefined, panelHeight: undefined });
+        setOpeningForm({ typeId: '', widthCm: '', heightCm: '', quantity: 1, treatmentId: '', glassTypeId: '', panelWidth: undefined, panelHeight: undefined });
     };
 
     const handleInputChange = (field, value) => {
@@ -126,24 +133,32 @@ const OpeningType = ({
                 {errors.typeId && <span className="error-message">{errors.typeId}</span>}
             </div>
             <div className="form-group">
-                <label>Ancho (mm)</label>
+                <label>
+                    Ancho (cm) <span style={{ color: "#888", fontSize: 13 }}>(mín. 50cm, máx. 1000cm)</span>
+                </label>
                 <input
                     type="number"
-                    value={openingForm.width || ''}
-                    onChange={e => handleInputChange("width", e.target.value)}
+                    value={openingForm.widthCm || ''}
+                    onChange={e => handleInputChange("widthCm", e.target.value)}
                     className={errors.width ? "input-error" : ""}
-                    placeholder="Ancho en milímetros"
+                    placeholder="Ancho en centímetros"
+                    min={50}
+                    max={1000}
                 />
                 {errors.width && <span className="error-message">{errors.width}</span>}
             </div>
             <div className="form-group">
-                <label>Alto (mm)</label>
+                <label>
+                    Alto (cm) <span style={{ color: "#888", fontSize: 13 }}>(mín. 50cm, máx. 1000cm)</span>
+                </label>
                 <input
                     type="number"
-                    value={openingForm.height || ''}
-                    onChange={e => handleInputChange("height", e.target.value)}
+                    value={openingForm.heightCm || ''}
+                    onChange={e => handleInputChange("heightCm", e.target.value)}
                     className={errors.height ? "input-error" : ""}
-                    placeholder="Alto en milímetros"
+                    placeholder="Alto en centímetros"
+                    min={50}
+                    max={1000}
                 />
                 {errors.height && <span className="error-message">{errors.height}</span>}
             </div>

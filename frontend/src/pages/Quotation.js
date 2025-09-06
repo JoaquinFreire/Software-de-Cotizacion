@@ -657,26 +657,49 @@ const Quotation = () => {
         const numPanelsWidth = config.num_panels_width;
         const numPanelsHeight = config.num_panels_height;
         const totalPanels = numPanelsWidth * numPanelsHeight;
-        // Usa panelWidth y panelHeight si existen, si no calcula
         const anchoPanel = opening.panelWidth !== undefined ? Number(opening.panelWidth) : opening.width / numPanelsWidth;
         const altoPanel = opening.panelHeight !== undefined ? Number(opening.panelHeight) : opening.height / numPanelsHeight;
 
-        // Perímetro de cada panel (mm)
+        // Debug: mostrar todos los valores usados en el cálculo
+        console.log("---- Cálculo de abertura ----");
+        console.log("Abertura:", opening);
+        console.log("Config:", config);
+        console.log("numPanelsWidth:", numPanelsWidth, "numPanelsHeight:", numPanelsHeight, "totalPanels:", totalPanels);
+        console.log("anchoPanel:", anchoPanel, "altoPanel:", altoPanel);
         const perimetroPanel = 2 * (anchoPanel + altoPanel) / 1000; // mm -> m
+        console.log("Perímetro panel (m):", perimetroPanel);
         const totalAluminio = perimetroPanel * totalPanels * opening.quantity;
+        console.log("Total aluminio (m):", totalAluminio);
         const openingType = safeArray(openingTypes).find(t => Number(t.id) === Number(opening.typeId));
+        console.log("openingType:", openingType);
         const pesoAluminio = openingType && openingType.weight ? totalAluminio * Number(openingType.weight) : 0;
+        console.log("Peso aluminio (kg):", pesoAluminio, "weight:", openingType?.weight);
+        console.log("Precio aluminio unitario:", alumPrice);
         const costoAluminio = pesoAluminio * alumPrice;
+        console.log("Costo aluminio:", costoAluminio);
+
         const areaPanel = (anchoPanel / 1000) * (altoPanel / 1000); // mm -> m
+        console.log("Área panel (m2):", areaPanel);
         const areaTotalVidrio = areaPanel * totalPanels * opening.quantity;
+        console.log("Área total vidrio (m2):", areaTotalVidrio);
         const glassType = safeArray(glassTypes).find(g => Number(g.id) === Number(opening.glassTypeId));
+        console.log("glassType:", glassType);
         const costoVidrio = glassType ? areaTotalVidrio * Number(glassType.price) : 0;
+        console.log("Costo vidrio:", costoVidrio);
+
         const treatment = safeArray(treatments).find(t => Number(t.id) === Number(opening.treatmentId));
+        console.log("treatment:", treatment);
         const tratamientoPorc = treatment && treatment.pricePercentage ? Number(treatment.pricePercentage) : 0;
+        console.log("Porcentaje tratamiento:", tratamientoPorc);
         const costoTratamiento = costoAluminio * (tratamientoPorc / 100);
+        console.log("Costo tratamiento:", costoTratamiento);
+
+        console.log("Mano de obra:", labourPrice);
         const costoManoObra = labourPrice;
+
         const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
-        // Puedes mostrar el desglose si quieres
+        console.log("Subtotal:", subtotal);
+
         return `Aluminio: $${costoAluminio.toFixed(2)}, Tratamiento: $${costoTratamiento.toFixed(2)}, Vidrio: $${costoVidrio.toFixed(2)}, Mano de obra: $${costoManoObra.toFixed(2)}, Subtotal: $${subtotal.toFixed(2)}`;
     };
 
