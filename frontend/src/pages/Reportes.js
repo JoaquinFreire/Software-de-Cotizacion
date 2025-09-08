@@ -75,7 +75,7 @@ const reportCards = [
     title: "Análisis de Satisfacción del Cliente",
     icon: <Smile size={40} />,
     className: "reporte-satisfaccion-cliente",
-    route: "/reportes/satisfaccion-cliente"
+    route: "/reportes/analisis-satisfaccion-cliente"
   },
   {
     title: "Tendencias de la Industria de Aberturas de Aluminio",

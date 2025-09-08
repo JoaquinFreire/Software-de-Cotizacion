@@ -15,10 +15,8 @@ const Extras = ({ comment, setComment, setDollarReference, setLabourReference })
                 setDolarVenta(data.venta);
                 setDolarCompra(data.compra);
                 if (setDollarReference) setDollarReference(data.venta);
-                console.log("Dólar oficial:", data);
             })
             .catch((err) => {
-                console.log("Error obteniendo dólar oficial:", err);
             })
             .finally(() => setLoading(false));
 
@@ -30,13 +28,11 @@ const Extras = ({ comment, setComment, setDollarReference, setLabourReference })
             .then(res => res.json())
             .then(pricesRaw => {
                 const prices = safeArray(pricesRaw);
-                console.log("Precios recibidos de /api/prices:", prices);
                 const labourObj = prices.find(p =>
                     p.name?.toLowerCase().includes("manoobra") ||
                     p.name?.toLowerCase().includes("manodeobra") ||
                     p.name?.toLowerCase().includes("mano de obra")
                 );
-                console.log("Objeto mano de obra encontrado:", labourObj);
                 if (labourObj) {
                     setLabour(labourObj.price);
                     if (setLabourReference) setLabourReference(labourObj.price);

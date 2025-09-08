@@ -16,6 +16,7 @@ import { validateQuotation } from "../validation/quotationValidation";
 import { validateCustomer } from "../validation/customerValidation";
 import { validateWorkPlace } from "../validation/workPlaceValidation";
 import { validateOpenings } from "../validation/openingValidation";
+import { safeArray } from '../utils/safeArray';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -92,6 +93,11 @@ const Quotation = () => {
     const [loggedUser, setLoggedUser] = useState(null);
     const [agentData, setAgentData] = useState(null); // <-- Nuevo estado para datos del agente
     const [isCustomerFound, setIsCustomerFound] = useState(false); // <--- Agrega este estado
+
+    // Nuevos estados para cálculos
+    const [openingConfigurations, setOpeningConfigurations] = useState([]);
+    const [alumPrice, setAlumPrice] = useState(0);
+    const [labourPrice, setLabourPrice] = useState(0);
 
     // Obtiene los datos del usuario logueado al montar el componente
     useEffect(() => {
@@ -177,7 +183,7 @@ const Quotation = () => {
             default:
                 return { valid: true, errors: {} };
         }
-    }, [newCustomer, newAgent, workPlace, selectedOpenings]);
+    }, [newCustomer, workPlace, selectedOpenings]); // <-- newAgent removido
 
     useEffect(() => {
     }, [currentIndex, validateStep]);
@@ -230,6 +236,7 @@ const Quotation = () => {
                 ]);
                 setOpeningTypes(toArray(openingTypesRes.data));
                 setTreatments(toArray(treatmentsRes.data));
+                 
                 setGlassTypes(toArray(glassTypesRes.data));
             } catch (error) {
                 setOpeningTypes([]);
@@ -263,6 +270,35 @@ const Quotation = () => {
             }
         };
         fetchComplements();
+    }, []);
+
+    // Cargar opening_configurations y precios al montar
+    useEffect(() => {
+        const fetchConfigAndPrices = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const [configsRes, pricesRes] = await Promise.all([
+                    axios.get(`${API_URL}/api/opening-configurations`, { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get(`${API_URL}/api/prices`, { headers: { Authorization: `Bearer ${token}` } }),
+                ]);
+                setOpeningConfigurations(configsRes.data);
+                const prices = toArray(pricesRes.data);
+                const alum = prices.find(p => p.name?.toLowerCase().includes("aluminio"));
+                setAlumPrice(alum ? Number(alum.price) : 0);
+                const labour = prices.find(p =>
+                    p.name?.toLowerCase().includes("manoobra") ||
+                    p.name?.toLowerCase().includes("manodeobra") ||
+                    p.name?.toLowerCase().includes("mano de obra")
+                );
+                setLabourPrice(labour ? Number(labour.price) : 0);
+            } catch (err) {
+                setOpeningConfigurations([]);
+                setAlumPrice(0);
+                setLabourPrice(0);
+            }
+        };
+        fetchConfigAndPrices();
     }, []);
 
     // Logout
@@ -461,13 +497,13 @@ const Quotation = () => {
             // No else, no agregues agent si no hay datos válidos
 
             const selectedWorkType = workTypes.find(wt => String(wt.id) === String(workPlace.workTypeId));
-            const workPlacePayload = {
-                name: workPlace.name,
-                address: workPlace.address,
-                workType: selectedWorkType
-                    ? { type: selectedWorkType.name || selectedWorkType.type || "" }
-                    : { type: "" }
-            };
+            // const workPlacePayload = {
+            //     name: workPlace.name,
+            //     address: workPlace.address,
+            //     workType: selectedWorkType
+            //         ? { type: selectedWorkType.name || selectedWorkType.type || "" }
+            //         : { type: "" }
+            // }; // <-- ELIMINADO, no se usa
 
             // --- NUEVO: Mapear los complementos para Mongo agrupando por tipo y usando nombres correctos ---
             const complementsMongo = {
@@ -606,36 +642,102 @@ const Quotation = () => {
         return type ? (type.name || type.type) : '';
     };
 
-    // Función para calcular subtotal de abertura (placeholder)
+    // --- Cálculo de subtotal de abertura ---
     const getOpeningSubtotal = (opening) => {
-        // Aquí irá el cálculo real cuando esté disponible
-        return 'Subtotal $';
+        const configsArr = safeArray(openingConfigurations);
+        const config = configsArr.find(cfg =>
+            opening.width >= cfg.min_width_mm &&
+            opening.width <= cfg.max_width_mm &&
+            opening.height >= cfg.min_height_mm &&
+            opening.height <= cfg.max_height_mm &&
+            Number(opening.typeId) === Number(cfg.opening_type_id)
+        );
+        if (!config) return "Sin configuración";
+
+        const numPanelsWidth = config.num_panels_width;
+        const numPanelsHeight = config.num_panels_height;
+        const totalPanels = numPanelsWidth * numPanelsHeight;
+        const anchoPanel = opening.panelWidth !== undefined ? Number(opening.panelWidth) : opening.width / numPanelsWidth;
+        const altoPanel = opening.panelHeight !== undefined ? Number(opening.panelHeight) : opening.height / numPanelsHeight;
+
+        // Debug: mostrar todos los valores usados en el cálculo
+        console.log("---- Cálculo de abertura ----");
+        console.log("Abertura:", opening);
+        console.log("Config:", config);
+        console.log("numPanelsWidth:", numPanelsWidth, "numPanelsHeight:", numPanelsHeight, "totalPanels:", totalPanels);
+        console.log("anchoPanel:", anchoPanel, "altoPanel:", altoPanel);
+        const perimetroPanel = 2 * (anchoPanel + altoPanel) / 1000; // mm -> m
+        console.log("Perímetro panel (m):", perimetroPanel);
+        const totalAluminio = perimetroPanel * totalPanels * opening.quantity;
+        console.log("Total aluminio (m):", totalAluminio);
+        const openingType = safeArray(openingTypes).find(t => Number(t.id) === Number(opening.typeId));
+        console.log("openingType:", openingType);
+        const pesoAluminio = openingType && openingType.weight ? totalAluminio * Number(openingType.weight) : 0;
+        console.log("Peso aluminio (kg):", pesoAluminio, "weight:", openingType?.weight);
+        console.log("Precio aluminio unitario:", alumPrice);
+        const costoAluminio = pesoAluminio * alumPrice;
+        console.log("Costo aluminio:", costoAluminio);
+
+        const areaPanel = (anchoPanel / 1000) * (altoPanel / 1000); // mm -> m
+        console.log("Área panel (m2):", areaPanel);
+        const areaTotalVidrio = areaPanel * totalPanels * opening.quantity;
+        console.log("Área total vidrio (m2):", areaTotalVidrio);
+        const glassType = safeArray(glassTypes).find(g => Number(g.id) === Number(opening.glassTypeId));
+        console.log("glassType:", glassType);
+        const costoVidrio = glassType ? areaTotalVidrio * Number(glassType.price) : 0;
+        console.log("Costo vidrio:", costoVidrio);
+
+        const treatment = safeArray(treatments).find(t => Number(t.id) === Number(opening.treatmentId));
+        console.log("treatment:", treatment);
+        const tratamientoPorc = treatment && treatment.pricePercentage ? Number(treatment.pricePercentage) : 0;
+        console.log("Porcentaje tratamiento:", tratamientoPorc);
+        const costoTratamiento = costoAluminio * (tratamientoPorc / 100);
+        console.log("Costo tratamiento:", costoTratamiento);
+
+        console.log("Mano de obra:", labourPrice);
+        const costoManoObra = labourPrice;
+
+        const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
+        console.log("Subtotal:", subtotal);
+
+        return `Aluminio: $${costoAluminio.toFixed(2)}, Tratamiento: $${costoTratamiento.toFixed(2)}, Vidrio: $${costoVidrio.toFixed(2)}, Mano de obra: $${costoManoObra.toFixed(2)}, Subtotal: $${subtotal.toFixed(2)}`;
     };
 
-    // Función para obtener nombre de complemento por id y tipo
-    const getComplementName = (complementId, type) => {
-        let arr = [];
-        if (type === 'door') arr = complementDoors;
-        else if (type === 'partition') arr = complementPartitions;
-        else if (type === 'railing') arr = complementRailings;
-        const comp = arr.find(c => String(c.id) === String(complementId));
-        return comp ? comp.name : '';
-    };
-
-    // Función para calcular subtotal de complemento (placeholder)
-    const getComplementSubtotal = (complement) => {
-        // Aquí irá el cálculo real cuando esté disponible
-        return 'Subtotal $';
-    };
-
-    // Placeholder para total de aberturas y complementos
+    // --- Total de aberturas ---
     const getTotalOpenings = () => {
-        // Aquí irá el cálculo real cuando esté disponible
-        return 'Total aberturas $';
-    };
-    const getTotalComplements = () => {
-        // Aquí irá el cálculo real cuando esté disponible
-        return 'Total complementos $';
+        let total = 0;
+        const configsArr = safeArray(openingConfigurations);
+        selectedOpenings.forEach(opening => {
+            const config = configsArr.find(cfg =>
+                opening.width >= cfg.min_width_mm &&
+                opening.width <= cfg.max_width_mm &&
+                opening.height >= cfg.min_height_mm &&
+                opening.height <= cfg.max_height_mm &&
+                Number(opening.typeId) === Number(cfg.opening_type_id)
+            );
+            if (!config) return;
+            const numPanelsWidth = config.num_panels_width;
+            const numPanelsHeight = config.num_panels_height;
+            const totalPanels = numPanelsWidth * numPanelsHeight;
+            const anchoPanel = opening.panelWidth !== undefined ? Number(opening.panelWidth) : opening.width / numPanelsWidth;
+            const altoPanel = opening.panelHeight !== undefined ? Number(opening.panelHeight) : opening.height / numPanelsHeight;
+            const perimetroPanel = 2 * (anchoPanel + altoPanel) / 1000;
+            const totalAluminio = perimetroPanel * totalPanels * opening.quantity;
+            const openingType = openingTypes.find(t => Number(t.id) === Number(opening.typeId));
+            const pesoAluminio = openingType && openingType.weight ? totalAluminio * Number(openingType.weight) : 0;
+            const costoAluminio = pesoAluminio * alumPrice;
+            const areaPanel = (anchoPanel / 1000) * (altoPanel / 1000);
+            const areaTotalVidrio = areaPanel * totalPanels * opening.quantity;
+            const glassType = glassTypes.find(g => Number(g.id) === Number(opening.glassTypeId));
+            const costoVidrio = glassType ? areaTotalVidrio * Number(glassType.price) : 0;
+            const treatment = treatments.find(t => Number(t.id) === Number(opening.treatmentId));
+            const tratamientoPorc = treatment && treatment.pricePercentage ? Number(treatment.pricePercentage) : 0;
+            const costoTratamiento = costoAluminio * (tratamientoPorc / 100);
+            const costoManoObra = labourPrice;
+            const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
+            total += subtotal;
+        });
+        return `Total aberturas: $${total.toFixed(2)}`;
     };
 
     // Handlers para resumen (quitar y modificar cantidad)
@@ -670,31 +772,31 @@ const Quotation = () => {
     };
 
     // Buscar agente por DNI
-    const handleAgentSearch = async () => {
-        setAgentSearchError("");
-        setAgentSearchResult(null);
-        if (!agentSearchDni.trim() || agentSearchDni.length !== 8 || !/^\d+$/.test(agentSearchDni)) {
-            setAgentSearchError("Debe ingresar un DNI de 8 dígitos.");
-            return;
-        }
-        try {
-            const token = localStorage.getItem('token');
-            const res = await axios.get(`${API_URL}/api/customer-agents/dni/${agentSearchDni}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            if (res.data) {
-                setAgentSearchResult(res.data);
-            } else {
-                setAgentSearchResult(null);
-            }
-        } catch (err) {
-            if (err.response && err.response.status === 404) {
-                setAgentSearchResult(null); // No encontrado, permite alta
-            } else {
-                setAgentSearchError("Error buscando agente.");
-            }
-        }
-    };
+    // const handleAgentSearch = async () => {
+    //     setAgentSearchError("");
+    //     setAgentSearchResult(null);
+    //     if (!agentSearchDni.trim() || agentSearchDni.length !== 8 || !/^\d+$/.test(agentSearchDni)) {
+    //         setAgentSearchError("Debe ingresar un DNI de 8 dígitos.");
+    //         return;
+    //     }
+    //     try {
+    //         const token = localStorage.getItem('token');
+    //         const res = await axios.get(`${API_URL}/api/customer-agents/dni/${agentSearchDni}`, {
+    //             headers: { Authorization: `Bearer ${token}` }
+    //         });
+    //         if (res.data) {
+    //             setAgentSearchResult(res.data);
+    //         } else {
+    //             setAgentSearchResult(null);
+    //         }
+    //     } catch (err) {
+    //         if (err.response && err.response.status === 404) {
+    //             setAgentSearchResult(null); // No encontrado, permite alta
+    //         } else {
+    //             setAgentSearchError("Error buscando agente.");
+    //         }
+    //     }
+    // }
 
     // Agregar agente existente al array de agentes
     const handleAddExistingAgent = () => {
@@ -760,6 +862,42 @@ const Quotation = () => {
         }
     }, [agentSearchDni]);
 
+    // Función para obtener nombre de complemento por id y tipo
+    const getComplementName = (complementId, type) => {
+        let arr = [];
+        if (type === 'door') arr = complementDoors;
+        else if (type === 'partition') arr = complementPartitions;
+        else if (type === 'railing') arr = complementRailings;
+        const comp = arr.find(c => String(c.id) === String(complementId));
+        return comp ? comp.name : '';
+    };
+
+    // Función para calcular subtotal de complemento (puedes ajustar la lógica)
+    const getComplementSubtotal = (complement) => {
+        let arr = [];
+        if (complement.type === 'door') arr = complementDoors;
+        else if (complement.type === 'partition') arr = complementPartitions;
+        else if (complement.type === 'railing') arr = complementRailings;
+        const found = arr.find(item => String(item.id) === String(complement.complementId));
+        const price = found ? Number(found.price) : 0;
+        return `Subtotal: $${(price * Number(complement.quantity)).toFixed(2)}`;
+    };
+
+    // Total de complementos
+    const getTotalComplements = () => {
+        let total = 0;
+        selectedComplements.forEach(complement => {
+            let arr = [];
+            if (complement.type === 'door') arr = complementDoors;
+            else if (complement.type === 'partition') arr = complementPartitions;
+            else if (complement.type === 'railing') arr = complementRailings;
+            const found = arr.find(item => String(item.id) === String(complement.complementId));
+            const price = found ? Number(found.price) : 0;
+            total += price * Number(complement.quantity);
+        });
+        return `Total complementos: $${total.toFixed(2)}`;
+    };
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
@@ -817,7 +955,7 @@ const Quotation = () => {
                             </SwiperSlide>
                             <SwiperSlide>
                                 {/* AGENTES */}
-                                <div className="agent-step-container">
+                                <div className="agent-container">
                                     <h3>Agentes del Cliente</h3>
                                     {/* Sugerencias de agentes asociados al cliente */}
                                     {customerAgentsSuggestion.length > 0 && (
@@ -844,7 +982,7 @@ const Quotation = () => {
                                             onChange={e => setAgentSearchDni(e.target.value.replace(/\D/g, '').slice(0, 8))}
                                             placeholder="Ingrese DNI del agente"
                                             maxLength={8}
-                                            className="dni-agent-input"
+                                            className="agent-details"
                                         />
                                         {agentSearchError && <span className="error-message">{agentSearchError}</span>}
                                     </div>
@@ -853,10 +991,10 @@ const Quotation = () => {
                                         agentSearchResult ? (
                                             <div className="agent-found">
                                                 <p>Agente encontrado: <b>{agentSearchResult.name} {agentSearchResult.lastname}</b> - {agentSearchResult.dni}</p>
-                                                <button type="button" className="add-agent-btn" onClick={handleAddExistingAgent}>Agregar este agente</button>
+                                                <button type="button" className="botton-carusel" onClick={handleAddExistingAgent}>Agregar este agente</button>
                                             </div>
                                         ) : (
-                                            <div className="new-agent-form">
+                                            <div className="form-group">
                                                 <h4>Nuevo agente</h4>
                                                 <label>Nombre:</label>
                                                 <input
@@ -886,7 +1024,7 @@ const Quotation = () => {
                                                     onChange={e => setNewAgent(prev => ({ ...prev, mail: e.target.value, dni: agentSearchDni }))
                                                     }
                                                 />
-                                                <button type="button" className="add-agent-btn" onClick={handleAddNewAgent}>Agregar nuevo agente</button>
+                                                <button type="button" className="botton-carusel" onClick={handleAddNewAgent}>Agregar nuevo agente</button>
                                             </div>
                                         )
                                     )}
@@ -925,6 +1063,7 @@ const Quotation = () => {
                                     selectedOpenings={selectedOpenings}
                                     setSelectedOpenings={setSelectedOpenings}
                                     errors={currentIndex === 3 ? stepErrors : {}}
+                                    openingConfigurations={openingConfigurations} // <-- pasa la prop aquí
                                     // Quita la lista de aberturas seleccionadas del paso
                                     hideSelectedList={true}
                                 />
@@ -973,7 +1112,21 @@ const Quotation = () => {
                 <aside className="quotation-summary">
                     <h3>Resumen</h3>
                     <div>
-                        <strong>Aberturas agregadas:</strong>
+                        {/* Lista de agentes agregados */}
+                            
+                        <div className="agents-list">
+                            <h4 className='h4'>Agentes seleccionados:</h4>
+                            {agents.length === 0 && <div className="summary-empty">No tiene agentes.</div>}
+                            {agents.map((agent, idx) => (
+                                <div key={idx} className="agent-selected-row">
+                                    <span>
+                                        {agent.name} {agent.lastname} - {agent.dni}
+                                        
+                                    </span>
+                                 </div>
+                            ))}
+                        </div>
+                        <h4 className='h4'>Aberturas agregadas:</h4>
                         {selectedOpenings.length === 0 && (
                             <div className="summary-empty">No hay aberturas agregadas.</div>
                         )}
@@ -987,18 +1140,16 @@ const Quotation = () => {
                                 >×</button>
                                 <div className="summary-title">{getOpeningTypeName(opening.typeId)}</div>
                                 <div className="summary-detail">
-                                    Medidas: {opening.width} x {opening.height} cm
+                                    Medidas: {opening.width} x {opening.height} mm
                                 </div>
                                 <div className="summary-detail summary-qty-row">
                                     <button
-                                        className="summary-qty-btn"
-                                        type="button"
+                                        className="summary-qty-btn" type="button"
                                         onClick={() => handleChangeOpeningQty(idx, -1)}
                                     >−</button>
                                     <span className="summary-qty">{opening.quantity}</span>
                                     <button
-                                        className="summary-qty-btn"
-                                        type="button"
+                                        className="summary-qty-btn" type="button"
                                         onClick={() => handleChangeOpeningQty(idx, 1)}
                                     >+</button>
                                 </div>
@@ -1012,7 +1163,7 @@ const Quotation = () => {
                         </div>
                     </div>
                     <div style={{ marginTop: 24 }}>
-                        <strong>Complementos agregados:</strong>
+                        <h4 className='h4'>Complementos agregados:</h4>
                         {selectedComplements.length === 0 && (
                             <div className="summary-empty">No hay complementos agregados.</div>
                         )}
