@@ -14,7 +14,6 @@
   <ItemGroup>
     <Folder Include="DTOs\ComplementRailingDTOs\GetComplementRailing\" />
     <Folder Include="Enums\" />
-    <Folder Include="Validators\NewFolder\" />
   </ItemGroup>
 
   <PropertyGroup>
