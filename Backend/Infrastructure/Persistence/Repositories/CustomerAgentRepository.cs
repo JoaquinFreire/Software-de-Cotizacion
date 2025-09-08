@@ -23,6 +23,11 @@ public class CustomerAgentRepository : ICustomerAgentRepository
         return await _context.CustomerAgents.FindAsync(id);
     }
 
+    public async Task<CustomerAgent?> GetByDniAsync(string dni)
+    {
+        return await _context.CustomerAgents.FirstOrDefaultAsync(a => a.dni == dni);
+    }
+
     public async Task AddAsync(CustomerAgent agent)
     {
         _context.CustomerAgents.Add(agent);

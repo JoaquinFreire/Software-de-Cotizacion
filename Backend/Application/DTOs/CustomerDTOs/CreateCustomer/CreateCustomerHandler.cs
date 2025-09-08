@@ -20,7 +20,7 @@ namespace Application.DTOs.CustomerDTOs.CreateCustomer
         public async Task<string> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
         {
             var customer = _mapper.Map<Customer>(request.createCustomerDTO);
-            _validator.Validate(customer); // Validar el cliente
+            await _validator.Validate(customer); // Validar el cliente
             customer.registration_date = DateTime.UtcNow; // Inicializar con la fecha actual
             await _repository.AddAsync(customer);
             return customer.id.ToString(); //Devuelve el id del cliente creado

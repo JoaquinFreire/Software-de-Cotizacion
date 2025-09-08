@@ -4,7 +4,7 @@ namespace Application.Validators.CustomerValidation
 {
     public interface ICustomerValidator
     {
-        void Validate(Customer customer);
+        Task Validate(Customer customer);
 
     }
 }
