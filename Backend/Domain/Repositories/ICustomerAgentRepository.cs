@@ -8,6 +8,7 @@ namespace Domain.Repositories
     {
         Task<IEnumerable<CustomerAgent>> GetAllAsync();
         Task<CustomerAgent?> GetByIdAsync(int id);
+        Task<CustomerAgent?> GetByDniAsync(string dni);
         Task AddAsync(CustomerAgent agent);
         Task UpdateAsync(CustomerAgent agent);
         Task DeleteAsync(int id);

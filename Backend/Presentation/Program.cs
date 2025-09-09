@@ -3,8 +3,11 @@ using Application.DTOs.CustomerDTOs.CreateCustomer;
 using Application.Mapping.CustomerProfile;
 using Application.Services;
 using Application.UseCases;
+using Application.Validators;
 using Application.Validators.BudgetValidation;
+using Application.Validators.CustomerAgentValidation;
 using Application.Validators.CustomerValidation;
+using Application.Validators.UserValidator;
 using Domain.Repositories; //TODO: En lo posible eliminar esta dependencia, porque no corresponde a la capa de presentación
 using DotNetEnv;
 using Infrastructure.Persistence.MongoDBContext;
@@ -59,6 +62,9 @@ builder.Services.AddAutoMapper(typeof(CreateCustomerProfile));//Mapeo de cliente
 
 //REGISTRO DE VALIDACIONES
 
+// -DNI Unico-
+builder.Services.AddTransient<IdentityValidation>();
+
 // -Cotizaciones-
 //Capa de logica de negocio
 builder.Services.AddTransient<IBudgetValidator, BudgetValidator>();
@@ -68,6 +74,14 @@ builder.Services.AddTransient<IApplicationBudgetValidator, ApplicationBudgetVali
 // -Clientes-
 //Capa de logica de negocio
 builder.Services.AddTransient<ICustomerValidator, CustomerValidator>();
+
+// -Agentes de Clientes-
+//Capa de logica de negocio
+builder.Services.AddTransient<ICustomerAgentValidator, CustomerAgentValidator>();
+
+// -Usuarios-
+//Capa de logica de negocio
+builder.Services.AddTransient<IUserValidator, UserValidator>();
 
 // Configura MediatR para manejar comandos y consultas
 builder.Services.AddMediatR(cfg =>

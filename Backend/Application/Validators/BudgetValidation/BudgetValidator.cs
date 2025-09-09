@@ -12,6 +12,11 @@ namespace Application.Validators.BudgetValidation
             BudgetRules.ValidateWorkPlace(budget);
             BudgetRules.ValidateAllDate(budget);
             BudgetRules.ValidateMinimumProducts(budget.Products);
+            GeneralRules.ValidateEmail(budget.user.mail);
+            GeneralRules.ValidateNameAndLastName(budget.user.name, budget.user.lastName);
+            GeneralRules.ValidateEmail(budget.customer.mail);
+            GeneralRules.ValidateTelephoneNumber(budget.customer.tel);
+            GeneralRules.ValidateNameAndLastName(budget.customer.name, budget.customer.lastname);
 
             foreach (var product in budget.Products)
             {

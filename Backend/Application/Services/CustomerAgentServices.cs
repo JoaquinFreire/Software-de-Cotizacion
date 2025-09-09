@@ -20,6 +20,7 @@ namespace Application.Services
             return _mapper.Map<List<GetCustomerAgentDTO>>(agents);
         }
         public async Task<CustomerAgent?> GetByIdAsync(int id) { return await _customerAgentRepository.GetByIdAsync(id); }
+        public async Task<CustomerAgent?> GetByDniAsync(string dni) { return await _customerAgentRepository.GetByDniAsync(dni); }
         public async Task AddAsync(CustomerAgent agent) {await _customerAgentRepository.AddAsync(agent); }
         public async Task UpdateAsync(CustomerAgent agent) { await _customerAgentRepository.UpdateAsync(agent); }
         public async Task DeleteAsync(int id) { await _customerAgentRepository.DeleteAsync(id); }
