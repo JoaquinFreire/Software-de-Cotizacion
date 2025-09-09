@@ -329,7 +329,7 @@ input::placeholder, select::placeholder {
      display: flex;
     align-items: flex-start;
     justify-content: center;
-    margin-left: 150px;
+    margin-left: 0px;
 }
 .quotation-indice {
     width: 20px;
@@ -375,7 +375,7 @@ body.light-mode .quotation-indice h3 {
 }
 
 .quotation-summary {
-    width: 400px;
+    width: 323px;
     min-width: 260px;
     background: #111b1d;
     border: 1px solid #11d9f3;
@@ -533,6 +533,37 @@ body.light-mode .quotation-summary h3 {
     font-size: 15px;
     color: #fff;
 }
+
+/* Opening preview (moved from Opening.js inline styles) */
+.opening-preview-box {
+    margin-top: 12px;
+    padding: 10px;
+    background: #081213;
+    border: 1px solid #26b7cd;
+    border-radius: 8px;
+}
+.opening-preview-title {
+    margin: 0 0 8px 0;
+    color: #26b7cd;
+}
+.opening-preview-svg-dark {
+    background: #555757;
+    padding: 6px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+/* keep enhanced preview styles */
+.opening-preview-container { display:flex; gap:12px; align-items:center; }
+.opening-preview-svg-wrapper { width: 260px; height: 160px; display:flex; align-items:center; justify-content:center; background: #ffffff; padding: 6px; border-radius: 6px; }
+.opening-preview-meta { min-width: 140px; display:flex; flex-direction:column; gap:6px; }
+.opening-preview-size, .opening-preview-count { color: #dff6f9; font-size: 13px; }
+.measure-row { color: #dff6f9; margin-bottom:6px; }
+.measure-value { font-weight:700; color: #ffffff; }
+.opening-panel-number { font-family: Arial, Helvetica, sans-serif; font-weight: 700; }
+
+.opening-preview-row { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+/* ...existing code... */
 
 /* Ajuste para el resumen en mobile */
 @media (max-width: 1100px) {

@@ -214,6 +214,51 @@ const OpeningType = ({
                 </div>
             </div>
 
+            {/* --- VISTA PREVIA EN TIEMPO REAL --- */}
+            <div className="opening-preview-box">
+                <h4 className="opening-preview-title">Vista previa (no guardada)</h4>
+                {(openingForm.typeId && openingForm.widthCm && openingForm.heightCm && Number(openingForm.widthCm) > 0 && Number(openingForm.heightCm) > 0) ? (
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                        <div style={{ color: '#fff', fontSize: 13 }}>
+                            <div><strong>Tipo:</strong> {openingTypes.find(t => String(t.id) === String(openingForm.typeId))?.name || '-'}</div>
+                            <div><strong>Medidas:</strong> {openingForm.widthCm} x {openingForm.heightCm} cm</div>
+                            <div><strong>Paneles:</strong> {numPanelsWidth} x {numPanelsHeight} (total {numPanelsWidth * numPanelsHeight})</div>
+                            <div><strong>Tamaño panel:</strong> {anchoPanelCmDisplay || '-'} x {altoPanelCmDisplay || '-'} cm</div>
+                        </div>
+                        <div className="opening-preview-svg-dark">
+                            {/* SVG sencillo que muestra la abertura y las divisiones de paneles */}
+                            {Number(openingForm.widthCm) > 0 && Number(openingForm.heightCm) > 0 && (
+                                (() => {
+                                    const w = Number(openingForm.widthCm);
+                                    const h = Number(openingForm.heightCm);
+                                    const vw = Math.min(300, w * 2); // visual width px (cap)
+                                    const vh = Math.min(200, h * 2); // visual height px
+                                    const scaleX = vw / w;
+                                    const scaleY = vh / h;
+                                    const viewW = w;
+                                    const viewH = h;
+                                    return (
+                                        <svg width={vw} height={vh} viewBox={`0 0 ${viewW} ${viewH}`} preserveAspectRatio="xMidYMid meet">
+                                            <rect x="0" y="0" width={viewW} height={viewH} fill="#dff0f8" stroke="#26b7cd" strokeWidth={0.3} />
+                                            {/* vertical lines */}
+                                            {Array.from({ length: Math.max(0, numPanelsWidth - 1) }).map((_, i) => (
+                                                <line key={`v-${i}`} x1={( (i + 1) * viewW / numPanelsWidth)} y1={0} x2={( (i + 1) * viewW / numPanelsWidth)} y2={viewH} stroke="#2c2727" strokeWidth={1.15} />
+                                            ))}
+                                            {/* horizontal lines */}
+                                            {Array.from({ length: Math.max(0, numPanelsHeight - 1) }).map((_, i) => (
+                                                <line key={`h-${i}`} x1={0} y1={((i + 1) * viewH / numPanelsHeight)} x2={viewW} y2={((i + 1) * viewH / numPanelsHeight)} stroke="#1f1c1c" strokeWidth={1.15} />
+                                            ))}
+                                        </svg>
+                                    );
+                                })()
+                            )}
+                        </div>
+                    </div>
+                ) : (
+                    <div style={{ color: '#888' }}>Complete tipo, ancho y alto para ver la vista previa.</div>
+                )}
+            </div>
+
             {panelDiffers && (
                 <div style={{ color: "#e67e22", marginBottom: 8 }}>
                     <b>Advertencia:</b> Ha modificado la cantidad de paneles sugerida ({suggestedPanels.numPanelsWidth} x {suggestedPanels.numPanelsHeight}). El tamaño de panel se recalculará en función de la nueva cantidad.

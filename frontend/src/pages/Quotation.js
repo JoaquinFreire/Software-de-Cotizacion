@@ -729,12 +729,10 @@ const Quotation = () => {
             logMsg.forEach(line => console.log(line));
         }
 
-        // Sugerencia en cm
-        const sugerencia = `Sugerencia: ${numPanelsWidth} panel(es) de ancho x ${numPanelsHeight} panel(es) de alto. Ancho de panel (cm): ${(anchoPanel / 10).toFixed(1)}`;
+       
 
         return (
             <>
-                <div>{sugerencia}</div>
                 <div>
                     Aluminio: ${costoAluminio.toFixed(2)}, Tratamiento: ${costoTratamiento.toFixed(2)}, Vidrio: ${costoVidrio.toFixed(2)}, Mano de obra: ${costoManoObra.toFixed(2)}, Subtotal: ${subtotal.toFixed(2)}
                 </div>
@@ -1157,7 +1155,7 @@ const Quotation = () => {
                             <div className="summary-empty">No hay aberturas agregadas.</div>
                         )}
                         {selectedOpenings.map((opening, idx) => (
-                            <div key={idx} className="summary-item">
+                            <div key={idx} className="summary-item summary-opening-card">
                                 <button
                                     className="summary-remove-btn"
                                     title="Quitar abertura"
@@ -1165,23 +1163,69 @@ const Quotation = () => {
                                     type="button"
                                 >×</button>
                                 <div className="summary-title">{getOpeningTypeName(opening.typeId)}</div>
-                                <div className="summary-detail">
-                                    {/* Mostrar medidas en cm */}
-                                    Medidas: {(opening.width > 100 ? opening.width / 10 : opening.width)} x {(opening.height > 100 ? opening.height / 10 : opening.height)} cm
+                                <div className="opening-measures">
+                                    <div className="measure-row">Abertura: <span className="measure-value">{(opening.width > 100 ? opening.width / 10 : opening.width)} x {(opening.height > 100 ? opening.height / 10 : opening.height)} cm</span></div>
                                 </div>
-                                <div className="summary-detail summary-qty-row">
-                                    <button
-                                        className="summary-qty-btn" type="button"
-                                        onClick={() => handleChangeOpeningQty(idx, -1)}
-                                    >−</button>
-                                    <span className="summary-qty">{opening.quantity}</span>
-                                    <button
-                                        className="summary-qty-btn" type="button"
-                                        onClick={() => handleChangeOpeningQty(idx, 1)}
-                                    >+</button>
+
+                                {/* Enhanced SVG preview with distinct panel rects and numbering */}
+                                <div className="opening-preview-container opening-preview-box">
+                                     {(() => {
+                                         const wCm = (opening.width > 100 ? opening.width / 10 : opening.width) || 100;
+                                         const hCm = (opening.height > 100 ? opening.height / 10 : opening.height) || 60;
+                                         const cfg = safeArray(openingConfigurations).find(c => Number(c.opening_type_id) === Number(opening.typeId) && opening.width >= c.min_width_mm && opening.width <= c.max_width_mm && opening.height >= c.min_height_mm && opening.height <= c.max_height_mm);
+                                         const numW = opening.numPanelsWidth || (cfg ? cfg.num_panels_width : 1);
+                                         const numH = opening.numPanelsHeight || (cfg ? cfg.num_panels_height : 1);
+                                         const vw = Math.min(260, wCm * 2);
+                                         const vh = Math.min(160, hCm * 2);
+                                         const panelW = wCm / numW;
+                                         const panelH = hCm / numH;
+                                         const cells = [];
+                                         for (let r = 0; r < numH; r++) {
+                                             for (let c = 0; c < numW; c++) {
+                                                 cells.push({ x: c * panelW, y: r * panelH, w: panelW, h: panelH, idx: r * numW + c + 1 });
+                                             }
+                                         }
+                                         return (
+                                             <div className="opening-preview-row">
+                                                 <div className="opening-preview-svg-wrapper opening-preview-svg-dark">
+                                                     <svg width={vw} height={vh} viewBox={`0 0 ${wCm} ${hCm}`} preserveAspectRatio="xMidYMid meet" className="opening-preview-svg">
+                                                         <rect x="0" y="0" width={wCm} height={hCm} fill="#0e0b0b" stroke={opening.treatmentId ? '#26b7cd' : '#070505'} strokeWidth={0.4} rx={3} />
+                                                         {cells.map(cell => (
+                                                             <g key={`cell-${cell.idx}`}>
+                                                                 <rect x={cell.x} y={cell.y} width={cell.w} height={cell.h} fill="#f8fcff" stroke="#9aa9b0" strokeWidth={0.18} />
+                                                                 <text x={cell.x + cell.w / 2} y={cell.y + cell.h / 2} fontSize={(Math.min(cell.w, cell.h) / 3).toFixed(2)} textAnchor="middle" dominantBaseline="middle" fill="#40666f" className="opening-panel-number">{cell.idx}</text>
+                                                             </g>
+                                                         ))}
+                                                         {/* glass overlay */}
+                                                         {opening.glassTypeId && <rect x="0" y="0" width={wCm} height={hCm} fill="#bfe9ff" opacity={0.10} />}
+                                                     </svg>
+                                                 </div>
+                                                <div className="opening-preview-meta">
+                                                    {opening.treatmentName && <div className="badge badge-treatment">Tratamiento: {opening.treatmentName}</div>}
+                                                    {opening.glassTypeName && <div className="badge badge-glass">Vidrio: {opening.glassTypeName}</div>}
+                                                    <div className="opening-preview-size">Panel: <b>{(panelW).toFixed(1)} x {(panelH).toFixed(1)} cm</b></div>
+                                                    <div className="opening-preview-count">Paneles: <b>{numW} × {numH}</b></div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
-                                <div className="summary-subtotal">
-                                    {getOpeningSubtotal(opening)}
+
+                                <div className="summary-actions-row" style={{ marginTop: 8 }}>
+                                    <div className="summary-detail summary-qty-row">
+                                        <button
+                                            className="summary-qty-btn" type="button"
+                                            onClick={() => handleChangeOpeningQty(idx, -1)}
+                                        >−</button>
+                                        <span className="summary-qty">{opening.quantity}</span>
+                                        <button
+                                            className="summary-qty-btn" type="button"
+                                            onClick={() => handleChangeOpeningQty(idx, 1)}
+                                        >+</button>
+                                    </div>
+                                    <div style={{ marginLeft: 'auto', color: '#26b7cd', fontWeight: 600 }}>
+                                        {getOpeningSubtotal(opening)}
+                                    </div>
                                 </div>
                             </div>
                         ))}
