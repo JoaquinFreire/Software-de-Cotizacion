@@ -30,25 +30,25 @@ const reportCards = [
     route: "/reportes/productividad-cotizador"
   },
   {
-    title: "Reporte de Productividad por Vendedor",
+      title: "Reporte de variacion de precios",
     icon: <User size={40} />,
     className: "reporte-productividad-vendedor",
     route: "/reportes/productividad-vendedor"
   },
   {
-    title: "Tendencias de Cotización Anual",
+      title: "Reporte de Simulación de Cambios de Precio",
     icon: <LineChart size={40} />,
     className: "reporte-tendencias-anuales",
     route: "/reportes/tendencias-anuales"
   },
   {
-    title: "Análisis de Tiempo de Respuesta en la Generación de Cotizaciones",
+      title: "Reporte de Oportunidades Perdidas",
     icon: <Clock3 size={40} />,
     className: "reporte-tiempo-respuesta",
     route: "/reportes/tiempo-respuesta"
   },
   {
-    title: "Beneficio en Cotizaciones por Tipo de Proyecto",
+      title: "Beneficio en Cotizaciones por Tipo de Linea",
     icon: <PieChart size={40} />,
     className: "reporte-beneficio-proyecto",
     route: "/reportes/beneficio-proyecto"
@@ -78,7 +78,7 @@ const reportCards = [
     route: "/reportes/analisis-satisfaccion-cliente"
   },
   {
-    title: "Tendencias de la Industria de Aberturas de Aluminio",
+      title: "Reporte de tiempo ocioso de producción",
     icon: <TrendingUp size={40} />,
     className: "reporte-tendencias-industria",
     route: "/reportes/tendencias-industria"
@@ -90,7 +90,7 @@ const reportCards = [
     route: "/reportes/promociones-descuentos"
   },
   {
-    title: "Reporte de Productividad por Cotizador",
+      title: "Reporte de consumo de accesorios en proyectos",
     icon: <UserCheck size={40} />,
     className: "reporte-productividad-cotizador-2",
     route: "/reportes/productividad-cotizador-2"
