@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/login.css'; // Archivo de estilos
@@ -17,6 +17,9 @@ const Login = () => {
     const [recoverError, setRecoverError] = useState('');
     const [isLoading, setIsLoading] = useState(false); // ⬅️ Login spinner
     const [isRecovering, setIsRecovering] = useState(false); // ⬅️ Recuperación spinner
+    const [isServerWaking, setIsServerWaking] = useState(false); // indicates backend is booting
+    const [serverMsg, setServerMsg] = useState('');
+    const retryIntervalRef = useRef(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -24,24 +27,89 @@ const Login = () => {
         localStorage.setItem("blueLightFilter", "false");
     }, []);
 
+    // Cleanup any running retry interval when component unmounts
+    useEffect(() => {
+        return () => {
+            if (retryIntervalRef.current) {
+                clearInterval(retryIntervalRef.current);
+                retryIntervalRef.current = null;
+            }
+        };
+    }, []);
+
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
         setIsLoading(true);
+        setIsServerWaking(false);
+        setServerMsg('');
 
         try {
             const response = await axios.post(`${API_URL}/api/auth/login`, { legajo, password });
             localStorage.setItem('token', response.data.token);
+            // If there was a retry running, clear it
+            if (retryIntervalRef.current) {
+                clearInterval(retryIntervalRef.current);
+                retryIntervalRef.current = null;
+            }
             navigate('/');
             window.location.reload();
         } catch (err) {
-            if (err.response?.data?.error) {
-                setError(err.response.data.error);
+            // If server did not respond or returned a server error, start retry loop
+            const status = err.response?.status;
+            const hasServerResponse = !!err.response;
+
+            if (!hasServerResponse || (status >= 500 && status < 600)) {
+                // Backend is likely sleeping - show message and keep retrying
+                setIsServerWaking(true);
+                setServerMsg('Servidor apagado, encendiendo...');
+
+                // Clear any existing interval first
+                if (retryIntervalRef.current) {
+                    clearInterval(retryIntervalRef.current);
+                    retryIntervalRef.current = null;
+                }
+
+                // Start retrying periodically using the same credentials
+                retryIntervalRef.current = setInterval(async () => {
+                    try {
+                        const retryRes = await axios.post(`${API_URL}/api/auth/login`, { legajo, password });
+                        localStorage.setItem('token', retryRes.data.token);
+                        if (retryIntervalRef.current) {
+                            clearInterval(retryIntervalRef.current);
+                            retryIntervalRef.current = null;
+                        }
+                        setIsServerWaking(false);
+                        setServerMsg('');
+                        setIsLoading(false);
+                        navigate('/');
+                        window.location.reload();
+                    } catch (retryErr) {
+                        // If retry fails due to invalid credentials (401), stop retrying and show error
+                        if (retryErr.response?.status === 401) {
+                            if (retryIntervalRef.current) {
+                                clearInterval(retryIntervalRef.current);
+                                retryIntervalRef.current = null;
+                            }
+                            setIsServerWaking(false);
+                            setServerMsg('');
+                            setIsLoading(false);
+                            const errMsg = retryErr.response?.data?.error || 'Credenciales inválidas';
+                            setError(errMsg);
+                        }
+                        // Otherwise continue retrying
+                    }
+                }, 3000);
+                // Keep showing loader while retrying
             } else {
-                setError('Error en la conexión con el servidor');
+                // Permanent/auth error - show it and stop loading
+                if (err.response?.data?.error) {
+                    setError(err.response.data.error);
+                } else {
+                    setError('Error en la conexión con el servidor');
+                }
+                setIsLoading(false);
             }
-        } finally {
-            setIsLoading(false);
         }
     };
 
@@ -100,7 +168,7 @@ const Login = () => {
                         {isLoading ? (
                             <div className="spinner-container">
                                 <ReactLoading type="spin" color="#26b7cd" height={40} width={40}/>
-                                <div style={{marginTop: 14, fontSize: 18, color: '#26b7cd'}}>Cargando...</div>
+                                <div style={{marginTop: 14, fontSize: 18, color: '#26b7cd'}}>{isServerWaking ? serverMsg : 'Cargando...'}</div>
                             </div>
                         ) : (
                             <button className="bottonLogin" type="submit">Siguiente</button>

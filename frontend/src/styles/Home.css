@@ -61,54 +61,29 @@
 
 /* Fondo para cada botón */
 .newqoutation {
-    background: url('../images/FondoNuevaCotizacion.webp') no-repeat center center/cover;
-}
-.newqoutation:hover {
-    background: url('../images/FondoNuevaCotizacion.webp') no-repeat center center/cover;
+    background: #1d7691  url('../images/FondoNuevaCotizacion.webp') no-repeat center center/cover;
 }
 .pending {
-    background: url('../images/Cotizacionespendinetesfondo.webp') no-repeat center center/cover;
-}
-.pending:hover {
-    background: url('../images/Cotizacionespendinetesfondo.webp') no-repeat center center/cover;
+    background: #1d7691 url('../images/Cotizacionespendinetesfondo.webp') no-repeat center center/cover;
 }
 .historial {
-    background: url('../images/Historialfondo.webp') no-repeat center center/cover;
-}
-.historial:hover {
-    background: url('../images/Historialfondo.webp') no-repeat center center/cover;
+    background: #1d7691 url('../images/Historialfondo.webp') no-repeat center center/cover;
 }
 .report {
-    background: url('../images/Reportesfondo.webp') no-repeat center center/cover;
-}
-.report:hover {
-    background: url('../images/Reportesfondo.webp') no-repeat center center/cover;
+    background: #1d7691 url('../images/Reportesfondo.webp') no-repeat center center/cover;
 }
 .client{
-    background: url('../images/Clientefondo.webp') no-repeat center center/cover;
-}
-.client:hover {
-    background: url('../images/Clientefondo.webp') no-repeat center center/cover;
+    background: #1d7691 url('../images/Clientefondo.webp') no-repeat center center/cover;
 }
 .material {
-    background: url('../images/Aberturafondo.webp') no-repeat center center/cover;
-}
-.material:hover {
-    background: url('../images/Aberturafondo.webp') no-repeat center center/cover;
+    background: #1d7691 url('../images/Aberturafondo.webp') no-repeat center center/cover;
 }
 .openings {
-    background: url('../images/Materialfondo.webp') no-repeat center center/cover;
-}
-.openings:hover {
-    background: url('../images/Materialfondo.webp') no-repeat center center/cover;
+    background: #1d7691 url('../images/Materialfondo.webp') no-repeat center center/cover;
 }
 .admin {
-    background: url('../images/Adminfondo.webp') no-repeat center center/cover;
+    background: #1d7691 url('../images/Adminfondo.webp') no-repeat center center/cover;
 }
-.admin:hover {
-    background: url('../images/Adminfondo.webp') no-repeat center center/cover;
-}
-
 .new-quote:hover {
     filter: brightness(1.0);
     box-shadow: 0 8px 24px rgba(0,0,0,0.35);

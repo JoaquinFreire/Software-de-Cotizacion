@@ -233,8 +233,6 @@ const OpeningType = ({
                                     const h = Number(openingForm.heightCm);
                                     const vw = Math.min(300, w * 2); // visual width px (cap)
                                     const vh = Math.min(200, h * 2); // visual height px
-                                    const scaleX = vw / w;
-                                    const scaleY = vh / h;
                                     const viewW = w;
                                     const viewH = h;
                                     return (
