@@ -10,7 +10,8 @@ const OpeningType = ({
     selectedOpenings,
     setSelectedOpenings,
     errors = {},
-    openingConfigurations = []
+    openingConfigurations = [],
+    onLogOpening, // <-- nueva prop
 }) => {
     useEffect(() => {
         console.log("openingConfigurations:", safeArray(openingConfigurations));
@@ -33,39 +34,44 @@ const OpeningType = ({
         );
     }, [openingForm.typeId, widthMm, heightMm, openingConfigurations]);
 
-    // Paneles sugeridos
+    // Paneles sugeridos (por cantidad)
     const suggestedPanels = {
         numPanelsWidth: suggestedConfig?.num_panels_width || 1,
         numPanelsHeight: suggestedConfig?.num_panels_height || 1,
-        anchoPanel: suggestedConfig ? (widthMm / suggestedConfig.num_panels_width) : '',
-        altoPanel: suggestedConfig ? (heightMm / suggestedConfig.num_panels_height) : ''
+        anchoPanelMm: suggestedConfig ? (widthMm / suggestedConfig.num_panels_width) : undefined,
+        altoPanelMm: suggestedConfig ? (heightMm / suggestedConfig.num_panels_height) : undefined
     };
 
-    // Inputs controlados para ancho/alto panel
-    const panelWidth = openingForm.panelWidth !== undefined
-        ? openingForm.panelWidth
-        : suggestedPanels.anchoPanel || '';
-    const panelHeight = openingForm.panelHeight !== undefined
-        ? openingForm.panelHeight
-        : suggestedPanels.altoPanel || '';
+    // Cantidad de paneles controlada
+    const numPanelsWidth = openingForm.numPanelsWidth !== undefined && openingForm.numPanelsWidth !== ''
+        ? Number(openingForm.numPanelsWidth)
+        : suggestedPanels.numPanelsWidth;
+    const numPanelsHeight = openingForm.numPanelsHeight !== undefined && openingForm.numPanelsHeight !== ''
+        ? Number(openingForm.numPanelsHeight)
+        : suggestedPanels.numPanelsHeight;
 
-    // Advierte si el usuario cambió los valores sugeridos
-    const panelDiffers =
-        panelWidth !== '' && panelHeight !== '' &&
-        (Number(panelWidth) !== Number(suggestedPanels.anchoPanel) ||
-         Number(panelHeight) !== Number(suggestedPanels.altoPanel));
+    // Calcular tamaño de panel en mm según la cantidad de paneles seleccionada
+    const anchoPanelMmComputed = widthMm && numPanelsWidth ? (widthMm / numPanelsWidth) : '';
+    const altoPanelMmComputed = heightMm && numPanelsHeight ? (heightMm / numPanelsHeight) : '';
+
+    // Mostrar en cm para el usuario
+    const anchoPanelCmDisplay = anchoPanelMmComputed ? (anchoPanelMmComputed / 10).toFixed(1) : '';
+    const altoPanelCmDisplay = altoPanelMmComputed ? (altoPanelMmComputed / 10).toFixed(1) : '';
+
+    // Advierte si el usuario cambió la cantidad de paneles sugerida
+    const panelDiffers = (numPanelsWidth !== suggestedPanels.numPanelsWidth) || (numPanelsHeight !== suggestedPanels.numPanelsHeight);
 
     const handleAddOpening = () => {
         const { typeId, quantity, treatmentId, glassTypeId } = openingForm;
         // Convierte cm a mm antes de guardar
-        const width = widthMm;
-        const height = heightMm;
+        const width = openingForm.widthCm ? Number(openingForm.widthCm) * 10 : undefined;
+        const height = openingForm.heightCm ? Number(openingForm.heightCm) * 10 : undefined;
         // Validar que todos los campos estén completos
         if (!typeId || !width || !height || quantity <= 0 || !treatmentId || !glassTypeId) {
             console.error('Todos los campos son obligatorios');
             return;
         }
-        // Verificar si ya existe una abertura con las mismas características
+        // Verificar si ya existe una abertura con las mismas características (se compara cantidad de paneles)
         const existingOpening = selectedOpenings.find(
             (opening) =>
                 opening.typeId === typeId &&
@@ -73,9 +79,27 @@ const OpeningType = ({
                 opening.height === height &&
                 opening.treatmentId === treatmentId &&
                 opening.glassTypeId === glassTypeId &&
-                Number(opening.panelWidth) === Number(panelWidth) &&
-                Number(opening.panelHeight) === Number(panelHeight)
+                Number(opening.numPanelsWidth) === Number(numPanelsWidth) &&
+                Number(opening.numPanelsHeight) === Number(numPanelsHeight)
         );
+
+        const newOpening = {
+            id: Date.now(),
+            typeId,
+            typeName: openingTypes.find((type) => type.id === parseInt(typeId))?.name,
+            width, // en mm
+            height, // en mm
+            quantity: parseInt(quantity),
+            treatmentId,
+            treatmentName: treatments.find((t) => t.id === parseInt(treatmentId))?.name,
+            glassTypeId,
+            glassTypeName: glassTypes.find((g) => g.id === parseInt(glassTypeId))?.name,
+            numPanelsWidth: numPanelsWidth,
+            numPanelsHeight: numPanelsHeight,
+            // guardamos tamaño de panel en mm calculado en función de la cantidad
+            panelWidth: anchoPanelMmComputed || undefined,
+            panelHeight: altoPanelMmComputed || undefined
+        };
         if (existingOpening) {
             setSelectedOpenings((prev) =>
                 prev.map((opening) =>
@@ -84,28 +108,15 @@ const OpeningType = ({
                         : opening
                 )
             );
+            if (onLogOpening) onLogOpening(existingOpening);
         } else {
             setSelectedOpenings((prev) => [
                 ...prev,
-                {
-                    id: Date.now(),
-                    typeId,
-                    typeName: openingTypes.find((type) => type.id === parseInt(typeId))?.name,
-                    width,
-                    height,
-                    quantity: parseInt(quantity),
-                    treatmentId,
-                    treatmentName: treatments.find((t) => t.id === parseInt(treatmentId))?.name,
-                    glassTypeId,
-                    glassTypeName: glassTypes.find((g) => g.id === parseInt(glassTypeId))?.name,
-                    numPanelsWidth: suggestedConfig?.num_panels_width,
-                    numPanelsHeight: suggestedConfig?.num_panels_height,
-                    panelWidth: Number(panelWidth),
-                    panelHeight: Number(panelHeight)
-                },
+                newOpening,
             ]);
+            if (onLogOpening) onLogOpening(newOpening);
         }
-        setOpeningForm({ typeId: '', widthCm: '', heightCm: '', quantity: 1, treatmentId: '', glassTypeId: '', panelWidth: undefined, panelHeight: undefined });
+        setOpeningForm({ typeId: '', widthCm: '', heightCm: '', quantity: 1, treatmentId: '', glassTypeId: '', numPanelsWidth: undefined, numPanelsHeight: undefined });
     };
 
     const handleInputChange = (field, value) => {
@@ -114,6 +125,12 @@ const OpeningType = ({
             errors[field] = undefined;
         }
     };
+
+    // Cuando muestres sugerencias y campos de panel, usa cm en vez de mm
+    // Ejemplo para sugerencia:
+    const sugerencia = suggestedConfig
+        ? `Sugerencia: ${suggestedConfig.num_panels_width} panel(es) de ancho x ${suggestedConfig.num_panels_height} panel(es) de alto.`
+        : "";
 
     return (
         <div className="opening-container">
@@ -162,34 +179,92 @@ const OpeningType = ({
                 />
                 {errors.height && <span className="error-message">{errors.height}</span>}
             </div>
-            {suggestedConfig && (
+            {sugerencia && (
                 <div className="panel-suggestion" style={{ marginTop: 12, color: "#26b7cd" }}>
-                    <strong>Sugerencia:</strong> {suggestedConfig.num_panels_width} panel(es) de ancho x {suggestedConfig.num_panels_height} panel(es) de alto
+                    <strong>{sugerencia}</strong>
                 </div>
             )}
+
+            {/* Cantidad de paneles (ancho y alto) en lugar de tamaño manual de panel */}
             <div className="form-group">
-                <label>Ancho de panel (mm)</label>
+                <label>Cantidad de paneles (ancho)</label>
                 <input
                     type="number"
-                    value={panelWidth}
-                    onChange={e => handleInputChange("panelWidth", e.target.value)}
-                    placeholder="Ancho de panel"
+                    value={openingForm.numPanelsWidth !== undefined ? openingForm.numPanelsWidth : suggestedPanels.numPanelsWidth}
+                    onChange={e => handleInputChange("numPanelsWidth", e.target.value.replace(/\D/g, ''))}
+                    min={1}
                 />
             </div>
             <div className="form-group">
-                <label>Alto de panel (mm)</label>
+                <label>Cantidad de paneles (alto)</label>
                 <input
                     type="number"
-                    value={panelHeight}
-                    onChange={e => handleInputChange("panelHeight", e.target.value)}
-                    placeholder="Alto de panel"
+                    value={openingForm.numPanelsHeight !== undefined ? openingForm.numPanelsHeight : suggestedPanels.numPanelsHeight}
+                    onChange={e => handleInputChange("numPanelsHeight", e.target.value.replace(/\D/g, ''))}
+                    min={1}
                 />
             </div>
+
+            {/* Mostrar tamaño de panel calculado (cm) */}
+            <div className="form-group">
+                <label>Tamaño de panel (cm) — Ancho x Alto</label>
+                <div>
+                    <input type="text" readOnly value={anchoPanelCmDisplay ? `${anchoPanelCmDisplay} cm` : ''} placeholder="Ancho panel (cm)" />
+                    <input type="text" readOnly value={altoPanelCmDisplay ? `${altoPanelCmDisplay} cm` : ''} placeholder="Alto panel (cm)" style={{ marginLeft: 8 }} />
+                </div>
+            </div>
+
+            {/* --- VISTA PREVIA EN TIEMPO REAL --- */}
+            <div className="opening-preview-box">
+                <h4 className="opening-preview-title">Vista previa (no guardada)</h4>
+                {(openingForm.typeId && openingForm.widthCm && openingForm.heightCm && Number(openingForm.widthCm) > 0 && Number(openingForm.heightCm) > 0) ? (
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                        <div style={{ color: '#fff', fontSize: 13 }}>
+                            <div><strong>Tipo:</strong> {openingTypes.find(t => String(t.id) === String(openingForm.typeId))?.name || '-'}</div>
+                            <div><strong>Medidas:</strong> {openingForm.widthCm} x {openingForm.heightCm} cm</div>
+                            <div><strong>Paneles:</strong> {numPanelsWidth} x {numPanelsHeight} (total {numPanelsWidth * numPanelsHeight})</div>
+                            <div><strong>Tamaño panel:</strong> {anchoPanelCmDisplay || '-'} x {altoPanelCmDisplay || '-'} cm</div>
+                        </div>
+                        <div className="opening-preview-svg-dark">
+                            {/* SVG sencillo que muestra la abertura y las divisiones de paneles */}
+                            {Number(openingForm.widthCm) > 0 && Number(openingForm.heightCm) > 0 && (
+                                (() => {
+                                    const w = Number(openingForm.widthCm);
+                                    const h = Number(openingForm.heightCm);
+                                    const vw = Math.min(300, w * 2); // visual width px (cap)
+                                    const vh = Math.min(200, h * 2); // visual height px
+                                    const scaleX = vw / w;
+                                    const scaleY = vh / h;
+                                    const viewW = w;
+                                    const viewH = h;
+                                    return (
+                                        <svg width={vw} height={vh} viewBox={`0 0 ${viewW} ${viewH}`} preserveAspectRatio="xMidYMid meet">
+                                            <rect x="0" y="0" width={viewW} height={viewH} fill="#dff0f8" stroke="#26b7cd" strokeWidth={0.3} />
+                                            {/* vertical lines */}
+                                            {Array.from({ length: Math.max(0, numPanelsWidth - 1) }).map((_, i) => (
+                                                <line key={`v-${i}`} x1={( (i + 1) * viewW / numPanelsWidth)} y1={0} x2={( (i + 1) * viewW / numPanelsWidth)} y2={viewH} stroke="#2c2727" strokeWidth={1.15} />
+                                            ))}
+                                            {/* horizontal lines */}
+                                            {Array.from({ length: Math.max(0, numPanelsHeight - 1) }).map((_, i) => (
+                                                <line key={`h-${i}`} x1={0} y1={((i + 1) * viewH / numPanelsHeight)} x2={viewW} y2={((i + 1) * viewH / numPanelsHeight)} stroke="#1f1c1c" strokeWidth={1.15} />
+                                            ))}
+                                        </svg>
+                                    );
+                                })()
+                            )}
+                        </div>
+                    </div>
+                ) : (
+                    <div style={{ color: '#888' }}>Complete tipo, ancho y alto para ver la vista previa.</div>
+                )}
+            </div>
+
             {panelDiffers && (
                 <div style={{ color: "#e67e22", marginBottom: 8 }}>
-                    <b>Advertencia:</b> Se recomienda usar los valores sugeridos ({suggestedPanels.anchoPanel} x {suggestedPanels.altoPanel} mm), pero puede modificarlos si lo desea.
+                    <b>Advertencia:</b> Ha modificado la cantidad de paneles sugerida ({suggestedPanels.numPanelsWidth} x {suggestedPanels.numPanelsHeight}). El tamaño de panel se recalculará en función de la nueva cantidad.
                 </div>
             )}
+
             <div className="form-group">
                 <label>Cantidad</label>
                 <input

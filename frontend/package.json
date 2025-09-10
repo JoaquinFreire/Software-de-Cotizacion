@@ -23,6 +23,7 @@
     "jspdf-autotable": "^5.0.2",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.514.0",
+    "papaparse": "^5.5.3",
     "primeicons": "^6.0.1",
     "primereact": "^10.9.7",
     "react": "^18.2.0",
