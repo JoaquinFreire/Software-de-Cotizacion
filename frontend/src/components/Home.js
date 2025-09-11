@@ -95,8 +95,6 @@ const Home = () => {
             <b>Reportes</b>
           </div>
         </button>
-      </div>
-      <div className="home-buttons-container">
         <button className="new-quote client" onClick={() => navigate("/customers")}>
           <div className="quote-overlay">
             <Users size={22} className="home-btn-icon" />

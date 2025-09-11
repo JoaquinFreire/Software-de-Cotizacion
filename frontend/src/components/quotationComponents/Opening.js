@@ -218,7 +218,7 @@ const OpeningType = ({
             <div className="opening-preview-box">
                 <h4 className="opening-preview-title">Vista previa (no guardada)</h4>
                 {(openingForm.typeId && openingForm.widthCm && openingForm.heightCm && Number(openingForm.widthCm) > 0 && Number(openingForm.heightCm) > 0) ? (
-                    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexDirection: 'column' }}>
                         <div style={{ color: '#fff', fontSize: 13 }}>
                             <div><strong>Tipo:</strong> {openingTypes.find(t => String(t.id) === String(openingForm.typeId))?.name || '-'}</div>
                             <div><strong>Medidas:</strong> {openingForm.widthCm} x {openingForm.heightCm} cm</div>

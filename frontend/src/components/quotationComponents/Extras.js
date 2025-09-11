@@ -7,6 +7,24 @@ const Extras = ({ comment, setComment, setDollarReference, setLabourReference })
     const [labour, setLabour] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const defaultComment = `[Aquí escriba la observación correspondiente por el cotizador]
+
+Validez de la cotización
+El precio y los plazos de entrega especificados en la presente cotización son válidos durante el período indicado en ella. En caso de no estar especificado, la validez será de 15 días corridos a partir de la fecha de emisión. Todo pedido queda sujeto a confirmación y aceptación por parte de Anodal Aberturas de Aluminio.
+
+Precio de los materiales
+Los precios presupuestados se calculan en base al costo actual de los materiales. En caso de producirse variaciones en la lista de precios de fábrica o insumos, Anodal podrá actualizar los valores al momento de la confirmación del pedido.
+
+Fuerza mayor
+Anodal no será responsable por demoras en la entrega o incumplimientos derivados de causas de fuerza mayor tales como conflictos laborales, incendios, inundaciones, cortes de energía, falta de insumos por parte de proveedores, disposiciones gubernamentales u otras causas ajenas a nuestro control.
+
+Solicitudes de cambios del cliente
+Una vez aceptado el pedido, cualquier modificación en medidas, cantidades, fechas de entrega o características deberá solicitarse por escrito. Dichos cambios podrán implicar ajustes en precios y plazos previamente cotizados.
+
+Impuestos
+Los precios cotizados no incluyen impuestos adicionales que puedan ser exigidos por autoridades nacionales, provinciales o municipales, los cuales estarán a cargo del cliente.`;
+
+    setComment(defaultComment);
     useEffect(() => {
         setLoading(true);
         fetch('https://dolarapi.com/v1/dolares/oficial')
@@ -51,11 +69,13 @@ const Extras = ({ comment, setComment, setDollarReference, setLabourReference })
             <h3>Datos extras de cotización</h3>
             <div className="form-group">
                 <label>Comentario:</label>
-                <input
+                <textarea
                     type="text"
                     value={comment}
                     onChange={e => setComment(e.target.value)}
                     placeholder="Ingrese un comentario"
+                    rows={18}   // más alto
+                    cols={80}   // más ancho
                 />
             </div>
             <div className="form-group">
