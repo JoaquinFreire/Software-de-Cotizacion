@@ -10,6 +10,7 @@ import OpeningType from "../components/quotationComponents/Opening";
 import Complements from "../components/quotationComponents/Complements";
 import Extras from "../components/quotationComponents/Extras";
 import { Swiper, SwiperSlide } from 'swiper/react';
+import ReactLoading from "react-loading";
 import 'swiper/css';
 import { QuotationContext } from "../context/QuotationContext";
 import { validateQuotation } from "../validation/quotationValidation";
@@ -740,6 +741,8 @@ const Quotation = () => {
         );
     };
 
+
+
     // --- Total de aberturas ---
     const getTotalOpenings = () => {
         let total = 0;
@@ -1116,7 +1119,12 @@ const Quotation = () => {
                                         disabled={submitting}
                                         onClick={handleSubmitQuotation}
                                     >
-                                        {submitting ? "Enviando..." : "Cotizar"}
+                                {submitting ? (
+                                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                     <ReactLoading type="spin" color="#fff" height={20} width={20} alignItems="center" />
+                                         Enviando...
+                                    </div>
+                                      ) : ( "Cotizar")}
                                     </button>
                                     {submitError && (
                                         <div style={{ color: 'red', marginTop: 8 }}>{submitError}</div>
@@ -1136,6 +1144,14 @@ const Quotation = () => {
                 <aside className="quotation-summary">
                     <h3>Resumen</h3>
                     <div>
+                         <div className="agents-list">
+                            <h4 className='h4'>Cliente seleccionados:</h4>
+
+                            {newCustomer.name === "" ? <div className="summary-empty">No tiene Cliente.</div>: newCustomer.name} {newCustomer.lastname}  {newCustomer.dni} 
+                            
+                            
+                            
+                        </div>
                         {/* Lista de agentes agregados */}
                             
                         <div className="agents-list">
