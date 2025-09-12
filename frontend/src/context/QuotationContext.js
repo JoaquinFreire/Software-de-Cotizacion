@@ -23,8 +23,33 @@ export const QuotationProvider = ({ children }) => {
     const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard' o 'historial'
     const pageSize = 5;
 
+    // Info del usuario autenticado
+    const [currentUserRole, setCurrentUserRole] = useState(null);
+    const [currentUserId, setCurrentUserId] = useState(null);
+
+    // Función para obtener datos del usuario actual
+    // Ahora retorna un objeto { role, id } además de setear el estado
+    const fetchCurrentUser = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return null;
+        try {
+            const resp = await axios.get(`${API_URL}/api/auth/me`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const role = resp.data?.user?.role;
+            const id = resp.data?.userId || resp.data?.user?.id;
+            setCurrentUserRole(role);
+            setCurrentUserId(id);
+            return { role, id };
+        } catch (err) {
+            console.error('Error fetching current user in context:', err);
+            return null;
+        }
+    };
+
     // Función genérica para fetch
-    const fetchQuotations = async ({ page = 1, status = null, view }) => {
+    // Ahora acepta un userOverride opcional para forzar rol/id (útil durante la inicialización)
+    const fetchQuotations = async ({ page = 1, status = null, view }, userOverride = null) => {
         const setState = view === 'dashboard' ? setDashboardState : setHistorialState;
         setState(prev => ({ ...prev, loading: true }));
         const token = localStorage.getItem("token");
@@ -33,15 +58,24 @@ export const QuotationProvider = ({ children }) => {
             return;
         }
         try {
-            let url = `${API_URL}/api/quotations?page=${page}&pageSize=${pageSize}`;
-            if (status) url += `&status=${status}`;
+            // Decide rol/id a usar: userOverride tiene prioridad
+            const roleToUse = userOverride?.role ?? currentUserRole;
+            const idToUse = userOverride?.id ?? currentUserId;
+            const useAdvanced = roleToUse === 'quotator' && idToUse;
+
+            let url = useAdvanced ? `${API_URL}/api/quotations/advanced-search` : `${API_URL}/api/quotations`;
+            const params = { page, pageSize };
+            if (status) params.status = status;
+            if (useAdvanced) params.userId = idToUse;
+
             const response = await axios.get(url, {
                 headers: { Authorization: `Bearer ${token}` },
+                params
             });
             setState({
                 quotations: safeArray(response.data.quotations),
                 page,
-                total: response.data.total,
+                total: Number(response.data.total) || 0,
                 loading: false,
             });
         } catch (error) {
@@ -50,7 +84,7 @@ export const QuotationProvider = ({ children }) => {
         }
     };
 
-    // Agrega una nueva cotización al estado actual (dashboard e historial)
+    // Agrega una nueva cotización al estado current (dashboard e historial)
     const addQuotation = (quotation) => {
         setHistorialState(prev => ({
             ...prev,
@@ -88,8 +122,17 @@ export const QuotationProvider = ({ children }) => {
 
     // Carga inicial solo una vez por vista
     useEffect(() => {
-        fetchQuotations({ page: 1, status: "pending", view: "dashboard" });
-        fetchQuotations({ page: 1, status: null, view: "historial" });
+        const init = async () => {
+            // Mostrar skeletons inmediatamente mientras se resuelve la info del usuario
+            setDashboardState(prev => ({ ...prev, loading: true }));
+            setHistorialState(prev => ({ ...prev, loading: true }));
+
+            const user = await fetchCurrentUser();
+            // después de conocer el rol, cargar vistas respetando la regla de 'quotator'
+            await fetchQuotations({ page: 1, status: "pending", view: "dashboard" }, user);
+            await fetchQuotations({ page: 1, status: null, view: "historial" }, user);
+        };
+        init();
     }, []);
 
     return (
@@ -102,6 +145,8 @@ export const QuotationProvider = ({ children }) => {
             switchToDashboard,
             switchToHistorial,
             currentView,
+            currentUserRole,
+            currentUserId,
             addQuotation
         }}>
             {children}

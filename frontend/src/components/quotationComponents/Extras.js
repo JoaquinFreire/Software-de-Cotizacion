@@ -24,7 +24,13 @@ Una vez aceptado el pedido, cualquier modificación en medidas, cantidades, fech
 Impuestos
 Los precios cotizados no incluyen impuestos adicionales que puedan ser exigidos por autoridades nacionales, provinciales o municipales, los cuales estarán a cargo del cliente.`;
 
-    setComment(defaultComment);
+    useEffect(() => {
+        if (!comment) {
+            setComment(defaultComment);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     useEffect(() => {
         setLoading(true);
         fetch('https://dolarapi.com/v1/dolares/oficial')

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Application.DTOs.QuotationDTOs; // Agrega el using para los DTOs
 using MediatR; // Agrega el using para MediatR
+using System.Security.Claims; // <- agregar para leer claims
 
 [ApiController]
 [Route("api/quotations")]
@@ -45,19 +46,34 @@ public class QuotationController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 5, [FromQuery] string? status = null)
     {
+        // Construir query base
         var query = _services.Query();
+
+        // Aplicar filtro de status si se pasa
         if (!string.IsNullOrEmpty(status))
         {
             query = query.Where(q => q.Status == status);
         }
+
+        // Si el usuario autenticado tiene rol 'quotator', devolvemos solo sus cotizaciones
+        var roleClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(roleClaim) && roleClaim.ToLower() == "quotator")
+        {
+            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out var parsedId))
+            {
+                query = query.Where(q => q.UserId == parsedId);
+            }
+        }
+
         var total = await query.CountAsync();
         var quotations = await query
             .OrderByDescending(q => q.CreationDate)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
-        Console.WriteLine("prueba!" + quotations);
-        return Ok(new { total, quotations = quotations ?? new List<Quotation>() });
+
+        return Ok(new { total, quotations });
     }
 
     [HttpGet("{id}")]
@@ -299,6 +315,17 @@ public class QuotationController : ControllerBase
         [FromQuery] int pageSize = 5
     )
     {
+        // Si el usuario autenticado tiene rol 'quotator', forzar userId al id del token
+        var roleClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(roleClaim) && roleClaim.ToLower() == "quotator")
+        {
+            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out var parsedId))
+            {
+                userId = parsedId;
+            }
+        }
+
         var query = _quotationRepository.Query();
 
         if (from.HasValue)

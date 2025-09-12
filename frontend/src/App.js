@@ -42,7 +42,7 @@ const PrivateRoute = ({ element }) => {
 
 const PublicRoute = ({ element }) => {
     const token = localStorage.getItem('token');
-    return token ? <Navigate to="/dashboard" /> : element;
+    return token ? <Navigate to="/home" /> : element;
 };
 
 function App() {
@@ -166,8 +166,8 @@ function App() {
                 <Router>
                     <Routes>
                         <Route path="/" element={<PublicRoute element={<Login />} />} />
-                        <Route path="/dashboard" element={<Home />} />
-                        <Route path="/cotizaciones" element={<Dashboard />} />
+                        <Route path="/home" element={<PrivateRoute element={<Home />} />} />
+                        <Route path="/cotizaciones" element={<PrivateRoute element={<Dashboard />}/>} />
                         <Route path="/historial" element={<PrivateRoute element={<Historial />} />} />
                         <Route path="/new-quotation" element={<PrivateRoute element={<Quotation />} />} />
                         <Route path="/update-quotation/:id" element={<PrivateRoute element={<UpdateQuotation />} />} />

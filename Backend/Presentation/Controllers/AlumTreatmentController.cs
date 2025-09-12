@@ -43,11 +43,12 @@ public class AlumTreatmentController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "coordinator,manager")]
     public async Task<IActionResult> Create([FromBody] CreateAlumTreatmentDTO alumTreatmentDTO)
     {
-        var command = new CreateAlumTreatmentCommand { alumTreatmentDTO = alumTreatmentDTO};
+        var command = new CreateAlumTreatmentCommand { alumTreatmentDTO = alumTreatmentDTO };
         var result = await _mediator.Send(command);
-        return Ok(new {Message = "Tratamiento creado correctamente: ", result});
+        return Ok(new { Message = "Tratamiento creado correctamente: ", result });
     }
 
     [HttpPut("{id}")]

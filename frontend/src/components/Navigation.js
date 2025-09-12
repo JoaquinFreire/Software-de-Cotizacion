@@ -112,7 +112,7 @@ const Navigation = ({ onLogout }) => {
             {/* Header superior */}
             <header className={`dashboard-header new-header${theme === "light" ? " light-header" : ""}${mobile ? " mobile-header-margin" : ""}`}>
                 <div className="header-center-logo">
-                    <NavLink to="/dashboard">
+                    <NavLink to="/home">
                         <img
                             src={theme === "light" ? Logonegro : anodalLogo}
                             alt="Logo Anodal"
