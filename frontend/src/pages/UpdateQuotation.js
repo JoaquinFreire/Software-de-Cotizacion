@@ -135,7 +135,7 @@ const UpdateQuotation = () => {
             setTimeout(() => {
                 setLoading(false); // Ocultar el logo de cargando después de 5 segundos
                 setSuccessMessage("");
-                navigate('/dashboard'); // Redirigir al dashboard después de actualizar la cotización
+                navigate('/home'); // Redirigir al dashboard después de actualizar la cotización
             }, 5000);
         } catch (error) {
             console.error('Error updating quotation:', error);

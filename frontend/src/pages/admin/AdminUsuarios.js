@@ -18,6 +18,8 @@ const AdminUsuarios = () => {
     const [loading, setLoading] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState(null);
     const [notificationType, setNotificationType] = useState("success");
+    const [currentUserRole, setCurrentUserRole] = useState(null); // <-- added
+    const [unauthorized, setUnauthorized] = useState(false); // <-- added
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
@@ -32,9 +34,36 @@ const AdminUsuarios = () => {
     const [validationErrors, setValidationErrors] = useState({});
 
     useEffect(() => {
-        fetchUsers();
-        fetchRoles();
+        fetchCurrentUser();
     }, []);
+
+    const fetchCurrentUser = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            navigate("/");
+            return;
+        }
+        try {
+            const resp = await axios.get(`${API_URL}/api/auth/me`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const role = resp.data?.user?.role;
+            setCurrentUserRole(role);
+            const allowed = role === "coordinator" || role === "manager";
+            if (allowed) {
+                await fetchUsers();
+                await fetchRoles();
+            } else {
+                setUnauthorized(true);
+                setNotificationMessage("No tiene permisos para ver o crear usuarios.");
+                setNotificationType("error");
+                setTimeout(() => setNotificationMessage(null), 3000);
+            }
+        } catch (err) {
+            console.error("Error fetching current user:", err);
+            navigate("/");
+        }
+    };
 
     const fetchUsers = async () => {
         setLoading(true);
@@ -53,7 +82,7 @@ const AdminUsuarios = () => {
     const fetchRoles = async () => {
         const token = localStorage.getItem("token");
         try {
-            const response = await axios.get(`${API_URL}/api/userroles`, {
+            const response = await axios.get(`${API_URL}/api/users/userroles`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setRoles(safeArray(response.data)); // <-- Normaliza aquí
@@ -63,6 +92,13 @@ const AdminUsuarios = () => {
     };
 
     const handleOpenModal = (user = null) => {
+        // Prevent creating a user when current user is not allowed
+        if (!user && !(currentUserRole === "coordinator" || currentUserRole === "manager")) {
+            setNotificationMessage("No tiene permisos para crear usuarios.");
+            setNotificationType("error");
+            setTimeout(() => setNotificationMessage(null), 3000);
+            return;
+        }
         setEditingUser(user);
         setValidationErrors({});
         setFormData(
@@ -185,10 +221,18 @@ const AdminUsuarios = () => {
                 <Navigation onLogout={handleLogout} />
                 <div className="admin-usuarios-header">
                     <h2>Administrar Usuarios</h2>
-                    <button className="create-user-button" onClick={() => handleOpenModal()}>
-                        Crear Usuario
-                    </button>
+                    {(currentUserRole === "coordinator" || currentUserRole === "manager") && (
+                        <button className="create-user-button" onClick={() => handleOpenModal()}>
+                            Crear Usuario
+                        </button>
+                    )}
                 </div>
+
+                {unauthorized && (
+                    <div style={{ textAlign: "center", marginTop: 20, color: "#721c24" }}>
+                        No autorizado para ver esta sección.
+                    </div>  
+                )}
 
                 {/* Notificación interna */}
                 {notificationMessage && (
@@ -211,77 +255,79 @@ const AdminUsuarios = () => {
 
                 <div className="users-table-wrapper" style={{ minHeight: 320 }}>
                     {loading ? (
-                        <div className="loader-center">
-                            <TailSpin height={60} width={60} color="#1cb5e0" ariaLabel="tail-spin-loading" radius="1" visible={true} />
-                        </div>
-                    ) : (
+                         <div className="loader-center">
+                             <TailSpin height={60} width={60} color="#1cb5e0" ariaLabel="tail-spin-loading" radius="1" visible={true} />
+                         </div>
+                     ) : (
+                        !unauthorized && (
                         <table className="users-table">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Apellido</th>
-                                    <th>Legajo</th>
-                                    <th>Email</th>
-                                    <th>Status</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {safeArray(users).map((user) => (
-                                    <tr key={user.id}>
-                                        <td>{user.name}</td>
-                                        <td>{user.lastName}</td>
-                                        <td>{user.legajo}</td>
-                                        <td>{user.mail}</td>
-                                        <td>
-                                            <span className={user.status === 1 ? "status-active" : "status-inactive"}>
-                                                {user.status === 1 ? "Activo" : "Inactivo"}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div className="actions-group">
-                                                <button className="edit-button" onClick={() => handleOpenModal(user)}>
-                                                    Actualizar
-                                                </button>
-                                                <button className="status-button" onClick={() => handleToggleStatus(user)}>
-                                                    {user.status === 1 ? "Desactivar" : "Activar"}
-                                                </button>
-                                                <button className="details-button">Detalles</button>
-                                                <button
-                                                    className="invite-button"
-                                                    onClick={async () => {
-                                                        setLoading(true);
-                                                        try {
-                                                            await fetch(`${API_URL}/api/user-invitations/invite`, {
-                                                                method: "POST",
-                                                                headers: {
-                                                                    "Content-Type": "application/json",
-                                                                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                                                                },
-                                                                body: JSON.stringify({ userId: user.id }),
-                                                            });
-                                                            setNotificationMessage("Invitación enviada por email.");
-                                                            setNotificationType("success");
-                                                        } catch (err) {
-                                                            setNotificationMessage("Error al enviar la invitación.");
-                                                            setNotificationType("error");
-                                                        }
-                                                        setLoading(false);
-                                                        setTimeout(() => {
-                                                            setNotificationMessage(null);
-                                                        }, 3000);
-                                                    }}
-                                                >
-                                                    Invitar
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
+                             <thead>
+                                 <tr>
+                                     <th>Nombre</th>
+                                     <th>Apellido</th>
+                                     <th>Legajo</th>
+                                     <th>Email</th>
+                                     <th>Status</th>
+                                     <th>Acciones</th>
+                                 </tr>
+                             </thead>
+                             <tbody>
+                                 {safeArray(users).map((user) => (
+                                     <tr key={user.id}>
+                                         <td>{user.name}</td>
+                                         <td>{user.lastName}</td>
+                                         <td>{user.legajo}</td>
+                                         <td>{user.mail}</td>
+                                         <td>
+                                             <span className={user.status === 1 ? "status-active" : "status-inactive"}>
+                                                 {user.status === 1 ? "Activo" : "Inactivo"}
+                                             </span>
+                                         </td>
+                                         <td>
+                                             <div className="actions-group">
+                                                 <button className="edit-button" onClick={() => handleOpenModal(user)}>
+                                                     Actualizar
+                                                 </button>
+                                                 <button className="status-button" onClick={() => handleToggleStatus(user)}>
+                                                     {user.status === 1 ? "Desactivar" : "Activar"}
+                                                 </button>
+                                                 <button className="details-button">Detalles</button>
+                                                 <button
+                                                     className="invite-button"
+                                                     onClick={async () => {
+                                                         setLoading(true);
+                                                         try {
+                                                             await fetch(`${API_URL}/api/user-invitations/invite`, {
+                                                                 method: "POST",
+                                                                 headers: {
+                                                                     "Content-Type": "application/json",
+                                                                     Authorization: `Bearer ${localStorage.getItem("token")}`,
+                                                                 },
+                                                                 body: JSON.stringify({ userId: user.id }),
+                                                             });
+                                                             setNotificationMessage("Invitación enviada por email.");
+                                                             setNotificationType("success");
+                                                         } catch (err) {
+                                                             setNotificationMessage("Error al enviar la invitación.");
+                                                             setNotificationType("error");
+                                                         }
+                                                         setLoading(false);
+                                                         setTimeout(() => {
+                                                             setNotificationMessage(null);
+                                                         }, 3000);
+                                                     }}
+                                                 >
+                                                     Invitar
+                                                 </button>
+                                             </div>
+                                         </td>
+                                     </tr>
+                                 ))}
+                             </tbody>
+                         </table>
+                        )
+                     )}
+                 </div>
 
                 {showModal && (
                     <div className="modal">
