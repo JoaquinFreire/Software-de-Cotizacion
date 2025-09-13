@@ -227,7 +227,51 @@ const BudgetDetail = () => {
                         <td>{p.GlassComplement?.name || '-'}</td>
                         <td>{p.AlumTreatment?.name || '-'}</td>
                         <td>$ abc</td>
+                        <td colSpan={6} style={{ textAlign: 'right', paddingBottom: 15, borderBottom: '1px solid #ccc' }}>
+                          <b>Subtotal:</b>
+                        </td>
                       </tr>
+                      
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+              <h3 style={{ fontSize: 18, fontWeight: 'bold', marginTop:10, marginBottom: 10}}>Complemento</h3>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, border: '1px solid #ccc' }}>
+                <thead style={{ backgroundColor: '#f0f0f0' }}>
+                  <tr>
+                    <th>Tipo</th>
+                    <th>Complemento</th>
+                    <th>Dimensiones</th>
+                    <th>Cantidad</th>
+                    <th>Revestimiento</th>
+                    <th>Precio/u</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {safeArray(budget.Products).map((p, i) => (
+                    <React.Fragment key={i}>
+                      {/* Debug: muestra los complementos en consola */}
+                      {i === 0 && console.log('DEBUG Complements:', p.Complements)}
+                      {safeArray(p.Complements).length > 0 ? (
+                        safeArray(p.Complements).map((c, idx) => (
+                          <tr key={idx} style={{ borderBottom: '1px solid #ddd' }}>
+                            <td>{c.type || c.Type || '-'}</td>
+                            <td>{c.name || c.Name || '-'}</td>
+                            <td>
+                              {(c.custom?.width || '-') + 'x' + (c.custom?.height || '-') + ' cm'}
+                            </td>
+                            <td>{c.quantity || c.Quantity || '-'}</td>
+                            <td>{c.coating || c.Coating || '-'}</td>
+                            <td>${c.price || c.Price || '-'}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={6} style={{ color: '#888' }}>Sin complementos</td>
+                        </tr>
+                      )}
+                      {/* Accesorios y subtotal, si quieres mantenerlos aquí */}
                       <tr>
                         <td colSpan={6} style={{ paddingLeft: 10, paddingBottom: 5 }}>
                           {p.Accesory?.length > 0 ? (
