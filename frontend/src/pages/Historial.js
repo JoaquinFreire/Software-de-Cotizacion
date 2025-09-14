@@ -62,7 +62,7 @@ const Historial = () => {
     const [showFilters, setShowFilters] = useState(false);
 
     useEffect(() => {
-        switchToHistorial();
+        // Historial ya carga datos desde el contexto, no llamamos switchToHistorial aquí
         // eslint-disable-next-line
     }, []);
 

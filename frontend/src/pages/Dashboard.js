@@ -74,12 +74,7 @@ const Dashboard = () => {
     const [lastEditFromDate, setLastEditFromDate] = useState(null);
     const navigate = useNavigate();
 
-    // Al entrar al Dashboard, siempre carga la página 1 de pendientes
-    useEffect(() => {
-    switchToDashboard();
-    // eslint-disable-next-line
-}, []);
-
+    // Ya no llamamos switchToDashboard aquí porque el contexto carga los datos iniciales
 
     // Ya no necesitas filtrar pendientes aquí, quotations ya viene filtrado
     useEffect(() => {

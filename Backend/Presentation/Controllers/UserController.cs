@@ -24,6 +24,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "coordinator,manager")]
     public async Task<IActionResult> GetAll()
     {
         var users = await _services.GetAllAsync();
@@ -39,6 +40,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "coordinator,manager")]
     public async Task<IActionResult> Create([FromBody] CreateUserDTO newUser)
     {
         await _mediator.Send(new CreateUserCommand { user = newUser });
@@ -46,20 +48,23 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "coordinator,manager")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDTO updatedUser)
     {
-        var command = await _mediator.Send(new UpdateUserCommand{ Id = id, userDTO = updatedUser });
+        var command = await _mediator.Send(new UpdateUserCommand { Id = id, userDTO = updatedUser });
         return NoContent();
     }
 
     [HttpPut("{id}/status")]
+    [Authorize(Roles = "coordinator,manager")]
     public async Task<IActionResult> ToggleStatus(int id)
     {
-        var command = await _mediator.Send(new UpdateUserStatusCommand{ Id = id});
+        var command = await _mediator.Send(new UpdateUserStatusCommand { Id = id });
         return NoContent();
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "coordinator,manager")]
     public async Task<IActionResult> Delete(int id)
     {
         await _services.DeleteAsync(id);
@@ -67,7 +72,8 @@ public class UserController : ControllerBase
     }
 
     //TODO: Crear un servicio para manejar los roles de usuario
-    [HttpGet("/api/userroles")]
+    [HttpGet("userroles")]
+    [Authorize(Roles = "coordinator,manager")]
     public async Task<IActionResult> GetRoles([FromServices] AppDbContext context)
     {
         var roles = await context.Set<UserRole>().ToListAsync();
