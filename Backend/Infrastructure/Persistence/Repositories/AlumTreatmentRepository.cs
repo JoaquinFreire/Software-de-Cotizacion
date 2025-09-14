@@ -19,6 +19,9 @@ namespace Infrastructure.Persistence.Repositories
         public async Task<AlumTreatment?> GetByIdAsync(int id)
             => await _context.AlumTreatments.FindAsync(id);
 
+        public async Task<AlumTreatment?> GetByNameAsync(string name)
+            => await _context.AlumTreatments.FirstOrDefaultAsync(t => t.name == name);
+
         public async Task AddAsync(AlumTreatment treatment)
         {
             _context.AlumTreatments.Add(treatment);
