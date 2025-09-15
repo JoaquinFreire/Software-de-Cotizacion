@@ -9,6 +9,7 @@ using Application.Validators.CustomerAgentValidation;
 using Application.Validators.CustomerValidation;
 using Application.Validators.UserValidator;
 using Domain.Repositories; //TODO: En lo posible eliminar esta dependencia, porque no corresponde a la capa de presentación
+using Domain.Services;
 using DotNetEnv;
 using Infrastructure.Persistence.MongoDBContext;
 using Infrastructure.Persistence.Repositories;
@@ -119,8 +120,6 @@ builder.Services.AddScoped<ICustomerAgentRepository, CustomerAgentRepository>();
 
 builder.Services.AddScoped<IWorkTypeRepository, WorkTypeRepository>(); // Asegúrate de registrar IWorkTypeRepository
 builder.Services.AddScoped<IWorkPlaceRepository, WorkPlaceRepository>(); // Asegúrate de registrar IWorkPlaceRepository
-//builder.Services.AddScoped<IComplementRepository, ComplementRepository>();
-//builder.Services.AddScoped<IComplementTypeRepository, ComplementTypeRepository>();
 builder.Services.AddScoped<IOpeningTypeRepository, OpeningTypeRepository>();
 builder.Services.AddScoped<IAlumTreatmentRepository, AlumTreatmentRepository>();    
 builder.Services.AddScoped<IPriceRepository, PriceRepository>();
@@ -131,6 +130,8 @@ builder.Services.AddScoped<IComplementPartitionRepository, ComplementPartitionRe
 builder.Services.AddScoped<IComplementRailingRepository, ComplementRailingRepository>();
 builder.Services.AddScoped<ICoatingRepository, CoatingRepository>();
 builder.Services.AddScoped<IOpeningConfigurationRepository, OpeningConfigurationRepository>();
+
+builder.Services.AddScoped<BudgetCalculator>(); // Servicio para calcular el total de la cotización
 
 // Agrega soporte para controladores en la API
 builder.Services.AddControllers()

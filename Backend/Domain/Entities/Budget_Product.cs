@@ -20,6 +20,14 @@ namespace Domain.Entities
         public required double width { get; set; }
         [BsonElement("height")]
         public required double height { get; set; }
+        [BsonElement("widthPanelQuantity")]
+        public required int WidthPanelQuantity { get; set; } // Cantidad de paneles en ancho
+        [BsonElement("heightPanelQuantity")]
+        public required int HeightPanelQuantity { get; set; } // Cantidad de paneles en alto
+        [BsonElement("panelWidth")]
+        public required double PanelWidth { get; set; } // Ancho de cada panel
+        [BsonElement("panelHeight")]
+        public required double PanelHeight { get; set; } // Alto de cada panel
         [BsonElement("quantity")]
         public required int Quantity { get; set; }
         [BsonElement("price")]

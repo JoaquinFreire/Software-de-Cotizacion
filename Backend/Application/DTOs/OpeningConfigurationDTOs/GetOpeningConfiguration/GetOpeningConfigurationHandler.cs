@@ -1,7 +1,6 @@
 using AutoMapper;
 using MediatR;
 using Domain.Repositories;
-using Domain.Entities;
 
 namespace Application.DTOs.OpeningConfigurationDTOs.GetOpeningConfiguration
 {

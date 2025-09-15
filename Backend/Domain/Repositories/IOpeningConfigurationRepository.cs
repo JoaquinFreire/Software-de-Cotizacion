@@ -7,6 +7,6 @@ namespace Domain.Repositories
     public interface IOpeningConfigurationRepository
     {
         Task<IEnumerable<Opening_Configuration>> GetAllAsync();
-        // Puedes agregar más métodos si necesitas
+        
     }
 }

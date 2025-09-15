@@ -16,6 +16,10 @@ namespace Application.DTOs.BudgetDTOs.GetBudget
         public required GetBudgetByIdGlassTypeDTO GlassType { get; set; }  //Tiene que almacenar el tipo de vidrio
         public double width { get; set; }
         public double height { get; set; }
+        public required int WidthPanelQuantity { get; set; } // Cantidad de paneles en ancho
+        public required int HeightPanelQuantity { get; set; } // Cantidad de paneles en alto
+        public required double PanelWidth { get; set; } // Ancho de cada panel
+        public required double PanelHeight { get; set; } // Alto de cada panel
         public double price { get; set; } // Precio unitario del producto
         public List<GetBudgetByIdAccesoryDTO>? Accesory { get; set; }
     }
