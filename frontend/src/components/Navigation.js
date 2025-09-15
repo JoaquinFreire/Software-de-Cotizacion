@@ -107,6 +107,9 @@ const Navigation = ({ onLogout }) => {
     // Helper para saber si es móvil (se usa en render)
     const mobile = isMobile();
 
+    // Derivar rol como string (soporta estructura { role_name } o string)
+    const userRole = user?.role?.role_name ? String(user.role.role_name).toLowerCase() : (user?.role ? String(user.role).toLowerCase() : null);
+
     return (
         <div className="navigation-root">
             {/* Header superior */}
@@ -321,24 +324,28 @@ const Navigation = ({ onLogout }) => {
                 <NavLink to="/aberturas" className="sidebar-link">
                     Aberturas
                 </NavLink>
-                <div className="sidebar-admin-menu" ref={adminMenuRef}>
-                    <button
-                        className="sidebar-link sidebar-admin-btn"
-                        onClick={() => setAdminMenuOpen((prev) => !prev)}
-                    >
-                        Administrar
-                        <span style={{ marginLeft: 6, fontSize: 14 }}>{adminMenuOpen ? "▲" : "▼"}</span>
-                    </button>
-                    {adminMenuOpen && (
-                        <div className="sidebar-admin-dropdown">
-                            <NavLink to="/admin/usuarios" className="sidebar-link">Administrar Usuarios</NavLink>
-                            <NavLink to="/admin/materiales" className="sidebar-link">Administrar Materiales</NavLink>
-                            <NavLink to="/admin/descuentos" className="sidebar-link">Administrar Descuentos</NavLink>
-                            <NavLink to="/admin/aberturas" className="sidebar-link">Administrar Aberturas</NavLink>
-                            <NavLink to="/admin/Administrar" className="sidebar-link">Administrar General</NavLink>
-                        </div>
-                    )}
-                </div>
+
+                {/* Solo mostrar sección "Administrar" si NO es quotator */}
+                {userRole !== "quotator" && (
+                    <div className="sidebar-admin-menu" ref={adminMenuRef}>
+                        <button
+                            className="sidebar-link sidebar-admin-btn"
+                            onClick={() => setAdminMenuOpen((prev) => !prev)}
+                        >
+                            Administrar
+                            <span style={{ marginLeft: 6, fontSize: 14 }}>{adminMenuOpen ? "▲" : "▼"}</span>
+                        </button>
+                        {adminMenuOpen && (
+                            <div className="sidebar-admin-dropdown">
+                                <NavLink to="/admin/usuarios" className="sidebar-link">Administrar Usuarios</NavLink>
+                                <NavLink to="/admin/materiales" className="sidebar-link">Administrar Materiales</NavLink>
+                                <NavLink to="/admin/descuentos" className="sidebar-link">Administrar Descuentos</NavLink>
+                                <NavLink to="/admin/aberturas" className="sidebar-link">Administrar Aberturas</NavLink>
+                                <NavLink to="/admin/Administrar" className="sidebar-link">Administrar General</NavLink>
+                            </div>
+                        )}
+                    </div>
+                )}
             </aside>
             {/* Botón para mostrar el sidebar cuando está oculto */}
             {!sidebarOpen && (

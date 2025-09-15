@@ -54,10 +54,13 @@ const AdminUsuarios = () => {
                 await fetchUsers();
                 await fetchRoles();
             } else {
+                // No permitido -> notificar y redirigir inmediatamente
                 setUnauthorized(true);
                 setNotificationMessage("No tiene permisos para ver o crear usuarios.");
                 setNotificationType("error");
                 setTimeout(() => setNotificationMessage(null), 3000);
+                navigate("/"); // <-- redirección inmediata para evitar acceso manual
+                return;
             }
         } catch (err) {
             console.error("Error fetching current user:", err);
