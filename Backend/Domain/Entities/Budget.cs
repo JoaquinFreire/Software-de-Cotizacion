@@ -41,6 +41,6 @@ public class Budget
     [BsonElement("labourReference")]
     public required double LabourReference { get; set; }  //Referencia de la mano de obra
     [BsonElement("total")]
-    public double Total { get; set; }  //Total del presupuesto
+    public decimal Total { get; set; }  //Total del presupuesto
 
 }

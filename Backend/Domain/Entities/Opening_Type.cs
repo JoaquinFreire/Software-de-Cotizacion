@@ -7,10 +7,10 @@ namespace Domain.Entities
         [BsonIgnore]
         public int id { get; set; }
         [BsonElement("name")]
-        public string? name { get; set; }
+        public required string name { get; set; }
         [BsonIgnore]
-        public double? weight { get; set; }
+        public required double weight { get; set; }
         [BsonIgnore]
-        public double? predefined_size { get; set; }
+        public required double predefined_size { get; set; }
     }
 }

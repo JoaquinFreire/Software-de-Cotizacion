@@ -19,6 +19,9 @@ public class OpeningTypeRepository : IOpeningTypeRepository
     public async Task<Opening_Type?> GetByIdAsync(int id)
         => await _context.Opening_Types.FindAsync(id);
 
+    public async Task<Opening_Type?> GetByNameAsync(string name)
+        => await _context.Opening_Types.FirstOrDefaultAsync(ot => ot.name == name);
+
     public async Task AddAsync(Opening_Type openingType)
     {
         _context.Opening_Types.Add(openingType);

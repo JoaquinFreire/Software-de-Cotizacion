@@ -20,9 +20,8 @@ public class User
     [BsonIgnore]
     public UserRole role { get; set; }
     [BsonElement("mail")]
-    public string mail { get; set; } = string.Empty; 
-                                                     // TODO : @Joaquin: Agregar Telefono
-    // acá saqué el BsonIgnore, posible error con mongo TODO: @Joaquin: Ver si es necesario
+    public string mail { get; set; } = string.Empty;
+    [BsonIgnore]
     public int status { get; set; } = 1; // Nueva columna (0 = inactivo, 1 = activo)
 
     public User() { }  // Constructor vacío necesario para Entity Framework

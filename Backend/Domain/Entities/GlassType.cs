@@ -7,8 +7,8 @@ namespace Domain.Entities
         [BsonIgnore]
         public int id { get; set; }
         [BsonElement("nombre")]
-        public string? name { get; set; }
+        public required string name { get; set; }
         [BsonElement("precio")]
-        public decimal? price { get; set; }
+        public required decimal price { get; set; }
     }
 }

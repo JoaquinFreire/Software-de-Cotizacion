@@ -9,7 +9,7 @@ namespace Domain.Entities
     public class Price
     {
         public int id { get; set; }
-        public string? name { get; set; }
-        public decimal? price { get; set; }
+        public required string name { get; set; }
+        public required decimal price { get; set; }
     }
 }

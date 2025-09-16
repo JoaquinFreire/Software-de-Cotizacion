@@ -1,4 +1,4 @@
-﻿using Domain.Exceptions;//TODO Modificar la comunicación entre capas para evitar dependencias erroneas
+﻿using Domain.Exceptions;
 
 public class ExceptionMiddleware
 {

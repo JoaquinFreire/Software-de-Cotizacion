@@ -22,7 +22,10 @@ namespace Infrastructure.Persistence.Repositories
         {
             return await _context.GlassTypes.FindAsync(id);
         }
-
+        public async Task<GlassType?> GetByNameAsync(string name)
+        {
+            return await _context.GlassTypes.FirstOrDefaultAsync(gt => gt.name == name);
+        }
         public async Task AddAsync(GlassType glassType)
         {
             _context.GlassTypes.Add(glassType);
