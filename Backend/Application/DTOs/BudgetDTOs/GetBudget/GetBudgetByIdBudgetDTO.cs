@@ -19,5 +19,5 @@ public class GetBudgetByIdBudgetDTO
     public string? Comment { get; set; }
     public double DollarReference { get; set; }
     public double LabourReference { get; set; }
-    public double Total { get; set; }
+    public decimal Total { get; set; }
 }
