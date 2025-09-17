@@ -28,6 +28,7 @@ const BudgetDetail = () => {
         const res = await axios.get(`${API_URL}/api/Mongo/GetBudgetByBudgetId/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+    
         setBudget(res.data);
       } catch {
         setBudget(null);
@@ -36,7 +37,7 @@ const BudgetDetail = () => {
     };
     fetchBudget();
   }, [id]);
-
+    console.log('DEBUG Budget Data:', budget);
   const show = (val) => val !== undefined && val !== null && val !== "" ? val : "No especificado";
 
   // Generador de PDF en memoria
@@ -87,6 +88,7 @@ const BudgetDetail = () => {
     const formData = new FormData();
     formData.append("file", pdfBlob, `cotizacion_${budget.budgetId}.pdf`);
     formData.append("to", budget.customer?.mail || "cliente@ejemplo.com");
+
 //VER ESTO FALTA endpoint
     try {
       await axios.post(`${API_URL}/api/SendMail`, formData, {
@@ -205,7 +207,7 @@ const BudgetDetail = () => {
               <hr style={{ margin: '20px 0', borderTop: '1px solid #ccc' }} />
 
               {/* Productos */}
-              <h3 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Productos</h3>
+              <h3 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Abertura</h3>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, border: '1px solid #ccc' }}>
                 <thead style={{ backgroundColor: '#f0f0f0' }}>
                   <tr>
@@ -227,28 +229,116 @@ const BudgetDetail = () => {
                         <td>{p.GlassComplement?.name || '-'}</td>
                         <td>{p.AlumTreatment?.name || '-'}</td>
                         <td>$ abc</td>
-                      </tr>
-                      <tr>
-                        <td colSpan={6} style={{ paddingLeft: 10, paddingBottom: 5 }}>
-                          {p.Accesory?.length > 0 ? (
-                            <div>
-                              <strong style={{ textDecoration: 'underline' }}>Accesorios:</strong>
-                              {safeArray(p.Accesory).map((a, j) => (
-                                <div key={j} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                  <span>• {a.Name || '-'}</span>
-                                  <span>x{a.Quantity}</span>
-                                  <span>${a.Price}</span>
-                                </div>
-                              ))}
-                            </div>
-                          ) : <i style={{ color: '#888' }}>Sin accesorios</i>}
-                        </td>
-                      </tr>
-                      <tr>
                         <td colSpan={6} style={{ textAlign: 'right', paddingBottom: 15, borderBottom: '1px solid #ccc' }}>
                           <b>Subtotal:</b>
                         </td>
                       </tr>
+                      
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+
+             {/* Complementos */}
+              <h3 style={{ fontSize: 18, fontWeight: 'bold', marginTop:10, marginBottom: 10}}>Complemento Puerta</h3>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, border: '1px solid #ccc' }}>
+                <thead style={{ backgroundColor: '#f0f0f0' }}>
+                  <tr>
+                    <th>Tipo</th>
+                    <th>Dimensiones</th>
+                    <th>Cantidad</th>
+                    <th>Revestimiento</th>
+                    <th>Precio/u</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {safeArray(budget.Complement?.$values).map((c, i) => (
+                    <React.Fragment key={i}>
+                      {safeArray(c.ComplementDoor?.$values).length > 0 ? (
+                        safeArray(c.ComplementDoor.$values).map((door, idx) => (
+                          <tr key={idx} style={{ borderBottom: '1px solid #ddd' }}>
+                            <td>{door?.Name || '-'}</td>
+                            <td>{(door?.width || '-') + 'x' + (door?.height || '-') + ' cm'}</td>
+                            <td>{door?.Quantity || '-'}</td>
+                            <td>{door?.Coating || '-'}</td>
+                            <td>${door?.Price || '-'}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5} style={{ color: '#888' }}>Sin complementos</td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+
+              <h3 style={{ fontSize: 18, fontWeight: 'bold', marginTop:10, marginBottom: 10}}>Complemento Baranda</h3>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, border: '1px solid #ccc' }}>
+                <thead style={{ backgroundColor: '#f0f0f0' }}>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Tratamiento</th>
+                    <th>Refuerzos</th>
+                    <th>Cantidad</th>
+                    <th>Precio/u</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {safeArray(budget.Complement?.$values).map((c, i) => (
+                    <React.Fragment key={i}>
+                      {safeArray(c.ComplementRailing?.$values).length > 0 ? (
+                        safeArray(c.ComplementRailing.$values).map((railing, idx) => (
+                          <tr key={idx} style={{ borderBottom: '1px solid #ddd' }}>
+                            <td>{railing?.Name || '-'}</td>
+                            <td>{railing?.AlumTreatment?.Name || '-'}</td>
+                            <td>{railing?.Reinforced ? 'Sí' : 'No'}</td>
+                            <td>{railing?.Quantity || '-'}</td>
+                            <td>${railing?.Price || '-'}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5} style={{ color: '#888' }}>Sin complementos</td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+
+              <h3 style={{ fontSize: 18, fontWeight: 'bold', marginTop:10, marginBottom: 10}}>Complemento Tabique</h3>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, border: '1px solid #ccc' }}>
+                <thead style={{ backgroundColor: '#f0f0f0' }}>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Altura</th>
+                    <th>Simple</th>
+                    <th>Cantidad</th>
+                    <th>Espesor</th>
+                    <th>Precio/u</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {safeArray(budget.Complement?.$values).map((c, i) => (
+                    <React.Fragment key={i}>
+                      {safeArray(c.ComplementPartition?.$values).length > 0 ? (
+                        safeArray(c.ComplementPartition.$values).map((partition, idx) => (
+                          <tr key={idx} style={{ borderBottom: '1px solid #ddd' }}>
+                            <td>{partition?.Name || '-'}</td>
+                            <td>{partition?.Height || '-'}</td>
+                            <td>{partition?.Simple ? 'Sí' : 'No'}</td>
+                            <td>{partition?.Quantity || '-'}</td>
+                            <td>{partition?.GlassMilimeters || '-'}</td>
+                            <td>${partition?.Price || '-'}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={6} style={{ color: '#888' }}>Sin complementos</td>
+                        </tr>
+                      )}
                     </React.Fragment>
                   ))}
                 </tbody>
