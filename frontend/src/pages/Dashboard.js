@@ -76,7 +76,8 @@ const Dashboard = () => {
 
     // Nuevo: estado para usuario actual y lista de quotators
     const [currentUser, setCurrentUser] = useState(null);
-    const [currentRole, setCurrentRole] = useState("");
+    // null indica que todavía no cargó el rol (evita flash en la UI)
+    const [currentRole, setCurrentRole] = useState(null);
     const [quotators, setQuotators] = useState([]);
 
     useEffect(() => {
@@ -377,8 +378,8 @@ const Dashboard = () => {
                             placeholder="Precio total"
                             className="filter-Advanced"
                         />
-                        {/* Mostrar select de quotators para managers/coordinators; nada para quotator */}
-                        {currentRole === "quotator" ? null : (
+                        {/* Mostrar select solo cuando sepamos el rol y no sea quotator */}
+                        {currentRole !== null && currentRole !== "quotator" && (
                              <select
                                  name="userId"
                                  value={filters.userId}

@@ -61,7 +61,8 @@ const Historial = () => {
     const [lastEditFromDate, setLastEditFromDate] = useState(null); // Nuevo estado para "Última Edición Desde"
     const [showFilters, setShowFilters] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
-    const [currentRole, setCurrentRole] = useState("");
+    // null indica que todavía no cargó el rol (evita flash en la UI)
+    const [currentRole, setCurrentRole] = useState(null);
     const [quotators, setQuotators] = useState([]);
 
     useEffect(() => {
@@ -362,11 +363,10 @@ const Historial = () => {
                             </select>
                             <input type="number" name="approxTotalPrice" value={filters.approxTotalPrice} onChange={handleFilterChange} placeholder="Precio total" className="filter-Advanced"/>
                            
-                            {currentRole === "quotator" ? null : (
+                            {currentRole !== null && currentRole !== "quotator" && (
                                 <select name="userId" value={filters.userId} onChange={handleFilterChange} className="filter-Advanced">
                                     <option value="">Todos los cotizadores</option>
-                                    {
-                                    quotators.map(u => (
+                                    {quotators.map(u => (
                                         <option key={u.id} value={u.id}>{`${u.name || ""} ${u.lastname || ""}`.trim()}</option>
                                     ))}
                                 </select>

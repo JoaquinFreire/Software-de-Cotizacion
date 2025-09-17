@@ -479,29 +479,47 @@ const Quotation = () => {
                 dni: newCustomer.dni,
             };
 
-            // --- SIEMPRE agrega agent, aunque sea null o vacío ---
-            if (
-                agentData &&
-                agentData.name && agentData.lastname && agentData.tel && agentData.mail
-            ) {
-                customerPayloadMongo.agent = {
-                    name: agentData.name,
-                    lastname: agentData.lastname,
-                    tel: agentData.tel,
-                    mail: agentData.mail
+            // Selección del agente para Mongo: preferir agentData, luego la lista agents (primer elemento), luego newAgent.
+            // Incluir dni cuando exista.
+            let agentForMongo = null;
+            if (agentData && (agentData.name || agentData.lastname || agentData.dni || agentData.tel || agentData.mail)) {
+                agentForMongo = {
+                    name: agentData.name || "",
+                    lastname: agentData.lastname || "",
+                    dni: agentData.dni || agentData.Dni || "",
+                    tel: agentData.tel || "",
+                    mail: agentData.mail || ""
                 };
-            } else if (
-                newAgent &&
-                newAgent.name && newAgent.lastname && newAgent.tel && newAgent.mail
-                && newAgent.name.trim() && newAgent.lastname.trim() && newAgent.tel.trim() && newAgent.mail.trim()
-            ) {
-                customerPayloadMongo.agent = { ...newAgent };
+            } else if (Array.isArray(agents) && agents.length > 0) {
+                const a = agents[0];
+                agentForMongo = {
+                    name: a.name || "",
+                    lastname: a.lastname || "",
+                    dni: a.dni || a.Dni || "",
+                    tel: a.tel || "",
+                    mail: a.mail || ""
+                };
+            } else if (newAgent && (newAgent.name || newAgent.lastname || newAgent.dni || newAgent.tel || newAgent.mail)) {
+                agentForMongo = {
+                    name: newAgent.name || "",
+                    lastname: newAgent.lastname || "",
+                    dni: newAgent.dni || "",
+                    tel: newAgent.tel || "",
+                    mail: newAgent.mail || ""
+                };
             } else {
-                customerPayloadMongo.agent = {}; // <-- SIEMPRE incluir el campo agent
+                agentForMongo = {}; // siempre enviar al menos un objeto (vacío) si no hay datos
             }
 
-            // LOG para ver el agente que se envía a Mongo
-            console.log("Agente enviado a Mongo:", customerPayloadMongo.agent);
+            customerPayloadMongo.agent = agentForMongo;
+
+            // LOGS de depuración extensos para entender qué se está enviando
+            console.log("DEBUG agentes (lista 'agents'):", agents);
+            console.log("DEBUG agentData (fetched by agentId):", agentData);
+            console.log("DEBUG newAgent (form):", newAgent);
+            console.log("DEBUG isCustomerFound:", isCustomerFound);
+            console.log("DEBUG agentsPayload (para SQL):", agentsPayload);
+            console.log("Agente seleccionado para enviar a Mongo (customerPayloadMongo.agent):", customerPayloadMongo.agent);
 
             // --- NUEVO: Mapear los complementos para Mongo agrupando por tipo y usando nombres correctos ---
             const complementsMongo = {
@@ -557,22 +575,90 @@ const Quotation = () => {
             });
 
             // --- NUEVO: Mapear products con nombres correctos ---
-            const productsPayload = selectedOpenings.map(opening => ({
-                OpeningType: openingTypes.find(type => type.id === Number(opening.typeId))
-                    ? { name: openingTypes.find(type => type.id === Number(opening.typeId)).name }
-                    : { name: "" },
-                Quantity: opening.quantity,
-                AlumTreatment: treatments.find(t => t.id === Number(opening.treatmentId))
-                    ? { name: treatments.find(t => t.id === Number(opening.treatmentId)).name }
-                    : { name: "" },
-                GlassType: glassTypes.find(g => g.id === Number(opening.glassTypeId))
-                    ? { name: glassTypes.find(g => g.id === Number(opening.glassTypeId)).name, Price: glassTypes.find(g => g.id === Number(opening.glassTypeId)).price }
-                    : { name: "", Price: 0 },
-                width: opening.width,
-                height: opening.height,
-                Accesory: [], // Si tienes accesorios, mapea aquí
-                price: 0 // Ajusta si tienes el precio
-            }));
+            const productsPayload = selectedOpenings.map(opening => {
+                // normalizar medidas a mm
+                const widthMM = opening.width > 100 ? opening.width : opening.width * 10;
+                const heightMM = opening.height > 100 ? opening.height : opening.height * 10;
+                // buscar configuración
+                const cfg = safeArray(openingConfigurations).find(cfg =>
+                    widthMM >= cfg.min_width_mm &&
+                    widthMM <= cfg.max_width_mm &&
+                    heightMM >= cfg.min_height_mm &&
+                    heightMM <= cfg.max_height_mm &&
+                    Number(opening.typeId) === Number(cfg.opening_type_id)
+                );
+                const numW = opening.numPanelsWidth || (cfg ? cfg.num_panels_width : 1);
+                const numH = opening.numPanelsHeight || (cfg ? cfg.num_panels_height : 1);
+
+                const panelWidthMM = widthMM / numW;
+                const panelHeightMM = heightMM / numH;
+                const panelWidthCm = panelWidthMM / 10;
+                const panelHeightCm = panelHeightMM / 10;
+
+                // accesorios si vienen en el objeto (varias formas soportadas)
+                const accesories = (opening.accesories || opening.custom?.accesories || []).map(a => ({
+                    Name: a.name || a.Name || '',
+                    Quantity: Number(a.quantity || a.Quantity || 0),
+                    Price: Number(a.price || a.Price || 0)
+                }));
+
+                // calcular precio (misma lógica que en getOpeningSubtotal)
+                const openingTypeObj = safeArray(openingTypes).find(t => Number(t.id) === Number(opening.typeId));
+                const totalPanels = numW * numH;
+                const perimetroPanelMM = 2 * (panelWidthMM + panelHeightMM);
+                const totalAluminioMM = perimetroPanelMM * totalPanels * (opening.quantity || 1);
+                const totalAluminioM = totalAluminioMM / 1000;
+                const pesoAluminio = openingTypeObj && openingTypeObj.weight ? totalAluminioM * Number(openingTypeObj.weight) : 0;
+                const costoAluminio = pesoAluminio * Number(alumPrice || 0);
+
+                const areaPanelM2 = (panelWidthMM / 1000) * (panelHeightMM / 1000);
+                const areaTotalVidrio = areaPanelM2 * totalPanels * (opening.quantity || 1);
+                const glassObj = safeArray(glassTypes).find(g => Number(g.id) === Number(opening.glassTypeId));
+                const costoVidrio = glassObj ? areaTotalVidrio * Number(glassObj.price || 0) : 0;
+
+                const treatmentObj = safeArray(treatments).find(t => Number(t.id) === Number(opening.treatmentId));
+                const tratamientoPorc = treatmentObj && treatmentObj.pricePercentage ? Number(treatmentObj.pricePercentage) : 0;
+                const costoTratamiento = costoAluminio * (tratamientoPorc / 100);
+
+                const costoManoObra = Number(labourPrice || 0);
+
+                const subtotalOpening = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
+
+                return {
+                    OpeningType: openingTypes.find(type => Number(type.id) === Number(opening.typeId))
+                        ? { name: openingTypes.find(type => Number(type.id) === Number(opening.typeId)).name }
+                        : { name: "" },
+                    Quantity: Number(opening.quantity || 1),
+                    AlumTreatment: treatmentObj ? { name: treatmentObj.name } : { name: "" },
+                    GlassType: glassObj ? { name: glassObj.name, Price: Number(glassObj.price || 0) } : { name: "", Price: 0 },
+                    width: Number(opening.width || 0),
+                    height: Number(opening.height || 0),
+                    WidthPanelQuantity: Number(numW),
+                    HeightPanelQuantity: Number(numH),
+                    PanelWidth: Number(panelWidthCm.toFixed(2)),
+                    PanelHeight: Number(panelHeightCm.toFixed(2)),
+                    Accesory: accesories,
+                    price: Number(subtotalOpening.toFixed(2))
+                };
+            });
+
+            // --- LOG: mostrar plantilla esperada y payload real para depuración ---
+            const expectedTemplate = {
+                Budget: {
+                    budgetId: "string",
+                    user: { name: "string", lastName: "string", mail: "string" },
+                    customer: { name: "string", lastname: "string", tel: "string", mail: "string", address: "string", dni: "string" },
+                    agent: { name: "string", lastname: "string", dni: "string", tel: "string", mail: "string" },
+                    workPlace: { name: "string", location: "string", address: "string", workType: { type: "string" } },
+                    Products: [{ OpeningType: { name: "string" }, AlumTreatment: { name: "string" }, GlassType: { name: "string", Price: 0 }, width: 0, height: 0, WidthPanelQuantity: 0, HeightPanelQuantity: 0, PanelWidth: 0, PanelHeight: 0, Quantity: 0, Accesory: [], price: 0 }],
+                    complement: [{ ComplementDoor: [], ComplementRailing: [], ComplementPartition: [], price: 0 }],
+                    Comment: "string",
+                    DollarReference: 0,
+                    LabourReference: 0
+                }
+            };
+            console.log("Plantilla esperada por Mongo (ejemplo):", JSON.stringify(expectedTemplate, null, 2));
+            console.log("Agente que se enviará a Mongo (customer.agent):", customerPayloadMongo.agent);
 
             // --- ARREGLADO: Definir selectedWorkType antes de usarlo ---
             const selectedWorkType = workTypes.find(wt => String(wt.id) === String(workPlace.workTypeId));
