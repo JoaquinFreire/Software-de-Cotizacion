@@ -98,6 +98,7 @@ const Quotation = () => {
     const [openingConfigurations, setOpeningConfigurations] = useState([]);
     const [alumPrice, setAlumPrice] = useState(0);
     const [labourPrice, setLabourPrice] = useState(0);
+    const [taxRate, setTaxRate] = useState(0); // <-- nuevo estado para IVA
 
     // Nuevo estado para mostrar el log de cálculo de abertura solo una vez
     const [lastOpeningLog, setLastOpeningLog] = useState(null);
@@ -239,7 +240,7 @@ const Quotation = () => {
                 ]);
                 setOpeningTypes(toArray(openingTypesRes.data));
                 setTreatments(toArray(treatmentsRes.data));
-                 
+
                 setGlassTypes(toArray(glassTypesRes.data));
             } catch (error) {
                 setOpeningTypes([]);
@@ -295,10 +296,15 @@ const Quotation = () => {
                     p.name?.toLowerCase().includes("mano de obra")
                 );
                 setLabourPrice(labour ? Number(labour.price) : 0);
+
+                // extraer tasa de IVA (por nombre o por id si corresponde)
+                const ivaEntry = prices.find(p => p.name?.toLowerCase().includes("iva") || String(p.id) === "4");
+                setTaxRate(ivaEntry ? Number(ivaEntry.price) : 0);
             } catch (err) {
                 setOpeningConfigurations([]);
                 setAlumPrice(0);
                 setLabourPrice(0);
+                setTaxRate(0);
             }
         };
         fetchConfigAndPrices();
@@ -576,10 +582,13 @@ const Quotation = () => {
 
             // --- NUEVO: Mapear products con nombres correctos ---
             const productsPayload = selectedOpenings.map(opening => {
-                // normalizar medidas a mm
-                const widthMM = opening.width > 100 ? opening.width : opening.width * 10;
-                const heightMM = opening.height > 100 ? opening.height : opening.height * 10;
-                // buscar configuración
+                // opening.width/height are in cm
+                const widthCm = Number(opening.width || 0);
+                const heightCm = Number(opening.height || 0);
+                const widthMM = widthCm * 10;
+                const heightMM = heightCm * 10;
+
+                // buscar configuración con mm
                 const cfg = safeArray(openingConfigurations).find(cfg =>
                     widthMM >= cfg.min_width_mm &&
                     widthMM <= cfg.max_width_mm &&
@@ -590,40 +599,37 @@ const Quotation = () => {
                 const numW = opening.numPanelsWidth || (cfg ? cfg.num_panels_width : 1);
                 const numH = opening.numPanelsHeight || (cfg ? cfg.num_panels_height : 1);
 
-                const panelWidthMM = widthMM / numW;
-                const panelHeightMM = heightMM / numH;
-                const panelWidthCm = panelWidthMM / 10;
-                const panelHeightCm = panelHeightMM / 10;
+                // panel sizes en cm
+                const panelWidthCm = opening.panelWidth ? Number(opening.panelWidth) : (widthCm / numW);
+                const panelHeightCm = opening.panelHeight ? Number(opening.panelHeight) : (heightCm / numH);
 
-                // accesorios si vienen en el objeto (varias formas soportadas)
-                const accesories = (opening.accesories || opening.custom?.accesories || []).map(a => ({
-                    Name: a.name || a.Name || '',
-                    Quantity: Number(a.quantity || a.Quantity || 0),
-                    Price: Number(a.price || a.Price || 0)
-                }));
+                const panelWidthMM = panelWidthCm * 10;
+                const panelHeightMM = panelHeightCm * 10;
 
-                // calcular precio (misma lógica que en getOpeningSubtotal)
-                const openingTypeObj = safeArray(openingTypes).find(t => Number(t.id) === Number(opening.typeId));
                 const totalPanels = numW * numH;
+
+                // cálculo aluminio (siguiendo la lógica del frontend)
                 const perimetroPanelMM = 2 * (panelWidthMM + panelHeightMM);
                 const totalAluminioMM = perimetroPanelMM * totalPanels * (opening.quantity || 1);
                 const totalAluminioM = totalAluminioMM / 1000;
+                const openingTypeObj = safeArray(openingTypes).find(t => Number(t.id) === Number(opening.typeId));
                 const pesoAluminio = openingTypeObj && openingTypeObj.weight ? totalAluminioM * Number(openingTypeObj.weight) : 0;
                 const costoAluminio = pesoAluminio * Number(alumPrice || 0);
 
+                // vidrio
                 const areaPanelM2 = (panelWidthMM / 1000) * (panelHeightMM / 1000);
                 const areaTotalVidrio = areaPanelM2 * totalPanels * (opening.quantity || 1);
                 const glassObj = safeArray(glassTypes).find(g => Number(g.id) === Number(opening.glassTypeId));
                 const costoVidrio = glassObj ? areaTotalVidrio * Number(glassObj.price || 0) : 0;
 
+                // tratamiento
                 const treatmentObj = safeArray(treatments).find(t => Number(t.id) === Number(opening.treatmentId));
                 const tratamientoPorc = treatmentObj && treatmentObj.pricePercentage ? Number(treatmentObj.pricePercentage) : 0;
                 const costoTratamiento = costoAluminio * (tratamientoPorc / 100);
 
                 const costoManoObra = Number(labourPrice || 0);
 
-                const subtotalOpening = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
-
+                // Build product payload, IMPORTANT: width & height sent in CENTIMETERS
                 return {
                     OpeningType: openingTypes.find(type => Number(type.id) === Number(opening.typeId))
                         ? { name: openingTypes.find(type => Number(type.id) === Number(opening.typeId)).name }
@@ -631,14 +637,17 @@ const Quotation = () => {
                     Quantity: Number(opening.quantity || 1),
                     AlumTreatment: treatmentObj ? { name: treatmentObj.name } : { name: "" },
                     GlassType: glassObj ? { name: glassObj.name, Price: Number(glassObj.price || 0) } : { name: "", Price: 0 },
-                    width: Number(opening.width || 0),
-                    height: Number(opening.height || 0),
+                    width: Number(widthCm),  // <- ENVIAR EN CENTÍMETROS
+                    height: Number(heightCm), // <- ENVIAR EN CENTÍMETROS
                     WidthPanelQuantity: Number(numW),
                     HeightPanelQuantity: Number(numH),
-                    PanelWidth: Number(panelWidthCm.toFixed(2)),
-                    PanelHeight: Number(panelHeightCm.toFixed(2)),
-                    Accesory: accesories,
-                    price: Number(subtotalOpening.toFixed(2))
+                    PanelWidth: Number(panelWidthCm.toFixed(2)),  // cm
+                    PanelHeight: Number(panelHeightCm.toFixed(2)), // cm
+                    Accesory: (opening.accesories || opening.custom?.accesories || []).map(a => ({
+                        Name: a.name || a.Name || '',
+                        Quantity: Number(a.quantity || a.Quantity || 0),
+                        Price: Number(a.price || a.Price || 0)
+                    }))
                 };
             });
 
@@ -732,8 +741,9 @@ const Quotation = () => {
     // --- Cálculo de subtotal de abertura ---
     const getOpeningSubtotal = (opening, logOnce = false) => {
         const configsArr = safeArray(openingConfigurations);
-        const widthMM = opening.width > 100 ? opening.width : opening.width * 10;
-        const heightMM = opening.height > 100 ? opening.height : opening.height * 10;
+        // Opening.width/height stored in cm -> convertir a mm para buscar config
+        const widthMM = Number(opening.width || 0) * 10;
+        const heightMM = Number(opening.height || 0) * 10;
         const config = configsArr.find(cfg =>
             widthMM >= cfg.min_width_mm &&
             widthMM <= cfg.max_width_mm &&
@@ -743,23 +753,23 @@ const Quotation = () => {
         );
         if (!config) return "Sin configuración";
 
-        // Paso 1 — Determinar cantidad de paneles
-        const numPanelsWidth = config.num_panels_width;
-        const numPanelsHeight = config.num_panels_height;
+        // Prefer user-selected panel counts; fall back to config
+        const numPanelsWidth = opening.numPanelsWidth || config.num_panels_width;
+        const numPanelsHeight = opening.numPanelsHeight || config.num_panels_height;
         const totalPanels = numPanelsWidth * numPanelsHeight;
 
-        // Paso 2 — Calcular aluminio
-        const anchoPanel = opening.panelWidth !== undefined
-            ? (opening.panelWidth > 100 ? opening.panelWidth : opening.panelWidth * 10)
-            : widthMM / numPanelsWidth;
-        const altoPanel = opening.panelHeight !== undefined
-            ? (opening.panelHeight > 100 ? opening.panelHeight : opening.panelHeight * 10)
-            : heightMM / numPanelsHeight;
+        // panel sizes: opening.panelWidth/panelHeight stored in cm -> convertir a mm
+        const anchoPanelMM = (opening.panelWidth !== undefined && opening.panelWidth !== '')
+            ? Number(opening.panelWidth) * 10
+            : (widthMM / numPanelsWidth);
+        const altoPanelMM = (opening.panelHeight !== undefined && opening.panelHeight !== '')
+            ? Number(opening.panelHeight) * 10
+            : (heightMM / numPanelsHeight);
 
         // Perímetro de cada panel (mm)
-        const perimetroPanel = 2 * (anchoPanel + altoPanel);
-        // Total de aluminio (mm)
-        const totalAluminioMM = perimetroPanel * totalPanels * opening.quantity;
+        const perimetroPanelMM = 2 * (anchoPanelMM + altoPanelMM);
+        // Total de aluminio (mm) por UNA abertura (no multiplicamos por opening.quantity aquí)
+        const totalAluminioMM = perimetroPanelMM * totalPanels;
         // Convertir a metros
         const totalAluminioM = totalAluminioMM / 1000;
 
@@ -771,10 +781,10 @@ const Quotation = () => {
         const costoAluminio = pesoAluminio * alumPrice;
 
         // Paso 3 — Calcular vidrio
-        // Área de cada panel (m²)
-        const areaPanel = (anchoPanel / 1000) * (altoPanel / 1000);
-        // Área total vidrio (m²)
-        const areaTotalVidrio = areaPanel * totalPanels * opening.quantity;
+        // Área de cada panel (m²): anchoPanelMM/1000 * altoPanelMM/1000
+        const areaPanelM2 = (anchoPanelMM / 1000) * (altoPanelMM / 1000);
+        // Área total vidrio (m²) por UNA abertura
+        const areaTotalVidrio = areaPanelM2 * totalPanels;
         // Costo vidrio
         const glassType = safeArray(glassTypes).find(g => Number(g.id) === Number(opening.glassTypeId));
         const costoVidrio = glassType ? areaTotalVidrio * Number(glassType.price) : 0;
@@ -787,35 +797,37 @@ const Quotation = () => {
         // Paso 5 — Sumar mano de obra
         const costoManoObra = labourPrice;
 
-        // Paso 6 — Subtotal (sin IVA)
+        // Paso 6 — Subtotal (sin IVA) por UNA abertura
         const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
 
         // LOG DETALLADO DEL PROCESO SOLO SI logOnce === true
         if (logOnce) {
             const logMsg = [
-                "==== CÁLCULO DE ABERTURA ====",
+                "==== CÁLCULO DE ABERTURA (FRONTEND) ====",
                 "Abertura:", opening,
                 "Config encontrada:", config,
                 "Paso 1 — Paneles: numPanelsWidth:", numPanelsWidth, "numPanelsHeight:", numPanelsHeight, "totalPanels:", totalPanels,
-                "Paso 2 — Aluminio: anchoPanel(mm):", anchoPanel, "altoPanel(mm):", altoPanel,
-                "Perímetro panel (mm):", perimetroPanel,
+                "Paso 2 — Aluminio: anchoPanel(mm):", anchoPanelMM, "altoPanel(mm):", altoPanelMM,
+                "Perímetro panel (mm):", perimetroPanelMM,
                 "Total aluminio (mm):", totalAluminioMM, "Total aluminio (m):", totalAluminioM,
                 "Peso aluminio (kg):", pesoAluminio, "weight:", openingType?.weight,
                 "Precio aluminio unitario:", alumPrice,
                 "Costo aluminio:", costoAluminio,
-                "Paso 3 — Vidrio: área panel (m2):", areaPanel, "Área total vidrio (m2):", areaTotalVidrio,
+                "Paso 3 — Vidrio: área panel (m2):", areaPanelM2, "Área total vidrio (m2):", areaTotalVidrio,
                 "Precio vidrio unitario:", glassType?.price, "Costo vidrio:", costoVidrio,
                 "Paso 4 — Tratamiento: %:", tratamientoPorc, "Costo tratamiento:", costoTratamiento,
                 "Paso 5 — Mano de obra:", costoManoObra,
-                "Paso 6 — Subtotal:", subtotal,
-                "============================="
+                "Paso 6 — Subtotal:", subtotal
             ];
+            // calcular IVA y total front-end (para comparar con backend)
+            const iva = taxRate || 0;
+            const ivaAmount = subtotal * (iva / 100);
+            const totalWithIva = subtotal + ivaAmount;
+            logMsg.push(`IVA (frontend detectado): ${iva}% -> Monto IVA: ${ivaAmount}`);
+            logMsg.push(`Total (subtotal + IVA) (frontend): ${totalWithIva}`);
             setLastOpeningLog(logMsg);
-            // También lo mostramos en consola
             logMsg.forEach(line => console.log(line));
         }
-
-       
 
         return (
             <>
@@ -831,8 +843,8 @@ const Quotation = () => {
         let total = 0;
         const configsArr = safeArray(openingConfigurations);
         selectedOpenings.forEach(opening => {
-            const widthMM = opening.width > 100 ? opening.width : opening.width * 10;
-            const heightMM = opening.height > 100 ? opening.height : opening.height * 10;
+            const widthMM = Number(opening.width || 0) * 10;
+            const heightMM = Number(opening.height || 0) * 10;
             const config = configsArr.find(cfg =>
                 widthMM >= cfg.min_width_mm &&
                 widthMM <= cfg.max_width_mm &&
@@ -841,25 +853,22 @@ const Quotation = () => {
                 Number(opening.typeId) === Number(cfg.opening_type_id)
             );
             if (!config) return;
-            const numPanelsWidth = config.num_panels_width;
-            const numPanelsHeight = config.num_panels_height;
+            const numPanelsWidth = opening.numPanelsWidth || config.num_panels_width;
+            const numPanelsHeight = opening.numPanelsHeight || config.num_panels_height;
             const totalPanels = numPanelsWidth * numPanelsHeight;
-            const anchoPanel = opening.panelWidth !== undefined
-                ? (opening.panelWidth > 100 ? opening.panelWidth : opening.panelWidth * 10)
+            const anchoPanelMM = (opening.panelWidth !== undefined && opening.panelWidth !== '')
+                ? Number(opening.panelWidth) * 10
                 : widthMM / numPanelsWidth;
-            const altoPanel = opening.panelHeight !== undefined
-                ? (opening.panelHeight > 100 ? opening.panelHeight : opening.panelHeight * 10)
+            const altoPanelMM = (opening.panelHeight !== undefined && opening.panelHeight !== '')
+                ? Number(opening.panelHeight) * 10
                 : heightMM / numPanelsHeight;
-            // --- ARREGLADO: calcular subtotal aquí ---
-            const anchoPanelMM = anchoPanel * 10;
-            const altoPanelMM = altoPanel * 10;
-            const perimetroPanel = 2 * (anchoPanelMM + altoPanelMM) / 1000;
-            const totalAluminio = perimetroPanel * totalPanels * opening.quantity;
+            const perimetroPanel = 2 * (anchoPanelMM + altoPanelMM) / 1000; // metros
+            const totalAluminio = perimetroPanel * totalPanels; // metros (para una abertura)
             const openingType = openingTypes.find(t => Number(t.id) === Number(opening.typeId));
             const pesoAluminio = openingType && openingType.weight ? totalAluminio * Number(openingType.weight) : 0;
             const costoAluminio = pesoAluminio * alumPrice;
             const areaPanel = (anchoPanelMM / 1000) * (altoPanelMM / 1000);
-            const areaTotalVidrio = areaPanel * totalPanels * opening.quantity;
+            const areaTotalVidrio = areaPanel * totalPanels;
             const glassType = glassTypes.find(g => Number(g.id) === Number(opening.glassTypeId));
             const costoVidrio = glassType ? areaTotalVidrio * Number(glassType.price) : 0;
             const treatment = treatments.find(t => Number(t.id) === Number(opening.treatmentId));
@@ -867,7 +876,8 @@ const Quotation = () => {
             const costoTratamiento = costoAluminio * (tratamientoPorc / 100);
             const costoManoObra = labourPrice;
             const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
-            total += subtotal;
+            // multiplicar por la cantidad de aberturas de este tipo
+            total += subtotal * Number(opening.quantity || 1);
         });
         return `Total aberturas: $${total.toFixed(2)}`;
     };
@@ -897,10 +907,10 @@ const Quotation = () => {
             )
         );
     };
-     const goToSlide = (index) => {
-         if (swiperRef.current && swiperRef.current.swiper) {
-        swiperRef.current.swiper.slideTo(index);
-         }
+    const goToSlide = (index) => {
+        if (swiperRef.current && swiperRef.current.swiper) {
+            swiperRef.current.swiper.slideTo(index);
+        }
     };
 
     // Agregar agente existente al array de agentes
@@ -1018,13 +1028,13 @@ const Quotation = () => {
             <div className="quotation-layout">
                 <aside className="quotation-indice" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                     <h3>Índice</h3>
-                        <p onClick={() => goToSlide(0)} style={{ cursor: 'pointer' }}><b><u>Datos Cliente</u></b></p>
-                        <p onClick={() => goToSlide(1)} style={{ cursor: 'pointer' }}><b><u>Datos Agentes</u></b></p>
-                        <p onClick={() => goToSlide(2)} style={{ cursor: 'pointer' }}><b><u>Espacio de trabajo</u></b></p>
-                        <p onClick={() => goToSlide(3)} style={{ cursor: 'pointer' }}><b><u>Carga de Aberturas</u></b></p>
-                        <p onClick={() => goToSlide(4)} style={{ cursor: 'pointer' }}><b><u>Carga de Complementos</u></b></p>
-                        <p onClick={() => goToSlide(5)} style={{ cursor: 'pointer' }}><b><u>Comentarios</u></b></p>
-                    </aside>
+                    <p onClick={() => goToSlide(0)} style={{ cursor: 'pointer' }}><b><u>Datos Cliente</u></b></p>
+                    <p onClick={() => goToSlide(1)} style={{ cursor: 'pointer' }}><b><u>Datos Agentes</u></b></p>
+                    <p onClick={() => goToSlide(2)} style={{ cursor: 'pointer' }}><b><u>Espacio de trabajo</u></b></p>
+                    <p onClick={() => goToSlide(3)} style={{ cursor: 'pointer' }}><b><u>Carga de Aberturas</u></b></p>
+                    <p onClick={() => goToSlide(4)} style={{ cursor: 'pointer' }}><b><u>Carga de Complementos</u></b></p>
+                    <p onClick={() => goToSlide(5)} style={{ cursor: 'pointer' }}><b><u>Comentarios</u></b></p>
+                </aside>
 
                 <main className="quotation-main">
                     <form className="quotation-form" onKeyDown={handleFormKeyDown}>
@@ -1185,7 +1195,7 @@ const Quotation = () => {
                                     complementRailings={complementRailings}
                                     selectedComplements={selectedComplements}
                                     setSelectedComplements={setSelectedComplements}
-                                    // hideSelectedList={true} // si no lo usas, puedes quitarlo
+                                // hideSelectedList={true} // si no lo usas, puedes quitarlo
                                 />
                             </SwiperSlide>
                             <SwiperSlide>
@@ -1223,7 +1233,7 @@ const Quotation = () => {
                     <h3>Resumen</h3>
                     <div>
                         {/* Lista de agentes agregados */}
-                            
+
                         <div className="agents-list">
                             <h4 className='h4'>Agentes seleccionados:</h4>
                             {agents.length === 0 && <div className="summary-empty">No tiene agentes.</div>}
@@ -1231,9 +1241,9 @@ const Quotation = () => {
                                 <div key={idx} className="agent-selected-row">
                                     <span>
                                         {agent.name} {agent.lastname} - {agent.dni}
-                                        
+
                                     </span>
-                                 </div>
+                                </div>
                             ))}
                         </div>
                         <h4 className='h4'>Aberturas agregadas:</h4>
@@ -1250,42 +1260,51 @@ const Quotation = () => {
                                 >×</button>
                                 <div className="summary-title">{getOpeningTypeName(opening.typeId)}</div>
                                 <div className="opening-measures">
-                                    <div className="measure-row">Abertura: <span className="measure-value">{(opening.width > 100 ? opening.width / 10 : opening.width)} x {(opening.height > 100 ? opening.height / 10 : opening.height)} cm</span></div>
+                                    <div className="measure-row">Abertura: <span className="measure-value">{Number(opening.width || 0)} x {Number(opening.height || 0)} cm</span></div>
                                 </div>
 
                                 {/* Enhanced SVG preview with distinct panel rects and numbering */}
                                 <div className="opening-preview-container opening-preview-box">
-                                     {(() => {
-                                         const wCm = (opening.width > 100 ? opening.width / 10 : opening.width) || 100;
-                                         const hCm = (opening.height > 100 ? opening.height / 10 : opening.height) || 60;
-                                         const cfg = safeArray(openingConfigurations).find(c => Number(c.opening_type_id) === Number(opening.typeId) && opening.width >= c.min_width_mm && opening.width <= c.max_width_mm && opening.height >= c.min_height_mm && opening.height <= c.max_height_mm);
-                                         const numW = opening.numPanelsWidth || (cfg ? cfg.num_panels_width : 1);
-                                         const numH = opening.numPanelsHeight || (cfg ? cfg.num_panels_height : 1);
-                                         const vw = Math.min(260, wCm * 2);
-                                         const vh = Math.min(160, hCm * 2);
-                                         const panelW = wCm / numW;
-                                         const panelH = hCm / numH;
-                                         const cells = [];
-                                         for (let r = 0; r < numH; r++) {
-                                             for (let c = 0; c < numW; c++) {
-                                                 cells.push({ x: c * panelW, y: r * panelH, w: panelW, h: panelH, idx: r * numW + c + 1 });
-                                             }
-                                         }
-                                         return (
-                                             <div className="opening-preview-row">
-                                                 <div className="opening-preview-svg-wrapper opening-preview-svg-dark">
-                                                     <svg width={vw} height={vh} viewBox={`0 0 ${wCm} ${hCm}`} preserveAspectRatio="xMidYMid meet" className="opening-preview-svg">
-                                                         <rect x="0" y="0" width={wCm} height={hCm} fill="#0e0b0b" stroke={opening.treatmentId ? '#26b7cd' : '#070505'} strokeWidth={0.4} rx={3} />
-                                                         {cells.map(cell => (
-                                                             <g key={`cell-${cell.idx}`}>
-                                                                 <rect x={cell.x} y={cell.y} width={cell.w} height={cell.h} fill="#f8fcff" stroke="#9aa9b0" strokeWidth={0.18} />
-                                                                 <text x={cell.x + cell.w / 2} y={cell.y + cell.h / 2} fontSize={(Math.min(cell.w, cell.h) / 3).toFixed(2)} textAnchor="middle" dominantBaseline="middle" fill="#40666f" className="opening-panel-number">{cell.idx}</text>
-                                                             </g>
-                                                         ))}
-                                                         {/* glass overlay */}
-                                                         {opening.glassTypeId && <rect x="0" y="0" width={wCm} height={hCm} fill="#bfe9ff" opacity={0.10} />}
-                                                     </svg>
-                                                 </div>
+                                    {(() => {
+                                        // Treat opening.width/height as cm; convert to mm for config match
+                                        const wCm = Number(opening.width || 100);
+                                        const hCm = Number(opening.height || 60);
+                                        const widthMM = wCm * 10;
+                                        const heightMM = hCm * 10;
+                                        const cfg = safeArray(openingConfigurations).find(c =>
+                                            Number(c.opening_type_id) === Number(opening.typeId) &&
+                                            widthMM >= c.min_width_mm &&
+                                            widthMM <= c.max_width_mm &&
+                                            heightMM >= c.min_height_mm &&
+                                            heightMM <= c.max_height_mm
+                                        );
+                                        const numW = opening.numPanelsWidth || (cfg ? cfg.num_panels_width : 1);
+                                        const numH = opening.numPanelsHeight || (cfg ? cfg.num_panels_height : 1);
+                                        const vw = Math.min(260, wCm * 2);
+                                        const vh = Math.min(160, hCm * 2);
+                                        const panelW = wCm / numW;
+                                        const panelH = hCm / numH;
+                                        const cells = [];
+                                        for (let r = 0; r < numH; r++) {
+                                            for (let c = 0; c < numW; c++) {
+                                                cells.push({ x: c * panelW, y: r * panelH, w: panelW, h: panelH, idx: r * numW + c + 1 });
+                                            }
+                                        }
+                                        return (
+                                            <div className="opening-preview-row">
+                                                <div className="opening-preview-svg-wrapper opening-preview-svg-dark">
+                                                    <svg width={vw} height={vh} viewBox={`0 0 ${wCm} ${hCm}`} preserveAspectRatio="xMidYMid meet" className="opening-preview-svg">
+                                                        <rect x="0" y="0" width={wCm} height={hCm} fill="#0e0b0b" stroke={opening.treatmentId ? '#26b7cd' : '#070505'} strokeWidth={0.4} rx={3} />
+                                                        {cells.map(cell => (
+                                                            <g key={`cell-${cell.idx}`}>
+                                                                <rect x={cell.x} y={cell.y} width={cell.w} height={cell.h} fill="#f8fcff" stroke="#9aa9b0" strokeWidth={0.18} />
+                                                                <text x={cell.x + cell.w / 2} y={cell.y + cell.h / 2} fontSize={(Math.min(cell.w, cell.h) / 3).toFixed(2)} textAnchor="middle" dominantBaseline="middle" fill="#40666f" className="opening-panel-number">{cell.idx}</text>
+                                                            </g>
+                                                        ))}
+                                                        {/* glass overlay */}
+                                                        {opening.glassTypeId && <rect x="0" y="0" width={wCm} height={hCm} fill="#bfe9ff" opacity={0.10} />}
+                                                    </svg>
+                                                </div>
                                                 <div className="opening-preview-meta">
                                                     {opening.treatmentName && <div className="badge badge-treatment">Tratamiento: {opening.treatmentName}</div>}
                                                     {opening.glassTypeName && <div className="badge badge-glass">Vidrio: {opening.glassTypeName}</div>}
