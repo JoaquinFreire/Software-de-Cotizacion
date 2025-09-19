@@ -19,7 +19,7 @@ input, select {
     width: 140%;
     padding: 10px;
     border: none;
-    border-radius: 5px;
+    border-radius: 2px;
     background: black;
     color: white;
     text-align: center;
@@ -27,7 +27,7 @@ input, select {
 .p-button.p-button-icon-only {
     width: 40px;
     height: 40px;
-    border-radius: 15%;
+    border-radius: 2px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -45,7 +45,7 @@ input, select {
     background: #3f9e9e;
     color: #fff;
     border: none;
-    border-radius: 6px;
+    border-radius: 2px;
     padding: 10px 24px;
     font-size: 1.1rem;
     cursor: pointer;
@@ -57,7 +57,7 @@ input, select {
     background: #3f9e9e;
     color: #ffffff;
     border: none;
-    border-radius: 6px;
+    border-radius: 2px;
     padding: 10px 24px;
     font-size: 1.1rem;
     cursor: pointer;
