@@ -24,6 +24,8 @@ public class AppDbContext : DbContext
     public DbSet<Coating> Coatings { get; set; }
     public DbSet<Opening_Configuration> Opening_Configurations { get; set; }
 
+    public DbSet<Accesory> Accesories { get; set; } // Tabla Accesory en la BD
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,6 +49,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<ComplementRailing>().ToTable("complement_railing");
         modelBuilder.Entity<Coating>().ToTable("coating");
         modelBuilder.Entity<Opening_Configuration>().ToTable("opening_configuration");
+        modelBuilder.Entity<Accesory>().ToTable("accessories"); 
 
         // Configurar LastEdit para que se almacene como DATE en la base de datos
         modelBuilder.Entity<Quotation>()

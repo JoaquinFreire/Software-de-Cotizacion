@@ -56,6 +56,7 @@ builder.Services.AddScoped<QuotationServices>(); // Registrar el servicio de apl
 builder.Services.AddScoped<UserServices>(); // Registrar el servicio de aplicación para usuarios
 builder.Services.AddScoped<UserInvitationServices>(); // Registrar el servicio de aplicación para invitaciones de usuario
 builder.Services.AddScoped<WorkTypeServices>(); // Registrar el servicio de aplicación para tipos de trabajo
+builder.Services.AddScoped<AccessoryServices>(); // Registrar el servicio de aplicación para accesorios
 
 //REGISTRO DE MAPEO DE ENTIDADES DE DOMINIO
 builder.Services.AddAutoMapper(typeof(CreateBudgetProfile));//Mapeo de cotizaciones
@@ -130,6 +131,7 @@ builder.Services.AddScoped<IComplementPartitionRepository, ComplementPartitionRe
 builder.Services.AddScoped<IComplementRailingRepository, ComplementRailingRepository>();
 builder.Services.AddScoped<ICoatingRepository, CoatingRepository>();
 builder.Services.AddScoped<IOpeningConfigurationRepository, OpeningConfigurationRepository>();
+builder.Services.AddScoped<IAccesoryRepository, AccesoriesRepository>();
 
 builder.Services.AddScoped<BudgetCalculator>(); // Servicio para calcular el total de la cotización
 
