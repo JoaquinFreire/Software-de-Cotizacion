@@ -177,7 +177,7 @@ body.light-mode .dropdown {
         font-size: 15px;
         height: 44px;
         padding: 8px 0;
-        border-radius: 0%;
+        border-radius: 2px;
         box-shadow: none;
     }
 }

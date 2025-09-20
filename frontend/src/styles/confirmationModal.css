@@ -14,7 +14,7 @@
 .modal-content {
   background: white;
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 4px;
   text-align: center;
 }
 
@@ -27,7 +27,7 @@
 .cancel-button, .confirm-button {
   padding: 10px 20px;
   border: none;
-  border-radius: 5px;
+  border-radius: 2px;
   cursor: pointer;
 }
 

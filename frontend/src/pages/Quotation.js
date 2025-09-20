@@ -10,7 +10,6 @@ import OpeningType from "../components/quotationComponents/Opening";
 import Complements from "../components/quotationComponents/Complements";
 import Extras from "../components/quotationComponents/Extras";
 import { Swiper, SwiperSlide } from 'swiper/react';
-import ReactLoading from "react-loading";
 import 'swiper/css';
 import { QuotationContext } from "../context/QuotationContext";
 import { validateQuotation } from "../validation/quotationValidation";
@@ -76,7 +75,6 @@ const Quotation = () => {
     const [treatments, setTreatments] = useState([]);
     const [glassTypes, setGlassTypes] = useState([]);
     const [selectedComplements, setSelectedComplements] = useState([]);
-    const [confirmedComplements, setConfirmedComplements] = useState([]); // <-- Nuevo estado para complementos confirmados
     const [complementDoors, setComplementDoors] = useState([]);
     const [complementPartitions, setComplementPartitions] = useState([]);
     const [complementRailings, setComplementRailings] = useState([]);
@@ -104,9 +102,6 @@ const Quotation = () => {
 
     // Nuevo estado para mostrar el log de cálculo de abertura solo una vez
     const [lastOpeningLog, setLastOpeningLog] = useState(null);
-
-    // Estado para loading de agente
-    const [agentLoading, setAgentLoading] = useState(false);
 
     // Obtiene los datos del usuario logueado al montar el componente
     useEffect(() => {
@@ -843,8 +838,6 @@ const Quotation = () => {
         );
     };
 
-
-
     // --- Total de aberturas ---
     const getTotalOpenings = () => {
         let total = 0;
@@ -960,7 +953,6 @@ const Quotation = () => {
                 setAgentSearchError("");
                 setAgentSearchResult(null);
                 setAgentSearched(true);
-                setAgentLoading(true); // <-- loading ON
                 try {
                     const token = localStorage.getItem('token');
                     const res = await axios.get(`${API_URL}/api/customer-agents/dni/${agentSearchDni}`, {
@@ -977,14 +969,11 @@ const Quotation = () => {
                     } else {
                         setAgentSearchError("Error buscando agente.");
                     }
-                } finally {
-                    setAgentLoading(false); // <-- loading OFF
                 }
             })();
         } else {
             setAgentSearchResult(null);
             setAgentSearched(false);
-            setAgentLoading(false);
         }
     }, [agentSearchDni]);
 
@@ -1117,50 +1106,45 @@ const Quotation = () => {
                                             placeholder="Ingrese DNI del agente"
                                             maxLength={8}
                                             className="agent-details"
-                                            disabled={agentLoading}
                                         />
                                         {agentSearchError && <span className="error-message">{agentSearchError}</span>}
                                     </div>
                                     {/* Resultado de búsqueda */}
-                                    {agentLoading ? (
-                                        <p>Buscando agente...</p>
-                                    ) : (
-                                        agentSearched && agentSearchDni.length === 8 && (
-                                            agentSearchResult ? (
-                                                <div className="agent-found">
-                                                    <p>Agente encontrado: <b>{agentSearchResult.name} {agentSearchResult.lastname}</b> - {agentSearchResult.dni}</p>
-                                                    <button type="button" className="botton-carusel" onClick={handleAddExistingAgent}>Agregar este agente</button>
-                                                </div>
-                                            ) : (
-                                                <div className="form-group">
-                                                    <h4>Nuevo agente</h4>
-                                                    <label>Nombre:</label>
-                                                    <input
-                                                        type="text"
-                                                        value={newAgent.name}
-                                                        onChange={e => setNewAgent(prev => ({ ...prev, name: e.target.value, dni: agentSearchDni }))}
-                                                    />
-                                                    <label>Apellido:</label>
-                                                    <input
-                                                        type="text"
-                                                        value={newAgent.lastname}
-                                                        onChange={e => setNewAgent(prev => ({ ...prev, lastname: e.target.value, dni: agentSearchDni }))}
-                                                    />
-                                                    <label>Teléfono:</label>
-                                                    <input
-                                                        type="text"
-                                                        value={newAgent.tel}
-                                                        onChange={e => setNewAgent(prev => ({ ...prev, tel: e.target.value, dni: agentSearchDni }))}
-                                                    />
-                                                    <label>Email:</label>
-                                                    <input
-                                                        type="email"
-                                                        value={newAgent.mail}
-                                                        onChange={e => setNewAgent(prev => ({ ...prev, mail: e.target.value, dni: agentSearchDni }))}
-                                                    />
-                                                    <button type="button" className="botton-carusel" onClick={handleAddNewAgent}>Agregar nuevo agente</button>
-                                                </div>
-                                            )
+                                    {agentSearched && agentSearchDni.length === 8 && (
+                                        agentSearchResult ? (
+                                            <div className="agent-found">
+                                                <p>Agente encontrado: <b>{agentSearchResult.name} {agentSearchResult.lastname}</b> - {agentSearchResult.dni}</p>
+                                                <button type="button" className="botton-carusel" onClick={handleAddExistingAgent}>Agregar este agente</button>
+                                            </div>
+                                        ) : (
+                                            <div className="form-group">
+                                                <h4>Nuevo agente</h4>
+                                                <label>Nombre:</label>
+                                                <input
+                                                    type="text"
+                                                    value={newAgent.name}
+                                                    onChange={e => setNewAgent(prev => ({ ...prev, name: e.target.value, dni: agentSearchDni }))}
+                                                />
+                                                <label>Apellido:</label>
+                                                <input
+                                                    type="text"
+                                                    value={newAgent.lastname}
+                                                    onChange={e => setNewAgent(prev => ({ ...prev, lastname: e.target.value, dni: agentSearchDni }))}
+                                                />
+                                                <label>Teléfono:</label>
+                                                <input
+                                                    type="text"
+                                                    value={newAgent.tel}
+                                                    onChange={e => setNewAgent(prev => ({ ...prev, tel: e.target.value, dni: agentSearchDni }))}
+                                                />
+                                                <label>Email:</label>
+                                                <input
+                                                    type="email"
+                                                    value={newAgent.mail}
+                                                    onChange={e => setNewAgent(prev => ({ ...prev, mail: e.target.value, dni: agentSearchDni }))}
+                                                />
+                                                <button type="button" className="botton-carusel" onClick={handleAddNewAgent}>Agregar nuevo agente</button>
+                                            </div>
                                         )
                                     )}
                                     {/* Lista de agentes agregados */}
@@ -1213,14 +1197,6 @@ const Quotation = () => {
                                     setSelectedComplements={setSelectedComplements}
                                 // hideSelectedList={true} // si no lo usas, puedes quitarlo
                                 />
-                                <button
-                                    type="button"
-                                    className="botton-carusel"
-                                    style={{ marginTop: 16 }}
-                                    onClick={() => setConfirmedComplements(selectedComplements)}
-                                >
-                                    Confirmar complementos
-                                </button>
                             </SwiperSlide>
                             <SwiperSlide>
                                 <Extras
@@ -1236,12 +1212,7 @@ const Quotation = () => {
                                         disabled={submitting}
                                         onClick={handleSubmitQuotation}
                                     >
-                                {submitting ? (
-                                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                     <ReactLoading type="spin" color="#fff" height={20} width={20} alignItems="center" />
-                                         Enviando...
-                                    </div>
-                                      ) : ( "Cotizar")}
+                                        {submitting ? "Enviando..." : "Cotizar"}
                                     </button>
                                     {submitError && (
                                         <div style={{ color: 'red', marginTop: 8 }}>{submitError}</div>
@@ -1261,17 +1232,13 @@ const Quotation = () => {
                 <aside className="quotation-summary">
                     <h3>Resumen</h3>
                     <div>
-                         <div className="agents-list">
-                            <h4 className='h4'>Cliente seleccionados:</h4>
-
-                            {newCustomer.name === "" ? <div className="summary-empty">No tiene Cliente.</div>: newCustomer.name} {newCustomer.lastname}  {newCustomer.dni} 
-                        </div>
                         {/* Lista de agentes agregados */}
 
                         <div className="agents-list">
                             <h4 className='h4'>Agentes seleccionados:</h4>
                             {agents.length === 0 && <div className="summary-empty">No tiene agentes.</div>}
                             {agents.map((agent, idx) => (
+                                <div key={idx} className="agent-selected-row">
                                     <span>
                                         {agent.name} {agent.lastname} - {agent.dni}
 
@@ -1373,28 +1340,28 @@ const Quotation = () => {
                     </div>
                     <div style={{ marginTop: 24 }}>
                         <h4 className='h4'>Complementos agregados:</h4>
-                        {confirmedComplements.length === 0 && (
+                        {selectedComplements.length === 0 && (
                             <div className="summary-empty">No hay complementos agregados.</div>
                         )}
-                        {confirmedComplements.map((complement, idx) => (
+                        {selectedComplements.map((complement, idx) => (
                             <div key={idx} className="summary-item">
                                 <button
                                     className="summary-remove-btn"
                                     title="Quitar complemento"
-                                    onClick={() => setConfirmedComplements(prev => prev.filter((_, i) => i !== idx))}
+                                    onClick={() => handleRemoveComplement(idx)}
                                     type="button"
                                 >×</button>
                                 <div className="summary-title">
-                                    {getComplementName(complement.complementId || complement.id, complement.type )}
+                                    {getComplementName(complement.complementId || complement.id, complement.type)}
                                 </div>
                                 <div className="summary-detail summary-qty-row">
                                     <button
                                         className="summary-qty-btn"
                                         type="button"
-                                        onClick={() => setConfirmedComplements(prev => prev.map((comp, i) => i === idx ? { ...comp, quantity: Math.max(1, (comp.quantity || 1) - 1) } : comp))}
+                                        onClick={() => handleChangeComplementQty(idx, -1)}
                                     >−</button>
                                     <span className="summary-qty">{complement.quantity}</span>
-                                    <button className="summary-qty-btn" type="button" onClick={() => setConfirmedComplements(prev => prev.map((comp, i) => i === idx ? { ...comp, quantity: (comp.quantity || 1) + 1 } : comp))}
+                                    <button className="summary-qty-btn" type="button" onClick={() => handleChangeComplementQty(idx, 1)}
                                     >+</button>
                                 </div>
                                 <div className="summary-subtotal">
@@ -1403,19 +1370,7 @@ const Quotation = () => {
                             </div>
                         ))}
                         <div className="summary-total">
-                            {(() => {
-                                let total = 0;
-                                confirmedComplements.forEach(complement => {
-                                    let arr = [];
-                                    if (complement.type === 'door') arr = complementDoors;
-                                    else if (complement.type === 'partition') arr = complementPartitions;
-                                    else if (complement.type === 'railing') arr = complementRailings;
-                                    const found = arr.find(item => String(item.id) === String(complement.complementId));
-                                    const price = found ? Number(found.price) : 0;
-                                    total += price * Number(complement.quantity);
-                                });
-                                return `Total complementos: $${total.toFixed(2)}`;
-                            })()}
+                            {getTotalComplements()}
                         </div>
                     </div>
                 </aside>

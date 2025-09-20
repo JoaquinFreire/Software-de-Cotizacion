@@ -65,4 +65,21 @@ public class AlumTreatmentController : ControllerBase
         return Ok(new { Message = $"Tratamiento con id:{id}, eliminado correctamente." });
 
     }
+
+    // permitir que la búsqueda no requiera autenticación (evita redirecciones HTML cuando no se envía token)
+    [AllowAnonymous]
+    [HttpGet("search")]
+    [Produces("application/json")]
+    public async Task<IActionResult> Search([FromQuery] string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return BadRequest("Debe proporcionar un nombre para buscar.");
+
+        // Usar MediatR para resolver la búsqueda por nombre
+        var result = await _mediator.Send(new GetAlumTreatmentByNameQuery(name));
+        if (result == null)
+            return NotFound($"No se encontró tratamiento con nombre: {name}");
+
+        return Ok(result);
+    }
 }
