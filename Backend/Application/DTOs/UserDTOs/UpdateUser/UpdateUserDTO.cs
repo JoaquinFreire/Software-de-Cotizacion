@@ -2,7 +2,8 @@
 {
     public class UpdateUserDTO
     {
-        public required string mail { get; set; }
-        public required int status { get; set; }
+        public string? mail { get; set; }
+        public int? status { get; set; }
+        public int? role_id { get; set; }
     }
 }

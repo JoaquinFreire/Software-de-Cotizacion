@@ -20,6 +20,13 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Unit>
     public async Task<Unit> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
         var user = _mapper.Map<User>(request.user);
+
+        // Asegurar estado por defecto desactivado
+        user.status = 0;
+
+        // Si el password_hash no se provee, dejarlo vacío o nulo según convenga
+        // user.password_hash ??= string.Empty;
+
         await _validator.Validate(user);
         await _services.AddAsync(user);
         return Unit.Value;

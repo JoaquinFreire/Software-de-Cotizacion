@@ -1,19 +1,22 @@
-export function validateUser(user) {
+export function validateUser(user, isEdit = false) {
     const errors = {};
 
-    // Nombre
-    if (!user.name || user.name.trim().length < 2) {
-        errors.name = "El nombre es obligatorio y debe tener al menos 2 caracteres.";
-    }
+    // Si no es edición, validar Nombre, Apellido y Legajo
+    if (!isEdit) {
+        // Nombre
+        if (!user.name || user.name.trim().length < 2) {
+            errors.name = "El nombre es obligatorio y debe tener al menos 2 caracteres.";
+        }
 
-    // Apellido
-    if (!user.lastName || user.lastName.trim().length < 2) {
-        errors.lastName = "El apellido es obligatorio y debe tener al menos 2 caracteres.";
-    }
+        // Apellido
+        if (!user.lastName || user.lastName.trim().length < 2) {
+            errors.lastName = "El apellido es obligatorio y debe tener al menos 2 caracteres.";
+        }
 
-    // Legajo (DNI)
-    if (!user.legajo || !/^\d{6,10}$/.test(user.legajo.trim())) {
-        errors.legajo = "El DNI es obligatorio y debe ser un número válido.";
+        // Legajo (DNI)
+        if (!user.legajo || !/^\d{6,10}$/.test(user.legajo.trim())) {
+            errors.legajo = "El DNI es obligatorio y debe ser un número válido.";
+        }
     }
 
     // Email

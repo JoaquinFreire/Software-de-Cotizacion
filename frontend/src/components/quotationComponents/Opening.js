@@ -18,8 +18,10 @@ const OpeningType = ({
     }, [openingConfigurations]);
 
     // Convierte cm a mm para la búsqueda de sugerencia y cálculos
-    const widthMm = openingForm.widthCm ? Number(openingForm.widthCm) * 10 : undefined;
-    const heightMm = openingForm.heightCm ? Number(openingForm.heightCm) * 10 : undefined;
+    const widthCm = openingForm.widthCm ? Number(openingForm.widthCm) : undefined;
+    const heightCm = openingForm.heightCm ? Number(openingForm.heightCm) : undefined;
+    const widthMm = widthCm ? widthCm * 10 : undefined;
+    const heightMm = heightCm ? heightCm * 10 : undefined;
 
     // Buscar configuración sugerida según tipo, ancho y alto (en mm)
     const suggestedConfig = useMemo(() => {
@@ -38,8 +40,10 @@ const OpeningType = ({
     const suggestedPanels = {
         numPanelsWidth: suggestedConfig?.num_panels_width || 1,
         numPanelsHeight: suggestedConfig?.num_panels_height || 1,
-        anchoPanelMm: suggestedConfig ? (widthMm / suggestedConfig.num_panels_width) : undefined,
-        altoPanelMm: suggestedConfig ? (heightMm / suggestedConfig.num_panels_height) : undefined
+        anchoPanelMm: suggestedConfig && widthMm ? (widthMm / suggestedConfig.num_panels_width) : undefined,
+        altoPanelMm: suggestedConfig && heightMm ? (heightMm / suggestedConfig.num_panels_height) : undefined,
+        anchoPanelCm: suggestedConfig && widthCm ? (widthCm / suggestedConfig.num_panels_width) : undefined,
+        altoPanelCm: suggestedConfig && heightCm ? (heightCm / suggestedConfig.num_panels_height) : undefined,
     };
 
     // Cantidad de paneles controlada
@@ -50,22 +54,24 @@ const OpeningType = ({
         ? Number(openingForm.numPanelsHeight)
         : suggestedPanels.numPanelsHeight;
 
-    // Calcular tamaño de panel en mm según la cantidad de paneles seleccionada
-    const anchoPanelMmComputed = widthMm && numPanelsWidth ? (widthMm / numPanelsWidth) : '';
-    const altoPanelMmComputed = heightMm && numPanelsHeight ? (heightMm / numPanelsHeight) : '';
+    // Calcular tamaño de panel en mm y cm según la cantidad de paneles seleccionada
+    const anchoPanelMmComputed = (widthMm && numPanelsWidth) ? (widthMm / numPanelsWidth) : '';
+    const altoPanelMmComputed = (heightMm && numPanelsHeight) ? (heightMm / numPanelsHeight) : '';
+    const anchoPanelCmComputed = (widthCm && numPanelsWidth) ? (widthCm / numPanelsWidth) : '';
+    const altoPanelCmComputed = (heightCm && numPanelsHeight) ? (heightCm / numPanelsHeight) : '';
 
     // Mostrar en cm para el usuario
-    const anchoPanelCmDisplay = anchoPanelMmComputed ? (anchoPanelMmComputed / 10).toFixed(1) : '';
-    const altoPanelCmDisplay = altoPanelMmComputed ? (altoPanelMmComputed / 10).toFixed(1) : '';
+    const anchoPanelCmDisplay = anchoPanelCmComputed ? (anchoPanelCmComputed).toFixed(1) : '';
+    const altoPanelCmDisplay = altoPanelCmComputed ? (altoPanelCmComputed).toFixed(1) : '';
 
     // Advierte si el usuario cambió la cantidad de paneles sugerida
     const panelDiffers = (numPanelsWidth !== suggestedPanels.numPanelsWidth) || (numPanelsHeight !== suggestedPanels.numPanelsHeight);
 
     const handleAddOpening = () => {
         const { typeId, quantity, treatmentId, glassTypeId } = openingForm;
-        // Convierte cm a mm antes de guardar
-        const width = openingForm.widthCm ? Number(openingForm.widthCm) * 10 : undefined;
-        const height = openingForm.heightCm ? Number(openingForm.heightCm) * 10 : undefined;
+        // Guardar width/height en CENTÍMETROS (cm)
+        const width = widthCm;
+        const height = heightCm;
         // Validar que todos los campos estén completos
         if (!typeId || !width || !height || quantity <= 0 || !treatmentId || !glassTypeId) {
             console.error('Todos los campos son obligatorios');
@@ -87,8 +93,8 @@ const OpeningType = ({
             id: Date.now(),
             typeId,
             typeName: openingTypes.find((type) => type.id === parseInt(typeId))?.name,
-            width, // en mm
-            height, // en mm
+            width, // ahora en cm
+            height, // ahora en cm
             quantity: parseInt(quantity),
             treatmentId,
             treatmentName: treatments.find((t) => t.id === parseInt(treatmentId))?.name,
@@ -96,9 +102,9 @@ const OpeningType = ({
             glassTypeName: glassTypes.find((g) => g.id === parseInt(glassTypeId))?.name,
             numPanelsWidth: numPanelsWidth,
             numPanelsHeight: numPanelsHeight,
-            // guardamos tamaño de panel en mm calculado en función de la cantidad
-            panelWidth: anchoPanelMmComputed || undefined,
-            panelHeight: altoPanelMmComputed || undefined
+            // guardamos tamaño de panel en cm calculado en función de la cantidad
+            panelWidth: anchoPanelCmComputed || undefined,
+            panelHeight: altoPanelCmComputed || undefined
         };
         if (existingOpening) {
             setSelectedOpenings((prev) =>

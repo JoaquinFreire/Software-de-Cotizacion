@@ -76,10 +76,10 @@ namespace Domain.Validators
         //Validación de tamaño de abertura(ancho y largo) <= 1000 y >= 0.5
         public static void ValidateSizeLimits(Budget_Product product)
         {
-            // Validar en milímetros (50cm = 500mm, 1000cm = 10000mm)
-            if (product.width > 10000 || product.height > 10000)
+            // Validar en centimetros (50cm = 500mm, 1000cm = 10000mm)
+            if (product.width > 1000 || product.height > 1000)
                 throw new BusinessException("El tamaño de la abertura supera los límites permitidos (máximo 1000cm).");
-            if (product.width < 500 || product.height < 500)
+            if (product.width < 20 || product.height < 20)
                 throw new BusinessException("El tamaño de la abertura es más pequeño de lo permitido (mínimo 50cm).");
         }
 
