@@ -272,14 +272,12 @@ const Complements = ({
 
                                 {row.custom.accesories && row.custom.accesories.length > 0 && (
                                     <>
-                                        <div style={{ display: 'flex', gap: 46, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', marginTop: 10, marginRight:120 }}>  
-                                            <h5>Nombre del Accesorio</h5>
-                                            <h5>Cantidad</h5>
-                                            <h5>Precio</h5>
-                                        </div>
+                            
                                 
                                         {row.custom.accesories.map((acc, accIdx) => (                           
-                <div key={accIdx} style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
+                <div>
+                    <div>
+                    <h5>Nombre</h5>
                     <input
                         type="text"
                         placeholder="Nombre del accesorio"
@@ -287,6 +285,9 @@ const Complements = ({
                         onChange={e => handleAccChange(idx, accIdx, 'name', e.target.value)}
                         style={{ width: 190 }}
                     />
+                    </div>
+                    <div>
+                    <h5>Cantidad</h5>
                     <input
                         type="number"
                         placeholder="Cantidad"
@@ -296,6 +297,7 @@ const Complements = ({
                         onChange={e => handleAccChange(idx, accIdx, 'quantity', e.target.value)}
                         style={{ width: 100 }}
                     />
+                     <h5>Precio</h5>
                     <input
                         type="number"
                         min="0"
@@ -305,15 +307,13 @@ const Complements = ({
                         onChange={e => handleAccChange(idx, accIdx, 'price', e.target.value)}
                         style={{ width: 120 }}
                     />
-                    <button type="button" onClick={() => handleRemoveAcc(idx, accIdx)} className='BottonDelete'>🗑️</button>
-                </div>
-                                        ))}
+                    </div>
+                    <button type="button" onClick={() => handleRemoveAcc(idx, accIdx)} className='BottonDelete'>Borrar 🗑️</button>
+                </div>))}
                                     </>
                                 )}
-                            </div>
-
-                                        
-                                    </div>
+                            </div>        
+                                </div>
                                 </div>
                             )}
                             {row.type === 'partition' && complement && (
@@ -395,17 +395,7 @@ const Complements = ({
                                 <span className="error-message">{errors[idx]}</span>
                             )}
                             {/* Botón para validar y marcar como touched si hay error */}
-                            {errors[idx] && (
-                                <button
-                                    type="button"
-                                    className="botton-carusel"
-                                    style={{ marginTop: 6 }}
-                                    onClick={() => handleTryAddComplement(idx)}
-                                >
-                                    Validar complemento
-                                </button>
-                            )}
-                        </div>
+                            </div>
                     );
                 })}
                 <button type="button" className="botton-carusel" onClick={handleAddRow}>

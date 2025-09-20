@@ -448,6 +448,9 @@ body.light-mode .quotation-summary h3 {
     font-size: 16px;
     font-weight: bold;
     transition: background 0.3s ease;
+    align-items: center;
+    margin: 0px auto;
+    margin-left: 120px;
 }
 .BottonAccesories {
     background: #26b7cd;
@@ -459,6 +462,7 @@ body.light-mode .quotation-summary h3 {
     font-size: 16px;
     font-weight: bold;
     transition: background 0.3s ease;
+    margin-top: 20px;
 }
 /* Botón agregar abertura y complemento */
 .add-opening-btn,

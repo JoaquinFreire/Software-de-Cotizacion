@@ -14,6 +14,6 @@ namespace Domain.Entities
         [BsonElement("quantity")]
         public required int Quantity { get; set; } // Cantidad del accesorio
         [BsonElement("price")]
-        public required double Price { get; set; }
+        public required decimal Price { get; set; }
     }
 }
