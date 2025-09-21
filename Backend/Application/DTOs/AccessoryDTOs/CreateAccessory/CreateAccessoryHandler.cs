@@ -1,26 +1,26 @@
 using MediatR;
-using Domain.Entities;
-using Application.Services;
 using AutoMapper;
+using Application.Services;
+using Domain.Entities;
 
 namespace Application.DTOs.AccessoryDTOs.CreateAccessory
 {
-    public class CreateAccessoryHandler : IRequestHandler<CreateAccessoryCommand, Unit>
+    public class CreateAccessoryHandler : IRequestHandler<CreateAccessoryCommand, string>
     {
-        private readonly AccessoryServices _accessoryService;
         private readonly IMapper _mapper;
+        private readonly AccessoryServices _services;
 
-        public CreateAccessoryHandler(AccessoryServices accessoryService, IMapper mapper)
+        public CreateAccessoryHandler(IMapper mapper, AccessoryServices services)
         {
             _mapper = mapper;
-            _accessoryService = accessoryService;
+            _services = services;
         }
 
-        public async Task<Unit> Handle(CreateAccessoryCommand request, CancellationToken cancellationToken)
+        public async Task<string> Handle(CreateAccessoryCommand request, CancellationToken cancellationToken)
         {
-            var Accesory = _mapper.Map<Accesory>(request.createAccessoryDTO);
-            await _accessoryService.AddAsync(Accesory);
-            return Unit.Value;
+            var entity = _mapper.Map<Accesory>(request.createAccessoryDTO);
+            await _services.AddAsync(entity);
+            return entity.id.ToString();
         }
     }
 }
