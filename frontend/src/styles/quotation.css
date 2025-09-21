@@ -14,7 +14,7 @@
     background: #111b1d;
     border: 1px solid #26b7cd;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 4px;
     color: white;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     max-width: 450px;
@@ -39,7 +39,7 @@
     width: 95%;
     padding: 10px;
     border: none;
-    border-radius: 5px;
+    border-radius: 2px;
     background: rgb(56, 56, 56);
     color: white;
     margin-bottom: 10px;
@@ -50,7 +50,7 @@
     background: #26b7cd;
     color: black;
     border: none;
-    border-radius: 5px;
+    border-radius: 2px;
     cursor: pointer;
     padding: 10px 20px;
     font-size: 16px;
@@ -89,7 +89,7 @@
     background: #26b7cd;
     color: black;
     border: none;
-    border-radius: 5px;
+    border-radius: 2px;
     cursor: pointer;
     padding: 10px 20px;
     font-size: 16px;
@@ -116,7 +116,7 @@
     background: rgba(0, 0, 0, 0.8);
     border: 1px solid #26b7cd;
     padding: 10px 20px;
-    border-radius: 5px;
+    border-radius: 2px;
     color: white;
     cursor: pointer;
     transition: background 0.3s ease, transform 0.2s ease;
@@ -128,7 +128,7 @@
     background: rgba(37, 37, 37, 0.8);
     border: 1px solid #26b7cd;
     padding: 10px 20px;
-    border-radius: 5px;
+    border-radius: 2px;
     color: white;
     cursor: pointer;
     text-align: center;
@@ -158,7 +158,7 @@ body.light-mode .botton-carusel:hover {
     background: rgba(37, 37, 37, 0.8);
     border: 1px solid #26b7cd;
     padding: 10px 20px;
-    border-radius: 5px;
+    border-radius: 2px;
     color: white;
     cursor: pointer;
     transition: background 0.3s ease, transform 0.2s ease;
@@ -172,7 +172,7 @@ body.light-mode .botton-carusel:hover {
     display: flex;
     justify-content: center;
     background: #1b9eaf;
-    border-radius: 5px;
+    border-radius: 2px;
     }
 .customer-option.active {
     background: #26b7cd;
@@ -188,7 +188,7 @@ body.light-mode .botton-carusel:hover {
     background: rgba(0, 0, 0, 0.8);
     border: 1px solid #26b7cd;
     padding: 15px;
-    border-radius: 5px;
+    border-radius: 2px;
     color: white;
     margin-top: 15px;
 }
@@ -202,7 +202,7 @@ body.light-mode .botton-carusel:hover {
     background: #111b1d;
     border: 1px solid #26b7cd;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 2px;
     color: white;
     margin-top: 15px;
 }
@@ -226,7 +226,7 @@ input, select {
     width: 100%;
     padding: 10px;
     border: none;
-    border-radius: 5px;
+    border-radius: 2px;
     background: rgb(56, 56, 56);
     color: white;
 }
@@ -239,7 +239,7 @@ input::placeholder, select::placeholder {
     background: #111b1d;
     border: 1px solid #26b7cd;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 4px;
     color: white;
     margin-top: 15px;
 }
@@ -257,7 +257,7 @@ input::placeholder, select::placeholder {
     background: rgba(0, 0, 0, 0.6);
     border: 1px solid #26b7cd;
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 2px;
     margin-bottom: 10px;
 }
 
@@ -265,7 +265,7 @@ input::placeholder, select::placeholder {
     background: red;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 2px;
     cursor: pointer;
     padding: 5px 10px;
     font-size: 14px;
@@ -281,7 +281,7 @@ input::placeholder, select::placeholder {
     background: #111b1d;
     border: 1px solid #26b7cd;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 2px;
     color: white;
     margin-top: 15px;
 }
@@ -299,7 +299,7 @@ input::placeholder, select::placeholder {
     background: rgba(0, 0, 0, 0.6);
     border: 1px solid #26b7cd;
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 2px;
     margin-bottom: 10px;
 }
 
@@ -307,7 +307,7 @@ input::placeholder, select::placeholder {
     background: red;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 2px;
     cursor: pointer;
     padding: 5px 10px;
     font-size: 14px;
@@ -337,7 +337,7 @@ input::placeholder, select::placeholder {
     min-width: 260px;
     background: #111b1d;
     border: 1px solid #11d9f3;
-    border-radius: 12px;
+    border-radius: 4px;
     padding: 24px 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     position: sticky;
@@ -380,7 +380,7 @@ body.light-mode .quotation-indice h3 {
     min-width: 260px;
     background: #111b1d;
     border: 1px solid #11d9f3;
-    border-radius: 12px;
+    border-radius: 4px;
     padding: 24px 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     min-height: 300px;
@@ -442,23 +442,27 @@ body.light-mode .quotation-summary h3 {
     background: #e65151;
     color: black;
     border: none;
-    border-radius: 5px;
+    border-radius: 2px;
     cursor: pointer;
     padding: 10px 20px;
     font-size: 16px;
     font-weight: bold;
     transition: background 0.3s ease;
+    align-items: center;
+    margin: 0px auto;
+    margin-left: 120px;
 }
 .BottonAccesories {
     background: #26b7cd;
     color: black;
     border: none;
-    border-radius: 5px;
+    border-radius: 2px;
     cursor: pointer;
     padding: 10px 20px;
     font-size: 16px;
     font-weight: bold;
     transition: background 0.3s ease;
+    margin-top: 20px;
 }
 /* Botón agregar abertura y complemento */
 .add-opening-btn,
@@ -466,7 +470,7 @@ body.light-mode .quotation-summary h3 {
     background: linear-gradient(90deg, #26b7cd 60%, #11d9f3 100%);
     color: #111b1d;
     border: none;
-    border-radius: 6px;
+    border-radius: 2px;
     font-weight: bold;
     font-size: 16px;
     padding: 10px 22px;
@@ -512,7 +516,7 @@ body.light-mode .quotation-summary h3 {
     background: #26b7cd;
     color: #111b1d;
     border: none;
-    border-radius: 50%;
+    border-radius: 2px;
     width: 26px;
     height: 26px;
     font-size: 18px;
@@ -541,7 +545,7 @@ body.light-mode .quotation-summary h3 {
     padding: 10px;
     background: #081213;
     border: 1px solid #26b7cd;
-    border-radius: 8px;
+    border-radius: 2px;
 }
 .opening-preview-title {
     margin: 0 0 8px 0;
@@ -550,13 +554,13 @@ body.light-mode .quotation-summary h3 {
 .opening-preview-svg-dark {
     background: #555757;
     padding: 2px;
-    border-radius: 4px;
+    border-radius: 2px;
     display: inline-block;
 }
 
 /* keep enhanced preview styles */
 .opening-preview-container { display:flex; gap:12px; align-items:center; }
-.opening-preview-svg-wrapper { width: 260px; height: 160px; display:flex; align-items:center; justify-content:center; background: #ffffff; padding: 6px; border-radius: 6px; }
+.opening-preview-svg-wrapper { width: 260px; height: 160px; display:flex; align-items:center; justify-content:center; background: #ffffff; padding: 6px; border-radius: 2px; }
 .opening-preview-meta { min-width: 140px; display:flex; flex-direction:column; gap:6px; }
 .opening-preview-size, .opening-preview-count { color: #dff6f9; font-size: 13px; }
 .measure-row { color: #dff6f9; margin-bottom:6px; }
@@ -711,7 +715,7 @@ body.light-mode .remove-complement-button:hover {
     display: block;
     border: 2px solid #ff4d4f ;
     background: #2a0000;
-    border-radius: 5px;
+    border-radius: 2px;
 }
 
 @media (max-width: 768px) {
@@ -784,7 +788,7 @@ body.light-mode .remove-complement-button:hover {
     background: #ff4d4f;
     color: #fff;
     border: none;
-    border-radius: 50%;
+    border-radius: 2px;
     width: 28px;
     height: 28px;
     font-size: 18px;

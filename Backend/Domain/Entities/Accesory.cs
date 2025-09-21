@@ -13,7 +13,7 @@ namespace Domain.Entities
         [BsonIgnore]
         public required int id { get; set; }
         public required string name { get; set; }
-        [BsonIgnore]
-        public required MaterialUnit unit { get; set; }
+        
+        public required decimal price { get; set; }
     }
 }

@@ -9,5 +9,6 @@ namespace Domain.Repositories
         Task AddAsync(ComplementRailing railing);
         Task UpdateAsync(ComplementRailing railing);
         Task DeleteAsync(int id);
+        Task<IEnumerable<ComplementRailing>> SearchByNameAsync(string text);
     }
 }

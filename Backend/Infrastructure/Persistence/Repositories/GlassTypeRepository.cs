@@ -47,5 +47,14 @@ namespace Infrastructure.Persistence.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<IEnumerable<GlassType>> SearchByNameAsync(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return Enumerable.Empty<GlassType>();
+            var lower = text.ToLower();
+            return await _context.GlassTypes
+                .Where(gt => EF.Functions.Like(gt.name.ToLower(), $"%{lower}%"))
+                .ToListAsync();
+        }
     }
 }

@@ -2,8 +2,10 @@ using AutoMapper;
 using MediatR;
 using Application.DTOs.ComplementRailingDTOs.CreateComplementRailing;
 using Application.DTOs.ComplementRailingDTOs.UpdateComplementRailing;
+using Application.DTOs.ComplementRailingDTOs.GetComplementRailing;
 using Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Presentation.Controllers
 {
@@ -56,6 +58,18 @@ namespace Presentation.Controllers
         {
             await _services.DeleteAsync(id);
             return NoContent();
+        }
+
+        [AllowAnonymous]
+        [HttpGet("search")]
+        [Produces("application/json")]
+        public async Task<IActionResult> Search([FromQuery] string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return BadRequest("Debe proporcionar un nombre para buscar.");
+            var result = await _mediator.Send(new GetComplementRailingByNameQuery(name));
+            if (result == null || !result.Any()) return NotFound($"No se encontró baranda complementaria similar a: {name}");
+            return Ok(result);
         }
     }
 }

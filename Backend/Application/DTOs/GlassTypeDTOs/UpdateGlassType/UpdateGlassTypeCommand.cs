@@ -2,9 +2,9 @@
 
 namespace Application.DTOs.GlassTypeDTOs.UpdateGlassType
 {
-    public class UpdateGlassTypeCommand : IRequest<Unit>
+    public class UpdateGlassTypeCommand : IRequest<bool>
     {
-        public required int id { get; set; }
-        public required UpdateGlassTypeDTO glassType { get; set; }
+        public int id { get; set; }
+        public UpdateGlassTypeDTO glassType { get; set; }
     }
 }

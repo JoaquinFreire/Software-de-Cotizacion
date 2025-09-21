@@ -6,6 +6,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Request;
+using System.Text.Json; // <-- para serializar en consola
 
 namespace Presentation.Controllers
 {
@@ -27,6 +28,33 @@ namespace Presentation.Controllers
         [HttpPost("CreateBudget")]
         public async Task<IActionResult> CreateBudget([FromBody] CreateBudgetRequest request)
         {
+            // Log del payload recibido para debug (compara con lo que el frontend imprime)
+            Console.WriteLine("CreateBudget endpoint - payload recibido:");
+            try
+            {
+                Console.WriteLine(JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true }));
+            }
+            catch { Console.WriteLine("No se pudo serializar request para log."); }
+
+            // Log de la plantilla que Mongo espera (para comparar)
+            var expectedTemplate = new
+            {
+                Budget = new {
+                    budgetId = "string",
+                    user = new { name = "string", lastName = "string", mail = "string" },
+                    customer = new { name = "string", lastname = "string", tel = "string", mail = "string", address = "string", dni = "string" },
+                    agent = new { name = "string", lastname = "string", dni = "string", tel = "string", mail = "string" },
+                    workPlace = new { name = "string", location = "string", address = "string", workType = new { type = "string" } },
+                    Products = new[] { new { OpeningType = new { name = "string" }, AlumTreatment = new { name = "string" }, GlassType = new { name = "string", Price = 0 }, width = 0, height = 0, WidthPanelQuantity = 0, HeightPanelQuantity = 0, PanelWidth = 0, PanelHeight = 0, Quantity = 0, Accesory = new object[] { }, price = 0 } },
+                    complement = new[] { new { ComplementDoor = new object[] { }, ComplementRailing = new object[] { }, ComplementPartition = new object[] { }, price = 0 } },
+                    Comment = "string",
+                    DollarReference = 0,
+                    LabourReference = 0
+                }
+            };
+            Console.WriteLine("CreateBudget endpoint - plantilla esperada por Mongo (ejemplo):");
+            Console.WriteLine(JsonSerializer.Serialize(expectedTemplate, new JsonSerializerOptions { WriteIndented = true }));
+
             if (request == null || request.Budget == null || request.Budget.Products == null)
                 return BadRequest("Datos inválidos.");
 

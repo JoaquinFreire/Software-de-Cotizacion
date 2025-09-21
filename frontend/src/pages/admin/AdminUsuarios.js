@@ -4,9 +4,10 @@ import axios from "axios";
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
 import "../../styles/adminUsuarios.css";
-import { TailSpin } from "react-loader-spinner";
 import { validateUser } from "../../validation/userValidation"; // Asumiendo que existe
 import { safeArray } from "../../utils/safeArray"; // agrega este import
+import ReactLoading from 'react-loading'; // <--- agregar import
+import { ToastContainer, toast, Slide } from 'react-toastify';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -32,6 +33,12 @@ const AdminUsuarios = () => {
     });
 
     const [validationErrors, setValidationErrors] = useState({});
+    const [buttonLoading, setButtonLoading] = useState({}); // nuevo estado para cargas por botón
+
+    // Helper para setear loading por key
+    const setButtonLoadingKey = (key, value) => {
+        setButtonLoading((prev) => ({ ...prev, [key]: value }));
+    };
 
     useEffect(() => {
         fetchCurrentUser();
@@ -54,10 +61,13 @@ const AdminUsuarios = () => {
                 await fetchUsers();
                 await fetchRoles();
             } else {
+                // No permitido -> notificar y redirigir inmediatamente
                 setUnauthorized(true);
                 setNotificationMessage("No tiene permisos para ver o crear usuarios.");
                 setNotificationType("error");
                 setTimeout(() => setNotificationMessage(null), 3000);
+                navigate("/"); // <-- redirección inmediata para evitar acceso manual
+                return;
             }
         } catch (err) {
             console.error("Error fetching current user:", err);
@@ -135,10 +145,14 @@ const AdminUsuarios = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setValidationErrors({});
-        const errors = validateUser({
-            ...formData,
-            status: editingUser ? formData.status : 0,
-        });
+        // Cuando editingUser existe, estamos en modo edición -> pasar true
+        const errors = validateUser(
+            {
+                ...formData,
+                status: editingUser ? formData.status : 0,
+            },
+            !!editingUser
+        );
         if (Object.keys(errors).length > 0) {
             setValidationErrors(errors);
             return;
@@ -165,10 +179,12 @@ const AdminUsuarios = () => {
                 await axios.put(`${API_URL}/api/users/${editingUser.id}`, payload, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
+                toast.success("Usuario actualizado correctamente.");
             } else {
                 await axios.post(`${API_URL}/api/users`, payload, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
+                toast.success("Usuario creado correctamente.");
             }
 
             fetchUsers();
@@ -177,48 +193,70 @@ const AdminUsuarios = () => {
             setValidationErrors({
                 general: "Error al guardar el usuario. Verifique los datos o contacte al administrador.",
             });
+            toast.error("Error al guardar el usuario.");
             console.error("Error saving user:", error);
         }
         setLoading(false);
     };
 
     const handleToggleStatus = async (user) => {
-    const token = localStorage.getItem("token");
-    setLoading(true);
-    try {
-        const newStatus = user.status === 1 ? 0 : 1;
-        await axios.put(
-            `${API_URL}/api/users/${user.id}/status`,
-            { status: newStatus },
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
-        await fetchUsers();
+        const key = `toggle-${user.id}`;
+        // evita cambiar loader global
+        setButtonLoadingKey(key, true);
+        try {
+            const newStatus = user.status === 1 ? 0 : 1;
+            const token = localStorage.getItem("token");
+            await axios.put(
+                `${API_URL}/api/users/${user.id}/status`,
+                { status: newStatus },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setUsers((prev) => (prev || []).map((u) => (u.id === user.id ? { ...u, status: newStatus } : u)));
 
-        setNotificationMessage(
-            newStatus === 1 ? "Usuario activado correctamente." : "Usuario desactivado correctamente."
-        );
-        setNotificationType("success");
-    } catch (error) {
-        console.error("Error toggling user status:", error);
-        setNotificationMessage("Error al cambiar el estado del usuario.");
-        setNotificationType("error");
-    }
-    setLoading(false);
-
-    setTimeout(() => {
-        setNotificationMessage(null);
-    }, 3000);
-};
+            // toast según resultado
+            if (newStatus === 1) {
+                toast.success("Usuario activado correctamente.");
+            } else {
+                toast.success("Usuario desactivado correctamente.");
+            }
+        } catch (error) {
+            console.error("Error toggling user status:", error);
+            toast.error("Error al cambiar el estado del usuario.");
+        } finally {
+            setButtonLoadingKey(key, false);
+        }
+    };
 
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/");
     };
 
+    const handleInvite = async (user) => {
+        const key = `invite-${user.id}`;
+        setButtonLoadingKey(key, true);
+        try {
+            await fetch(`${API_URL}/api/user-invitations/invite`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify({ userId: user.id }),
+            });
+            toast.success("Invitación enviada por email.");
+        } catch (err) {
+            toast.error("Error al enviar la invitación.");
+        } finally {
+            setButtonLoadingKey(key, false);
+        }
+    };
+
     return (
         <>
             <div className="dashboard-container">
                 <Navigation onLogout={handleLogout} />
+                <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
                 <div className="admin-usuarios-header">
                     <h2>Administrar Usuarios</h2>
                     {(currentUserRole === "coordinator" || currentUserRole === "manager") && (
@@ -255,132 +293,148 @@ const AdminUsuarios = () => {
 
                 <div className="users-table-wrapper" style={{ minHeight: 320 }}>
                     {loading ? (
-                         <div className="loader-center">
-                             <TailSpin height={60} width={60} color="#1cb5e0" ariaLabel="tail-spin-loading" radius="1" visible={true} />
-                         </div>
-                     ) : (
+                        <div className="loader-center">
+                            <ReactLoading type="spin" color="#2689a7" height={80} width={80} />
+                        </div>
+                    ) : (
                         !unauthorized && (
-                        <table className="users-table">
-                             <thead>
-                                 <tr>
-                                     <th>Nombre</th>
-                                     <th>Apellido</th>
-                                     <th>Legajo</th>
-                                     <th>Email</th>
-                                     <th>Status</th>
-                                     <th>Acciones</th>
-                                 </tr>
-                             </thead>
-                             <tbody>
-                                 {safeArray(users).map((user) => (
-                                     <tr key={user.id}>
-                                         <td>{user.name}</td>
-                                         <td>{user.lastName}</td>
-                                         <td>{user.legajo}</td>
-                                         <td>{user.mail}</td>
-                                         <td>
-                                             <span className={user.status === 1 ? "status-active" : "status-inactive"}>
-                                                 {user.status === 1 ? "Activo" : "Inactivo"}
-                                             </span>
-                                         </td>
-                                         <td>
-                                             <div className="actions-group">
-                                                 <button className="edit-button" onClick={() => handleOpenModal(user)}>
-                                                     Actualizar
-                                                 </button>
-                                                 <button className="status-button" onClick={() => handleToggleStatus(user)}>
-                                                     {user.status === 1 ? "Desactivar" : "Activar"}
-                                                 </button>
-                                                 <button className="details-button">Detalles</button>
-                                                 <button
-                                                     className="invite-button"
-                                                     onClick={async () => {
-                                                         setLoading(true);
-                                                         try {
-                                                             await fetch(`${API_URL}/api/user-invitations/invite`, {
-                                                                 method: "POST",
-                                                                 headers: {
-                                                                     "Content-Type": "application/json",
-                                                                     Authorization: `Bearer ${localStorage.getItem("token")}`,
-                                                                 },
-                                                                 body: JSON.stringify({ userId: user.id }),
-                                                             });
-                                                             setNotificationMessage("Invitación enviada por email.");
-                                                             setNotificationType("success");
-                                                         } catch (err) {
-                                                             setNotificationMessage("Error al enviar la invitación.");
-                                                             setNotificationType("error");
-                                                         }
-                                                         setLoading(false);
-                                                         setTimeout(() => {
-                                                             setNotificationMessage(null);
-                                                         }, 3000);
-                                                     }}
-                                                 >
-                                                     Invitar
-                                                 </button>
-                                             </div>
-                                         </td>
-                                     </tr>
-                                 ))}
-                             </tbody>
-                         </table>
+                            <table className="users-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Apellido</th>
+                                        <th>Legajo</th>
+                                        <th>Email</th>
+                                        <th>Status</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {safeArray(users).map((user) => (
+                                        <tr key={user.id}>
+                                            <td>{user.name}</td>
+                                            <td>{user.lastName}</td>
+                                            <td>{user.legajo}</td>
+                                            <td>{user.mail}</td>
+                                            <td>
+                                                <span className={user.status === 1 ? "status-active" : "status-inactive"}>
+                                                    {user.status === 1 ? "Activo" : "Inactivo"}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div className="actions-group">
+                                                    <button className="edit-button" onClick={() => handleOpenModal(user)}>
+                                                        Actualizar
+                                                    </button>
+
+                                                    {/* Botón de activar/desactivar con spinner interno */}
+                                                    <button
+                                                        className={`status-button ${user.status === 1 ? "deactivate-button" : "activate-button"}`}
+                                                        onClick={() => handleToggleStatus(user)}
+                                                        disabled={!!buttonLoading[`toggle-${user.id}`]}
+                                                    >
+                                                        {buttonLoading[`toggle-${user.id}`] ? (
+                                                            <ReactLoading type="spin" color="#94a19b" height={20} width={20} />
+                                                        ) : (
+                                                            user.status === 1 ? "Desactivar" : "Activar"
+                                                        )}
+                                                    </button>
+
+                                                    <button className="details-button">Detalles</button>
+
+                                                    <button
+                                                        className="invite-button"
+                                                        onClick={() => handleInvite(user)}
+                                                        disabled={!!buttonLoading[`invite-${user.id}`]}
+                                                    >
+                                                        {buttonLoading[`invite-${user.id}`] ? (
+                                                            <ReactLoading type="spin" color="#30bd37" height={20} width={20} />
+                                                        ) : (
+                                                            "Invitar"
+                                                        )}
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         )
-                     )}
-                 </div>
+                    )}
+                </div>
 
                 {showModal && (
                     <div className="modal">
                         <div className="modal-content modal-user-form">
-                            <h3 style={{ textAlign: "center", color: "#26b7cd", marginBottom: 18 }}>
+                            <h3 style={{ textAlign: "center", color: "#26b7cd", marginBottom: 12 }}>
                                 {editingUser ? "Actualizar Usuario" : "Crear Usuario"}
                             </h3>
+
+                            {/* Si estamos editando mostramos nombre/apellido/legajo como solo lectura */}
+                            {editingUser && (
+                                <div style={{ textAlign: "center", marginBottom: 14 }}>
+                                    <div className="readonly-field"><strong>Nombre:</strong> {editingUser.name}</div>
+                                    <div className="readonly-field"><strong>Apellido:</strong> {editingUser.lastName}</div>
+                                    <div className="readonly-field"><strong>Legajo:</strong> {editingUser.legajo}</div>
+                                </div>
+                            )}
+
                             <form onSubmit={handleSubmit} noValidate>
                                 {validationErrors.general && (
                                     <div className="validation-error">{validationErrors.general}</div>
                                 )}
-                                <label>
-                                    Nombre:
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleInputChange}
-                                        required
-                                        className={validationErrors.name ? "input-error" : ""}
-                                    />
-                                    {validationErrors.name && (
-                                        <span className="validation-error">{validationErrors.name}</span>
-                                    )}
-                                </label>
-                                <label>
-                                    Apellido:
-                                    <input
-                                        type="text"
-                                        name="lastName"
-                                        value={formData.lastName}
-                                        onChange={handleInputChange}
-                                        required
-                                        className={validationErrors.lastName ? "input-error" : ""}
-                                    />
-                                    {validationErrors.lastName && (
-                                        <span className="validation-error">{validationErrors.lastName}</span>
-                                    )}
-                                </label>
-                                <label>
-                                    Legajo (DNI):
-                                    <input
-                                        type="text"
-                                        name="legajo"
-                                        value={formData.legajo}
-                                        onChange={handleInputChange}
-                                        required
-                                        className={validationErrors.legajo ? "input-error" : ""}
-                                    />
-                                    {validationErrors.legajo && (
-                                        <span className="validation-error">{validationErrors.legajo}</span>
-                                    )}
-                                </label>
+
+                                {/* Cuando se CREA, mostrar todos los campos; cuando se EDITA solo mail y rol */}
+                                {!editingUser ? (
+                                    <>
+                                        <label>
+                                            Nombre:
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleInputChange}
+                                                required
+                                                className={validationErrors.name ? "input-error" : ""}
+                                            />
+                                            {validationErrors.name && (
+                                                <span className="validation-error">{validationErrors.name}</span>
+                                            )}
+                                        </label>
+
+                                        <label>
+                                            Apellido:
+                                            <input
+                                                type="text"
+                                                name="lastName"
+                                                value={formData.lastName}
+                                                onChange={handleInputChange}
+                                                required
+                                                className={validationErrors.lastName ? "input-error" : ""}
+                                            />
+                                            {validationErrors.lastName && (
+                                                <span className="validation-error">{validationErrors.lastName}</span>
+                                            )}
+                                        </label>
+
+                                        <label>
+                                            Legajo (DNI):
+                                            <input
+                                                type="text"
+                                                name="legajo"
+                                                value={formData.legajo}
+                                                onChange={handleInputChange}
+                                                required
+                                                className={validationErrors.legajo ? "input-error" : ""}
+                                            />
+                                            {validationErrors.legajo && (
+                                                <span className="validation-error">{validationErrors.legajo}</span>
+                                            )}
+                                        </label>
+                                    </>
+                                ) : null}
+
+                                {/* Email (editable tanto en creación como edición) */}
                                 <label>
                                     Email:
                                     <input
@@ -395,6 +449,8 @@ const AdminUsuarios = () => {
                                         <span className="validation-error">{validationErrors.mail}</span>
                                     )}
                                 </label>
+
+                                {/* Rol */}
                                 <label>
                                     Rol:
                                     <select
@@ -415,6 +471,7 @@ const AdminUsuarios = () => {
                                         <span className="validation-error">{validationErrors.role_id}</span>
                                     )}
                                 </label>
+
                                 <div className="modal-actions">
                                     <button
                                         type="submit"

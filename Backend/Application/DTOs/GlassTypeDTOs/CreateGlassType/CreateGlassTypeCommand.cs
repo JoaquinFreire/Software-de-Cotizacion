@@ -2,8 +2,8 @@
 
 namespace Application.DTOs.GlassTypeDTOs.CreateGlassType
 {
-    public class CreateGlassTypeCommand : IRequest<Unit>
+    public class CreateGlassTypeCommand : IRequest<string>
     {
-        public required CreateGlassTypeDTO GlassType { get; set; }
+        public CreateGlassTypeDTO GlassType { get; set; }
     }
 }

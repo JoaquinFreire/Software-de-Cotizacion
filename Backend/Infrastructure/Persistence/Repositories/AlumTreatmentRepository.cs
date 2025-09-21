@@ -22,6 +22,15 @@ namespace Infrastructure.Persistence.Repositories
         public async Task<AlumTreatment?> GetByNameAsync(string name)
             => await _context.AlumTreatments.FirstOrDefaultAsync(t => t.name == name);
 
+        public async Task<IEnumerable<AlumTreatment>> SearchByNameAsync(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return Enumerable.Empty<AlumTreatment>();
+            var lower = text.ToLower();
+            return await _context.AlumTreatments
+                .Where(t => EF.Functions.Like(t.name.ToLower(), $"%{lower}%"))
+                .ToListAsync();
+        }
+
         public async Task AddAsync(AlumTreatment treatment)
         {
             _context.AlumTreatments.Add(treatment);

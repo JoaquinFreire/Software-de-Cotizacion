@@ -13,7 +13,7 @@
     display: flex;
     background: #111b1d;
     border: 1px solid #11d9f3;
-    border-radius: 12px;
+    border-radius: 6px;
     padding: 24px 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     position: sticky;

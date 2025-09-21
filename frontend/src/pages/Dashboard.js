@@ -74,6 +74,127 @@ const Dashboard = () => {
     const [lastEditFromDate, setLastEditFromDate] = useState(null);
     const navigate = useNavigate();
 
+    // Nuevo: estado para usuario actual y lista de quotators
+    const [currentUser, setCurrentUser] = useState(null);
+    // null indica que todavía no cargó el rol (evita flash en la UI)
+    const [currentRole, setCurrentRole] = useState(null);
+    const [quotators, setQuotators] = useState([]);
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const fetchMeAndUsers = async () => {
+            try {
+                const meRes = await axios.get(`${API_URL}/api/auth/me`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const user = meRes.data?.user;
+                setCurrentUser(user);
+                const roleName = (user?.role?.role_name || user?.role || "").toString().toLowerCase();
+                setCurrentRole(roleName);
+
+                // Si es manager o coordinator (no quotator), pedir lista de usuarios y filtrar quotators
+                if (roleName !== "quotator") {
+                    const usersRes = await axios.get(`${API_URL}/api/users`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+
+                    // Iterative extractor: evita recursión profunda y busca objetos que parezcan usuarios
+                    const extractUsersFromResponse = (data) => {
+                        const queue = Array.isArray(data) ? [...data] : [data];
+                        const found = [];
+                        const seenIds = new Set();
+                        while (queue.length) {
+                            const node = queue.shift();
+                            if (!node || typeof node !== 'object') continue;
+                            // intenta obtener un id aproximado
+                            const id = node?.id ?? node?.Id ?? node?.userId ?? node?.user_id ?? node?.id_user ?? null;
+                            const name = node?.name ?? node?.firstName ?? node?.first_name ?? node?.nombre ?? null;
+                            if (id && name) {
+                                if (!seenIds.has(id)) {
+                                    seenIds.add(id);
+                                    found.push(node);
+                                }
+                                continue; // ya es un usuario, no inspeccionar sus hijos
+                            }
+                            // encolar hijos (arrays/objetos)
+                            for (const k in node) {
+                                const v = node[k];
+                                if (v && typeof v === 'object') {
+                                    if (Array.isArray(v)) queue.push(...v);
+                                    else queue.push(v);
+                                }
+                            }
+                        }
+                        return found;
+                    };
+
+                    const usersArray = extractUsersFromResponse(usersRes.data);
+                    // Construir mapa byId para resolver $ref
+                    const collectAllObjects = (data) => {
+                        const queue = Array.isArray(data) ? [...data] : [data];
+                        const collected = [];
+                        while (queue.length) {
+                            const node = queue.shift();
+                            if (!node || typeof node !== "object") continue;
+                            collected.push(node);
+                            for (const k in node) {
+                                const v = node[k];
+                                if (v && typeof v === "object") {
+                                    if (Array.isArray(v)) queue.push(...v);
+                                    else queue.push(v);
+                                }
+                            }
+                        }
+                        return collected;
+                    };
+                    const allNodes = collectAllObjects(usersRes.data);
+                    const byId = {};
+                    allNodes.forEach(n => { if (n && n.$id) byId[n.$id] = n; });
+                    const resolveRef = (obj) => (obj && typeof obj === "object" && obj.$ref) ? (byId[obj.$ref] || obj) : obj;
+
+                    const extractRoleName = (u) => {
+                        let rawRole = u?.role ?? u?.role_name ?? u?.roleName ?? u?.userRole ?? null;
+                        if (rawRole && typeof rawRole === "object") rawRole = resolveRef(rawRole);
+                        if (!rawRole) {
+                            const candidate = resolveRef(u)?.role_name ?? resolveRef(u)?.roleName ?? resolveRef(u)?.role;
+                            if (typeof candidate === "string") return candidate.toLowerCase();
+                            return "";
+                        }
+                        if (typeof rawRole === "string") return rawRole.toLowerCase();
+                        if (typeof rawRole === "object") {
+                            const val = rawRole.role_name ?? rawRole.name ?? rawRole.roleName ?? rawRole.type ?? rawRole.title;
+                            return val ? String(val).toLowerCase() : "";
+                        }
+                        return "";
+                    };
+
+                    const normalized = usersArray.map(u => {
+                        const resolved = resolveRef(u);
+                        return {
+                            id: resolved?.id ?? resolved?.Id ?? resolved?.userId ?? resolved?.user_id ?? resolved?.id_user ?? null,
+                            name: (resolved?.name ?? resolved?.firstName ?? resolved?.first_name ?? resolved?.nombre ?? "").toString().trim(),
+                            lastname: (resolved?.lastname ?? resolved?.lastName ?? resolved?.last_name ?? resolved?.apellido ?? "").toString().trim(),
+                            roleName: extractRoleName(resolved)
+                        };
+                    });
+                    const qlist = normalized
+                        .filter(n => n.id != null && n.roleName === "quotator")
+                        .map(n => ({ id: n.id, name: n.name, lastname: n.lastname }));
+                    setQuotators(qlist);
+                }
+            } catch (err) {
+                // Evitar spam en consola cuando la petición fue abortada/timeout
+                if (err && err.code === "ECONNABORTED") {
+                    console.warn("Request aborted (ignored).");
+                } else {
+                    console.error("Error fetching current user or users:", err);
+                }
+            }
+        };
+        fetchMeAndUsers();
+    }, []);
+
     // Ya no llamamos switchToDashboard aquí porque el contexto carga los datos iniciales
 
     // Ya no necesitas filtrar pendientes aquí, quotations ya viene filtrado
@@ -145,6 +266,10 @@ const Dashboard = () => {
         Object.keys(params).forEach(k => {
             if (!params[k] && k !== "status") delete params[k];
         });
+        // Si el usuario actual es quotator, no enviar userId (el backend filtra por token)
+        if (currentRole === "quotator") {
+            delete params.userId;
+        }
         try {
             const res = await axios.get(`${API_URL}/api/quotations/advanced-search`, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -253,14 +378,20 @@ const Dashboard = () => {
                             placeholder="Precio total"
                             className="filter-Advanced"
                         />
-                        <input
-                            type="number"
-                            name="userId"
-                            value={filters.userId}
-                            onChange={handleFilterChange}
-                            placeholder="ID Usuario"
-                            className="filter-Advanced"
-                        />
+                        {/* Mostrar select solo cuando sepamos el rol y no sea quotator */}
+                        {currentRole !== null && currentRole !== "quotator" && (
+                             <select
+                                 name="userId"
+                                 value={filters.userId}
+                                 onChange={handleFilterChange}
+                                 className="filter-Advanced"
+                             >
+                                 <option value="">Todos los quotators</option>
+                                 {quotators.map(u => (
+                                     <option key={u.id} value={u.id}>{`${u.name || ""} ${u.lastname || ""}`.trim()}</option>
+                                 ))}
+                             </select>
+                        )}
                         <input
                             type="text"
                             name="customerDni"

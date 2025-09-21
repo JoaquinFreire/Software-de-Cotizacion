@@ -23,55 +23,88 @@ namespace Domain.Services
 
         private async Task<decimal> CalculateOpeningPrice(Budget_Product budget_Product) {
 
-            // 1. CALCULAR ALUMINIO 
+            // LOG: entrada del producto
+            Console.WriteLine(">> CalculateOpeningPrice - producto recibido:");
+            Console.WriteLine($"   OpeningType: {budget_Product.OpeningType?.name}");
+            Console.WriteLine($"   AlumTreatment: {budget_Product.AlumTreatment?.name}");
+            Console.WriteLine($"   GlassType: {budget_Product.GlassType?.name}");
+            Console.WriteLine($"   Width (received): {budget_Product.width}, Height (received): {budget_Product.height} (these are expected in cm)");
+            Console.WriteLine($"   PanelWidth (cm): {budget_Product.PanelWidth}, PanelHeight (cm): {budget_Product.PanelHeight}");
+            Console.WriteLine($"   WidthPanelQuantity: {budget_Product.WidthPanelQuantity}, HeightPanelQuantity: {budget_Product.HeightPanelQuantity}");
+            Console.WriteLine($"   Quantity: {budget_Product.Quantity}");
 
-            // Obtener el peso por metro del tipo de apertura
+            // 1. CALCULAR ALUMINIO 
+            // Obtener el peso por metro del tipo de abertura
             var openingType = await _openingRepository.GetByNameAsync(budget_Product.OpeningType.name);
             double weightPerMeter = openingType.weight;
-
+            Console.WriteLine($"Peso por metro del tipo de abertura '{budget_Product.OpeningType.name}': {weightPerMeter} kg/m");
+            
             // Determinar consumo de aluminio
             int totalPanels = budget_Product.HeightPanelQuantity * budget_Product.WidthPanelQuantity; // número total de paneles
-            double panelPerimeter = 2 * (budget_Product.width + budget_Product.height) / 1000; // perímetro del panel en metros
-            double totalAluminumLength = panelPerimeter * totalPanels; // longitud total de aluminio en metros
-            double aluminumWeight = totalAluminumLength * weightPerMeter; // peso total de aluminio en kg
+            Console.WriteLine($"Número total de paneles: {totalPanels}");
 
-            var aluminumPriceData = await _priceRepository.GetByIdAsync(1); // precio del aluminio (suponiendo que el ID 1 corresponde al aluminio)
+            // PanelWidth and PanelHeight are expected in cm.
+            double panelWidthM = (double)budget_Product.PanelWidth / 100.0; // cm -> m
+            double panelHeightM = (double)budget_Product.PanelHeight / 100.0; // cm -> m
+
+            // Perímetro del panel en metros
+            double panelPerimeterM = 2 * (panelWidthM + panelHeightM);
+            Console.WriteLine($"Perímetro del panel (m) calculado a partir de PanelWidth/PanelHeight (cm): {panelPerimeterM} m");
+            
+            // Longitud total de aluminio por UNA abertura (m)
+            double totalAluminumLengthM = panelPerimeterM * totalPanels;
+            double aluminumWeight = totalAluminumLengthM * weightPerMeter; // peso total aluminio en kg
+            Console.WriteLine($"Longitud total aluminio (m): {totalAluminumLengthM}, Peso aluminio (kg): {aluminumWeight}");
+
+            var aluminumPriceData = await _priceRepository.GetByIdAsync(1); // precio del aluminio
             decimal aluminumPricePerKg = aluminumPriceData.price;
             decimal totalAluminumCost = (decimal)aluminumWeight * aluminumPricePerKg;  // costo total de aluminio
+            Console.WriteLine($"Precio aluminio/kg: {aluminumPricePerKg}, Costo aluminio: {totalAluminumCost}");
 
             // 2. CALCULAR VIDRIO
-            //TODO: Terminar en cuanto se implementen las propiedades correspondientes a Budget_Product
-            double panelArea = (budget_Product.PanelWidth * budget_Product.PanelHeight) / 1000000; // área de cada panel en m²
-            double totalGlassArea = panelArea * totalPanels; // área total de vidrio en m²
+            // Área de cada panel (m²): panelWidthM * panelHeightM
+            double panelArea = panelWidthM * panelHeightM; // m²
+            double totalGlassArea = panelArea * totalPanels; // área total de vidrio en m² por UNA abertura
+            Console.WriteLine($"Area por panel (m2): {panelArea}, Area total vidrio (m2): {totalGlassArea}");
 
             var glassType = await _glassTypeRepository.GetByNameAsync(budget_Product.GlassType.name);
             decimal glassPricePerM2 = glassType.price;
+            Console.WriteLine($"Precio por m² del tipo de vidrio '{budget_Product.GlassType.name}': {glassPricePerM2} $/m²");
             decimal totalGlassCost = (decimal)totalGlassArea * glassPricePerM2;
             budget_Product.GlassType.price = totalGlassCost; // Guardar el precio del vidrio en el producto
+            Console.WriteLine($"Costo vidrio: {totalGlassCost}");
 
             // 3. CALCULAR TRATAMIENTO DE ALUMINIO
             var alumTreatment = await _alumTreatmentRepository.GetByNameAsync(budget_Product.AlumTreatment.name);
             int alumTreatmentPrice = int.Parse(alumTreatment.pricePercentage);
+            Console.WriteLine($"Porcentaje del tratamiento de aluminio '{budget_Product.AlumTreatment.name}': {alumTreatmentPrice}%");
             decimal totalAlumTreatmentCost = (totalAluminumCost * alumTreatmentPrice) / 100;
             budget_Product.AlumTreatment.pricePercentage = totalAlumTreatmentCost.ToString(); // Guardar el precio del tratamiento en el producto
+            Console.WriteLine($"Costo tratamiento aluminio: {totalAlumTreatmentCost}");
 
             // 4. SUMAR MANO DE OBRA
-            var laborData = await _priceRepository.GetByIdAsync(6); // costo de mano de obra (suponiendo que el ID 6 corresponde a la mano de obra)
+            var laborData = await _priceRepository.GetByIdAsync(6); // costo de mano de obra
             decimal laborCost = laborData.price;
+            Console.WriteLine($"Costo de mano de obra por abertura: {laborCost} $");
 
-            //TODO: Incluir costos de accesorios cuando se implementen
-
-            // 5. SUMAR SUBTOTAL
-            decimal subtotal = totalAluminumCost + totalGlassCost + totalAlumTreatmentCost + laborCost; // subtotal antes de IVA 
+            // 5. SUMAR SUBTOTAL (por UNA abertura, sin IVA)
+            decimal subtotal = totalAluminumCost + totalGlassCost + totalAlumTreatmentCost + laborCost;
+            Console.WriteLine($"Subtotal (sin IVA): {subtotal} $");
 
             // 6. APLICAR IVA
             var taxData = await _priceRepository.GetByIdAsync(4);
             decimal taxRate = taxData.price;
             decimal taxAmount = (subtotal * taxRate) / 100;
+            Console.WriteLine($"IVA aplicado: {taxRate}% -> Monto IVA: {taxAmount} $");
 
+            // 7. PRECIO TOTAL (por UNA abertura)
+            decimal totalPrice = subtotal /* + taxAmount */;
+            Console.WriteLine($"Precio total (con IVA): {totalPrice} $");
 
-            // 7. PRECIO TOTAL
-            decimal totalPrice = subtotal + taxAmount; // precio total con IVA
+            // LOG final con resumen (útil para comparar con frontend)
+            Console.WriteLine(">> RESUMEN CALCULO ABERTURA:");
+            Console.WriteLine($"   Aluminio: {totalAluminumCost} | Vidrio: {totalGlassCost} | Tratamiento: {totalAlumTreatmentCost} | ManoObra: {laborCost}");
+            Console.WriteLine($"   Subtotal: {subtotal} | IVA ({taxRate}%): {taxAmount} | Total IVA (sin por ahora  ): {totalPrice}");
 
             return totalPrice;
         }

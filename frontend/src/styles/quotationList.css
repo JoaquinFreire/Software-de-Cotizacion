@@ -3,7 +3,7 @@
     border: 1px solid #26b7cd;
     padding: 20px;
     width: 80%;
-    border-radius: 10px;
+    border-radius: 2px;
     color: white;
     display: flex;
     justify-content: space-between;
@@ -46,7 +46,7 @@
 .go-button, .update-button, .delete-button, .status-select, .status-button {
     padding: 7px 18px;
     border: none;
-    border-radius: 10px; /* cambio */
+    border-radius: 2px; /* cambio */
     cursor: pointer;
     font-weight: 700;
     font-size: 16px;
@@ -103,19 +103,9 @@
 .dropdown {
     background: #b8ac46; 
     color: rgb(0, 0, 0);
-    border-radius: 10px;
+    border-radius: 2px;
     padding: 5px 0;
     overflow: hidden; /* Opcional: evita bordes rectos en hijos */
-}
-
-
-.success-message {
-    background: green;
-    color: white;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: center;
-    margin: 10px 0;
 }
 
 /* --- MODO CLARO: Colores claros para los botones de acciones --- */
@@ -187,7 +177,7 @@ body.light-mode .dropdown {
         font-size: 15px;
         height: 44px;
         padding: 8px 0;
-        border-radius: 0%;
+        border-radius: 2px;
         box-shadow: none;
     }
 }

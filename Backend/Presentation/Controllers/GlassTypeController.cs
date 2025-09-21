@@ -1,5 +1,6 @@
 using Application.DTOs.GlassTypeDTOs.CreateGlassType;
 using Application.DTOs.GlassTypeDTOs.UpdateGlassType;
+using Application.DTOs.GlassTypeDTOs.GetGlassType;
 using Application.Services;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -58,5 +59,18 @@ public class GlassTypeController : ControllerBase
         await _services.DeleteAsync(id);
         return Ok();
 
+    }
+    [AllowAnonymous]
+    [HttpGet("search")]
+    [Produces("application/json")]
+    public async Task<IActionResult> Search([FromQuery] string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return BadRequest("Debe proporcionar un nombre para buscar.");
+
+        var result = await _mediator.Send(new GetGlassTypeByNameQuery(name));
+        if (result == null || !result.Any()) return NotFound($"No se encontró tipo de vidrio similar a: {name}");
+
+        return Ok(result);
     }
 }

@@ -1,16 +1,210 @@
-.admin-opening-header {
+.admin-opening {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
     margin-bottom: 28px;
     margin-top: 40px;
+  
 }
 
-.admin-opening-header h2 {
+.admin-opening h2 {
     flex: 1;
     text-align: center;
     color: #26b7cd;
     font-size: 35px;
     margin-bottom: 20px;
     margin-right: 0;
+}
+
+.admin-opening-loading {
+    display: flex;
+    justify-content: center;
+    margin: 2rem;
+}
+
+.openings-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 28px; /* espacio entre filas */
+    align-items: center;
+}
+
+.openings-row {
+    display: flex;
+    flex-direction: row;
+    gap: 18px;
+    justify-content: center;
+    width: 100%;
+}
+
+.AdminOpeningCard {
+    background: #1a2326;
+    border: 1px solid #26b7cd;
+    border-radius: 4px;
+    padding: 18px 24px;
+    box-shadow: 0 2px 8px rgba(38,183,205,0.08);
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.opening-info {
+    margin-bottom: 8px;
+}
+
+.opening-name {
+    color: #11d9f3;
+    font-size: 22px;
+    margin-bottom: 6px;
+}
+
+.opening-weight,
+.opening-size {
+    font-size: 16px;
+    color: #fff;
+}
+
+.opening-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+
+}
+
+.update-button,
+.delete-button {
+    padding: 7px 18px;
+    border-radius: 2px;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.update-button {
+    background: #26b7cd;
+    color: #fff;
+}
+
+.update-button:hover {
+    background: #11d9f3;
+}
+
+.delete-button {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.delete-button:hover {
+    background: #c0392b;
+}
+
+.no-openings {
+    text-align: center;
+    color: #aaa;
+    font-size: 18px;
+    margin: 30px 0;
+}
+
+.modal.modal-opening {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content.modal-opening-form {
+    background: #1a2326;
+    border-radius: 4px;
+    padding: 32px 28px;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.modal-title {
+    text-align: center;
+    color: #26b7cd;
+    margin-bottom: 18px;
+    font-size: 24px;
+}
+
+.modal-label {
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.modal-input {
+    margin-top: 5px;
+    padding: 7px 10px;
+    border-radius: 2px;
+    border: 1px solid #26b7cd;
+    background: #111b1d;
+    color: #fff;
+    font-size: 15px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 18px;
+}
+
+.modal-submit-btn {
+    background: #26b7cd;
+    color: #fff;
+    border: none;
+    border-radius: 2px;
+    padding: 7px 18px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.modal-submit-btn:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+}
+
+.modal-cancel-btn {
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 2px;
+    padding: 7px 18px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.modal-cancel-btn:hover {
+    background: #c0392b;
+}
+
+.validation-error {
+    color: #e74c3c;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 15px;
+}
+.create-opeinig-button{
+    background: #3f9e9e;
+    border: none;
+    border-radius: 2px;
+    padding: 10px 24px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    width: fit-content;
+    margin-left: 100px;
+    margin-bottom: 20px;
 }
