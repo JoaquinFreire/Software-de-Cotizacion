@@ -9,4 +9,5 @@ public interface IAccesoryRepository
         Task AddAsync(Accesory treatment);
         Task UpdateAsync(Accesory treatment);
         Task DeleteAsync(int id);
+        Task<IEnumerable<Accesory>> SearchByNameAsync(string text);
 }

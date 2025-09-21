@@ -1,29 +1,30 @@
-﻿using AutoMapper;
-using MediatR;
+﻿using MediatR;
+using AutoMapper;
 using Application.Services;
-using Domain.Entities;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Application.DTOs.GlassTypeDTOs.UpdateGlassType
 {
-    public class UpdateGlassTypeHandler : IRequestHandler<UpdateGlassTypeCommand, Unit>
+    public class UpdateGlassTypeHandler : IRequestHandler<UpdateGlassTypeCommand, bool>
     {
         private readonly GlassTypeServices _services;
         private readonly IMapper _mapper;
-        public UpdateGlassTypeHandler(GlassTypeServices glassTypeService, IMapper mapper)
+
+        public UpdateGlassTypeHandler(GlassTypeServices services, IMapper mapper)
         {
-            _services = glassTypeService;
+            _services = services;
             _mapper = mapper;
         }
-        public async Task<Unit> Handle(UpdateGlassTypeCommand request, CancellationToken cancellationToken)
+
+        public async Task<bool> Handle(UpdateGlassTypeCommand request, CancellationToken cancellationToken)
         {
-            var glassType = await _services.GetByIdAsync(request.id);
-            if (glassType == null)
-            {
-                throw new KeyNotFoundException($"Glass type with ID {request.id} not found.");
-            }
-            _mapper.Map(request.glassType, glassType);
-            await _services.UpdateAsync(glassType);
-            return Unit.Value;
+            var existing = await _services.GetByIdAsync(request.id);
+            if (existing == null) throw new KeyNotFoundException($"GlassType with ID {request.id} not found.");
+
+            _mapper.Map(request.glassType, existing);
+            await _services.UpdateAsync(existing);
+            return true;
         }
     }
 }

@@ -7,7 +7,7 @@
 
 .btn-nuevo-cliente {
     padding: 7px 18px;
-    border-radius: 5px;
+    border-radius: 2px;
     border: none;
     background: #3f9e9e;
     color: #fff;
@@ -35,7 +35,7 @@
 .cliente-card {
   margin-top: 10px;
   background: #000000;
-  border-radius: 10px;
+  border-radius: 4px;
   padding: 18px 28px;
   box-shadow: 0 2px 8px rgba(30,40,60,0.08);
   display: flex;

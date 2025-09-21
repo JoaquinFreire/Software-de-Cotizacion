@@ -1,24 +1,28 @@
-﻿using Application.Services;
+﻿using MediatR;
 using AutoMapper;
+using Application.Services;
 using Domain.Entities;
-using MediatR;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Application.DTOs.GlassTypeDTOs.CreateGlassType
 {
-    public class CreateGlassTypeHandler : IRequestHandler<CreateGlassTypeCommand, Unit>
+    public class CreateGlassTypeHandler : IRequestHandler<CreateGlassTypeCommand, string>
     {
-        private readonly GlassTypeServices _services;
         private readonly IMapper _mapper;
-        public CreateGlassTypeHandler(GlassTypeServices glassTypeService, IMapper mapper)
+        private readonly GlassTypeServices _services;
+
+        public CreateGlassTypeHandler(IMapper mapper, GlassTypeServices services)
         {
-            _services = glassTypeService;
             _mapper = mapper;
+            _services = services;
         }
-        public async Task<Unit> Handle(CreateGlassTypeCommand request, CancellationToken cancellationToken)
+
+        public async Task<string> Handle(CreateGlassTypeCommand request, CancellationToken cancellationToken)
         {
-            var glassType = _mapper.Map<CreateGlassTypeDTO, GlassType>(request.GlassType);
-            await _services.AddAsync(glassType);
-            return Unit.Value;
+            var entity = _mapper.Map<GlassType>(request.GlassType);
+            await _services.AddAsync(entity);
+            return entity.id.ToString();
         }
     }
 }
