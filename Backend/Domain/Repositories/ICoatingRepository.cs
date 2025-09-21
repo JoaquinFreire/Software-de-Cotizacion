@@ -9,5 +9,7 @@ namespace Domain.Repositories
         Task AddAsync(Coating coating);
         Task UpdateAsync(Coating coating);
         Task DeleteAsync(int id);
+        Task<Coating?> GetByNameAsync(string name);
+        Task<IEnumerable<Coating>> SearchByNameAsync(string text);
     }
 }

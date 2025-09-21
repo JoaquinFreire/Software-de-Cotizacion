@@ -1,10 +1,14 @@
 using MediatR;
 using Domain.Repositories;
 using AutoMapper;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Application.DTOs.AlumTreatmentDTOs.GetAlumTreatment
 {
-    public class GetAlumTreatmentByNameHandler : IRequestHandler<GetAlumTreatmentByNameQuery, GetAlumTreatmentDTO?>
+    public class GetAlumTreatmentByNameHandler : IRequestHandler<GetAlumTreatmentByNameQuery, IEnumerable<GetAlumTreatmentDTO>>
     {
         private readonly IAlumTreatmentRepository _repository;
         private readonly IMapper _mapper;
@@ -15,12 +19,11 @@ namespace Application.DTOs.AlumTreatmentDTOs.GetAlumTreatment
             _mapper = mapper;
         }
 
-        public async Task<GetAlumTreatmentDTO?> Handle(GetAlumTreatmentByNameQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<GetAlumTreatmentDTO>> Handle(GetAlumTreatmentByNameQuery request, CancellationToken cancellationToken)
         {
-            var entity = await _repository.GetByNameAsync(request.name);
-            if (entity == null) return null;
-            var dto = _mapper.Map<GetAlumTreatmentDTO>(entity);
-            return dto;
+            var entities = await _repository.SearchByNameAsync(request.name);
+            if (entities == null || !entities.Any()) return Enumerable.Empty<GetAlumTreatmentDTO>();
+            return _mapper.Map<IEnumerable<GetAlumTreatmentDTO>>(entities);
         }
     }
 }

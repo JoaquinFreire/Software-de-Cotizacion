@@ -4,6 +4,7 @@ using Application.DTOs.ComplementPartitionDTOs.GetComplementPartition;
 using Application.DTOs.ComplementPartitionDTOs.UpdateComplementPartition;
 using Application.Services;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Presentation.Controllers
 {
@@ -35,7 +36,7 @@ namespace Presentation.Controllers
             return Ok(result);
         }
 
-            [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateComplementPartitionDTO partition)
         {
             var result = await _mediator.Send(new CreateComplementPartitionCommand { createComplementPartitionDTO = partition });
@@ -54,6 +55,18 @@ namespace Presentation.Controllers
         {
             await _services.DeleteAsync(id);
             return NoContent();
+        }
+
+        [AllowAnonymous]
+        [HttpGet("search")]
+        [Produces("application/json")]
+        public async Task<IActionResult> Search([FromQuery] string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return BadRequest("Debe proporcionar un nombre para buscar.");
+            var result = await _mediator.Send(new GetComplementPartitionByNameQuery(name));
+            if (result == null || !result.Any()) return NotFound($"No se encontró partición complementaria similar a: {name}");
+            return Ok(result);
         }
     }
 }

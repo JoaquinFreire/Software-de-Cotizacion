@@ -44,5 +44,14 @@ namespace Infrastructure.Persistence.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<IEnumerable<ComplementPartition>> SearchByNameAsync(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return Enumerable.Empty<ComplementPartition>();
+            var lower = text.ToLower();
+            return await _context.ComplementPartitions
+                .Where(p => EF.Functions.Like(p.name.ToLower(), $"%{lower}%"))
+                .ToListAsync();
+        }
     }
 }

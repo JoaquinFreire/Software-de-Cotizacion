@@ -4,6 +4,7 @@ using Application.DTOs.CoatingDTOs.GetCoating;
 using Application.DTOs.CoatingDTOs.UpdateCoating;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Presentation.Controllers
 {
@@ -31,7 +32,7 @@ namespace Presentation.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var coating = await _mediator.Send(new GetCoatingQuery(id));
-            if (coating == null) return NotFound($"No se encontró un revestimiento con el ID: {id}");
+            if (coating == null) return NotFound($"No se encontrï¿½ un revestimiento con el ID: {id}");
             return Ok(coating);
         }
 
@@ -51,7 +52,7 @@ namespace Presentation.Controllers
             {
                 return Ok(new { Message = "Revestimiento actualizado correctamente." });
             }
-            return NotFound($"No se encontró un revestimiento con el ID: {id}");
+            return NotFound($"No se encontrï¿½ un revestimiento con el ID: {id}");
         }
 
         [HttpDelete("{id}")]
@@ -59,6 +60,21 @@ namespace Presentation.Controllers
         {
             await _services.DeleteAsync(id);
             return Ok(new { Message = "Revestimiento eliminado correctamente." });
+        }
+
+        // nuevo endpoint de bÃºsqueda por nombre (no requiere auth si preferÃ­s)
+        [AllowAnonymous]
+        [HttpGet("search")]
+        [Produces("application/json")]
+        public async Task<IActionResult> Search([FromQuery] string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return BadRequest("Debe proporcionar un nombre para buscar.");
+
+            var result = await _mediator.Send(new GetCoatingByNameQuery(name));
+            if (result == null || !result.Any()) return NotFound($"No se encontrÃ³ revestimiento con nombre similar a: {name}");
+
+            return Ok(result);
         }
     }
 }

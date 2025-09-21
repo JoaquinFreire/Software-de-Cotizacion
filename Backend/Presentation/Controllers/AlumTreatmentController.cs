@@ -75,11 +75,11 @@ public class AlumTreatmentController : ControllerBase
         if (string.IsNullOrWhiteSpace(name))
             return BadRequest("Debe proporcionar un nombre para buscar.");
 
-        // Usar MediatR para resolver la búsqueda por nombre
         var result = await _mediator.Send(new GetAlumTreatmentByNameQuery(name));
-        if (result == null)
-            return NotFound($"No se encontró tratamiento con nombre: {name}");
+        if (result == null || !result.Any())
+            return NotFound($"No se encontró tratamiento con nombre similar a: {name}");
 
         return Ok(result);
     }
 }
+

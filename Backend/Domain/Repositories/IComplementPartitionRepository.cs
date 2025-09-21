@@ -9,5 +9,6 @@ namespace Domain.Repositories
         Task AddAsync(ComplementPartition partition);
         Task UpdateAsync(ComplementPartition partition);
         Task DeleteAsync(int id);
+        Task<IEnumerable<ComplementPartition>> SearchByNameAsync(string text);
     }
 }

@@ -8,7 +8,8 @@ namespace Application.Mapping.AlumTreatmentProfile
     {
         public GetAlumTreatmentProfile()
         {
-            CreateMap<AlumTreatment, GetAlumTreatmentDTO>();
+            CreateMap<AlumTreatment, GetAlumTreatmentDTO>()
+                .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.id));
         }
     }
 }

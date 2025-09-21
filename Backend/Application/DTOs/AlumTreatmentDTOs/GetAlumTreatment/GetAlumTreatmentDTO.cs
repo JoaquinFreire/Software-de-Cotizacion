@@ -8,6 +8,9 @@ namespace Application.DTOs.AlumTreatmentDTOs.GetAlumTreatment
 {
     public class GetAlumTreatmentDTO
     {
+        // nuevo: exponer el id para que el frontend pueda hacer PUT/DELETE
+        public int id { get; set; }
+
         public required string name { get; set; }
         public int pricePercentage { get; set; }
     }
