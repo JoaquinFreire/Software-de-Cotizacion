@@ -44,5 +44,22 @@ namespace Infrastructure.Persistence.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<Coating?> GetByNameAsync(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return null;
+            return await _context.Coatings.FirstOrDefaultAsync(c => c.name == name);
+        }
+
+        // Nueva implementación: búsqueda que devuelve todas las coincidencias por texto (contains)
+        public async Task<IEnumerable<Coating>> SearchByNameAsync(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return Enumerable.Empty<Coating>();
+            var lower = text.ToLower();
+            // Usamos ToLower para intentar que la búsqueda sea case-insensitive.
+            return await _context.Coatings
+                .Where(c => EF.Functions.Like(c.name.ToLower(), $"%{lower}%"))
+                .ToListAsync();
+        }
     }
 }

@@ -4,6 +4,7 @@ using Application.DTOs.ComplementDoorDTOs.GetComplementDoor;
 using Application.DTOs.ComplementDoorDTOs.UpdateComplementDoor;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Presentation.Controllers
 {
@@ -57,6 +58,20 @@ namespace Presentation.Controllers
         {
             await _services.DeleteAsync(id);
             return Ok(new { message = "Puerta eliminada correctamente" });
+        }
+
+        // búsqueda por texto (subcadena)
+        [AllowAnonymous]
+        [HttpGet("search")]
+        [Produces("application/json")]
+        public async Task<IActionResult> Search([FromQuery] string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return BadRequest("Debe proporcionar un nombre para buscar.");
+
+            var result = await _mediator.Send(new GetComplementDoorByNameQuery(name));
+            if (result == null || !result.Any()) return NotFound($"No se encontró puerta complementaria similar a: {name}");
+            return Ok(result);
         }
     }
 }

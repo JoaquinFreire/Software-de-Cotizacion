@@ -44,5 +44,15 @@ namespace Infrastructure.Persistence.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        // Nueva: búsqueda por texto (contains, case-insensitive)
+        public async Task<IEnumerable<ComplementDoor>> SearchByNameAsync(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return Enumerable.Empty<ComplementDoor>();
+            var lower = text.ToLower();
+            return await _context.ComplementDoors
+                .Where(d => EF.Functions.Like(d.name.ToLower(), $"%{lower}%"))
+                .ToListAsync();
+        }
     }
 }

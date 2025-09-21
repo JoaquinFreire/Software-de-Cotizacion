@@ -9,5 +9,6 @@ namespace Domain.Repositories
         Task AddAsync(ComplementDoor door);
         Task UpdateAsync(ComplementDoor door);
         Task DeleteAsync(int id);
+        Task<IEnumerable<ComplementDoor>> SearchByNameAsync(string text);
     }
 }
