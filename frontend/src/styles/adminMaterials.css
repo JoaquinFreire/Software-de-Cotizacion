@@ -21,9 +21,10 @@
 
 /* layout */
 .admin-materials-content {
-    max-width: 980px;
+    max-width: 820px;
     margin: 0 auto 40px;
     padding: 0 12px;
+    margin-bottom: 22rem;
 }
 
 /* search form */

@@ -22,7 +22,7 @@ import { QuotationProvider } from './context/QuotationContext'; // Importar el p
 import { CustomerProvider } from './context/customerContext';
 import Home from "./components/Home";
 import AdminMaterials from "./pages/admin/AdminMaterials";
-import AdminDiscount from "./pages/admin/AdminDiscount";
+import AdminPrices from "./pages/admin/AdminPrices";
 import AdminOpening from "./pages/admin/AdminOpening";
 import Administrar from "./pages/admin/Administrar";
 import Coating from './pages/Materials/coating';
@@ -32,6 +32,13 @@ import Accesories from './pages/openings/Accesories';
 import TypeLine from './pages/openings/TypeLine';
 import Complement from './pages/openings/Complement';
 import AnalisisSatisfaccionCliente from './pages/reportes/AnalisisSatisfaccionCliente';
+
+// nuevos imports: páginas separadas de admin/materiales
+import AdminTreatment from "./pages/admin/materiales/AdminTreatment";
+import AdminCoating from "./pages/admin/materiales/AdminCoating";
+import AdminComplements from "./pages/admin/materiales/AdminComplements";
+import AdminGlass from "./pages/admin/materiales/AdminGlass";
+import AdminAccesory from "./pages/admin/materiales/AdminAccesory";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -174,7 +181,12 @@ function App() {
                         <Route path="/admin" element={<PrivateRoute element={<Admin />} />} />
                         <Route path="/admin/usuarios" element={<PrivateRoute element={<AdminUsuarios />} />} />
                         <Route path="/admin/materiales" element={<PrivateRoute element={<AdminMaterials />} />} />
-                        <Route path="/admin/descuentos" element={<PrivateRoute element={<AdminDiscount />} />} />
+                        <Route path="/admin/materiales/tratamientos" element={<PrivateRoute element={<AdminTreatment />} />} />
+                        <Route path="/admin/materiales/revestimientos" element={<PrivateRoute element={<AdminCoating />} />} />
+                        <Route path="/admin/materiales/complementos" element={<PrivateRoute element={<AdminComplements />} />} />
+                        <Route path="/admin/materiales/tipos-vidrio" element={<PrivateRoute element={<AdminGlass />} />} />
+                        <Route path="/admin/materiales/accesorios" element={<PrivateRoute element={<AdminAccesory />} />} />
+                        <Route path="/admin/prices" element={<PrivateRoute element={<AdminPrices />} />} />
                         <Route path="/admin/aberturas" element={<PrivateRoute element={<AdminOpening />} />} />
                         <Route path="/admin/Administrar" element={<PrivateRoute element={<Administrar />} />} />
                         <Route path="/reportes" element={<PrivateRoute element={<Reportes />} />} />
@@ -193,9 +205,6 @@ function App() {
                         <Route path="/materials/coating" element={<PrivateRoute element={<Coating />} />} />
                         <Route path="/materials/aluminumTreatment" element={<PrivateRoute element={<AluminumTreatment />} />} />
                         <Route path="/materials/typeglass" element={<PrivateRoute element={<TypeGlass />} />} />
-
-
-
 
                         {/* Ruta catch-all para redirigir a la página principal */}
                         <Route path="*" element={<Navigate to="/" />} />
