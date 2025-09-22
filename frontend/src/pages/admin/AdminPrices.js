@@ -1,17 +1,17 @@
 import React from "react";
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
-import "../../styles/adminDiscount.css";
+import "../../styles/adminPrices.css";
 
-const AdminDiscount = () => (
+const AdminPrices = () => (
     <div className="dashboard-container">
         <Navigation />
-        <div className="admin-discount-header">
-            <h2>Administrar Descuentos</h2>
+        <div className="admin-prices-header">
+            <h2>Administrar Precios</h2>
         </div>
         {/* ...contenido de administración de descuentos... */}
         <Footer />
     </div>
 );
 
-export default AdminDiscount;
+export default AdminPrices;

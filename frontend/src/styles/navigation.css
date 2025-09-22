@@ -391,7 +391,7 @@ body {
 
 /* Ajuste para el contenido principal para dejar espacio al sidebar solo si está abierto */
 .dashboard-container {
-    margin-left: 210px;
+    margin-left: 251px;
     transition: margin-left 0.3s cubic-bezier(.4,2,.6,1);
 }
 .sidebar-nav.closed ~ .dashboard-container,
