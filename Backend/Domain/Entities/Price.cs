@@ -11,5 +11,6 @@ namespace Domain.Entities
         public int id { get; set; }
         public required string name { get; set; }
         public required decimal price { get; set; }
+        public required string reference { get; set; }
     }
 }
