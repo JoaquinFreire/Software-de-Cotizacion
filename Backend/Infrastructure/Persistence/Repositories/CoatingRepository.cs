@@ -23,6 +23,11 @@ namespace Infrastructure.Persistence.Repositories
             return await _context.Coatings.FindAsync(id);
         }
 
+        public async Task<Coating?> GetByNameAsync(int id)
+        {
+            return await _context.Coatings.FirstOrDefaultAsync(c => c.id == id);
+        }
+
         public async Task AddAsync(Coating coating)
         {
             _context.Coatings.Add(coating);

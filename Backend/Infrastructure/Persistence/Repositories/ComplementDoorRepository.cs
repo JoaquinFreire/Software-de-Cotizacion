@@ -22,6 +22,11 @@ namespace Infrastructure.Persistence.Repositories
         {
             return await _context.ComplementDoors.FindAsync(id);
         }
+        public async Task<ComplementDoor?> GetByNameAsync(string name)
+        {
+            return await _context.ComplementDoors
+                .FirstOrDefaultAsync(d => d.name.ToLower() == name.ToLower());
+        }
 
         public async Task AddAsync(ComplementDoor door)
         {

@@ -28,6 +28,7 @@ public class Budget
     public required WorkPlace workPlace { get; set; }
     [BsonElement("products")]
     public required List<Budget_Product> Products { get; set; } = new List<Budget_Product>(); // Lista de productos
+    //TODO Ver si se puede sacar la lista sin problemas
     [BsonElement("complements")]
     public List<Complement>? Complement { get; set; } = new List<Complement>(); // Lista de complementos
     [BsonElement("expirationDate")]

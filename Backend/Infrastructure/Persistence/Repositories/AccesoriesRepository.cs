@@ -129,6 +129,11 @@ public class AccesoriesRepository : IAccesoryRepository
         return null;
     }
 
+    public async Task<Accesory?> GetByNameAsync(string name)
+    {
+        return _context.Accesories.Find(name);
+    }
+
     public async Task<IEnumerable<Accesory>> SearchByNameAsync(string text)
     {
         if (string.IsNullOrWhiteSpace(text)) return Enumerable.Empty<Accesory>();
