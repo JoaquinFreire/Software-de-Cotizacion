@@ -13,6 +13,6 @@ namespace Domain.Entities
         [BsonElement("quantity")]
         public required int Quantity { get; set; } // Cantidad de barandas
         [BsonElement("price")]
-        public required decimal Price { get; set; } // Precio del complemento de baranda
+        public decimal? Price { get; set; } // Precio del complemento de baranda
     }
 }

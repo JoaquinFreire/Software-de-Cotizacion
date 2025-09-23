@@ -21,7 +21,7 @@ namespace Domain.Entities
         [BsonElement("glassMilimeters")]
         public required GlassMilimeters GlassMilimeters { get; set; } = GlassMilimeters.Mm6; // Espesor del vidrio
         [BsonElement("price")]
-        public required decimal Price { get; set; } // Precio del complemento del tabique
+        public decimal? Price { get; set; } // Precio del complemento del tabique
 
     }
 }

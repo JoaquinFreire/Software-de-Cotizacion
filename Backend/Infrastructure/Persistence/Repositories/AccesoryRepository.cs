@@ -23,6 +23,11 @@ namespace Infrastructure.Persistence.Repositories
             return await _context.Accesories.FindAsync(id);
         }
 
+        public async Task<Accesory?> GetByNameAsync(string name)
+        {
+            return _context.Accesories.Find(name);
+        }
+
         public async Task AddAsync(Accesory accesory)
         {
             _context.Accesories.Add(accesory);

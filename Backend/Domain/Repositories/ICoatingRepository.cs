@@ -6,6 +6,7 @@ namespace Domain.Repositories
     {
         Task<IEnumerable<Coating>> GetAllAsync();
         Task<Coating?> GetByIdAsync(int id);
+        Task<Coating?> GetByNameAsync(int id);
         Task AddAsync(Coating coating);
         Task UpdateAsync(Coating coating);
         Task DeleteAsync(int id);
