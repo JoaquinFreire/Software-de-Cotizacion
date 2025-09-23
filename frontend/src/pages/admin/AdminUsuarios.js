@@ -16,7 +16,7 @@ const AdminUsuarios = () => {
     const [roles, setRoles] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [notificationMessage, setNotificationMessage] = useState(null);
     const [notificationType, setNotificationType] = useState("success");
     const [currentUserRole, setCurrentUserRole] = useState(null); // <-- added
