@@ -1,10 +1,10 @@
 /* Header con botón a la derecha */
 .admin-usuarios-header {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 10px;
     align-items: center;
-    margin-bottom: 28px;
-    margin-top: 40px;
+    margin-bottom: 24px;
 }
 
 .admin-usuarios-header h2 {
@@ -16,23 +16,60 @@
     margin-right: 0;
 }
 
+.admin-usuarios-header-actions {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-top: 8px;
+    margin-left: 100px;
+    gap: 60%;
+}
+
+.search-bar-wrapper {
+    display: flex;
+    align-items: center;
+    background: #2e3233;
+    border-radius: 6px;
+    padding: 4px 12px;
+    box-shadow: 0 1px 4px rgba(38,183,205,0.07);
+    min-width: 260px;
+    transition: border 0.2s;
+}
+
+
+.search-icon {
+    font-size: 1.2rem;
+    margin-right: 7px;
+    color: #26b7cd;
+}
+
+.search-bar-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 1rem;
+    color: #ffffff;
+    width: 280px;
+    height: 3px;
+
+}
+
 .create-user-button {
-    background: #3f9e9e;
+    background: #26b7cd;
     color: #fff;
     border: none;
-    border-radius: 2px;
-    padding: 10px 24px;
-    font-size: 1.1rem;
+    border-radius: 6px;
+    padding: 9px 22px;
+    font-size: 1.05rem;
     cursor: pointer;
-    margin-bottom: 10px;
-    margin-right: 16px;
+    box-shadow: 0 1px 4px rgba(38,183,205,0.09);
     transition: background 0.2s;
-    margin-right: 127px;
-    margin-left: -270px;
 }
 
 .create-user-button:hover {
-    background: linear-gradient(90deg, #367a85 0%, #0e6c79 100%);
+    background: #11d9f3;
 }
 
 /* Tabla mejorada */

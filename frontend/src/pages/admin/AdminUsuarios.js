@@ -8,6 +8,7 @@ import { validateUser } from "../../validation/userValidation"; // Asumiendo que
 import { safeArray } from "../../utils/safeArray"; // agrega este import
 import ReactLoading from 'react-loading'; // <--- agregar import
 import { ToastContainer, toast, Slide } from 'react-toastify';
+import logo_busqueda from "../../images/logo_busqueda.webp";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -21,6 +22,7 @@ const AdminUsuarios = () => {
     const [notificationType, setNotificationType] = useState("success");
     const [currentUserRole, setCurrentUserRole] = useState(null); // <-- added
     const [unauthorized, setUnauthorized] = useState(false); // <-- added
+    const [searchTerm, setSearchTerm] = useState(""); // <-- nuevo estado
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
@@ -252,18 +254,41 @@ const AdminUsuarios = () => {
         }
     };
 
+    // Filtra usuarios por nombre, apellido o legajo
+    const filteredUsers = safeArray(users).filter(user => {
+        const term = searchTerm.trim().toLowerCase();
+        if (!term) return true;
+        return (
+            (user.name && user.name.toLowerCase().includes(term)) ||
+            (user.lastName && user.lastName.toLowerCase().includes(term)) ||
+            (user.legajo && String(user.legajo).toLowerCase().includes(term))
+        );
+    });
+
     return (
         <>
             <div className="dashboard-container">
                 <Navigation onLogout={handleLogout} />
                 <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
-                <div className="admin-usuarios-header">
-                    <h2>Administrar Usuarios</h2>
-                    {(currentUserRole === "coordinator" || currentUserRole === "manager") && (
-                        <button className="create-user-button" onClick={() => handleOpenModal()}>
-                            Crear Usuario
-                        </button>
-                    )}
+                <div className="admin-usuarios-header" style={{ marginBottom: 24 }}>
+                    <h2 style={{ marginBottom: 0 }}>Administrar Usuarios</h2>
+                    <div className="admin-usuarios-header-actions">
+                        <div className="search-bar-wrapper">
+                            <img src={logo_busqueda} alt="Buscar" />
+                            <input
+                                type="text"
+                                className="search-bar-input"
+                                placeholder="Buscar por nombre, apellido o legajo"
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                        {(currentUserRole === "coordinator" || currentUserRole === "manager") && (
+                            <button className="create-user-button" onClick={() => handleOpenModal()}>
+                                Crear Usuario
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {unauthorized && (
@@ -310,7 +335,7 @@ const AdminUsuarios = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {safeArray(users).map((user) => (
+                                    {filteredUsers.map((user) => (
                                         <tr key={user.id}>
                                             <td>{user.name}</td>
                                             <td>{user.lastName}</td>
