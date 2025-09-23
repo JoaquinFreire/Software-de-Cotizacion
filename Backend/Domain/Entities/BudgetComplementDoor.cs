@@ -22,6 +22,6 @@ namespace Domain.Entities
         [BsonElement("Accesory")]
         public List<BudgetAccesory>? Accesory { get; set; } // Accesorios de la puerta
         [BsonElement("price")]
-        public decimal? Price { get; set; } // Precio de la puerta
+        public required decimal Price { get; set; } // Precio de la puerta
     }
 }
