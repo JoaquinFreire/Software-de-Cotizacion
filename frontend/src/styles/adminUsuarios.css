@@ -14,18 +14,18 @@
     font-size: 35px;
     margin-bottom: 20px;
     margin-right: 0;
+    margin-top: 60px;
 }
 
-.admin-usuarios-header-actions {
+.Admin-filter-create {
     display: flex;
-    gap: 18px;
-    align-items: center;
+    gap: 55%;
     justify-content: center;
+    align-items: center;
     width: 100%;
-    margin-top: 8px;
-    margin-left: 100px;
-    gap: 60%;
+
 }
+
 
 .search-bar-wrapper {
     display: flex;
@@ -60,7 +60,7 @@
     background: #26b7cd;
     color: #fff;
     border: none;
-    border-radius: 6px;
+    border-radius: 2px;
     padding: 9px 22px;
     font-size: 1.05rem;
     cursor: pointer;

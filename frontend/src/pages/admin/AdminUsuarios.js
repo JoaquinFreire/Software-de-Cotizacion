@@ -22,8 +22,8 @@ const AdminUsuarios = () => {
     const [notificationType, setNotificationType] = useState("success");
     const [currentUserRole, setCurrentUserRole] = useState(null); // <-- added
     const [unauthorized, setUnauthorized] = useState(false); // <-- added
-    const [searchTerm, setSearchTerm] = useState(""); // <-- nuevo estado
     const navigate = useNavigate();
+    const [searchTerm, setSearchTerm] = useState("");
 
     const [formData, setFormData] = useState({
         name: "",
@@ -253,42 +253,48 @@ const AdminUsuarios = () => {
             setButtonLoadingKey(key, false);
         }
     };
+    // 🔍 Filtro aplicado a los usuarios según nombre, apellido, legajo, mail o rol
+const filteredUsers = safeArray(users).filter(user => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return true;
 
-    // Filtra usuarios por nombre, apellido o legajo
-    const filteredUsers = safeArray(users).filter(user => {
-        const term = searchTerm.trim().toLowerCase();
-        if (!term) return true;
-        return (
-            (user.name && user.name.toLowerCase().includes(term)) ||
-            (user.lastName && user.lastName.toLowerCase().includes(term)) ||
-            (user.legajo && String(user.legajo).toLowerCase().includes(term))
-        );
-    });
+    return (
+        (user.name && user.name.toLowerCase().includes(term)) ||
+        (user.lastName && user.lastName.toLowerCase().includes(term)) ||
+        (user.legajo && String(user.legajo).toLowerCase().includes(term)) ||
+        (user.mail && user.mail.toLowerCase().includes(term)) ||
+        (user.role?.role_name && user.role.role_name.toLowerCase().includes(term))
+    );
+});
+
 
     return (
         <>
             <div className="dashboard-container">
                 <Navigation onLogout={handleLogout} />
                 <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
-                <div className="admin-usuarios-header" style={{ marginBottom: 24 }}>
-                    <h2 style={{ marginBottom: 0 }}>Administrar Usuarios</h2>
-                    <div className="admin-usuarios-header-actions">
-                        <div className="search-bar-wrapper">
-                            <img src={logo_busqueda} alt="Buscar" />
-                            <input
-                                type="text"
-                                className="search-bar-input"
-                                placeholder="Buscar por nombre, apellido o legajo"
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                            />
+                <div className="admin-usuarios-header">
+                    <h2>Administrar Usuarios</h2>
+                    {/* Solo mostrar filtro y botón cuando no está cargando y autorizado */}
+                    {!loading && !unauthorized && (
+                        <div className="Admin-filter-create">
+                            {(currentUserRole === "coordinator" || currentUserRole === "manager") && (
+                                <button className="create-user-button" onClick={() => handleOpenModal()}>
+                                    Crear Usuario
+                                </button>
+                            )}
+                            <div className="search-bar-wrapper">
+                                <img src={logo_busqueda} alt="Buscar" />
+                                <input
+                                    type="text"
+                                    className="search-bar-input"
+                                    placeholder="Buscar por nombre, apellido o legajo"
+                                    value={searchTerm}
+                                    onChange={e => setSearchTerm(e.target.value)}
+                                />
+                            </div>
                         </div>
-                        {(currentUserRole === "coordinator" || currentUserRole === "manager") && (
-                            <button className="create-user-button" onClick={() => handleOpenModal()}>
-                                Crear Usuario
-                            </button>
-                        )}
-                    </div>
+                    )}
                 </div>
 
                 {unauthorized && (
@@ -335,7 +341,7 @@ const AdminUsuarios = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredUsers.map((user) => (
+                                        {filteredUsers.map((user) => (
                                         <tr key={user.id}>
                                             <td>{user.name}</td>
                                             <td>{user.lastName}</td>

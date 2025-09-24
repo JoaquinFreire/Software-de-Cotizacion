@@ -17,10 +17,11 @@ const Complements = ({
     selectedComplements,
     setSelectedComplements
 }) => {
-    const [rows, setRows] = useState(selectedComplements.length > 0 ? selectedComplements : [ { ...initialRow } ]);
+    const [rows, setRows] = useState(selectedComplements.length > 0 ? selectedComplements : [{ ...initialRow }]);
     const [errors, setErrors] = useState([]);
     const [coatings, setCoatings] = useState([]);
     const [alumTreatments, setAlumTreatments] = useState([]);
+    const [accesories, setAccesories] = useState([]);
     const [touchedRows, setTouchedRows] = useState([]);
     const emptyAcc = { name: '', quantity: 1, price: '' };
 
@@ -65,6 +66,10 @@ const Complements = ({
         );
     };
 
+    const handleAccesoryChange = (idx, field, value) => {
+        setAccesories(value);
+    };
+
     const handleAddRow = () => {
         setRows(rows => [...rows, { ...initialRow }]);
         setTouchedRows(touched => [...touched, false]);
@@ -85,7 +90,7 @@ const Complements = ({
         setRows(rows =>
             rows.map((row, i) =>
                 i === rowIdx
-                    ? { ...row, custom: { ...row.custom, accesories: [ ...(row.custom.accesories || []), { ...emptyAcc } ] } }
+                    ? { ...row, custom: { ...row.custom, accesories: [...(row.custom.accesories || []), { ...emptyAcc }] } }
                     : row
             )
         );
@@ -175,6 +180,23 @@ const Complements = ({
         fetchAlumTreatments();
     }, []);
 
+    useEffect(() => {
+        const fetchAccesories = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const API_URL = process.env.REACT_APP_API_URL;
+                const res = await axios.get(`${API_URL}/api/accessories`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                console.log(safeArray(res.data), 'accesories api');
+                setAccesories(safeArray(res.data));
+            } catch (err) {
+                setAccesories([]);
+            }
+        };
+        fetchAccesories();
+    }, []);
+
     return (
         <div className="complements-container">
             <h3>Complementos</h3>
@@ -182,7 +204,7 @@ const Complements = ({
                 {rows.map((row, idx) => {
                     const complement = getComplementById(row.type, row.complementId);
                     return (
-                        <div key={idx} className="complement-row" style={{ display: 'flex',  flexDirection: 'column', gap: 4, marginBottom: 18,border: '0.2px solid #26b7cd', padding: 8, borderRadius: 6 }}>
+                        <div key={idx} className="complement-row" style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 18, border: '0.2px solid #26b7cd', padding: 8, borderRadius: 6 }}>
                             <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                                 {/* Tipo de complemento */}
                                 <select
@@ -218,102 +240,86 @@ const Complements = ({
                             {/* Campos personalizados por tipo */}
                             {row.type === 'door' && complement && (
                                 <div>
-                                    <div style={{ display: 'flex', gap: 36, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', marginTop: 12}}>  
-                                    <h5> Cantidad </h5>
-                                    <h5> Ancho(cm) </h5>
-                                      <h5> Alto(cm) </h5>
+                                    <div style={{ display: 'flex', gap: 36, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', marginTop: 12 }}>
+                                        <h5> Cantidad </h5>
+                                        <h5> Ancho(cm) </h5>
+                                        <h5> Alto(cm) </h5>
                                     </div>
-                                <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
-                                    
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        step="1"
-                                        placeholder="Cantidad"
-                                        value={row.quantity}
-                                        onChange={e => handleRowChange(idx, 'quantity', e.target.value)}
-                                        style={{ width: 80 }}
-                                    />
-                                    
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        step="1"
-                                        placeholder="Ancho (cm)"
-                                        value={row.custom.width || ''}
-                                        onChange={e => handleCustomChange(idx, 'width', e.target.value)}
-                                        style={{ width: 100 }}
-                                    />
-                                  
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        step="1"
-                                        placeholder="Alto (cm)"
-                                        value={row.custom.height || ''}
-                                        onChange={e => handleCustomChange(idx, 'height', e.target.value)}
-                                        style={{ width: 100 }}
-                                    />
-                                    <select
-                                        value={row.custom.coating || ''}
-                                        onChange={e => handleCustomChange(idx, 'coating', e.target.value)}
-                                    >
-                                        <option value="">Revestimiento</option>
-                                        {safeArray(coatings).map(c => (
-                                            <option key={c.id} value={c.id}>{c.name} - ${c.price}</option>
-                                        ))}
-                                    </select>
-                                    {/* Eliminar fila */}
-                                    <button type="button" onClick={() => handleRemoveRow(idx)} className='BottonDelete' disabled={rows.length === 1}>Borrar 🗑️</button>
-                                 </div>
-                                 <div>
-                                <div>
-                                <button type="button" onClick={() => handleAddAcc(idx)} className='BottonAccesories'>+ Accesorio</button>
+                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
 
-                                {row.custom.accesories && row.custom.accesories.length > 0 && (
-                                    <>
-                            
-                                
-                                        {row.custom.accesories.map((acc, accIdx) => (                           
-                <div>
-                    <div>
-                    <h5>Nombre</h5>
-                    <input
-                        type="text"
-                        placeholder="Nombre del accesorio"
-                        value={acc.name}
-                        onChange={e => handleAccChange(idx, accIdx, 'name', e.target.value)}
-                        style={{ width: 190 }}
-                    />
-                    </div>
-                    <div>
-                    <h5>Cantidad</h5>
-                    <input
-                        type="number"
-                        placeholder="Cantidad"
-                        min="1"
-                        step="1"
-                        value={acc.quantity}
-                        onChange={e => handleAccChange(idx, accIdx, 'quantity', e.target.value)}
-                        style={{ width: 100 }}
-                    />
-                     <h5>Precio</h5>
-                    <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        placeholder="Precio"
-                        value={acc.price}
-                        onChange={e => handleAccChange(idx, accIdx, 'price', e.target.value)}
-                        style={{ width: 120 }}
-                    />
-                    </div>
-                    <button type="button" onClick={() => handleRemoveAcc(idx, accIdx)} className='BottonDelete'>Borrar 🗑️</button>
-                </div>))}
-                                    </>
-                                )}
-                            </div>        
-                                </div>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            step="1"
+                                            placeholder="Cantidad"
+                                            value={row.quantity}
+                                            onChange={e => handleRowChange(idx, 'quantity', e.target.value)}
+                                            style={{ width: 80 }}
+                                        />
+
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            step="1"
+                                            placeholder="Ancho (cm)"
+                                            value={row.custom.width || ''}
+                                            onChange={e => handleCustomChange(idx, 'width', e.target.value)}
+                                            style={{ width: 100 }}
+                                        />
+
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            step="1"
+                                            placeholder="Alto (cm)"
+                                            value={row.custom.height || ''}
+                                            onChange={e => handleCustomChange(idx, 'height', e.target.value)}
+                                            style={{ width: 100 }}
+                                        />
+                                        <select
+                                            value={row.custom.coating || ''}
+                                            onChange={e => handleCustomChange(idx, 'coating', e.target.value)}
+                                        >
+                                            <option value="">Revestimiento</option>
+                                            {safeArray(coatings).map(c => (
+                                                <option key={c.id} value={c.id}>{c.name} - ${c.price}</option>
+                                            ))}
+                                        </select>
+                                        {/* Eliminar fila */}
+                                        <button type="button" onClick={() => handleRemoveRow(idx)} className='BottonDelete' disabled={rows.length === 1}>Borrar 🗑️</button>
+                                    </div>
+                                    <div>
+                                        <button type="button" onClick={() => handleAddAcc(idx)} className='BottonAccesories'>+ Accesorio</button>
+                                        {row.custom.accesories && row.custom.accesories.length > 0 && (
+                                            <>
+                                                {row.custom.accesories.map((acc, accIdx) => (
+                                                    <div key={accIdx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                                                        <select
+                                                            value={acc.name || ''}
+                                                            onChange={e => handleAccChange(idx, accIdx, 'name', e.target.value)}
+                                                            style={{ width: 180 }}
+                                                        >
+                                                            <option value="">Seleccione accesorio</option>
+                                                            {safeArray(accesories).map(a => (
+                                                                <option key={a.id} value={a.name}>{a.name}</option>
+                                                            ))}
+                                                        </select>
+                                                        <input
+                                                            type="number"
+                                                            placeholder="Cantidad"
+                                                            min="1"
+                                                            step="1"
+                                                            value={acc.quantity}
+                                                            onChange={e => handleAccChange(idx, accIdx, 'quantity', e.target.value)}
+                                                            style={{ width: 80 }}
+                                                        />
+                                                        
+                                                        <button type="button" onClick={() => handleRemoveAcc(idx, accIdx)} className='BottonDelete'>Borrar 🗑️</button>
+                                                    </div>
+                                                ))}
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
                             )}
                             {row.type === 'partition' && complement && (
@@ -395,7 +401,7 @@ const Complements = ({
                                 <span className="error-message">{errors[idx]}</span>
                             )}
                             {/* Botón para validar y marcar como touched si hay error */}
-                            </div>
+                        </div>
                     );
                 })}
                 <button type="button" className="botton-carusel" onClick={handleAddRow}>
