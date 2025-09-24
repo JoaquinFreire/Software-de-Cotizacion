@@ -131,7 +131,7 @@ public class AccesoriesRepository : IAccesoryRepository
 
     public async Task<Accesory?> GetByNameAsync(string name)
     {
-        return _context.Accesories.Find(name);
+       return await _context.Accesories.FirstOrDefaultAsync(c => c.name == name);
     }
 
     public async Task<IEnumerable<Accesory>> SearchByNameAsync(string text)

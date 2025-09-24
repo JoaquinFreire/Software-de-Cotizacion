@@ -25,7 +25,7 @@ namespace Infrastructure.Persistence.Repositories
 
         public async Task<Accesory?> GetByNameAsync(string name)
         {
-            return _context.Accesories.Find(name);
+             return await _context.Accesories.FirstOrDefaultAsync(c => c.name == name);
         }
 
         public async Task AddAsync(Accesory accesory)
