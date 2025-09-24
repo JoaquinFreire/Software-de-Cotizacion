@@ -260,7 +260,7 @@ const BudgetDetail = () => {
                             <td>{door?.Name || '-'}</td>
                             <td>{(door?.width || '-') + 'x' + (door?.height || '-') + ' cm'}</td>
                             <td>{door?.Quantity || '-'}</td>
-                            <td>{door?.Coating || '-'}</td>
+                            <td>{door?.Coating?.name || '-'}</td>
                             <td>${door?.Price || '-'}</td>
                           </tr>
                         ))
