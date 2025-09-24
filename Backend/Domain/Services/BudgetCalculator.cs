@@ -239,7 +239,9 @@ namespace Domain.Services
 
                         var alumTreatment = await _alumTreatmentRepository.GetByNameAsync(ComplementRailing.AlumTreatment.name);
                         int alumTreatmentPrice = int.Parse(alumTreatment.pricePercentage);
+                        var alumTreatmentScrapData = await _priceRepository.GetByIdAsync(16); // porcentaje de desperdicio del tratamiento de aluminio
                         decimal IndividualRailingAlumTreatmentCost = (IndividualPartitionPrice * alumTreatmentPrice) / 100;
+                        IndividualRailingAlumTreatmentCost += (IndividualRailingAlumTreatmentCost * alumTreatmentScrapData.price) / 100; // agregar costo por desperdicio del tratamiento de aluminio
                         IndividualPartitionPrice += IndividualRailingAlumTreatmentCost;
                         ComplementRailing.AlumTreatment.pricePercentage = IndividualRailingAlumTreatmentCost.ToString(); // Guardar el precio del tratamiento en la baranda
                         Console.WriteLine($"[DEBUG] Precio con tratamiento : {IndividualPartitionPrice}");
@@ -262,7 +264,9 @@ namespace Domain.Services
 
                         var alumTreatment = await _alumTreatmentRepository.GetByNameAsync(ComplementRailing.AlumTreatment.name);
                         int alumTreatmentPrice = int.Parse(alumTreatment.pricePercentage);
+                        var alumTreatmentScrapData = await _priceRepository.GetByIdAsync(16); // porcentaje de desperdicio del tratamiento de aluminio
                         decimal IndividualRailingAlumTreatmentCost = (IndividualPartitionPrice * alumTreatmentPrice) / 100;
+                        IndividualRailingAlumTreatmentCost += (IndividualRailingAlumTreatmentCost * alumTreatmentScrapData.price) / 100; // agregar costo por desperdicio del tratamiento de aluminio
                         IndividualPartitionPrice += IndividualRailingAlumTreatmentCost;
                         ComplementRailing.AlumTreatment.pricePercentage = IndividualRailingAlumTreatmentCost.ToString(); // Guardar el precio del tratamiento en la baranda
 
