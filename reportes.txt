@@ -1,0 +1,20 @@
+
+_*ELIJAN*_
+
+*Reporte de variacion de precios:* (no se sabe, bruno sabe)
+
+*Reporte de Simulación de Cambios de Precio:* ver la diferencia de precio para sacar un resultado que le sirva al gerente(leo).
+
+*Reporte de Oportunidades Perdidas:* vos ahí ves las cotizaciones rechazadas, este y ves eeh digamos, o sea según el comentario cual fue el motivo del rechazo mismo, pero eso solamente tiene que llamar al comentario que se hizo solamente en las cotizaciones rechazadas, hay que buscarle la lógica al rechazo de las cotizaciones, que cuando rechace una cotización tenga que poner si o si algo, que no se puede poner sin nada, que en la cotización cuando cambias de estado a rechazado, te pida un comentario si o si.(bruno, al fin hace algo)
+
+*Beneficio en Cotizaciones por Tipo de Linea:* este reporte brindará al usuario el beneficio obtenido por cotizar un tipo de línea, el reporte deberá seleccionar la línea que desee, el tamaño, y dará el beneficio obtenido, listo.
+
+*Reporte de Clientes con Mayor Volumen de Cotización:* este reporte busca dar información sobre los clientes que han tenido mayores compras dentro de la empresa. Lo pensará bien Leo. (no flashees leo).
+
+*Análisis de Ciclo de Vida de los Proyectos(cotizador):* (leo dice que va a hacer algo piolaza, ojala termine este año).
+
+*Reporte de Promociones y Descuentos:*
+
+*Reporte de consumo de complementos en proyectos:* este reporte brindará la informaciónde los complementos incluidos en las cotizaciones, deberá poner un rango para traer, el endpoint ya está hecho en quotationcontroller.(bruno)*
+
+*Reporte de tipo de vidrio, revestimiento y tratamientos más usados en las cotizaciones:*(ver)
