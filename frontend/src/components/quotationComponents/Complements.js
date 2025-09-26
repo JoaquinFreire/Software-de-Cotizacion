@@ -469,6 +469,30 @@ const Complements = ({
         }
     };
 
+    // Permite recargar manualmente los datos que usa este componente (revestimientos, tratamientos, accesorios)
+    const handleLoadComplements = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const API_URL = process.env.REACT_APP_API_URL;
+            if (!token || !API_URL) {
+                console.warn('No token o API_URL para cargar complementos.');
+                return;
+            }
+            // Reusar endpoints que ya usamos en los useEffect de este componente
+            const [coatingsRes, alumRes, accRes] = await Promise.all([
+                axios.get(`${API_URL}/api/coating`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_URL}/api/alum-treatments`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${API_URL}/api/accessories`, { headers: { Authorization: `Bearer ${token}` } })
+            ]);
+            setCoatings(safeArray(coatingsRes.data));
+            setAlumTreatments(safeArray(alumRes.data));
+            setAccesories(safeArray(accRes.data));
+            console.log('Complementos recargados correctamente.');
+        } catch (err) {
+            console.error('Error al recargar complementos:', err);
+        }
+    };
+
     return (
         <div className="App">
         <div className="complements-container">
