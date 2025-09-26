@@ -1,7 +1,6 @@
 using Domain.Enums;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using Domain.Services;
 namespace Domain.Entities;
 
 public class Budget
@@ -12,9 +11,9 @@ public class Budget
     [BsonElement("BudgetId")]
     public required string budgetId  { get; set; }
     [BsonElement("version")]
-    public string version { get; set; } = "1"; // Versi�n del presupuesto, por defecto 1
+    public int version { get; set; } = 1; // Versi�n del presupuesto, por defecto 1
     [BsonElement("file_date")]
-    public DateTime? creationDate { get; set; } = DateTime.UtcNow;
+    public DateTime creationDate { get; set; } = DateTime.UtcNow;
     [BsonElement("status")]
     [BsonRepresentation(BsonType.String)]
     public BudgetStatus status { get; set; } = BudgetStatus.Pending;

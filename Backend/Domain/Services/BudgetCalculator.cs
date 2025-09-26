@@ -161,153 +161,142 @@ namespace Domain.Services
             return totalPrice;
         }
 
-        decimal TotalComplementPrice = 0;
         private async Task<decimal> CalculateComplementPrice(Complement complement)
         {
+            decimal totalComplementPrice = 0;
+
+            // PUERTAS
             if (complement.ComplementDoor != null)
             {
-                foreach (var ComplementDoor in complement.ComplementDoor)
+                foreach (var complementDoor in complement.ComplementDoor.Where(d => d != null))
                 {
-                    var door = await _doorRepository.GetByNameAsync(ComplementDoor.Name);
-                    decimal IndividualDoorPrice = door.price;
+                    var door = await _doorRepository.GetByNameAsync(complementDoor.Name);
+                    if (door == null) continue;
+
+                    decimal individualDoorPrice = door.price;
+
                     // Dimensiones estándar
                     double standardWidth = 90;
                     double standardHeight = 210;
                     double standardArea = standardWidth * standardHeight;
 
-                    // Si alguna de las dimensiones es mayor al tamaño estandar , se aplica un precio acorde al tamaño
-                    if (ComplementDoor.Width != 90 || ComplementDoor.Height != 210)
+                    // Ajuste proporcional por área
+                    if (complementDoor.Width != standardWidth || complementDoor.Height != standardHeight)
                     {
-                        // Dimensiones reales de la puerta
-                        double actualArea = ComplementDoor.Width * ComplementDoor.Height;
-
-                        // Precio proporcional al área
-                        decimal proportionalPrice = IndividualDoorPrice * (decimal)(actualArea / standardArea);
-
-                        IndividualDoorPrice = proportionalPrice;
+                        double actualArea = complementDoor.Width * complementDoor.Height;
+                        individualDoorPrice *= (decimal)(actualArea / standardArea);
                     }
 
-                    //Calculo del revestimiento
-                    var coating = await _coatingRepository.GetByNameAsync(ComplementDoor.Coating.name);
-                    var coatingScrapData = await _priceRepository.GetByIdAsync(18); // porcentaje de desperdicio del revestimiento
-                    decimal coatingPrice = coating.price;
-                    coatingPrice *= (decimal)(standardArea * 2.2) / 10000; // precio por m2 * area en cm2 / 10000 para pasar a m2
-                    coatingPrice += (coatingPrice * coatingScrapData.price) / 100; // agregar costo por desperdicio del revestimiento
-                    IndividualDoorPrice += coatingPrice;
-                    ComplementDoor.Coating.price = coatingPrice * ComplementDoor.Quantity; // Guardar el precio del revestimiento en la puerta
-
-
-                    if (ComplementDoor.Accesory != null)
+                    // REVESTIMIENTO
+                    if (complementDoor.Coating != null)
                     {
-                        //Calculo de accesorios
-                        foreach (var Accesory in ComplementDoor.Accesory)
+                        var coating = await _coatingRepository.GetByNameAsync(complementDoor.Coating.name);
+                        if (coating != null)
                         {
-                            var accessory = await _accesoryRepository.GetByNameAsync(Accesory.Name);
-                            decimal IndividualAccessoryPrice = accessory.price;
+                            var coatingScrapData = await _priceRepository.GetByIdAsync(18);
+                            decimal coatingPrice = coating.price;
+                            coatingPrice *= (decimal)(standardArea * 2.2) / 10000; // cm² -> m²
+                            coatingPrice += (coatingPrice * coatingScrapData.price) / 100;
 
-                            TotalComplementPrice += IndividualAccessoryPrice * Accesory.Quantity;
-                            Accesory.Price = IndividualAccessoryPrice * Accesory.Quantity; // Guardar el precio total del accesorio en la puerta
-                            ComplementDoor.Price += Accesory.Price * Accesory.Quantity; // Sumar el precio del accesorio al precio total del complemento
-
+                            complementDoor.Coating.price = coatingPrice * complementDoor.Quantity;
+                            individualDoorPrice += coatingPrice;
                         }
                     }
-                    ComplementDoor.Price = (IndividualDoorPrice + coatingPrice) * ComplementDoor.Quantity;
-                    TotalComplementPrice += ComplementDoor.Price; // Sumar el precio de la puerta al precio total del complemento
-                    
 
+                    // ACCESORIOS
+                    if (complementDoor.Accesory != null)
+                    {
+                        foreach (var accesory in complementDoor.Accesory.Where(a => a != null))
+                        {
+                            var accessoryData = await _accesoryRepository.GetByNameAsync(accesory.Name);
+                            if (accessoryData == null) continue;
+
+                            decimal accessoryUnitPrice = accessoryData.price;
+                            decimal accessoryTotalPrice = accessoryUnitPrice * accesory.Quantity;
+
+                            accesory.Price = accessoryTotalPrice;
+                            individualDoorPrice += accessoryTotalPrice; // ya está multiplicado, no volver a multiplicar
+                        }
+                    }
+
+                    complementDoor.Price = individualDoorPrice * complementDoor.Quantity;
+                    totalComplementPrice += complementDoor.Price;
                 }
             }
 
+            // BARANDAS
             if (complement.ComplementRailing != null)
             {
-                //Calculo basado en que la propiedad price es por unidad de baranda
-                foreach (var ComplementRailing in complement.ComplementRailing)
+                foreach (var complementRailing in complement.ComplementRailing.Where(r => r != null))
                 {
-                    if (ComplementRailing.Name == "Baranda City")
+                    var railing = complementRailing.Name switch
                     {
-                        var railing = await _railingRepository.GetByIdAsync(5);
-                        decimal IndividualPartitionPrice = railing.price;
+                        "Baranda City" => await _railingRepository.GetByIdAsync(5),
+                        "Baranda Imperia" => await _railingRepository.GetByIdAsync(6),
+                        _ => null
+                    };
 
-                        Console.WriteLine($"[DEBUG] Precio base SQL Baranda Imperia (ID=6): {IndividualPartitionPrice}");
+                    if (railing == null) continue;
 
-                        if (ComplementRailing.Reinforced == true)
-                        {
-                            IndividualPartitionPrice *= 1.05m;
-                            Console.WriteLine($"[DEBUG] Precio con refuerzo: {IndividualPartitionPrice}");
+                    decimal individualRailingPrice = railing.price;
 
-                        }
-
-                        var alumTreatment = await _alumTreatmentRepository.GetByNameAsync(ComplementRailing.AlumTreatment.name);
-                        int alumTreatmentPrice = int.Parse(alumTreatment.pricePercentage);
-                        var alumTreatmentScrapData = await _priceRepository.GetByIdAsync(16); // porcentaje de desperdicio del tratamiento de aluminio
-                        decimal IndividualRailingAlumTreatmentCost = (IndividualPartitionPrice * alumTreatmentPrice) / 100;
-                        IndividualRailingAlumTreatmentCost += (IndividualRailingAlumTreatmentCost * alumTreatmentScrapData.price) / 100; // agregar costo por desperdicio del tratamiento de aluminio
-                        IndividualPartitionPrice += IndividualRailingAlumTreatmentCost;
-                        ComplementRailing.AlumTreatment.pricePercentage = IndividualRailingAlumTreatmentCost.ToString(); // Guardar el precio del tratamiento en la baranda
-                        Console.WriteLine($"[DEBUG] Precio con tratamiento : {IndividualPartitionPrice}");
-
-                        decimal TotalComplementRailingPrice = IndividualPartitionPrice * ComplementRailing.Quantity;
-                        ComplementRailing.Price = TotalComplementRailingPrice;
-                        TotalComplementPrice += TotalComplementRailingPrice;
-                        Console.WriteLine($"[DEBUG] Precio final baranda: {ComplementRailing.Price}");
+                    // Refuerzo
+                    if (complementRailing.Reinforced == true)
+                    {
+                        individualRailingPrice *= complementRailing.Name == "Baranda City" ? 1.05m : 1.15m;
                     }
 
-                    if (ComplementRailing.Name == "Baranda Imperia") 
+                    // Tratamiento aluminio
+                    if (complementRailing.AlumTreatment != null)
                     {
-                        var railing = await _railingRepository.GetByIdAsync(6);
-                        decimal IndividualPartitionPrice = railing.price;
-
-                        if (ComplementRailing.Reinforced == true)
+                        var alumTreatment = await _alumTreatmentRepository.GetByNameAsync(complementRailing.AlumTreatment.name);
+                        if (alumTreatment != null)
                         {
-                            IndividualPartitionPrice *= 1.15m;
+                            int alumTreatmentPercentage = int.Parse(alumTreatment.pricePercentage);
+                            var alumTreatmentScrapData = await _priceRepository.GetByIdAsync(16);
+
+                            decimal treatmentCost = (individualRailingPrice * alumTreatmentPercentage) / 100;
+                            treatmentCost += (treatmentCost * alumTreatmentScrapData.price) / 100;
+
+                            complementRailing.AlumTreatment.pricePercentage = treatmentCost.ToString();
+                            individualRailingPrice += treatmentCost;
                         }
-
-                        var alumTreatment = await _alumTreatmentRepository.GetByNameAsync(ComplementRailing.AlumTreatment.name);
-                        int alumTreatmentPrice = int.Parse(alumTreatment.pricePercentage);
-                        var alumTreatmentScrapData = await _priceRepository.GetByIdAsync(16); // porcentaje de desperdicio del tratamiento de aluminio
-                        decimal IndividualRailingAlumTreatmentCost = (IndividualPartitionPrice * alumTreatmentPrice) / 100;
-                        IndividualRailingAlumTreatmentCost += (IndividualRailingAlumTreatmentCost * alumTreatmentScrapData.price) / 100; // agregar costo por desperdicio del tratamiento de aluminio
-                        IndividualPartitionPrice += IndividualRailingAlumTreatmentCost;
-                        ComplementRailing.AlumTreatment.pricePercentage = IndividualRailingAlumTreatmentCost.ToString(); // Guardar el precio del tratamiento en la baranda
-
-                        decimal TotalComplementRailingPrice = IndividualPartitionPrice * ComplementRailing.Quantity;
-                        ComplementRailing.Price = TotalComplementRailingPrice;
-                        TotalComplementPrice += TotalComplementRailingPrice;
                     }
+
+                    complementRailing.Price = individualRailingPrice * complementRailing.Quantity;
+                    totalComplementPrice += complementRailing.Price;
                 }
             }
 
+            // DIVISIONES
             if (complement.ComplementPartition != null)
             {
-                foreach(var ComplementPartition in complement.ComplementPartition)
+                foreach (var complementPartition in complement.ComplementPartition.Where(p => p != null))
                 {
-                    //Calculo basado en que la propiedad price es según cada metro de altura
                     var partition = await _partitionRepository.GetByIdAsync(5);
-                    decimal IndividualPartitionPrice = partition.price * (decimal)ComplementPartition.Height /100; // Precio por metro de altura
-                    if (ComplementPartition.Simple == false)
+                    if (partition == null) continue;
+
+                    decimal individualPartitionPrice = partition.price * (decimal)complementPartition.Height / 100;
+
+                    if (complementPartition.Simple == false)
+                        individualPartitionPrice *= 2.05m;
+
+                    individualPartitionPrice *= complementPartition.GlassMilimeters switch
                     {
-                        IndividualPartitionPrice *= 2.05m;
-                    }
-                    switch (ComplementPartition.GlassMilimeters)// Aplico un recargo según el espesor del vidrio
-                    {
-                        case Enums.GlassMilimeters.Mm6:
-                            IndividualPartitionPrice *= 1.0m;
-                            break;
-                        case Enums.GlassMilimeters.Mm8:
-                            IndividualPartitionPrice *= 1.15m;
-                            break;
-                        case Enums.GlassMilimeters.Mm10:
-                            IndividualPartitionPrice *= 1.30m;
-                            break;
-                    }
-                    decimal TotalComplementPartitionPrice = IndividualPartitionPrice * ComplementPartition.Quantity;
-                    ComplementPartition.Price = TotalComplementPartitionPrice;
-                    TotalComplementPrice += TotalComplementPartitionPrice;
+                        Enums.GlassMilimeters.Mm6 => 1.0m,
+                        Enums.GlassMilimeters.Mm8 => 1.15m,
+                        Enums.GlassMilimeters.Mm10 => 1.30m,
+                        _ => 1.0m
+                    };
+
+                    complementPartition.Price = individualPartitionPrice * complementPartition.Quantity;
+                    totalComplementPrice += complementPartition.Price;
                 }
             }
 
-            return TotalComplementPrice;
+            return totalComplementPrice;
         }
+
 
         // Calcula el precio TOTAL de un presupuesto con varias aberturas
         public async Task<decimal> CalculateBudgetTotal(Budget budget)
