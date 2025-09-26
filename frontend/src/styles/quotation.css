@@ -452,6 +452,21 @@ body.light-mode .quotation-summary h3 {
     margin: 0px auto;
     margin-left: 120px;
 }
+.BottonDeleteComplement {
+    display: flex;
+    background: #e65151;
+    color: black;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    padding: 1px 20px;
+    font-size: 13px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+    align-items: center;
+    margin: 0px auto;
+    width: 100px;
+}
 .BottonAccesories {
     background: #26b7cd;
     color: black;
