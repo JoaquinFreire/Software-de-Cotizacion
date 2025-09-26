@@ -424,10 +424,15 @@ const Quotation = () => {
                 else if (c.type === 'partition') arr = complementPartitions;
                 else if (c.type === 'railing') arr = complementRailings;
                 const found = arr.find(item => String(item.id ?? item.Id) === String(c.complementId));
+                const idVal = found ? (found.id ?? found.Id) : 0;
+                // preferir totalPrice calculado por frontend, si no existe fallback al precio estándar * qty
+                const totalPriceForSql = c.totalPrice !== undefined && c.totalPrice !== null
+                    ? Number(c.totalPrice)
+                    : (found ? Number(found.price) * Number(c.quantity) : 0);
                 return {
-                    id: found ? (found.id ?? found.Id) : 0,
+                    id: idVal,
                     quantity: Number(c.quantity),
-                    price: found ? Number(found.price) * Number(c.quantity) : 0
+                    price: totalPriceForSql
                 };
             });
 
@@ -447,7 +452,9 @@ const Quotation = () => {
 
             console.log("Payload enviado a /api/quotations:", quotationPayload);
 
-            const response = await axios.post(`${API_URL}/api/quotations`, quotationPayload, {
+            // Añadir createMongo:false para indicar al backend que no cree el documento mongo automáticamente (si lo respeta)
+            const sqlPayload = { ...quotationPayload, createMongo: false };
+            const response = await axios.post(`${API_URL}/api/quotations`, sqlPayload, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
@@ -527,7 +534,7 @@ const Quotation = () => {
             console.log("DEBUG newAgent (form):", newAgent);
             console.log("DEBUG isCustomerFound:", isCustomerFound);
             console.log("DEBUG agentsPayload (para SQL):", agentsPayload);
-            console.log("Agente seleccionado para enviar a Mongo (customerPayloadMongo.agent):", customerPayloadMongo.agent);
+            console.log("Agente seleccionado para enviar a Mongo (customer.agent):", customerPayloadMongo.agent);
 
             // --- NUEVO: Mapear los complementos para Mongo agrupando por tipo y usando nombres correctos ---
             const complementsMongo = {
@@ -539,50 +546,71 @@ const Quotation = () => {
             selectedComplements.forEach(c => {
                 if (c.type === 'door') {
                     const door = complementDoors.find(d => String(d.id) === String(c.complementId));
-                    const coatingObj = coatings.find(coat => String(coat.id) === String(c.custom.coating));
+                    const coatingObj = coatings.find(coat => String(coat.id) === String(c.custom?.coating));
+                    const unitPriceUsed = c.unitPrice !== undefined && c.unitPrice !== null
+                        ? Number(c.unitPrice)
+                        : (door ? Number(door.price) : 0);
+                    const totalPriceUsed = c.totalPrice !== undefined && c.totalPrice !== null
+                        ? Number(c.totalPrice)
+                        : unitPriceUsed * Number(c.quantity || 1);
                     complementsMongo.ComplementDoor.push({
                         Name: door ? door.name : '',
-                        Width: Number(c.custom.width),
-                        Height: Number(c.custom.height),
+                        Width: Number(c.custom?.width),
+                        Height: Number(c.custom?.height),
                         Coating: coatingObj
                             ? { name: coatingObj.name, price: coatingObj.price }
                             : null,
                         Quantity: Number(c.quantity),
-                        Accesory: (c.custom.accesories || []).map(acc => ({
+                        Accesory: (c.custom?.accesories || []).map(acc => ({
                             Name: acc.name,
                             Quantity: Number(acc.quantity),
                             Price: Number(acc.price)
                         })),
-                        Price: door ? Number(door.price) * Number(c.quantity) : 0
+                        Price: Number(totalPriceUsed),
+                        UnitPrice: Number(unitPriceUsed)  // <-- nuevo: precio por unidad
                     });
                 }
                 if (c.type === 'partition') {
                     const partition = complementPartitions.find(p => String(p.id ?? p.Id) === String(c.complementId));
+                    const unitPriceUsed = c.unitPrice !== undefined && c.unitPrice !== null
+                        ? Number(c.unitPrice)
+                        : (partition ? Number(partition.price) * (Number(c.custom?.height || 100) / 100) : 0);
+                    const totalPriceUsed = c.totalPrice !== undefined && c.totalPrice !== null
+                        ? Number(c.totalPrice)
+                        : (unitPriceUsed * Number(c.quantity || 1));
                     complementsMongo.ComplementPartition.push({
                         Name: partition ? partition.name : '',
-                        Height: Number(c.custom.height) || 0,
+                        Height: Number(c.custom?.height) || 0,
                         Quantity: Number(c.quantity) || 0,
-                        Simple: !!c.custom.simple,
-                        GlassMilimeters: c.custom.glassMilimeters ? `Mm${c.custom.glassMilimeters}` : '',
-                        Price: partition ? Number(partition.price) * Number(c.quantity) : 0
+                        Simple: !!c.custom?.simple,
+                        GlassMilimeters: c.custom?.glassMilimeters ? `Mm${c.custom.glassMilimeters}` : '',
+                        Price: Number(totalPriceUsed),
+                        UnitPrice: Number(unitPriceUsed) // <-- nuevo
                     });
                 }
                 if (c.type === 'railing') {
                     const railing = complementRailings.find(r => String(r.id) === String(c.complementId));
-                    const treatmentObj = treatments.find(t => String(t.id) === String(c.custom.treatment));
+                    const treatmentObj = treatments.find(t => String(t.id) === String(c.custom?.treatment));
+                    const unitPriceUsed = c.unitPrice !== undefined && c.unitPrice !== null
+                        ? Number(c.unitPrice)
+                        : (railing ? Number(railing.price) : 0);
+                    const totalPriceUsed = c.totalPrice !== undefined && c.totalPrice !== null
+                        ? Number(c.totalPrice)
+                        : (unitPriceUsed ? unitPriceUsed * Number(c.quantity) : 0);
                     complementsMongo.ComplementRailing.push({
                         Name: railing ? railing.name : '',
                         AlumTreatment: treatmentObj
                             ? { name: treatmentObj.name }
                             : null,
-                        Reinforced: !!c.custom.reinforced,
+                        Reinforced: !!c.custom?.reinforced,
                         Quantity: Number(c.quantity),
-                        Price: railing ? Number(railing.price) * Number(c.quantity) : 0
+                        Price: Number(totalPriceUsed),
+                        UnitPrice: Number(unitPriceUsed) // <-- nuevo
                     });
                 }
             });
 
-            // --- NUEVO: Mapear products con nombres correctos ---
+            // --- NUEVO: Mapear products con nombres correctos y adjuntar UnitPrice/TotalPrice ---
             const productsPayload = selectedOpenings.map(opening => {
                 // opening.width/height are in cm
                 const widthCm = Number(opening.width || 0);
@@ -592,11 +620,11 @@ const Quotation = () => {
 
                 // buscar configuración con mm
                 const cfg = safeArray(openingConfigurations).find(c =>
+                    Number(c.opening_type_id) === Number(opening.typeId) &&
                     widthMM >= c.min_width_mm &&
                     widthMM <= c.max_width_mm &&
                     heightMM >= c.min_height_mm &&
-                    heightMM <= c.max_height_mm &&
-                    Number(opening.typeId) === Number(cfg.opening_type_id)
+                    heightMM <= c.max_height_mm
                 );
                 const numW = opening.numPanelsWidth || (cfg ? cfg.num_panels_width : 1);
                 const numH = opening.numPanelsHeight || (cfg ? cfg.num_panels_height : 1);
@@ -632,49 +660,36 @@ const Quotation = () => {
                 const costoManoObra = Number(labourPrice || 0);
 
                 // Build product payload, IMPORTANT: width & height sent in CENTIMETERS
+                const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
+                const quantity = Number(opening.quantity || 1);
+
                 return {
                     OpeningType: openingTypes.find(type => Number(type.id) === Number(opening.typeId))
                         ? { name: openingTypes.find(type => Number(type.id) === Number(opening.typeId)).name }
                         : { name: "" },
-                    Quantity: Number(opening.quantity || 1),
+                    Quantity: quantity,
                     AlumTreatment: treatmentObj ? { name: treatmentObj.name } : { name: "" },
                     GlassType: glassObj ? { name: glassObj.name, Price: Number(glassObj.price || 0) } : { name: "", Price: 0 },
-                    width: Number(widthCm),  // <- ENVIAR EN CENTÍMETROS
-                    height: Number(heightCm), // <- ENVIAR EN CENTÍMETROS
+                    width: Number(widthCm),
+                    height: Number(heightCm),
                     WidthPanelQuantity: Number(numW),
                     HeightPanelQuantity: Number(numH),
-                    PanelWidth: Number(panelWidthCm.toFixed(2)),  // cm
-                    PanelHeight: Number(panelHeightCm.toFixed(2)), // cm
+                    PanelWidth: Number(panelWidthCm.toFixed(2)),
+                    PanelHeight: Number(panelHeightCm.toFixed(2)),
                     Accesory: (opening.accesories || opening.custom?.accesories || []).map(a => ({
                         Name: a.name || a.Name || '',
                         Quantity: Number(a.quantity || a.Quantity || 0),
                         Price: Number(a.price || a.Price || 0)
-                    }))
+                    })),
+                    UnitPrice: Number(subtotal.toFixed(2)),            // <-- precio unitario (sin IVA)
+                    TotalPrice: Number((subtotal * quantity).toFixed(2)) // <-- precio total por cantidad (sin IVA)
                 };
             });
-
-            // --- LOG: mostrar plantilla esperada y payload real para depuración ---
-            const expectedTemplate = {
-                Budget: {
-                    budgetId: "string",
-                    user: { name: "string", lastName: "string", mail: "string" },
-                    customer: { name: "string", lastname: "string", tel: "string", mail: "string", address: "string", dni: "string" },
-                    agent: { name: "string", lastname: "string", dni: "string", tel: "string", mail: "string" },
-                    workPlace: { name: "string", location: "string", address: "string", workType: { type: "string" } },
-                    Products: [{ OpeningType: { name: "string" }, AlumTreatment: { name: "string" }, GlassType: { name: "string", Price: 0 }, width: 0, height: 0, WidthPanelQuantity: 0, HeightPanelQuantity: 0, PanelWidth: 0, PanelHeight: 0, Quantity: 0, Accesory: [], price: 0 }],
-                    complement: [{ ComplementDoor: [], ComplementRailing: [], ComplementPartition: [], price: 0 }],
-                    Comment: "string",
-                    DollarReference: 0,
-                    LabourReference: 0
-                }
-            };
-            console.log("Plantilla esperada por Mongo (ejemplo):", JSON.stringify(expectedTemplate, null, 2));
-            console.log("Agente que se enviará a Mongo (customer.agent):", customerPayloadMongo.agent);
 
             // --- ARREGLADO: Definir selectedWorkType antes de usarlo ---
             const selectedWorkType = workTypes.find(wt => String(wt.id) === String(workPlace.workTypeId));
 
-            // --- NUEVO: Armar el objeto final para Mongo con mayúsculas y estructura correcta ---
+            // --- NUEVO: Incluir bandera para que backend sepa no re-aplicar impuestos/crear mongo ---
             const mongoPayload = {
                 Budget: {
                     budgetId: String(sqlId),
@@ -700,7 +715,8 @@ const Quotation = () => {
                     ],
                     Comment: comment,
                     DollarReference: dollarReference ?? 0,
-                    LabourReference: labourReference ?? 0
+                    LabourReference: labourReference ?? 0,
+                    Meta: { excludeBackendTaxes: true } // <-- bandera para evitar que backend aplique IVA en re-procesos
                 }
             };
 
@@ -778,9 +794,7 @@ const Quotation = () => {
         // Peso total aluminio (kg)
         const openingType = safeArray(openingTypes).find(t => Number(t.id) === Number(opening.typeId));
         const pesoAluminio = openingType && openingType.weight ? totalAluminioM * Number(openingType.weight) : 0;
-
-        // Costo aluminio
-        const costoAluminio = pesoAluminio * alumPrice;
+        const costoAluminio = pesoAluminio * Number(alumPrice);
 
         // Paso 3 — Calcular vidrio
         // Área de cada panel (m²): anchoPanelMM/1000 * altoPanelMM/1000
@@ -985,12 +999,16 @@ const Quotation = () => {
         if (type === 'door') arr = complementDoors;
         else if (type === 'partition') arr = complementPartitions;
         else if (type === 'railing') arr = complementRailings;
-        const comp = arr.find(c => String(c.id) === String(complementId));
+        const comp = arr.find(c => String(c.id ?? c.Id) === String(complementId));
         return comp ? comp.name : '';
     };
 
-    // Función para calcular subtotal de complemento (puedes ajustar la lógica)
+    // Función para calcular subtotal de complemento (usar totalPrice si existe)
     const getComplementSubtotal = (complement) => {
+        // Si complement.totalPrice ya fue calculado al crear, úsalo
+        if (complement.totalPrice !== undefined && complement.totalPrice !== null) {
+            return `Subtotal: $${(Number(complement.totalPrice)).toFixed(2)}`;
+        }
         let arr = [];
         if (complement.type === 'door') arr = complementDoors;
         else if (complement.type === 'partition') arr = complementPartitions;
@@ -1000,10 +1018,14 @@ const Quotation = () => {
         return `Subtotal: $${(price * Number(complement.quantity)).toFixed(2)}`;
     };
 
-    // Total de complementos
+    // Total de complementos (usar totalPrice cuando exista)
     const getTotalComplements = () => {
         let total = 0;
         selectedComplements.forEach(complement => {
+            if (complement.totalPrice !== undefined && complement.totalPrice !== null) {
+                total += Number(complement.totalPrice);
+                return;
+            }
             let arr = [];
             if (complement.type === 'door') arr = complementDoors;
             else if (complement.type === 'partition') arr = complementPartitions;
@@ -1411,7 +1433,7 @@ const Quotation = () => {
                                     type="button"
                                 >×</button>
                                 <div className="summary-title">
-                                    {getComplementName(complement.complementId || complement.id, complement.type)}
+                                    {complement.name ? complement.name : getComplementName(complement.complementId || complement.id, complement.type)}
                                 </div>
                                 <div className="summary-detail summary-qty-row">
                                     <button

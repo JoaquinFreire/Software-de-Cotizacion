@@ -11,6 +11,18 @@ const reportCards = [
     className: "reporte-estado-cotizaciones",
     route: "/reportes/estado-cotizaciones"
   },
+    {
+    title: "Análisis de Proyectos por Ubicación Geográfica",
+    icon: <MapPin size={40} />,
+    className: "reporte-proyectos-ubicacion",
+    route: "/reportes/ubicacion-geografica"
+  },
+   {
+    title: "Análisis de Satisfacción del Cliente",
+    icon: <Smile size={40} />,
+    className: "reporte-satisfaccion-cliente",
+    route: "/reportes/analisis-satisfaccion-cliente"
+  },
   {
     title: "Reporte de Material Usado en Cotización",
     icon: <Layers size={40} />,
@@ -60,25 +72,13 @@ const reportCards = [
     route: "/reportes/clientes-mayor-volumen"
   },
   {
-    title: "Análisis de Proyectos por Ubicación Geográfica",
-    icon: <MapPin size={40} />,
-    className: "reporte-proyectos-ubicacion",
-    route: "/reportes/ubicacion-geografica"
-  },
-  {
-    title: "Linea de tiempo de cotizaciones",
+    title: "Análisis de Ciclo de Vida de los Proyectos",
     icon: <Layers size={40} />,
     className: "reporte-ciclo-vida",
     route: "/reportes/LineaDeTiempoCotizaciones"
   },
   {
-    title: "Análisis de Satisfacción del Cliente",
-    icon: <Smile size={40} />,
-    className: "reporte-satisfaccion-cliente",
-    route: "/reportes/analisis-satisfaccion-cliente"
-  },
-  {
-      title: "Reporte de tiempo ocioso de producción",
+    title: "Reporte de tiempo ocioso de producción",
     icon: <TrendingUp size={40} />,
     className: "reporte-tendencias-industria",
     route: "/reportes/tendencias-industria"
@@ -90,8 +90,8 @@ const reportCards = [
     route: "/reportes/promociones-descuentos"
   },
   {
-      title: "Reporte de consumo de accesorios en proyectos",
-    icon: <UserCheck size={40} />,
+    title: "Reporte de consumo de complementos en proyectos",
+    icon: <UserCheck size={40} />,  
     className: "reporte-productividad-cotizador-2",
     route: "/reportes/productividad-cotizador-2"
   }
