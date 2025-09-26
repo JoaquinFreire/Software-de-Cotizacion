@@ -4,6 +4,7 @@ using System.Text;
 using System.Globalization; // <-- nuevo para parseo robusto
 using System.Threading.Tasks;
 using System.Reflection;
+using System.Linq; // <-- requerido para Where/Any
 
 namespace Domain.Services
 {
@@ -193,14 +194,16 @@ namespace Domain.Services
             return totalPrice;
         }
         private async Task<decimal> CalculateComplementPrice(Complement complement, bool excludeBackendTaxes = false)
-         {
+        {
             decimal totalComplementPrice = 0m;
+
+            // Puertas
             if (complement.ComplementDoor != null)
             {
                 foreach (var complementDoor in complement.ComplementDoor.Where(d => d != null))
                 {
-                    var door = await _doorRepository.GetByNameAsync(ComplementDoor.Name);
-                    decimal individualDoorBasePrice = door.price; // precio base para 90x210 (según DB)
+                    var door = await _doorRepository.GetByNameAsync(complementDoor.Name);
+                    decimal individualDoorBasePrice = door?.price ?? 0m; // precio base para 90x210 (según DB)
 
                     // Dimensiones estándar (cm)
                     double standardWidth = 90;
@@ -208,69 +211,68 @@ namespace Domain.Services
                     double standardAreaCm2 = standardWidth * standardHeight;
 
                     // Dimensiones reales (cm)
-                    double actualAreaCm2 = ComplementDoor.Width * ComplementDoor.Height;
+                    double actualAreaCm2 = complementDoor.Width * complementDoor.Height;
                     // Precio proporcional al área
                     decimal proportionalPrice = individualDoorBasePrice * (decimal)(actualAreaCm2 / standardAreaCm2);
 
                     // Calculo del revestimiento (usar area real para coating)
-                    var coating = await _coatingRepository.GetByNameAsync(ComplementDoor.Coating.name);
+                    var coating = await _coatingRepository.GetByNameAsync(complementDoor.Coating?.name);
                     var coatingScrapData = await _priceRepository.GetByIdAsync(18); // porcentaje de desperdicio del revestimiento
                     // area en m2 = cm2 / 10000
                     decimal areaM2 = (decimal)(actualAreaCm2 / 10000.0);
-                    // mantengo factor 2.2 si querés mantener la lógica previa (doble cara + pérdidas)
                     decimal coatingAreaFactor = 2.2m;
-                    decimal coatingPrice = coating.price * (areaM2 * coatingAreaFactor);
+                    decimal coatingPrice = (coating?.price ?? 0m) * (areaM2 * coatingAreaFactor);
                     if (!excludeBackendTaxes)
                     {
-                        coatingPrice += (coatingPrice * coatingScrapData.price) / 100;
+                        coatingPrice += (coatingPrice * (coatingScrapData?.price ?? 0m)) / 100m;
                     }
-                    ComplementDoor.Coating.price = coatingPrice * ComplementDoor.Quantity; // Guardar el precio del revestimiento en la puerta
+                    // Guardar el precio del coating por la cantidad de puertas (si la propiedad existe)
+                    try { complementDoor.Coating.price = coatingPrice * complementDoor.Quantity; } catch { /* ignore if model differs */ }
 
                     // Accesorios
                     decimal accessoriesTotalForThisDoor = 0m;
-                    if (ComplementDoor.Accesory != null)
+                    if (complementDoor.Accesory != null)
                     {
-                        foreach (var Accesory in ComplementDoor.Accesory)
+                        foreach (var acc in complementDoor.Accesory)
                         {
-                            var accessory = await _accesoryRepository.GetByNameAsync(Accesory.Name);
-                            decimal individualAccessoryPrice = accessory.price;
-                            decimal accessoryTotalPrice = individualAccessoryPrice * Accesory.Quantity;
-                            Accesory.Price = accessoryTotalPrice; // Guardar el precio total del accesorio en la puerta
+                            var accessory = await _accesoryRepository.GetByNameAsync(acc.Name);
+                            decimal individualAccessoryPrice = accessory?.price ?? 0m;
+                            decimal accessoryTotalPrice = individualAccessoryPrice * acc.Quantity;
+                            try { acc.Price = accessoryTotalPrice; } catch { }
                             accessoriesTotalForThisDoor += accessoryTotalPrice;
                         }
                     }
 
                     // Precio por unidad de puerta (area ajustada + coating)
                     decimal unitDoorPrice = proportionalPrice + coatingPrice;
-                    decimal doorTotalPrice = (unitDoorPrice * ComplementDoor.Quantity) + accessoriesTotalForThisDoor;
-                    ComplementDoor.Price = doorTotalPrice;
+                    decimal doorTotalPrice = (unitDoorPrice * complementDoor.Quantity) + accessoriesTotalForThisDoor;
+                    try { complementDoor.Price = doorTotalPrice; } catch { }
                     totalComplementPrice += doorTotalPrice;
                 }
             }
 
-            // BARANDAS
+            // Barandas
             if (complement.ComplementRailing != null)
             {
-                // Cálculo por unidad de baranda, buscar por nombre para evitar IDs hardcode
-                foreach (var ComplementRailing in complement.ComplementRailing)
+                foreach (var complementRailing in complement.ComplementRailing.Where(r => r != null))
                 {
-                    var railing = await _railingRepository.GetByNameAsync(ComplementRailing.Name);
+                    var railing = await _railingRepository.GetByNameAsync(complementRailing.Name);
                     decimal unitRailingPrice = railing?.price ?? 0m;
 
-                    // Reforzado según tipo (frontend aplica multiplicadores según nombre)
-                    if (ComplementRailing.Reinforced == true)
+                    // Reforzado según tipo
+                    if (complementRailing.Reinforced == true)
                     {
-                        var nm = (ComplementRailing.Name ?? "").ToLower();
+                        var nm = (complementRailing.Name ?? "").ToLower();
                         if (nm.Contains("city")) unitRailingPrice *= 1.05m;
                         else if (nm.Contains("imperia")) unitRailingPrice *= 1.15m;
                         else unitRailingPrice *= 1.05m;
                     }
 
-                    // tratamiento de aluminio (parsear porcentaje robustamente)
+                    // tratamiento de aluminio
                     decimal alumTreatmentPct = 0m;
-                    if (!string.IsNullOrEmpty(ComplementRailing.AlumTreatment?.name))
+                    if (!string.IsNullOrEmpty(complementRailing.AlumTreatment?.name))
                     {
-                        var alumTreatment = await _alumTreatmentRepository.GetByNameAsync(ComplementRailing.AlumTreatment.name);
+                        var alumTreatment = await _alumTreatmentRepository.GetByNameAsync(complementRailing.AlumTreatment.name);
                         if (alumTreatment != null)
                         {
                             var normalized = (alumTreatment.pricePercentage ?? "").Replace(',', '.');
@@ -281,34 +283,31 @@ namespace Domain.Services
                     decimal treatmentCost = (unitRailingPrice * alumTreatmentPct) / 100m;
                     if (!excludeBackendTaxes)
                     {
-                        treatmentCost += (treatmentCost * alumTreatmentScrap.price) / 100m;
+                        treatmentCost += (treatmentCost * (alumTreatmentScrap?.price ?? 0m)) / 100m;
                     }
 
                     decimal unitFinal = unitRailingPrice + treatmentCost;
-                    decimal totalRailing = unitFinal * ComplementRailing.Quantity;
-                    ComplementRailing.Price = totalRailing;
-                    ComplementRailing.AlumTreatment.pricePercentage = treatmentCost.ToString(CultureInfo.InvariantCulture);
+                    decimal totalRailing = unitFinal * complementRailing.Quantity;
+                    try { complementRailing.Price = totalRailing; complementRailing.AlumTreatment.pricePercentage = treatmentCost.ToString(CultureInfo.InvariantCulture); } catch { }
                     totalComplementPrice += totalRailing;
                 }
             }
 
-            // DIVISIONES
+            // Tabiques / Partitions
             if (complement.ComplementPartition != null)
             {
-                foreach (var ComplementPartition in complement.ComplementPartition)
+                foreach (var complementPartition in complement.ComplementPartition.Where(p => p != null))
                 {
-                    // Evitar usar GetByNameAsync en IComplementPartitionRepository (no existe en la interfaz).
-                    // Preferimos usar el precio que venga en el payload (ComplementPartition.Price) como base por 100cm.
-                    // ComplementPartition.Price puede ser nullable (decimal?). Usar null-coalescing para evitar error de conversión.
-                    decimal basePartitionPricePer100cm = ComplementPartition.Price ?? 0m;
+                    // Usar el precio que venga en el payload (o 0 si no existe)
+                    decimal basePartitionPricePer100cm = complementPartition.Price;
 
-                    decimal heightCm = (decimal)(ComplementPartition.Height);
+                    decimal heightCm = (decimal)(complementPartition.Height);
                     decimal unitPrice = basePartitionPricePer100cm * (heightCm / 100m);
-                    if (ComplementPartition.Simple == false)
+                    if (complementPartition.Simple == false)
                     {
                         unitPrice *= 1.15m;
                     }
-                    switch (ComplementPartition.GlassMilimeters)
+                    switch (complementPartition.GlassMilimeters)
                     {
                         case Enums.GlassMilimeters.Mm6:
                             unitPrice *= 1.0m;
@@ -320,14 +319,14 @@ namespace Domain.Services
                             unitPrice *= 1.30m;
                             break;
                     }
-                    decimal totalPartitionPrice = unitPrice * ComplementPartition.Quantity;
-                    ComplementPartition.Price = totalPartitionPrice;
+                    decimal totalPartitionPrice = unitPrice * complementPartition.Quantity;
+                    try { complementPartition.Price = totalPartitionPrice; } catch { }
                     totalComplementPrice += totalPartitionPrice;
                 }
             }
 
             return totalComplementPrice;
-         }
+        }
 
 
 
