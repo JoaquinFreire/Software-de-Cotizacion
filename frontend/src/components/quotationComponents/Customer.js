@@ -3,7 +3,7 @@ import axios from 'axios';
 import "../../styles/quotation.css";
 
 const API_URL = process.env.REACT_APP_API_URL;
-const Customer = ({ newCustomer, setNewCustomer, errors = {}, isCustomerFound, setIsCustomerFound }) => {
+const Customer = ({ newCustomer, setNewCustomer, errors = {}, isCustomerFound, setIsCustomerFound, onAddClientToSummary }) => {
     const [loading, setLoading] = useState(false);
     const debounceTimeout = useRef(null);
 
@@ -96,15 +96,25 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {}, isCustomerFound, s
                 />
                 {errors.dni && <span className="error-message">{errors.dni}</span>}
                 {isCustomerFound && (
-                    <button
-                        className="botton-DNI"
-                        onClick={() => {
-                            setIsCustomerFound(false);
-                            setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', dni: '' });
-                        }}
-                    >
-                        Buscar otro DNI
-                    </button>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                        <button
+                            className="botton-DNI"
+                            onClick={() => {
+                                setIsCustomerFound(false);
+                                setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', dni: '' });
+                            }}
+                        >
+                            Buscar otro DNI
+                        </button>
+                        <button
+                            type="button"
+                            className="botton-DNI"
+                            onClick={() => onAddClientToSummary && onAddClientToSummary()}
+                            title="Agregar cliente al resumen"
+                        >
+                            Agregar este cliente
+                        </button>
+                    </div>
                 )}
             </div>
             {loading ? (

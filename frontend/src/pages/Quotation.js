@@ -53,6 +53,8 @@ const Quotation = () => {
     });
     // const [isCustomerComplete, setIsCustomerComplete] = useState(false); // <-- ELIMINAR ESTA LÍNEA
     const [agents, setAgents] = useState([]); // Lista de agentes asociados al customer
+    const [clients, setClients] = useState([]);
+    const [workPlaces, setWorkPlaces] = useState([]); // <-- Add this line to define workPlaces state
     const [agentSearchDni, setAgentSearchDni] = useState(""); // DNI para buscar agente
     const [agentSearchResult, setAgentSearchResult] = useState(null); // Resultado de búsqueda de agente
     const [agentSearchError, setAgentSearchError] = useState("");
@@ -589,11 +591,11 @@ const Quotation = () => {
                 const heightMM = heightCm * 10;
 
                 // buscar configuración con mm
-                const cfg = safeArray(openingConfigurations).find(cfg =>
-                    widthMM >= cfg.min_width_mm &&
-                    widthMM <= cfg.max_width_mm &&
-                    heightMM >= cfg.min_height_mm &&
-                    heightMM <= cfg.max_height_mm &&
+                const cfg = safeArray(openingConfigurations).find(c =>
+                    widthMM >= c.min_width_mm &&
+                    widthMM <= c.max_width_mm &&
+                    heightMM >= c.min_height_mm &&
+                    heightMM <= c.max_height_mm &&
                     Number(opening.typeId) === Number(cfg.opening_type_id)
                 );
                 const numW = opening.numPanelsWidth || (cfg ? cfg.num_panels_width : 1);
@@ -1021,6 +1023,30 @@ const Quotation = () => {
         }
     }, [lastOpeningLog]);
 
+    // Nueva función para agregar cliente al resumen
+    const handleAddClientToSummary = () => {
+        if (
+            newCustomer.name &&
+            newCustomer.lastname &&
+            newCustomer.dni &&
+            !clients.some(c => c.dni === newCustomer.dni)
+        ) {
+            setClients(prev => [...prev, { ...newCustomer }]);
+        }
+    };
+
+    // Nueva función para agregar espacio de trabajo al resumen
+    const handleAddWorkPlaceToSummary = () => {
+        if (
+            workPlace.name &&
+            workPlace.address &&
+            workPlace.workTypeId &&
+            !workPlaces.some(wp => wp.name === workPlace.name && wp.address === workPlace.address)
+        ) {
+            setWorkPlaces(prev => [...prev, { ...workPlace }]);
+        }
+    };
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
@@ -1074,6 +1100,7 @@ const Quotation = () => {
                                     errors={currentIndex === 0 ? stepErrors : {}}
                                     isCustomerFound={isCustomerFound}
                                     setIsCustomerFound={setIsCustomerFound}
+                                    onAddClientToSummary={handleAddClientToSummary}
                                 />
                             </SwiperSlide>
                             <SwiperSlide>
@@ -1171,6 +1198,15 @@ const Quotation = () => {
                                     workTypes={workTypes}
                                     errors={currentIndex === 2 ? stepErrors : {}}
                                 />
+                                {/* Botón para agregar espacio de trabajo al resumen */}
+                                <button
+                                    type="button"
+                                    className="botton-carusel"
+                                    style={{ marginTop: 12 }}
+                                    onClick={handleAddWorkPlaceToSummary}
+                                >
+                                    Agregar espacio de trabajo
+                                </button>
                             </SwiperSlide>
                             <SwiperSlide>
                                 <OpeningType
@@ -1232,8 +1268,19 @@ const Quotation = () => {
                 <aside className="quotation-summary">
                     <h3>Resumen</h3>
                     <div>
-                        {/* Lista de agentes agregados */}
+                         <div className="agents-list">
+                            <h4 className='h4'>Clientes seleccionados:</h4>
+                            {clients.length === 0 && <div className="summary-empty">No tiene cliente.</div>}
+                            {clients.map((client, idx) => (
+                                <div key={idx} className="agent-selected-row">
+                                    <span>
+                                        {client.name} {client.lastname} - {client.dni}
 
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                        {/* Lista de agentes agregados */}
                         <div className="agents-list">
                             <h4 className='h4'>Agentes seleccionados:</h4>
                             {agents.length === 0 && <div className="summary-empty">No tiene agentes.</div>}
@@ -1246,6 +1293,18 @@ const Quotation = () => {
                                 </div>
                             ))}
                         </div>
+                        <div className="workplace-summary">
+                            <h4 className='h4'>Espacios de trabajo :</h4>
+                            {workPlaces.length === 0 && <div className="summary-empty">No hay espacios de trabajo agregados.</div>}
+                            {workPlaces.map((wp, idx) => (
+                                <div key={idx} className="summary-item">
+                                    <span>
+                                        <b>{wp.location}</b> - {wp.address} 
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                        
                         <h4 className='h4'>Aberturas agregadas:</h4>
                         {selectedOpenings.length === 0 && (
                             <div className="summary-empty">No hay aberturas agregadas.</div>

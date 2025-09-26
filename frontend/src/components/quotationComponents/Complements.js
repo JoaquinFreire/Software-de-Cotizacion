@@ -25,12 +25,12 @@ const Complements = ({
     const [touchedRows, setTouchedRows] = useState([]);
     const emptyAcc = { name: '', quantity: 1, price: '' };
 
-    // Sincroniza con el estado externo
-    useEffect(() => {
-        setSelectedComplements(
-            rows.filter(row => row.type && row.complementId && Number(row.quantity) > 0)
-        );
-    }, [rows, setSelectedComplements]);
+    // Elimina este bloque para evitar carga automática al rellenar campos
+    // useEffect(() => {
+    //     setSelectedComplements(
+    //         rows.filter(row => row.type && row.complementId && Number(row.quantity) > 0)
+    //     );
+    // }, [rows, setSelectedComplements]);
 
     useEffect(() => {
         setTouchedRows(rows.map(() => false));
@@ -197,7 +197,21 @@ const Complements = ({
         fetchAccesories();
     }, []);
 
+    // Nueva función para cargar complementos manualmente
+    const handleLoadComplements = () => {
+        // Marca todas las filas como touched para mostrar errores
+        setTouchedRows(rows.map(() => true));
+        // Valida todas las filas
+        const validRows = rows.filter(row => !validateRow(row));
+        if (validRows.length > 0) {
+            setSelectedComplements(validRows);
+        } else {
+            setSelectedComplements([]);
+        }
+    };
+
     return (
+        <div className="App">
         <div className="complements-container">
             <h3>Complementos</h3>
             <div>
@@ -314,7 +328,7 @@ const Complements = ({
                                                             style={{ width: 80 }}
                                                         />
                                                         
-                                                        <button type="button" onClick={() => handleRemoveAcc(idx, accIdx)} className='BottonDelete'>Borrar 🗑️</button>
+                                                        <button type="button" onClick={() => handleRemoveAcc(idx, accIdx)} className='BottonDeleteComplement'>Borrar 🗑️</button>
                                                     </div>
                                                 ))}
                                             </>
@@ -405,10 +419,18 @@ const Complements = ({
                     );
                 })}
                 <button type="button" className="botton-carusel" onClick={handleAddRow}>
-                    + Agregar complemento
+                    Agregar complemento
                 </button>
             </div>
+               
         </div>
+                <div><button type="button" className="botton-carusel" onClick={handleLoadComplements}>
+                    Cargar complementos 
+                </button>
+                </div>
+         </div>
+     
+        
     );
 };
 
