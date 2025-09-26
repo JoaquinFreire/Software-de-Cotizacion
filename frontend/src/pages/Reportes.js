@@ -66,10 +66,10 @@ const reportCards = [
     route: "/reportes/ubicacion-geografica"
   },
   {
-    title: "Análisis de Ciclo de Vida de los Proyectos",
+    title: "Linea de tiempo de cotizaciones",
     icon: <Layers size={40} />,
     className: "reporte-ciclo-vida",
-    route: "/reportes/ciclo-vida"
+    route: "/reportes/LineaDeTiempoCotizaciones"
   },
   {
     title: "Análisis de Satisfacción del Cliente",

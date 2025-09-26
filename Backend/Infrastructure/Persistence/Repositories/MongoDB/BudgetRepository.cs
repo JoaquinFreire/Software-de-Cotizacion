@@ -45,6 +45,13 @@ namespace Infrastructure.Persistence.Repositories
             return await _collection.Find(filter).FirstOrDefaultAsync();
         }
 
+        //Metodo para ver las cotizaciones por BudgetId
+        public async Task<List<Budget>> GetBudgetsByBudgetIdAsync(string budgetId)
+        {
+            var filter = Builders<Budget>.Filter.Eq(b => b.budgetId, budgetId);
+            return await _collection.Find(filter).ToListAsync();
+        }
+
         //Metodo para agregar cotizaciones
         public async Task AddAsync(Budget entity)
         {
