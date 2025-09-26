@@ -53,5 +53,13 @@ namespace Infrastructure.Persistence.Repositories
                 .Where(p => EF.Functions.Like(p.name.ToLower(), $"%{lower}%"))
                 .ToListAsync();
         }
+
+        public async Task<ComplementPartition?> GetByNameAsync(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return null;
+            return await _context.ComplementPartitions
+                .AsQueryable()
+                .FirstOrDefaultAsync(p => p.name != null && p.name.ToLower() == name.Trim().ToLower());
+        }
     }
 }
