@@ -192,13 +192,12 @@ namespace Domain.Services
 
             return totalPrice;
         }
-
         private async Task<decimal> CalculateComplementPrice(Complement complement, bool excludeBackendTaxes = false)
          {
             decimal totalComplementPrice = 0m;
             if (complement.ComplementDoor != null)
             {
-                foreach (var ComplementDoor in complement.ComplementDoor)
+                foreach (var complementDoor in complement.ComplementDoor.Where(d => d != null))
                 {
                     var door = await _doorRepository.GetByNameAsync(ComplementDoor.Name);
                     decimal individualDoorBasePrice = door.price; // precio base para 90x210 (según DB)
@@ -249,6 +248,7 @@ namespace Domain.Services
                 }
             }
 
+            // BARANDAS
             if (complement.ComplementRailing != null)
             {
                 // Cálculo por unidad de baranda, buscar por nombre para evitar IDs hardcode
@@ -292,6 +292,7 @@ namespace Domain.Services
                 }
             }
 
+            // DIVISIONES
             if (complement.ComplementPartition != null)
             {
                 foreach (var ComplementPartition in complement.ComplementPartition)
@@ -327,6 +328,8 @@ namespace Domain.Services
 
             return totalComplementPrice;
          }
+
+
 
         // Calcula el precio TOTAL de un presupuesto con varias aberturas
      public async Task<decimal> CalculateBudgetTotal(Budget budget)

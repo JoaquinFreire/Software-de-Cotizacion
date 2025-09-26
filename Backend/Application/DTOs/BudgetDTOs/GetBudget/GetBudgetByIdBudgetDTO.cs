@@ -5,7 +5,7 @@ public class GetBudgetByIdBudgetDTO
 {
 
     public required string budgetId { get; set; }
-    public required string version { get; set; }
+    public required int version { get; set; }
     public DateTime? creationDate { get; set; }
     public BudgetStatus? status { get; set; }
     public GetBudgetByIdUserDTO? user { get; set; }

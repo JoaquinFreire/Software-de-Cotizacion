@@ -75,7 +75,7 @@ const reportCards = [
     title: "Análisis de Ciclo de Vida de los Proyectos",
     icon: <Layers size={40} />,
     className: "reporte-ciclo-vida",
-    route: "/reportes/ciclo-vida"
+    route: "/reportes/LineaDeTiempoCotizaciones"
   },
   {
     title: "Reporte de tiempo ocioso de producción",

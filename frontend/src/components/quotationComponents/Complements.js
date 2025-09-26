@@ -470,6 +470,7 @@ const Complements = ({
     };
 
     return (
+        <div className="App">
         <div className="complements-container">
             <h3>Complementos</h3>
             <div>
@@ -586,6 +587,7 @@ const Complements = ({
                                                             style={{ width: 80 }}
                                                         />
                                                         <button type="button" onClick={() => handleRemoveAcc(idx, accIdx)} className='BottonDelete'>🗑️</button>
+
                                                     </div>
                                                 ))}
                                             </>
@@ -790,10 +792,18 @@ const Complements = ({
                     );
                 })}
                 <button type="button" className="botton-carusel" onClick={handleAddRow}>
-                    + Agregar complemento
+                    Agregar complemento
                 </button>
             </div>
+               
         </div>
+                <div><button type="button" className="botton-carusel" onClick={handleLoadComplements}>
+                    Cargar complementos 
+                </button>
+                </div>
+         </div>
+     
+        
     );
 };
 

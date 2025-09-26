@@ -7,6 +7,7 @@ namespace Domain.Repositories
         Task<List<Budget>> GetAllAsync();
         Task<Budget> GetByIdAsync(string budgetid); // método para id de mongo
         Task<Budget> GetByBudgetIdAsync(string budgetId); // método para BudgetId
+        Task<List<Budget>> GetBudgetsByBudgetIdAsync(string budgetId);
         Task AddAsync(Budget entity);
         Task UpdateAsync(string id, Budget entity);
         Task DeleteAsync(string id);
