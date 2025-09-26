@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react'; 
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import logoAnodal from '../images/logo_secundario.webp';
@@ -8,7 +8,8 @@ import html2canvas from 'html2canvas';
 import ReactLoading from 'react-loading';
 import Navbar from '../components/Navigation';
 import { safeArray } from '../utils/safeArray';
-import '../styles/reporteindividual.css';
+import '../styles/BudgetDetail.css';
+import Qrcode from '../images/qr-code.png';
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5187";
 
@@ -28,7 +29,6 @@ const BudgetDetail = () => {
         const res = await axios.get(`${API_URL}/api/Mongo/GetBudgetByBudgetId/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-    
         setBudget(res.data);
       } catch {
         setBudget(null);
@@ -37,10 +37,9 @@ const BudgetDetail = () => {
     };
     fetchBudget();
   }, [id]);
-    console.log('DEBUG Budget Data:', budget);
+
   const show = (val) => val !== undefined && val !== null && val !== "" ? val : "No especificado";
 
-  // Generador de PDF en memoria
   const generatePDF = async () => {
     if (!pdfRef.current) return null;
     const input = pdfRef.current;
@@ -70,7 +69,6 @@ const BudgetDetail = () => {
     return pdf;
   };
 
-  // Descargar PDF
   const handleDescargarPDF = async () => {
     setPdfLoading(true);
     const pdf = await generatePDF();
@@ -78,18 +76,15 @@ const BudgetDetail = () => {
     setPdfLoading(false);
   };
 
-  // Enviar por Email (usa backend para mandar adjunto)
   const handleEnviarEmail = async () => {
     setMailLoading(true);
     const pdf = await generatePDF();
     if (!pdf) return;
-
     const pdfBlob = pdf.output('blob');
     const formData = new FormData();
     formData.append("file", pdfBlob, `cotizacion_${budget.budgetId}.pdf`);
     formData.append("to", budget.customer?.mail || "cliente@ejemplo.com");
 
-//VER ESTO FALTA endpoint
     try {
       await axios.post(`${API_URL}/api/SendMail`, formData, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
@@ -99,118 +94,95 @@ const BudgetDetail = () => {
       console.error(err);
       alert("Error enviando el correo ❌");
     }
-
     setMailLoading(false);
   };
 
-  // Compartir por WhatsApp (con link al PDF en el backend)
   const handleEnviarWhatsApp = async () => {
     setWhatsAppLoading(true);
-
-    // 👇 lo ideal es que el backend te genere un link al PDF
     const pdfLink = `${API_URL}/files/cotizacion_${budget.budgetId}.pdf`;
-    const phone = budget.customer?.tel || "5493510000000"; // con código de país
+    const phone = budget.customer?.tel || "5493510000000"; 
     const mensaje = `Hola ${budget.customer?.name}, aquí tienes tu cotización:\n${pdfLink}`;
-
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`, "_blank");
-
     setWhatsAppLoading(false);
   };
 
   return (
     <>
       <Navbar />
-      <div className="Content-bottom" style={{ display: 'flex', justifyContent: 'center' }}>
-        <div className="only-screen" style={{ margin: '24px 20px' }}>
+      <div className="content-bottom">
+        <div className="only-screen">
           <button className="reporte-cotizaciones-btn-pdf" onClick={handleDescargarPDF} disabled={pdfLoading}>
             {pdfLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Descargar PDF"}
           </button>
         </div>
-        <div className="only-screen" style={{ margin: '24px 20px' }}>
+        <div className="only-screen">
           <button className="reporte-cotizaciones-btn-email" onClick={handleEnviarEmail} disabled={mailLoading}>
             {mailLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Enviar por Email"}
           </button>
         </div>
-        <div className="only-screen" style={{ margin: '24px 20px' }}>
-          <button className="reporte-cotizaciones-btn-WhatsApp" onClick={handleEnviarWhatsApp} disabled={whatsAppLoading}>
+        <div className="only-screen">
+          <button className="reporte-cotizaciones-btn-whatsapp" onClick={handleEnviarWhatsApp} disabled={whatsAppLoading}>
             {whatsAppLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Enviar por WhatsApp"}
           </button>
         </div>
       </div>
 
-      {/* Contenido del PDF */}
-      <div style={{ backgroundColor: '#ccc', padding: 40, display: 'flex', justifyContent: 'center' }}>
+      <div className="pdf-background">
         {loading ? (
           <ReactLoading type="spin" color="#1976d2" height={80} width={80} />
         ) : budget ? (
-          <div
-            ref={pdfRef}
-            style={{
-              width: 794,
-              height: 1123,
-              background: '#fff',
-              padding: 30,
-              fontFamily: 'Arial, sans-serif',
-              color: '#000',
-              boxShadow: '0 0 0 1px #999',
-              position: 'relative',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between'
-            }}
-          >
-            {/* Header del PDF */}
+          <div ref={pdfRef} className="pdf-container">
+            {/* Header */}
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <img src={logoAnodal} alt="Logo" style={{ height: 30, marginLeft: 80 }} />
-                <h1 style={{ fontSize: 28, fontWeight: 'bold', marginLeft: 40 }}>Cotización</h1>
-                <div style={{ textAlign: 'right', fontSize: 14 }}>
+              <div className="pdf-header">
+                <img src={logoAnodal} alt="Logo" className="pdf-logo" />
+                <h1 className="pdf-title">Cotización</h1>
+                <div className="pdf-company-info">
                   <div>Anodal S.A.</div>
                   <div>Av. Japón 1292 Córdoba</div>
                   <div>info@anodal.com.ar</div>
                   <div>0351 4995870</div>
                 </div>
               </div>
-              <hr style={{ marginBottom: 20, borderTop: '1px solid #ccc' }} />
+              <hr className="pdf-separator" />
 
               {/* Datos principales */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                <div style={{ fontSize: 18, fontWeight: 'bold' }}>Cotización N°: {show(budget.budgetId)}</div>
-                <div style={{ textAlign: 'right', fontSize: 14 }}>
+              <div className="pdf-main-data">
+                <div className="pdf-budget-id">Cotización N°: {show(budget.budgetId)}</div>
+                <div className="pdf-date-info">
                   <div>Fecha: {new Date(budget.creationDate).toLocaleDateString()}</div>
                   <div>Válido hasta: {new Date(budget.ExpirationDate).toLocaleDateString()}</div>
                 </div>
               </div>
-              <hr style={{ margin: '10px 0', borderTop: '1px solid #ccc' }} />
+              <hr className="pdf-separator" />
 
               {/* Cliente, lugar y vendedor */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, fontSize: 14 }}>
-                <div style={{ flex: 1 }}>
-                  <strong style={{ fontSize: 16 }}>Cliente</strong><br />
+              <div className="pdf-sections">
+                <div className="pdf-section">
+                  <h4><strong>Cliente</strong><br /></h4>
                   Nombre: {show(budget.customer?.name)} {show(budget.customer?.lastname)}<br />
                   Correo: {show(budget.customer?.mail)}<br />
                   Tel: {show(budget.customer?.tel)}<br />
                   Dirección: {show(budget.customer?.address)}
                 </div>
-                <div style={{ flex: 1 }}>
-                  <strong style={{ fontSize: 16 }}>Lugar de Trabajo</strong><br />
+                <div className="pdf-section">
+                  <h4><strong>Lugar de Trabajo</strong><br /></h4>
                   Nombre: {show(budget.workPlace?.name)}<br />
                   Dirección: {show(budget.workPlace?.address)}
                 </div>
-                <div style={{ flex: 1 }}>
-                  <strong style={{ fontSize: 16 }}>Vendedor</strong><br />
+                <div className="pdf-section">
+                  <h4><strong>Vendedor</strong><br /></h4>
                   Nombre: {show(budget.user?.name)} {show(budget.user?.lastName)}<br />
                   Mail: {show(budget.user?.mail)}
                 </div>
               </div>
-
-              <hr style={{ margin: '20px 0', borderTop: '1px solid #ccc' }} />
+              <hr className="pdf-separator" />
 
               {/* Productos */}
-              <h3 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Abertura</h3>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, border: '1px solid #ccc' }}>
-                <thead style={{ backgroundColor: '#f0f0f0' }}>
-                  <tr>
+              <h3 className="pdf-subtitle">Abertura</h3>
+              <table className="pdf-table">
+                <thead>
+                  <tr className="pdf-Date">
                     <th>Producto</th>
                     <th>Cant.</th>
                     <th>Dimensiones</th>
@@ -221,186 +193,156 @@ const BudgetDetail = () => {
                 </thead>
                 <tbody>
                   {safeArray(budget.Products).map((p, i) => (
-                    <React.Fragment key={i}>
-                      <tr style={{ borderBottom: '1px solid #ddd' }}>
-                        <td>{p.OpeningType?.name || '-'}</td>
-                        <td>{p.Quantity}</td>
-                        <td>{p.width}x{p.height} cm</td>
-                        <td>{p.GlassComplement?.name || '-'}</td>
-                        <td>{p.AlumTreatment?.name || '-'}</td>
-                        <td>$ abc</td>
-                        <td colSpan={6} style={{ textAlign: 'right', paddingBottom: 15, borderBottom: '1px solid #ccc' }}>
-                          <b>Subtotal:</b>
-                        </td>
+                    <tr key={i}>
+                      <td>{p.OpeningType?.name || '-'}</td>
+                      <td>{p.Quantity}</td>
+                      <td>{p.width}x{p.height} cm</td>
+                      <td>{p.GlassType?.name || '-'}</td>
+                      <td>{p.AlumTreatment?.name || '-'}</td>
+                      <td>{p.price ? `$${p.price}` : '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Complementos Puerta */}
+              {safeArray(budget.Complement?.$values).some(c => safeArray(c.ComplementDoor?.$values).length > 0) && (
+                <>
+                  <h3 className="pdf-subtitle">Complemento Puerta</h3>
+                  <table className="pdf-table">
+                    <thead>
+                      <tr className="pdf-Date">
+                        <th>Tipo</th>
+                        <th>Dimensiones</th>
+                        <th>Cantidad</th>
+                        <th>Revestimiento</th>
+                        <th>Precio/u</th>
                       </tr>
-                      
-                    </React.Fragment>
-                  ))}
-                </tbody>
-              </table>
-
-             {/* Complementos */}
-              <h3 style={{ fontSize: 18, fontWeight: 'bold', marginTop:10, marginBottom: 10}}>Complemento Puerta</h3>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, border: '1px solid #ccc' }}>
-                <thead style={{ backgroundColor: '#f0f0f0' }}>
-                  <tr>
-                    <th>Tipo</th>
-                    <th>Dimensiones</th>
-                    <th>Cantidad</th>
-                    <th>Revestimiento</th>
-                    <th>Precio/u</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {safeArray(budget.Complement?.$values).map((c, i) => (
-                    <React.Fragment key={i}>
-                      {safeArray(c.ComplementDoor?.$values).length > 0 ? (
-                        safeArray(c.ComplementDoor.$values).map((door, idx) => (
-                          <tr key={idx} style={{ borderBottom: '1px solid #ddd' }}>
-                            <td>{door?.Name || '-'}</td>
-                            <td>{(door?.width || '-') + 'x' + (door?.height || '-') + ' cm'}</td>
-                            <td>{door?.Quantity || '-'}</td>
-                            <td>{door?.Coating?.name || '-'}</td>
-                            <td>${door?.Price || '-'}</td>
+                    </thead>
+                    <tbody>
+                      {safeArray(budget.Complement?.$values).map((c, i) => (
+                        safeArray(c.ComplementDoor?.$values).length > 0 ? (
+                          safeArray(c.ComplementDoor.$values).map((door, idx) => (
+                            <tr key={idx}>
+                              <td>{door?.Name || '-'}</td>
+                              <td>{door?.Width}x{door?.Weight} cm</td>
+                              <td>{door?.Quantity || '-'}</td>
+                              <td>{door?.Coating?.name || '-'}</td>
+                              <td>${door?.Price || '-'}</td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr key={i}>
+                            <td colSpan={5} className="pdf-empty">Sin complementos</td>
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={5} style={{ color: '#888' }}>Sin complementos</td>
-                        </tr>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </tbody>
-              </table>
+                        )
+                      ))}
+                    </tbody>
+                  </table>
+                </>
+              )}
 
-              <h3 style={{ fontSize: 18, fontWeight: 'bold', marginTop:10, marginBottom: 10}}>Complemento Baranda</h3>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, border: '1px solid #ccc' }}>
-                <thead style={{ backgroundColor: '#f0f0f0' }}>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Tratamiento</th>
-                    <th>Refuerzos</th>
-                    <th>Cantidad</th>
-                    <th>Precio/u</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {safeArray(budget.Complement?.$values).map((c, i) => (
-                    <React.Fragment key={i}>
-                      {safeArray(c.ComplementRailing?.$values).length > 0 ? (
-                        safeArray(c.ComplementRailing.$values).map((railing, idx) => (
-                          <tr key={idx} style={{ borderBottom: '1px solid #ddd' }}>
-                            <td>{railing?.Name || '-'}</td>
-                            <td>{railing?.AlumTreatment?.Name || '-'}</td>
-                            <td>{railing?.Reinforced ? 'Sí' : 'No'}</td>
-                            <td>{railing?.Quantity || '-'}</td>
-                            <td>${railing?.Price || '-'}</td>
+              {/* Complementos Baranda */}
+              {safeArray(budget.Complement?.$values).some(c => safeArray(c.ComplementRailing?.$values).length > 0) && (
+                <>
+                  <h3 className="pdf-subtitle">Complemento Baranda</h3>
+                  <table className="pdf-table">
+                    <thead>
+                      <tr className="pdf-Date">
+                        <th>Tipo</th>
+                        <th>Cantidad</th>
+                        <th>Tratamiento</th>
+                        <th>Precio/u</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {safeArray(budget.Complement?.$values).map((c, i) => (
+                        safeArray(c.ComplementRailing?.$values).length > 0 ? (
+                          safeArray(c.ComplementRailing.$values).map((railing, idx) => (
+                            <tr key={idx}>
+                              <td>{railing?.Name || '-'}</td>
+                              <td>{railing?.Quantity || '-'}</td>
+                              <td>{railing?.AlumTreatment?.name || '-'}</td>
+                              <td>${railing?.Price || '-'}</td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr key={i}>
+                            <td colSpan={5} className="pdf-empty">Sin complementos</td>
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={5} style={{ color: '#888' }}>Sin complementos</td>
-                        </tr>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </tbody>
-              </table>
+                        )
+                      ))}
+                    </tbody>
+                  </table>
+                </>
+              )}
 
-              <h3 style={{ fontSize: 18, fontWeight: 'bold', marginTop:10, marginBottom: 10}}>Complemento Tabique</h3>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, border: '1px solid #ccc' }}>
-                <thead style={{ backgroundColor: '#f0f0f0' }}>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Altura</th>
-                    <th>Simple</th>
-                    <th>Cantidad</th>
-                    <th>Espesor</th>
-                    <th>Precio/u</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {safeArray(budget.Complement?.$values).map((c, i) => (
-                    <React.Fragment key={i}>
-                      {safeArray(c.ComplementPartition?.$values).length > 0 ? (
-                        safeArray(c.ComplementPartition.$values).map((partition, idx) => (
-                          <tr key={idx} style={{ borderBottom: '1px solid #ddd' }}>
-                            <td>{partition?.Name || '-'}</td>
-                            <td>{partition?.Height || '-'}</td>
-                            <td>{partition?.Simple ? 'Sí' : 'No'}</td>
-                            <td>{partition?.Quantity || '-'}</td>
-                            <td>{partition?.GlassMilimeters || '-'}</td>
-                            <td>${partition?.Price || '-'}</td>
+              {/* Complementos Tabique */}
+              {safeArray(budget.Complement?.$values).some(c => safeArray(c.ComplementPartition?.$values).length > 0) && (
+                <>
+                  <h3 className="pdf-subtitle">Complemento Tabique</h3>
+                  <table className="pdf-table">
+                    <thead>
+                      <tr className="pdf-Date">
+                        <th>Tipo</th>
+                        <th>Alto</th>
+                        <th>Cantidad</th>
+                        <th>Espesor</th>
+                        <th>Simple</th>
+                        <th>Precio/u</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {safeArray(budget.Complement?.$values).map((c, i) => (
+                        safeArray(c.ComplementPartition?.$values).length > 0 ? (
+                          safeArray(c.ComplementPartition.$values).map((partition, idx) => (
+                            <tr key={idx}>
+                              <td>{partition?.Name || '-'}</td>
+                              <td>{partition?.Height} cm</td>
+                              <td>{partition?.Quantity || '-'}</td>
+                              <td>{partition?.GlassMilimeters || '-'}</td>
+                              <td>{partition?.Simple || 'No'}</td>
+                              <td>${partition?.Price || '-'}</td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr key={i}>
+                            <td colSpan={5} className="pdf-empty">Sin complementos</td>
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={6} style={{ color: '#888' }}>Sin complementos</td>
-                        </tr>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </tbody>
-              </table>
+                        )
+                      ))}
+                    </tbody>
+                  </table>
+                </>
+              )}
 
               {/* Totales */}
-              <div style={{ textAlign: 'right', marginTop: 20, fontSize: 16 }}>
-                <div><b>Total:</b> </div>
+              <div className="pdf-totals">
                 <div><b>Dólar Ref:</b> {show(budget.DollarReference)}</div>
                 <div><b>Mano de Obra:</b> {show(budget.LabourReference)}</div>
+                <h3 className="pdf-total" ><b>Total:</b></h3>{show(budget.Price)}
               </div>
-
+              <hr className="pdf-separator" />
               {/* Observaciones */}
-              <div style={{ marginTop: 20, fontSize: 14 }}>
+              <div className="pdf-comments">
                 <b>Observaciones:</b> {show(budget.Comment)}
               </div>
             </div>
-            
 
-            {/* Encuesta mejorada */}
-            <div
-              style={{
-                marginTop: 30,
-                padding: 20,
-                border: '1px solid #26b7cd',
-                borderRadius: 10,
-                background: '#f5feffff',
-                textAlign: 'center',
-                boxShadow: '0 2px 8px rgba(25, 118, 210, 0.08)'
-              }}
-            >
-              <h3 style={{ color: '#26b7cd', marginBottom: 10 }}>Encuesta de Satisfacción</h3>
-              <div style={{ marginBottom: 12, fontSize: 15 }}>
+            {/* Encuesta */}
+            <div className="pdf-survey">
+              <h3>Encuesta de Satisfacción</h3>
+              <div>
                 Nos gustaría conocer tu opinión sobre nuestro servicio.<br />
                 Por favor, completa la siguiente encuesta:
               </div>
-              <a
-                href="https://docs.google.com/forms/d/e/1FAIpQLSciI6afTuXOIujR1CjCTo3-HCOBaBo6cOdo7MfU_WtZ_SgvEA/viewform?usp=sharing&ouid=105538931547743841857"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ textDecoration: 'none' }}
-              >
-                <button
-                  style={{
-                    background: '#26b7cd',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 6,
-                    padding: '10px 24px',
-                    fontSize: 16,
-                    cursor: 'pointer',
-                    boxShadow: '0 1px 4px rgba(25, 118, 210, 0.12)'
-                  }}
-                >
-                  Ir a la Encuesta
-                </button>
-              </a>
+              <img src={Qrcode} alt="QR Code" className="pdf-qr-code" />
+              <div className="pdf-qr-instruction">Escanea el código QR para acceder a la encuesta</div>
             </div>
 
             {/* Footer */}
-            <div style={{ textAlign: 'center', fontSize: 12, borderTop: '1px solid #ccc', paddingTop: 10 }}>
-              <img src={miniLogo} alt="Mini Logo" style={{ height: 16, marginBottom: 4 }} /><br />
+            <div className="pdf-footer">
+              <img src={miniLogo} alt="Mini Logo" /><br />
               Avenida Japón 1292 / Córdoba / Argentina<br />
               Solo para uso interno de la empresa Anodal S.A.
             </div>
