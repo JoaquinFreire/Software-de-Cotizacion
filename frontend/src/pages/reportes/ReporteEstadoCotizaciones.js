@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Pie } from 'react-chartjs-2';
 import axios from 'axios';
 import 'chart.js/auto';
@@ -85,6 +85,52 @@ const ReporteEstadoCotizaciones = () => {
   const aprobadosRef = useRef();
   const rechazadosRef = useRef();
   const finalizadosRef = useRef();
+
+  // Nuevo: estado para rol actual
+  const [currentRole, setCurrentRole] = useState(null);
+
+  // Nuevo: dirección de ordenamiento por grupo ('asc'|'desc'|null)
+  const [sortDirection, setSortDirection] = useState({
+    pending: null,
+    approved: null,
+    rejected: null,
+    finished: null
+  });
+
+  // Fetch current user role on mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    (async () => {
+      try {
+        const res = await axios.get(`${API_URL}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        // Normalizamos el nombre del rol como string lower-case
+        const user = res.data?.user || {};
+        const roleRaw = (user?.role?.role_name ?? user?.role ?? "").toString().toLowerCase();
+        const roleName = roleRaw || "";
+        setCurrentRole(roleName);
+
+        // Si no es manager, ocultar por defecto todos excepto pendientes.
+        if (roleName !== 'manager') {
+          setMostrarPendientes(true);
+          setMostrarAprobados(false);
+          setMostrarRechazados(false);
+          setMostrarFinalizados(false);
+        } else {
+          // manager ve todo por defecto
+          setMostrarPendientes(true);
+          setMostrarAprobados(true);
+          setMostrarRechazados(true);
+          setMostrarFinalizados(true);
+        }
+      } catch (err) {
+        // si hay error, dejamos comportamiento por defecto (mostrar todo)
+        console.error("Error fetching current role for report:", err);
+      }
+    })();
+  }, []);
 
   const fetchData = async () => {
     if (!fechaDesde || !fechaHasta) return;
@@ -208,6 +254,34 @@ const ReporteEstadoCotizaciones = () => {
     }, 100);
   };
 
+  // Helper para obtener precio numérico
+  const getPrice = (q) => {
+    const v = q?.TotalPrice ?? q?.totalPrice ?? q?.Total ?? q?.price ?? 0;
+    const n = Number(String(v).replace(/[^0-9.-]+/g, ''));
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  // Toggle de orden para un grupo
+  const toggleSort = (group) => {
+    setSortDirection(prev => {
+      const current = prev[group];
+      const next = current === 'asc' ? 'desc' : 'asc';
+      return { ...prev, [group]: next };
+    });
+  };
+
+  // Devuelve arreglo ordenado según la dirección para un grupo
+  const sortedGroup = (arr, groupName) => {
+    const dir = sortDirection[groupName];
+    if (!dir) return Array.isArray(arr) ? arr : [];
+    const copy = [...(arr || [])];
+    copy.sort((a, b) => {
+      const pa = getPrice(a), pb = getPrice(b);
+      return dir === 'asc' ? pa - pb : pb - pa;
+    });
+    return copy;
+  };
+
   return (
     <div className="dashboard-container">
       <Navigation />
@@ -236,11 +310,9 @@ const ReporteEstadoCotizaciones = () => {
               {loading ? 'Cargando...' : 'Generar Reporte'}
             </button>
             <button
-              className="botton-Save"
+              className="reporte-cotizaciones-btn-pdf"
               onClick={handleDescargarPDF}
               disabled={!generar}
-            /*  onClick={() => window.print()}
-            disabled={!generar} */
             >
               Guardar PDF
             </button>
@@ -298,24 +370,26 @@ const ReporteEstadoCotizaciones = () => {
                     </div>
                   </div>
 
-                  {/* Gráfico */}
-                  <div className="reporte-cotizaciones-grafico">
-                    <Pie
-                      data={data}
-                      options={{
-                        plugins: {
-                          datalabels: {
-                            color: '#222',
-                            font: { weight: 'bold', size: 20 },
-                            formatter: (value, context) => value,
-                          }
-                        },
-                        onClick: handlePieClick
-                      }}
-                    />
-                  </div>
+                  {/* Gráfico - sólo para manager */}
+                  {currentRole === 'manager' && (
+                    <div className="reporte-cotizaciones-grafico">
+                      <Pie
+                        data={data}
+                        options={{
+                          plugins: {
+                            datalabels: {
+                              color: '#222',
+                              font: { weight: 'bold', size: 20 },
+                              formatter: (value, context) => value,
+                            }
+                          },
+                          onClick: handlePieClick
+                        }}
+                      />
+                    </div>
+                  )}
 
-                  {/* Tabla */}
+                  {/* Tabla resumen: mostrar siempre completa */}
                   <table className="reporte-cotizaciones-tabla tablachild">
                     <thead>
                       <tr>
@@ -353,49 +427,51 @@ const ReporteEstadoCotizaciones = () => {
                     </tbody>
                   </table>
 
-                  {/* Sección de descripción y análisis */}
-                  <section className="reporte-cotizaciones-analisis">
-                    <div className="reporte-cotizaciones-analisis-bloque">
-                      <strong>Tipo de Gráfico:</strong> Gráfico de torta que muestra la proporción de cotizaciones en diferentes estados.
-                    </div>
-                    <div className="reporte-cotizaciones-analisis-bloque">
-                      <strong>Descripción del Gráfico:</strong> Este gráfico ofrece una visualización rápida de la proporción de cotizaciones en cada estado, permitiendo identificar cuántas cotizaciones están aprobadas, cuántas rechazadas y cuántas permanecen pendientes o finalizadas.
-                    </div>
-                    <div className="reporte-cotizaciones-analisis-bloque">
-                      <strong>Tabla de Resumen:</strong>
-                      <ul>
-                        <li><strong>Encabezados de la Tabla:</strong>
-                          <ul>
-                            <li>Parámetro: Describe cada estado de cotización (Pendiente, Aprobado, Rechazado, Finalizado, Total).</li>
-                            <li>Cantidad: Total de cotizaciones en cada estado específico.</li>
-                            <li>Porcentaje: Proporción de cada estado en relación al total de cotizaciones.</li>
-                          </ul>
-                        </li>
-                        <li><strong>Contenido de la Tabla:</strong>
-                          <ul>
-                            <li>Pendiente: {counts[0]} cotizaciones. {porcentajes[0]} del total.</li>
-                            <li>Aprobado: {counts[1]} cotizaciones. {porcentajes[1]} del total.</li>
-                            <li>Rechazado: {counts[2]} cotizaciones. {porcentajes[2]} del total.</li>
-                            <li>Finalizado: {counts[3]} cotizaciones. {porcentajes[3]} del total.</li>
-                            <li>Total: {total} cotizaciones, 100% del total.</li>
-                          </ul>
-                        </li>
-                      </ul>
-                    </div>
-                    <div className="reporte-cotizaciones-analisis-bloque">
-                      <strong>Resultados Generales:</strong><br />
-                      {total > 0
-                        ? <>Durante el período evaluado, el <strong>{porcentajeMasComun}</strong> de las cotizaciones se encuentran en estado <strong>{estadoMasComun}</strong>.</>
-                        : <>No hay datos para mostrar resultados generales.</>
-                      }
-                    </div>
-                    <div className="reporte-cotizaciones-analisis-bloque">
-                      <strong>Observaciones:</strong>
-                      <div>{observacion}</div>
-                      <strong>Recomendaciones:</strong>
-                      <div>{recomendacion}</div>
-                    </div>
-                  </section>
+                  {/* Sección de descripción y análisis - sólo manager */}
+                  {currentRole === 'manager' && (
+                    <section className="reporte-cotizaciones-analisis">
+                      <div className="reporte-cotizaciones-analisis-bloque">
+                        <strong>Tipo de Gráfico:</strong> Gráfico de torta que muestra la proporción de cotizaciones en diferentes estados.
+                      </div>
+                      <div className="reporte-cotizaciones-analisis-bloque">
+                        <strong>Descripción del Gráfico:</strong> Este gráfico ofrece una visualización rápida de la proporción de cotizaciones en cada estado, permitiendo identificar cuántas cotizaciones están aprobadas, cuántas rechazadas y cuántas permanecen pendientes o finalizadas.
+                      </div>
+                      <div className="reporte-cotizaciones-analisis-bloque">
+                        <strong>Tabla de Resumen:</strong>
+                        <ul>
+                          <li><strong>Encabezados de la Tabla:</strong>
+                            <ul>
+                              <li>Parámetro: Describe cada estado de cotización (Pendiente, Aprobado, Rechazado, Finalizado, Total).</li>
+                              <li>Cantidad: Total de cotizaciones en cada estado específico.</li>
+                              <li>Porcentaje: Proporción de cada estado en relación al total de cotizaciones.</li>
+                            </ul>
+                          </li>
+                          <li><strong>Contenido de la Tabla:</strong>
+                            <ul>
+                              <li>Pendiente: {counts[0]} cotizaciones. {porcentajes[0]} del total.</li>
+                              <li>Aprobado: {counts[1]} cotizaciones. {porcentajes[1]} del total.</li>
+                              <li>Rechazado: {counts[2]} cotizaciones. {porcentajes[2]} del total.</li>
+                              <li>Finalizado: {counts[3]} cotizaciones. {porcentajes[3]} del total.</li>
+                              <li>Total: {total} cotizaciones, 100% del total.</li>
+                            </ul>
+                          </li>
+                        </ul>
+                      </div>
+                      <div className="reporte-cotizaciones-analisis-bloque">
+                        <strong>Resultados Generales:</strong><br />
+                        {total > 0
+                          ? <>Durante el período evaluado, el <strong>{porcentajeMasComun}</strong> de las cotizaciones se encuentran en estado <strong>{estadoMasComun}</strong>.</>
+                          : <>No hay datos para mostrar resultados generales.</>
+                        }
+                      </div>
+                      <div className="reporte-cotizaciones-analisis-bloque">
+                        <strong>Observaciones:</strong>
+                        <div>{observacion}</div>
+                        <strong>Recomendaciones:</strong>
+                        <div>{recomendacion}</div>
+                      </div>
+                    </section>
+                  )}
 
                   {/* Switches para mostrar/ocultar grupos */}
                   <section style={{ margin: '30px 0 10px 0', display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -417,7 +493,7 @@ const ReporteEstadoCotizaciones = () => {
                     </label>
                   </section>
 
-                  {/* Detalle de cotizaciones por estado, siempre visible, dentro del PDF */}
+                  {/* Detalle de cotizaciones por estado, con ordenamiento por Precio Total */}
                   <section style={{ marginTop: 10 }}>
                     {mostrarPendientes && (
                       <>
@@ -435,11 +511,20 @@ const ReporteEstadoCotizaciones = () => {
                                   <th>Dirección</th>
                                   <th>Fecha Creación</th>
                                   <th>Última Edición</th>
-                                  <th>Precio Total</th>
+                                  <th style={{ whiteSpace: 'nowrap' }}>
+                                    Precio Total
+                                    <button
+                                      onClick={() => toggleSort('pending')}
+                                      style={{ marginLeft: 8, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 14 }}
+                                      title="Ordenar por precio"
+                                    >
+                                      {sortDirection.pending === 'asc' ? '↑' : sortDirection.pending === 'desc' ? '↓' : '↕'}
+                                    </button>
+                                  </th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {cotizacionesPorEstado.pending.map(q => (
+                                {sortedGroup(cotizacionesPorEstado.pending, 'pending').map(q => (
                                   <tr key={q.Id || q.id}>
                                     <td>
                                       {q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''}
@@ -460,6 +545,7 @@ const ReporteEstadoCotizaciones = () => {
                         )}
                       </>
                     )}
+
                     {mostrarAprobados && (
                       <>
                         <h2 className='estadosreporte' ref={aprobadosRef} style={{ marginBottom: 10, color: '#388e3c' }}>Aprobados</h2>
@@ -476,11 +562,20 @@ const ReporteEstadoCotizaciones = () => {
                                   <th>Dirección</th>
                                   <th>Fecha Creación</th>
                                   <th>Última Edición</th>
-                                  <th>Precio Total</th>
+                                  <th style={{ whiteSpace: 'nowrap' }}>
+                                    Precio Total
+                                    <button
+                                      onClick={() => toggleSort('approved')}
+                                      style={{ marginLeft: 8, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 14 }}
+                                      title="Ordenar por precio"
+                                    >
+                                      {sortDirection.approved === 'asc' ? '↑' : sortDirection.approved === 'desc' ? '↓' : '↕'}
+                                    </button>
+                                  </th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {cotizacionesPorEstado.approved.map(q => (
+                                {sortedGroup(cotizacionesPorEstado.approved, 'approved').map(q => (
                                   <tr key={q.Id || q.id}>
                                     <td>
                                       {q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''}
@@ -501,6 +596,7 @@ const ReporteEstadoCotizaciones = () => {
                         )}
                       </>
                     )}
+
                     {mostrarRechazados && (
                       <>
                         <h2 className='estadosreporte' ref={rechazadosRef} style={{ marginBottom: 10, color: '#d32f2f' }}>Rechazados</h2>
@@ -517,11 +613,20 @@ const ReporteEstadoCotizaciones = () => {
                                   <th>Dirección</th>
                                   <th>Fecha Creación</th>
                                   <th>Última Edición</th>
-                                  <th>Precio Total</th>
+                                  <th style={{ whiteSpace: 'nowrap' }}>
+                                    Precio Total
+                                    <button
+                                      onClick={() => toggleSort('rejected')}
+                                      style={{ marginLeft: 8, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 14 }}
+                                      title="Ordenar por precio"
+                                    >
+                                      {sortDirection.rejected === 'asc' ? '↑' : sortDirection.rejected === 'desc' ? '↓' : '↕'}
+                                    </button>
+                                  </th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {cotizacionesPorEstado.rejected.map(q => (
+                                {sortedGroup(cotizacionesPorEstado.rejected, 'rejected').map(q => (
                                   <tr key={q.Id || q.id}>
                                     <td>
                                       {q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''}
@@ -542,6 +647,7 @@ const ReporteEstadoCotizaciones = () => {
                         )}
                       </>
                     )}
+
                     {mostrarFinalizados && (
                       <>
                         <h2 className='estadosreporte' ref={finalizadosRef} style={{ marginBottom: 10, color: '#fbc02d' }}>Finalizados</h2>
@@ -558,11 +664,20 @@ const ReporteEstadoCotizaciones = () => {
                                   <th>Dirección</th>
                                   <th>Fecha Creación</th>
                                   <th>Última Edición</th>
-                                  <th>Precio Total</th>
+                                  <th style={{ whiteSpace: 'nowrap' }}>
+                                    Precio Total
+                                    <button
+                                      onClick={() => toggleSort('finished')}
+                                      style={{ marginLeft: 8, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 14 }}
+                                      title="Ordenar por precio"
+                                    >
+                                      {sortDirection.finished === 'asc' ? '↑' : sortDirection.finished === 'desc' ? '↓' : '↕'}
+                                    </button>
+                                  </th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {cotizacionesPorEstado.finished.map(q => (
+                                {sortedGroup(cotizacionesPorEstado.finished, 'finished').map(q => (
                                   <tr key={q.Id || q.id}>
                                     <td>
                                       {q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''}

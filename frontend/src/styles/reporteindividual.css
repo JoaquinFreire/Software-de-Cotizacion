@@ -78,9 +78,9 @@
 .reporte-cotizaciones-filtros {
     display: flex;
     gap: 24px;
-    align-items: stretch;
+    align-items: center;
     background: #fff;
-    padding: 18px 32px 18px 32px;
+    padding: 10px 32px 10px 32px;
     border-radius: 6px;
     box-shadow: 0 2px 8px rgba(30,40,90,0.07);
     margin-bottom: 0;
@@ -154,7 +154,8 @@
     text-align: center;
     margin: 5px auto;
     display: block;
-    width: fit-content;
+    width: 8rem;
+    font-size: 1rem;
 }
 .botton-Save:hover {
     background: #537c7e;
@@ -163,6 +164,9 @@
 }
 .reporte-cotizaciones-btn-pdf {
     background: #882c1c;  
+    font-size: 1rem;
+    width: 8rem;
+    margin: 1px auto
 }
 
 .reporte-cotizaciones-btn-email {
