@@ -27,5 +27,15 @@ namespace Application.Services
             string? customerDni = null
         )
         { return _repository.AdvancedSearchAsync(from, to, status, approxTotalPrice, lastEditFrom, userId, customerDni); }
+
+        public async Task<IEnumerable<Quotation>> GetForCustomerReportAsync(DateTime? fromDate = null,
+        DateTime? toDate = null,
+        string? status = null,
+        string? customerName = null,
+        string? searchTerm = null,
+        CancellationToken cancellationToken = default) 
+        { return await _repository.GetForCustomerReportAsync(fromDate, toDate, status, customerName, searchTerm, cancellationToken); }
+        public async Task<IEnumerable<Quotation>> GetByCustomerIdAsync(int customerId, CancellationToken cancellationToken = default) 
+        { return await _repository.GetByCustomerIdAsync(customerId, cancellationToken); }
     }
 }

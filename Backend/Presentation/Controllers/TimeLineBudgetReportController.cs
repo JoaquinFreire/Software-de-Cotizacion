@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Application.DTOs.TimeLineBudgetReportDTOs.CustomerList;
+using Application.DTOs.TimeLineBudgetReportDTOs.TimeLine;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
 {
     [ApiController]
     [Route("api/TimeLineBudgetReport")]
-    public class TimeLineBudgetReportController : Controller
+    public class TimeLineBudgetReportController : ControllerBase
     {
         private readonly IMediator _mediator;
 
@@ -15,24 +16,126 @@ namespace Presentation.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("{budgetId}")]
-        public async Task<IActionResult> GetTimeLineBudgetReport(string budgetId)
+        [HttpGet("customers")]
+        public async Task<ActionResult<List<CustomerListDTO>>> GetClientReport(
+            [FromQuery] DateTime? fromDate = null,
+            [FromQuery] DateTime? toDate = null,
+            [FromQuery] string? status = null,
+            [FromQuery] string? customerName = null,
+            [FromQuery] string? workPlaceName = null,
+            [FromQuery] string? productType = null,
+            [FromQuery] string? search = null)
+        {
+            var query = new CustomerListQuery
+            {
+                FromDate = fromDate,
+                ToDate = toDate,
+                StatusFilter = status,
+                CustomerName = customerName,
+                WorkPlaceName = workPlaceName,
+                ProductType = productType,
+                SearchTerm = search
+            };
+
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        // ✅ ENDPOINT PRINCIPAL - Timeline por DNI del cliente
+        [HttpGet("{customerDni}")]
+        public async Task<ActionResult<List<BudgetTimeLineDTO>>> GetTimelineByCustomerDni(
+            string customerDni,
+            [FromQuery] string? budgetId = null,
+            [FromQuery] DateTime? fromDate = null,
+            [FromQuery] DateTime? toDate = null)
+        {
+            var query = new TimelineQuery
+            {
+                CustomerDni = customerDni,
+                BudgetIdFilter = budgetId,
+                FromDate = fromDate,
+                ToDate = toDate
+            };
+
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        // ✅ ENDPOINT ALTERNATIVO - Para compatibilidad con IDs numéricos
+        [HttpGet("timeline/{customerId}")]
+        public async Task<ActionResult<List<BudgetTimeLineDTO>>> GetCustomerTimeline(
+            int customerId,
+            [FromQuery] string? budgetId = null,
+            [FromQuery] DateTime? fromDate = null,
+            [FromQuery] DateTime? toDate = null)
+        {
+            // Primero necesitamos obtener el DNI del customer desde SQL
+            // Esto requiere una consulta adicional, pero mantiene la compatibilidad
+            var customerDni = await GetCustomerDniById(customerId);
+
+            if (string.IsNullOrEmpty(customerDni))
+            {
+                return NotFound($"No se encontró el cliente con ID: {customerId}");
+            }
+
+            var query = new TimelineQuery
+            {
+                CustomerDni = customerDni,
+                BudgetIdFilter = budgetId,
+                FromDate = fromDate,
+                ToDate = toDate
+            };
+
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        // ✅ ENDPOINT DE DEBUG
+        [HttpGet("debug/dni/{customerDni}")]
+        public async Task<ActionResult> DebugTimelineByDni(string customerDni)
         {
             try
             {
-                var query = new Application.DTOs.BudgetDTOs.TimeLineBudgetReport.TimeLineBudgetReportQuery(budgetId);
-                var report = await _mediator.Send(query);
-                return Ok(report);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
+                var query = new TimelineQuery { CustomerDni = customerDni };
+                var result = await _mediator.Send(query);
+
+                return Ok(new
+                {
+                    CustomerDni = customerDni,
+                    TimelineCount = result.Count,
+                    TotalVersions = result.Sum(t => t.Versions.Count),
+                    TimelineData = result.Select(t => new
+                    {
+                        t.BudgetId,
+                        t.WorkPlaceName,
+                        t.CreationDate,
+                        t.Status,
+                        VersionCount = t.Versions.Count,
+                        Versions = t.Versions.Select(v => new {
+                            v.Version,
+                            v.Status,
+                            v.Total,
+                            v.CreationDate
+                        })
+                    })
+                });
             }
             catch (Exception ex)
             {
-                // Log the exception (ex) as needed
-                return StatusCode(500, "Ocurrió un error interno en el servidor.");
+                return StatusCode(500, new
+                {
+                    Error = ex.Message,
+                    CustomerDni = customerDni
+                });
             }
+        }
+
+        private async Task<string?> GetCustomerDniById(int customerId)
+        {
+            // Aquí necesitarías inyectar un repositorio de customers
+            // o hacer una consulta para obtener el DNI por customerId
+            // Por ahora retornamos null (implementación temporal)
+            return null;
         }
     }
 }

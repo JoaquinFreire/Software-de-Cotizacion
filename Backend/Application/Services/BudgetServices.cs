@@ -18,6 +18,11 @@ namespace Application.Services
         {
             return await _budgetRepository.GetByIdAsync(id);
         }
+        
+        public async Task<List<Budget>> GetBudgetsByCustomerDniAsync(string customerDni)
+        {
+            return await _budgetRepository.GetBudgetsByCustomerDniAsync(customerDni);
+        }
 
         public async Task<IEnumerable<Budget>> GetAllBudgetsAsync()
         {
@@ -28,7 +33,6 @@ namespace Application.Services
         {
             await _budgetRepository.AddAsync(budget);
         }
-
 
         public async Task UpdateBudgetAsync(string id, Budget budget)
         {

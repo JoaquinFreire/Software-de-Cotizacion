@@ -1,7 +1,7 @@
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Domain.Entities;
-
+[BsonIgnoreExtraElements]  // Ignorar campos adicionales en el documento MongoDB
 // Representa la tabla 'user' en la base de datos
 public class User
 {

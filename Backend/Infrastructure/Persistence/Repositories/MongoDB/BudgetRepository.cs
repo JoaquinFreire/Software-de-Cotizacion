@@ -69,11 +69,52 @@ namespace Infrastructure.Persistence.Repositories
         {
             await _collection.DeleteOneAsync(b => b.id == id);
         }
-
+        public async Task<List<Budget>> GetBudgetsByCustomerDniAsync(string customerDni)
+        {
+            var filter = Builders<Budget>.Filter.Eq("customer.dni", customerDni);
+            return await _collection.Find(filter).ToListAsync();
+        }
         //Metodo para ver las todas las cotizaciones de un cliente
         public async Task<List<Budget>> GetBudgetsByCustomerAsync(Customer customer)
         {
-            return await _collection.Find(b => b.customer != null && b.customer.id == customer.id).ToListAsync();
+            var filter = Builders<Budget>.Filter.Eq("customer.dni", customer.dni);
+            return await _collection.Find(filter).ToListAsync();
+        }
+        public async Task<object> DebugMongoConnection()
+        {
+            try
+            {
+                // Contar todos los documentos
+                var totalCount = await _collection.CountDocumentsAsync(FilterDefinition<Budget>.Empty);
+
+                // Obtener algunos documentos de muestra
+                var sampleBudgets = await _collection.Find(_ => true)
+                    .Limit(5)
+                    .ToListAsync();
+
+                // Verificar la estructura de customer en los documentos
+                var customerFields = sampleBudgets.Select(b => new
+                {
+                    BudgetId = b.budgetId,
+                    HasCustomer = b.customer != null,
+                    CustomerDni = b.customer?.dni,
+                    CustomerFields = b.customer == null ? null : new
+                    {
+                        Fields = string.Join(", ", b.customer.GetType().GetProperties().Select(p => p.Name))
+                    }
+                }).ToList();
+
+                return new
+                {
+                    TotalDocuments = totalCount,
+                    SampleBudgets = customerFields,
+                    ConnectionStatus = "OK"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new { Error = ex.Message, ConnectionStatus = "FAILED" };
+            }
         }
     }
 }
