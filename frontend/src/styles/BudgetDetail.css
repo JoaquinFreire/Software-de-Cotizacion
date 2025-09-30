@@ -15,7 +15,7 @@
 }
 
 .pdf-container {
-  width: 55%;
+  width: 794px;
   height: 100%;
   background: #fff;
   padding: 30px;
@@ -26,6 +26,8 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  max-width: 800px;
+  min-height: 1123px; /* A4: 297mm * 3.78 */
 }
 
 .pdf-header {

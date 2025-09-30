@@ -1,0 +1,23 @@
+.titule-Rechazadas{
+    display: flex;
+    justify-content: center;
+    margin-bottom: 100px;
+    margin-top: 20px;
+    font-size: 24px;
+    align-items: center;
+    font-weight: bold;
+    color: #333;
+
+}
+.reporte-oportunidad-grafico {
+    width: 370px;
+    margin: 0 auto 32px auto;
+    background: #f4f6fb;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(30,40,90,0.07);
+    padding: 24px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}

@@ -144,8 +144,8 @@ const ReporteDeOportunidadesPerdidas = () => {
       {
         label: 'Cotizaciones Rechazadas',
         data: Object.values(rechazadasPorMes),
-        backgroundColor: '#FF6384',
-        borderColor: '#d32f2f',
+        backgroundColor: '#3f9793ff',
+        borderColor: '#000000ff',
         borderWidth: 1,
       }
     ]
@@ -216,8 +216,8 @@ const ReporteDeOportunidadesPerdidas = () => {
                 justifyContent: 'center',
                 minHeight: 500
               }}>
-                <ReactLoading type="spin" color="#d32f2f" height={80} width={80} />
-                <div style={{ marginTop: 24, fontSize: 18, color: '#d32f2f' }}>Cargando reporte...</div>
+                <ReactLoading type="spin" color="#1ddfe6ff" height={80} width={80} />
+                <div style={{ marginTop: 24, fontSize: 18, color: '#1dc8ceff' }}>Cargando reporte...</div>
               </div>
             ) : !generar ? (
               <div style={{
@@ -246,13 +246,14 @@ const ReporteDeOportunidadesPerdidas = () => {
                       <strong>Fecha y Hora:</strong> {new Date().toLocaleString()}
                     </div>
                   </div>
-                  <div className="reporte-cotizaciones-grafico">
+                  <div className="reporte-oportunidad-grafico">
+                    <h2>Cotizaciones Rechazadas por Motivo</h2>
                     <Bar
                       data={chartDataMeses}
                       options={{
                         plugins: {
                           legend: { display: false },
-                          title: { display: true, text: 'Cotizaciones Rechazadas por Mes' },
+                          title: { display: true},
                           datalabels: {
                             color: '#222',
                             font: { weight: 'bold', size: 16 },
