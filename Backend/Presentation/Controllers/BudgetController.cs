@@ -1,5 +1,6 @@
 using Application.DTOs.BudgetDTOs.CreateBudget;
 using Application.DTOs.BudgetDTOs.GetBudget;
+using Application.DTOs.BudgetDTOs.GetBudgetByCustomerDni;
 using Application.DTOs.BudgetDTOs.DeleteBudget;
 using Application.Services;
 using AutoMapper;
@@ -81,6 +82,14 @@ namespace Presentation.Controllers
             if (result == null)
                 return NotFound("Presupuesto no encontrado.");
 
+            return Ok(result);
+        }
+
+        [HttpGet("GetBudgetByCustomerDni/{customerDni}")]
+        public async Task<IActionResult> GetBudgetByCustomerDni(string customerDni)
+        {
+            var query = new GetBudgetByCustomerDniQuery(customerDni);
+            var result = await _mediator.Send(query);
             return Ok(result);
         }
 

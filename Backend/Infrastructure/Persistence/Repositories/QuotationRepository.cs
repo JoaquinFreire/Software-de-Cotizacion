@@ -1,8 +1,6 @@
 using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 public class QuotationRepository : IQuotationRepository
 {
@@ -136,6 +134,54 @@ public class QuotationRepository : IQuotationRepository
             query = query.Where(q => q.Customer != null && q.Customer.dni == customerDni);
 
         return await query.ToListAsync();
+    }
+
+    public async Task<IEnumerable<Quotation>> GetForCustomerReportAsync(
+        DateTime? fromDate = null,
+        DateTime? toDate = null,
+        string? status = null,
+        string? customerName = null,
+        string? searchTerm = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Quotations
+            .Include(q => q.Customer)
+            .Include(q => q.WorkPlace)
+            .AsQueryable();
+
+        if (fromDate.HasValue)
+            query = query.Where(q => q.CreationDate >= fromDate.Value);
+
+        if (toDate.HasValue)
+            query = query.Where(q => q.CreationDate <= toDate.Value);
+
+        if (!string.IsNullOrEmpty(status))
+            query = query.Where(q => q.Status == status);
+
+        if (!string.IsNullOrEmpty(customerName))
+            query = query.Where(q =>
+                (q.Customer!.name + " " + q.Customer!.lastname)
+                .ToLower()
+                .Contains(customerName.ToLower()));
+
+        if (!string.IsNullOrEmpty(searchTerm))
+            query = query.Where(q =>
+                (q.Customer!.name + " " + q.Customer!.lastname).ToLower().Contains(searchTerm.ToLower()) ||
+                q.Customer!.dni.Contains(searchTerm) ||
+                q.WorkPlace!.name.ToLower().Contains(searchTerm.ToLower()));
+
+        return await query.ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<Quotation>> GetByCustomerIdAsync(
+        int customerId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Quotations
+            .Include(q => q.Customer)
+            .Include(q => q.WorkPlace)
+            .Where(q => q.CustomerId == customerId)
+            .ToListAsync(cancellationToken);
     }
 
 }

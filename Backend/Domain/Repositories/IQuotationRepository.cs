@@ -1,7 +1,4 @@
 using Domain.Entities;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Domain.Repositories
 {
@@ -23,5 +20,17 @@ namespace Domain.Repositories
             int? userId = null,
             string? customerDni = null
         );
+
+        Task<IEnumerable<Quotation>> GetForCustomerReportAsync(
+        DateTime? fromDate = null,
+        DateTime? toDate = null,
+        string? status = null,
+        string? customerName = null,
+        string? searchTerm = null,
+        CancellationToken cancellationToken = default);
+
+        Task<IEnumerable<Quotation>> GetByCustomerIdAsync(
+            int customerId,
+            CancellationToken cancellationToken = default);
     }
 }

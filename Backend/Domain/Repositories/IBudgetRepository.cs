@@ -11,6 +11,8 @@ namespace Domain.Repositories
         Task AddAsync(Budget entity);
         Task UpdateAsync(string id, Budget entity);
         Task DeleteAsync(string id);
+        Task<List<Budget>> GetBudgetsByCustomerDniAsync(string customerDni);
+
         Task<List<Budget>> GetBudgetsByCustomerAsync(Customer Customer);
     }
 }
