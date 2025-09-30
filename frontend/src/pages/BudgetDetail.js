@@ -29,6 +29,7 @@ const BudgetDetail = () => {
         const res = await axios.get(`${API_URL}/api/Mongo/GetBudgetByBudgetId/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        console.log(res.data);
         setBudget(res.data);
       } catch {
         setBudget(null);
@@ -320,7 +321,7 @@ const BudgetDetail = () => {
               <div className="pdf-totals">
                 <div><b>Dólar Ref:</b> {show(budget.DollarReference)}</div>
                 <div><b>Mano de Obra:</b> {show(budget.LabourReference)}</div>
-                <h3 className="pdf-total" ><b>Total:</b></h3>{show(budget.Price)}
+                <h3 className="pdf-total" ><b>Total:</b></h3>{show(budget.Total)}
               </div>
               <hr className="pdf-separator" />
               {/* Observaciones */}
