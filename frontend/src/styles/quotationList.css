@@ -152,7 +152,37 @@ body.light-mode .dropdown {
     -webkit-appearance: none;
     -moz-appearance: none;
 }
+.reject-textarea{
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical; /* Permite redimensionar verticalmente */
+    font-family: 'Poppins', sans-serif;
+}
 
+.delete-button-modal {
+    padding: 7px 18px;
+    border-radius: 2px;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    background: #d32f2f;
+    color: #fff;
+}
+.Cancel-botton{
+    padding: 7px 18px;
+    border-radius: 2px;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    gap: 10px;
+    transition: background 0.2s, color 0.2s;
+    background: #f1f1f1;
+    color: #000000;
+}
 /* Igualar altura de botones y select en responsive */
 @media (max-width: 768px) {
     .quote-card {

@@ -56,8 +56,8 @@ const reportCards = [
   {
       title: "Reporte de Oportunidades Perdidas",
     icon: <Clock3 size={40} />,
-    className: "reporte-tiempo-respuesta",
-    route: "/reportes/tiempo-respuesta"
+    className: "reporte-Oportunidades-Perdidas",
+    route: "/reportes/Oportunidades-Perdidas"
   },
   {
       title: "Beneficio en Cotizaciones por Tipo de Linea",
