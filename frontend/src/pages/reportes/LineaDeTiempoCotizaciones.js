@@ -309,7 +309,7 @@ const LineaDeTiempoCotizaciones = () => {
                                     </div>
                                     <div className="report-info">
                                         <div><strong>DNI:</strong> {getClienteProp(clienteSeleccionado, 'dni')}</div>
-                                        <div><strong>Total de series:</strong> {timelineData.length}</div>
+                                        <div><strong>Cotizaciones:</strong> {timelineData.length}</div>
                                         <div><strong>Fecha de reporte:</strong> {new Date().toLocaleDateString()}</div>
                                     </div>
                                 </div>
@@ -361,54 +361,67 @@ const LineaDeTiempoCotizaciones = () => {
                                                 </div>
                                             </div>
 
-                                            <div className="vertical-timeline">
-                                                {safeArray(cotizacionSeleccionada.Versions).map((version, index) => (
-                                                    <div key={version.Id || index} className="timeline-item">
-                                                        <div className="timeline-point" style={{ backgroundColor: estadoColor(version.Status) }}>
-                                                            <div className="version-number">v{version.Version || '?'}</div>
-                                                        </div>
-                                                        <div className="timeline-content">
-                                                            <div className="version-header">
-                                                                <h4>Versión {version.Version || '?'}</h4>
-                                                                <div className="version-status" style={{ color: estadoColor(version.Status) }}>
-                                                                    {estadoTexto(version.Status)}
+                                                <div className="vertical-timeline">
+                                                    {safeArray(cotizacionSeleccionada.Versions).map((version, index) => {
+                                                        return (
+                                                            <div key={`${version.BudgetId}-v${version.Version}-${index}`} className="timeline-item">
+                                                                <div className="timeline-point" style={{ backgroundColor: estadoColor(version.Status) }}>
+                                                                    <div className="version-number">v{version.Version || '?'}</div>
                                                                 </div>
-                                                            </div>
-                                                            <div className="version-details">
-                                                                <div className="detail-row">
-                                                                    <strong>Fecha:</strong>
-                                                                    {version.CreationDate ? new Date(version.CreationDate).toLocaleString() : 'Fecha desconocida'}
-                                                                </div>
-                                                                <div className="detail-row">
-                                                                    <strong>Total:</strong>
-                                                                    ${(version.Total || 0)?.toFixed(2)}
-                                                                </div>
-                                                                {version.Comment && (
-                                                                    <div className="detail-row">
-                                                                        <strong>Comentario:</strong>
-                                                                        <div className="comment-text">
-                                                                            {version.Comment.split('Validez de la cotización')[0] || version.Comment}
+                                                                <div className="timeline-content-version">
+                                                                    {/* ✅ ENCABEZADO CENTRADO CON ESTADO A LA DERECHA */}
+                                                                    <div className="version-header-centered">
+                                                                        <h4 className="version-title">Versión {version.Version || '?'}</h4>
+                                                                        <div
+                                                                            className="version-status-badge"
+                                                                            style={{ backgroundColor: estadoColor(version.Status) }}
+                                                                        >
+                                                                            {estadoTexto(version.Status)}
                                                                         </div>
                                                                     </div>
-                                                                )}
-                                                                {/* ✅ BOTÓN PARA VER PDF */}
-                                                                <div className="detail-row">
-                                                                    <strong>Acciones:</strong>
-                                                                    <div className="version-actions">
-                                                                        <button
-                                                                            className="btn-ver-pdf"
-                                                                            onClick={() => window.open(`/quotation/${version.BudgetId}`, '_blank')}
-                                                                            title="Ver PDF detallado de esta cotización"
-                                                                        >
-                                                                            📄 Ver PDF
-                                                                        </button>
+
+                                                                    {/* ✅ CONTENIDO PRINCIPAL CON BOTÓN A LA DERECHA */}
+                                                                    <div className="version-main-content">
+                                                                        <div className="version-details-left">
+                                                                            <div className="detail-item">
+                                                                                <strong>Fecha creación:</strong>
+                                                                                <span>{version.CreationDate ? new Date(version.CreationDate).toLocaleDateString() : 'No especificada'}</span>
+                                                                            </div>
+                                                                            <div className="detail-item">
+                                                                                <strong>Presupuesto ID:</strong>
+                                                                                <span>{version.BudgetId || 'N/A'}</span>
+                                                                            </div>
+                                                                            <div className="detail-item">
+                                                                                <strong>Total:</strong>
+                                                                                <span className="total-amount">${(version.Total || 0)?.toFixed(2)}</span>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="version-actions-right">
+                                                                            <button
+                                                                                className="btn-ver-pdf"
+                                                                                onClick={() => window.open(`/quotation/${version.BudgetId}`, '_blank')}
+                                                                                title="Ver PDF detallado de esta cotización"
+                                                                            >
+                                                                                📄 Ver PDF
+                                                                            </button>
+                                                                        </div>
                                                                     </div>
+
+                                                                    {/* ✅ COMENTARIO EXTENDIDO */}
+                                                                    {version.Comment && (
+                                                                        <div className="comment-section-full">
+                                                                            <strong>Comentario:</strong>
+                                                                            <div className="comment-text">
+                                                                                {version.Comment.split('Validez de la cotización')[0]?.trim() || version.Comment}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
                                         </>
                                     )}
                                 </div>

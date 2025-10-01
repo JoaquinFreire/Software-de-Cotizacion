@@ -1,4 +1,4 @@
-/* LineaDeTiempoReporte.css */
+﻿/* LineaDeTiempoReporte.css - Versión Limpia y Organizada */
 .timeline-report-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -20,7 +20,7 @@
     min-height: 700px;
 }
 
-/* Sidebar */
+/* ===== SIDEBAR - CLIENTES ===== */
 .timeline-sidebar {
     background: #1e1e1e;
     border-radius: 8px;
@@ -268,7 +268,7 @@ body.light-mode .stat-total {
     font-size: 14px;
 }
 
-/* Main Content */
+/* ===== MAIN CONTENT ===== */
 .timeline-main {
     background: #1e1e1e;
     border-radius: 8px;
@@ -449,7 +449,7 @@ body.light-mode .budget-id {
     opacity: 0.8;
 }
 
-/* Timeline Detalle */
+/* ===== TIMELINE DETALLE ===== */
 .timeline-detalle {
     padding: 20px;
     max-height: calc(600px - 120px);
@@ -486,7 +486,7 @@ body.light-mode .timeline-summary {
     color: #666;
 }
 
-/* Vertical Timeline */
+/* ===== VERTICAL TIMELINE - NUEVO DISEÑO ===== */
 .vertical-timeline {
     position: relative;
     padding-left: 40px;
@@ -514,128 +514,224 @@ body.light-mode .vertical-timeline::before {
 .timeline-point {
     position: absolute;
     left: -40px;
-    top: 0;
-    width: 30px;
-    height: 30px;
+    top: 20px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     border: 3px solid #1e1e1e;
     z-index: 2;
+    transition: all 0.2s ease;
 }
 
 body.light-mode .timeline-point {
     border-color: white;
 }
 
+.timeline-point:hover {
+    transform: scale(1.1);
+}
+
 .version-number {
-    font-size: 10px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
     color: white;
 }
 
-.timeline-content {
+/* ===== TIMELINE CONTENT - DISEÑO RENOVADO ===== */
+.timeline-content-version {
     background: #2d2d2d;
     border: 1px solid #333;
     border-radius: 8px;
-    padding: 16px;
+    padding: 20px;
     margin-left: 0;
     transition: all 0.2s ease;
 }
 
-body.light-mode .timeline-content {
+body.light-mode .timeline-content-version {
     background: white;
     border-color: #e0e0e0;
 }
 
-.timeline-content:hover {
+.timeline-content-version:hover {
     border-color: #1976d2;
     box-shadow: 0 2px 8px rgba(25, 118, 210, 0.1);
 }
 
-.version-header {
+/* ✅ ENCABEZADO CENTRADO CON ESTADO A LA DERECHA */
+.version-header-centered {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #444;
 }
 
-    .version-header h4 {
-        margin: 0;
-        color: #e0e0e0;
-    }
-
-body.light-mode .version-header h4 {
-    color: #333;
+body.light-mode .version-header-centered {
+    border-bottom-color: #e0e0e0;
 }
 
-.version-status {
-    font-weight: 600;
-    font-size: 12px;
-    text-transform: uppercase;
-}
-
-.version-details {
-    font-size: 14px;
-}
-
-.detail-row {
-    margin-bottom: 8px;
-    display: flex;
-    gap: 8px;
-    align-items: flex-start;
-}
-
-    .detail-row strong {
-        color: #e0e0e0;
-        min-width: 80px;
-        flex-shrink: 0;
-    }
-
-body.light-mode .detail-row strong {
-    color: #333;
-}
-
-.comment-text {
+.version-header-centered .version-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #e0e0e0;
     flex: 1;
-    font-style: italic;
-    color: #999;
-    line-height: 1.4;
-    font-size: 13px;
+    text-align: center;
 }
 
-/* Estilos para el bot�n de PDF */
-.version-actions {
-    margin-top: 8px;
+body.light-mode .version-header-centered .version-title {
+    color: #333;
 }
 
+.version-status-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+/* ✅ CONTENIDO PRINCIPAL CON BOTÓN A LA DERECHA */
+.version-main-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    gap: 20px;
+}
+
+.version-details-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+
+.version-actions-right {
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin-top: 0;
+}
+
+/* ✅ DETALLES MEJOR ESTRUCTURADOS - ALINEADOS A LA IZQUIERDA */
+.detail-item {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #3a3a3a;
+    gap: 16px;
+}
+
+body.light-mode .detail-item {
+    border-bottom-color: #f0f0f0;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-item strong {
+    color: #b0b0b0;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 140px;
+    text-align: left;
+}
+
+body.light-mode .detail-item strong {
+    color: #666;
+}
+
+.detail-item span {
+    color: #e0e0e0;
+    font-size: 14px;
+    text-align: left;
+    flex: 1;
+}
+
+body.light-mode .detail-item span {
+    color: #333;
+}
+
+.total-amount {
+    font-weight: 700;
+    color: #4caf50 !important;
+    font-size: 15px !important;
+}
+
+/* ✅ BOTÓN VER PDF MEJORADO */
 .btn-ver-pdf {
     background: #1976d2;
     color: white;
     border: none;
-    border-radius: 4px;
-    padding: 6px 12px;
-    font-size: 12px;
+    border-radius: 6px;
+    padding: 10px 18px;
+    font-size: 13px;
     cursor: pointer;
     transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
+    white-space: nowrap;
+    font-weight: 600;
 }
 
     .btn-ver-pdf:hover {
         background: #1565c0;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(25, 118, 210, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
     }
 
-    .btn-ver-pdf:active {
-        transform: translateY(0);
-    }
+/* ✅ COMENTARIO EXTENDIDO */
+.comment-section-full {
+    margin-top: 16px;
+    padding: 16px;
+    background: #2a2a2a;
+    border-radius: 6px;
+    border-left: 4px solid #1976d2;
+    width: 100%;
+}
 
-/* Responsive */
-@media (max-width: 1200px) {
+body.light-mode .comment-section-full {
+    background: #f8f9fa;
+    border-left-color: #1976d2;
+}
+
+.comment-section-full strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #b0b0b0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+body.light-mode .comment-section-full strong {
+    color: #666;
+}
+
+.comment-section-full .comment-text {
+    color: #ccc;
+    font-size: 14px;
+    line-height: 1.5;
+    font-style: italic;
+    word-wrap: break-word;
+}
+
+body.light-mode .comment-section-full .comment-text {
+    color: #555;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1024px) {
     .timeline-layout {
         grid-template-columns: 350px 1fr;
     }
@@ -645,9 +741,10 @@ body.light-mode .detail-row strong {
     }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
     .timeline-layout {
         grid-template-columns: 1fr;
+        gap: 16px;
     }
 
     .timeline-sidebar {
@@ -665,8 +762,98 @@ body.light-mode .detail-row strong {
         max-height: 200px;
     }
 
+    .report-title {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
     .report-info {
         flex-direction: column;
         gap: 8px;
+    }
+
+    /* Timeline Mobile */
+    .vertical-timeline {
+        padding-left: 30px;
+    }
+
+    .timeline-point {
+        left: -30px;
+        width: 28px;
+        height: 28px;
+    }
+
+    .version-header-centered {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+    }
+
+        .version-header-centered .version-title {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+    .version-main-content {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .version-actions-right {
+        align-self: center;
+        width: 100%;
+        text-align: center;
+    }
+
+    .btn-ver-pdf {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .detail-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 10px 0;
+    }
+
+        .detail-item strong {
+            min-width: auto;
+            margin-bottom: 2px;
+        }
+
+        .detail-item span {
+            width: 100%;
+            text-align: left;
+        }
+
+    .comment-section-full {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .timeline-report-container {
+        padding: 0 12px;
+    }
+
+    .version-header-centered .version-title {
+        font-size: 18px;
+    }
+
+    .detail-item strong,
+    .detail-item span {
+        font-size: 13px;
+    }
+
+    .btn-ver-pdf {
+        padding: 12px 16px;
+        font-size: 12px;
+    }
+
+    .timeline-content-version {
+        padding: 16px;
     }
 }
