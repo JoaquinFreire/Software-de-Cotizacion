@@ -488,7 +488,7 @@
 
 /* Prueba: reducir tamaño de A4 sólo para el reporte de beneficio */
 .beneficio-report .reporte-cotizaciones-a4 {
-    width: 780px !important;
+    width: 800px !important;
     min-height: 900px !important;
 }
 
