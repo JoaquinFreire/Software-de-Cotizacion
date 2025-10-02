@@ -107,6 +107,45 @@ const BudgetDetail = () => {
     setWhatsAppLoading(false);
   };
 
+  // Helper: asegura párrafo (double newline) antes de frases clave
+  const insertParagraphsBefore = (text) => {
+    if (!text) return text || '';
+    const phrases = [
+      "Validez de la cotización",
+      "Todo pedido queda sujeto",
+      "Los precios presupuestados se",
+      "Fuerza mayor Anodal no será responsable",
+      "Solicitudes de cambios del cliente",
+      "Impuestos Los precios cotizados"
+    ].map(p => p.trim().toLowerCase());
+
+    let out = String(text);
+    let lower = out.toLowerCase();
+
+    for (const phrase of phrases) {
+      let start = 0;
+      while (true) {
+        const idx = lower.indexOf(phrase, start);
+        if (idx === -1) break;
+
+        // si ya hay doble salto justo antes o estamos al inicio, no insertar
+        const before = out.slice(0, idx);
+        if (!before.endsWith('\n\n') && before !== '') {
+          out = before + '\n\n' + out.slice(idx);
+          // actualizar lower y avanzar índice pasado lo insertado
+          lower = out.toLowerCase();
+          start = idx + 2 + phrase.length;
+        } else {
+          start = idx + phrase.length;
+        }
+      }
+    }
+
+    // normalizar >2 saltos a exactamente 2 (evita acumulaciones)
+    out = out.replace(/\n{3,}/g, '\n\n');
+    return out;
+  };
+
   return (
     <>
       <Navbar />
@@ -326,7 +365,17 @@ const BudgetDetail = () => {
               <hr className="pdf-separator" />
               {/* Observaciones */}
               <div className="pdf-comments">
-                <b>Observaciones:</b> {show(budget.Comment)}
+                <b>Observaciones:</b>
+                {(() => {
+                  const raw = budget?.Comment ?? "";
+                  const formatted = insertParagraphsBefore(raw);
+                  // dividir en párrafos por doble salto de línea
+                  const paragraphs = formatted.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
+                  if (paragraphs.length === 0) return <div>{show(raw)}</div>;
+                  return paragraphs.map((p, i) => (
+                    <p key={i} style={{ margin: '6px 0' }} dangerouslySetInnerHTML={{ __html: p.replace(/\n/g, '<br/>') }} />
+                  ));
+                })()}
               </div>
             </div>
 

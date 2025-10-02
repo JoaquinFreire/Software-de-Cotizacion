@@ -27,7 +27,9 @@
   flex-direction: column;
   justify-content: space-between;
   max-width: 800px;
-  min-height: 1123px; /* A4: 297mm * 3.78 */
+  min-width: 800px;
+  min-height: 1123px;
+  /* A4: 297mm * 3.78 */
 }
 
 .pdf-header {
@@ -38,8 +40,8 @@
 }
 
 .pdf-logo {
-  height: 30px;
-  margin-left: 80px;
+  height: 90px;
+  margin-left: 10px;
 }
 
 .pdf-title {
@@ -76,14 +78,15 @@
 
 .pdf-sections {
   display: flex;
-  justify-content: space-between;
-  gap: 16%;
-font-size: 15px;
-margin-left: 55px;
+  flex-direction: row;
+  justify-content:flex-start;
+  gap: 2rem;
+  font-size: 15px;
 }
 
 .pdf-section {
   flex: 1;
+
 }
 
 .pdf-subtitle {
@@ -126,13 +129,13 @@ margin-left: 55px;
 }
 
 .pdf-survey {
-      margin-top: 23px;
-    padding: 4px;
-    border: 1px solid #26b7cd;
-    border-radius: 10px;
-    background: #f5feffff;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+  margin-top: 23px;
+  padding: 4px;
+  border: 1px solid #26b7cd;
+  border-radius: 10px;
+  background: #f5feffff;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
 }
 
 .pdf-survey h3 {
@@ -168,31 +171,33 @@ margin-left: 55px;
   margin-bottom: 4px;
 }
 
-.reporte-cotizaciones-btn-whatsapp{
-    background-color: #2d9b55;
-    padding: 10px 22px;
-    color: #fff;
-    border: none;
-    border-radius: 2px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-    margin-left: 20px;
-    margin-bottom: 8px;
+.reporte-cotizaciones-btn-whatsapp {
+  background-color: #2d9b55;
+  padding: 10px 22px;
+  color: #fff;
+  border: none;
+  border-radius: 2px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-left: 20px;
+  margin-bottom: 8px;
 }
+
 .pdf-qr-code {
-    height: 130px;
-    margin: -3px 0;
+  height: 130px;
+  margin: -3px 0;
 }
 
 .pdf-Date {
-    text-align: left;
-    font-size: 15px;
+  text-align: left;
+  font-size: 15px;
 }
-.pdf-total {
-    font-size: 25px;
-    margin-top:18px;
 
-   
+.pdf-total {
+  font-size: 25px;
+  margin-top: 18px;
+
+
 }

@@ -20,6 +20,7 @@
     align-items: center;
 }
 
+
 .reporte-cotizaciones-a4 {
     width: 794px; /* A4: 210mm * 3.78 */
     min-height: 1123px; /* A4: 297mm * 3.78 */
@@ -266,6 +267,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
+    margin: 1rem;
 }
 
 /* Pie de página */
@@ -361,14 +363,28 @@
     font-weight: 600;
 }
 
-/* Ajustes para impresión/pdf */
+/* Overlay para exportación PDF (no debe imprimirse) */
+.pdf-export-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(25, 118, 210, 0.85);
+    z-index: 9999;
+    color: #fff;
+    gap: 8px;
+}
+
+/* Ajustes para impresión/pdf: evitar página en blanco inicial */
 @media print {
     body {
         background: #fff;
     }
     .reporte-cotizaciones-root {
         background: #fff;
-        padding: 0;
+        padding: 0 !important;
     }
     .reporte-cotizaciones-toolbar {
         display: none;
@@ -376,9 +392,14 @@
     .reporte-cotizaciones-a4 {
         box-shadow: none;
         border-radius: 0;
-        margin: 0;
+        margin: 0 !important;
         width: 100%;
-        min-height: 0;
+        min-height: auto !important; /* <--- evitar que min-height origine página en blanco */
+        page-break-inside: avoid;
+    }
+    .reporte-cotizaciones-pdf {
+        min-height: auto !important; /* <--- quitar forzado de altura */
+        padding-top: 0 !important;
     }
     .reporte-cotizaciones-filtros button {
         display: none;
@@ -391,4 +412,88 @@
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
+    /* No imprimir el overlay de exportación */
+    .pdf-export-overlay {
+        display: none !important;
+    }
+
+    /* Reglas localizadas para el reporte de beneficio */
+    .beneficio-report .reporte-cotizaciones-root {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .beneficio-report .reporte-cotizaciones-a4 {
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: auto !important; /* evita altura forzada que genera página vacía */
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        width: 100% !important;
+        page-break-inside: avoid !important;
+        page-break-before: auto !important;
+        page-break-after: auto !important;
+    }
+    .beneficio-report .reporte-cotizaciones-pdf {
+        min-height: auto !important;
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+    /* No imprimir overlay ni botones */
+    .beneficio-report .pdf-export-overlay,
+    .beneficio-report .reporte-cotizaciones-toolbar,
+    .beneficio-report .reporte-cotizaciones-filtros button {
+        display: none !important;
+    }
+    /* Ajustes específicos de impresión para el reporte de Beneficio (evita primera página en blanco) */
+    .beneficio-report nav,
+    .beneficio-report .title,
+    .beneficio-report h2.title {
+        display: none !important;
+    }
+    .beneficio-report .reporte-cotizaciones-root {
+        min-height: auto !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: block !important;
+    }
+    .beneficio-report .reporte-cotizaciones-a4 {
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: auto !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        width: 100% !important;
+        display: block !important;
+        page-break-inside: auto !important;
+        page-break-before: auto !important;
+        page-break-after: auto !important;
+    }
+    .beneficio-report .reporte-cotizaciones-pdf {
+        display: block !important;
+        flex-direction: initial !important;
+        justify-content: flex-start !important;
+        height: auto !important;
+        min-height: auto !important;
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+    }
+    /* Asegurar que el footer no "pegue" contenido con space-between */
+    .beneficio-report .reporte-cotizaciones-pdf > footer,
+    .beneficio-report .reporte-cotizaciones-pdf > header {
+        page-break-inside: avoid !important;
+    }
+}
+
+/* Prueba: reducir tamaño de A4 sólo para el reporte de beneficio */
+.beneficio-report .reporte-cotizaciones-a4 {
+    width: 780px !important;
+    min-height: 900px !important;
+}
+
+/* Ajuste interno del área PDF para mantener consistencia en la prueba */
+.beneficio-report .reporte-cotizaciones-pdf {
+    width: 780px !important;
+    box-sizing: border-box;
 }
