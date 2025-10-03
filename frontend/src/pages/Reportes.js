@@ -42,25 +42,25 @@ const reportCards = [
     route: "/reportes/productividad-cotizador"
   },
   {
-      title: "Reporte de Oportunidades Perdidas",
+    title: "Reporte de Oportunidades Perdidas",
     icon: <Clock3 size={40} />,
     className: "reporte-Oportunidades-Perdidas",
     route: "/reportes/Oportunidades-Perdidas"
   },
   {
-      title: "Reporte de variacion de precios",
+    title: "Reporte de variacion de precios",
     icon: <User size={40} />,
     className: "reporte-productividad-vendedor",
     route: "/reportes/productividad-vendedor"
   },
   {
-      title: "Beneficio en Cotizaciones por Tipo de Linea",
+    title: "Beneficio en Cotizaciones por Tipo de Linea",
     icon: <PieChart size={40} />,
     className: "reporte-beneficio-proyecto",
     route: "/reportes/beneficio-proyecto"
   },
   {
-      title: "Reporte de Simulación de Cambios de Precio",
+    title: "Reporte de Simulación de Cambios de Precio",
     icon: <LineChart size={40} />,
     className: "reporte-tendencias-anuales",
     route: "/reportes/tendencias-anuales"

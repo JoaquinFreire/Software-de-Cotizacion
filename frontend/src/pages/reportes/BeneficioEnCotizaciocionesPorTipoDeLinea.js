@@ -34,7 +34,6 @@ const BeneficioEnCotizaciocionesPorTipoDeLinea = () => {
   });
 
   const pdfRef = useRef();
-  const [exportingPdf, setExportingPdf] = useState(false); // nuevo estado
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -178,7 +177,6 @@ const BeneficioEnCotizaciocionesPorTipoDeLinea = () => {
 
   const handleDescargarPDF = () => {
     if (!pdfRef.current) return;
-    setExportingPdf(true);
     window.scrollTo(0, 0);
     const scrollBtn = document.querySelector('.scroll-to-top-btn');
     if (scrollBtn) scrollBtn.style.display = 'none';
@@ -230,25 +228,22 @@ const BeneficioEnCotizaciocionesPorTipoDeLinea = () => {
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
 
-    // Delay mayor para asegurar reflow con nuevos tamaños
+    // Delay mayor para asegurar reflow con nuevos tamaños; no usamos overlay
     setTimeout(() => {
       html2pdf().set(opt).from(pdfRef.current).save()
         .then(() => {
-          // Restaurar estilos
           originals.forEach((prev, el) => {
             Object.keys(prev).forEach(k => { el.style[k] = prev[k] ?? ''; });
           });
-          setExportingPdf(false);
           if (scrollBtn) scrollBtn.style.display = '';
         })
         .catch(() => {
           originals.forEach((prev, el) => {
             Object.keys(prev).forEach(k => { el.style[k] = prev[k] ?? ''; });
           });
-          setExportingPdf(false);
           if (scrollBtn) scrollBtn.style.display = '';
         });
-    }, 1000); // timeout aumentado a 1000ms para probar
+    }, 1000);
   };
 
   const suggested = getSuggestedConfig(form.typeId, form.widthCm ? Number(form.widthCm) : 0, form.heightCm ? Number(form.heightCm) : 0);
@@ -312,13 +307,6 @@ const BeneficioEnCotizaciocionesPorTipoDeLinea = () => {
         </div>
 
         <div className="reporte-cotizaciones-a4">
-          {/* Overlay spinner para exportación PDF (no se imprime) */}
-          {exportingPdf && (
-            <div className="pdf-export-overlay">
-              <ReactLoading type="spin" color="#fff" height={64} width={64} />
-              <div style={{ marginTop: 12, color: '#fff', fontWeight: 700 }}>Generando PDF...</div>
-            </div>
-          )}
           <div className="reporte-cotizaciones-pdf" ref={pdfRef}>
             <header className="reporte-cotizaciones-header">
               <img src={logoAnodal} alt="logo" className="reporte-cotizaciones-logo" />
@@ -446,3 +434,4 @@ const BeneficioEnCotizaciocionesPorTipoDeLinea = () => {
 };
 
 export default BeneficioEnCotizaciocionesPorTipoDeLinea;
+       

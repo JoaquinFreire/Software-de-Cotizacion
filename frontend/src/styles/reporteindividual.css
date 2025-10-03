@@ -201,34 +201,64 @@
     align-items: center;
 }
 
-/* Tabla */
+/* Tabla: usar ancho completo por defecto, permitir texto envolverse y scroll horizontal cuando sea necesario */
 .reporte-cotizaciones-tabla {
-    width: 420px;
+    width: 100%;
+    max-width: 90%;
     margin: 0 auto 32px auto;
     border-collapse: collapse;
-    text-align: center;
+    text-align: left; /* mejor lectura para columnas mixtas */
     background: #fff;
     border-radius: 6px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(30,40,90,0.07);
+    table-layout: auto;
 }
 
+/* Permitir romper palabras largas y evitar que el precio empuje la tabla */
 .reporte-cotizaciones-tabla th,
 .reporte-cotizaciones-tabla td {
     border: 1px solid #e0e0e0;
-    padding: 12px 8px;
-    font-size: 12px;
+    padding: 10px 8px;
+    font-size: 13px;
+    vertical-align: middle;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    
 }
 
+/* Cabeceras con alineado a la izquierda salvo la última columna (precio) */
 .reporte-cotizaciones-tabla th {
     background: #e3eafc;
     color: #1a237e;
     font-weight: 700;
+    text-align: left;
 }
 
-.tablachild tr:last-child td {
-    background: #f8f9fa;
-    font-weight: 700;
+/* Asegurar que la columna de precio tenga espacio y no trunque el título */
+.reporte-cotizaciones-tabla th:last-child,
+.reporte-cotizaciones-tabla td:last-child {
+
+    text-align: right;
+    min-width: 10px;
+}
+
+/* Contenedor para tablas largas: permite scroll horizontal en pantallas pequeñas */
+.tabla-cotizaciones-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.tabla-cotizaciones-responsive-ajustada {
+    width: 110%;
+}
+
+/* Si necesitas una versión compacta de la tabla, usa la clase .tabla-ajustada para reducir paddings */
+.reporte-cotizaciones-tabla.tabla-ajustada th,
+.reporte-cotizaciones-tabla.tabla-ajustada td {
+    padding: 8px 6px;
+    font-size: 12px;
+    
 }
 
 /* Nueva sección de análisis */

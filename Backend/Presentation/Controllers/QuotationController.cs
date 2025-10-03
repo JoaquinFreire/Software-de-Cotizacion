@@ -276,9 +276,14 @@ public class QuotationController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = quotation.Id }, quotation);
     }
     [HttpGet("by-period")]
-    public async Task<IActionResult> GetByPeriod([FromQuery] DateTime from, [FromQuery] DateTime to)
+    public async Task<IActionResult> GetByPeriod([FromQuery] DateTime from, [FromQuery] DateTime to, [FromQuery] int? userId = null)
     {
         var quotations = await _quotationRepository.GetByPeriodAsync(from, to);
+        // Si se solicita filtrar por cotizador, aplicar filtro aquí (no afecta llamadas existentes)
+        if (userId.HasValue)
+        {
+            quotations = quotations.Where(q => q.UserId == userId.Value).ToList();
+        }
         return Ok(quotations);
     }
     
