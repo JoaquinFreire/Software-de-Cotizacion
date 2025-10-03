@@ -85,12 +85,12 @@ public class QuotationRepository : IQuotationRepository
             throw;
         }
     }
-     public IQueryable<Quotation> Query()
-        {
-            return _context.Quotations
-                .Include(q => q.Customer)
-                .Include(q => q.WorkPlace);
-        }
+    public IQueryable<Quotation> Query()
+    {
+        return _context.Quotations
+            .Include(q => q.Customer)
+            .Include(q => q.WorkPlace);
+    }
 
     public async Task<IEnumerable<Quotation>> GetByPeriodAsync(DateTime from, DateTime to)
     {
@@ -183,5 +183,5 @@ public class QuotationRepository : IQuotationRepository
             .Where(q => q.CustomerId == customerId)
             .ToListAsync(cancellationToken);
     }
-
+    
 }

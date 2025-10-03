@@ -80,14 +80,10 @@
   display: flex;
   flex-direction: row;
   justify-content:flex-start;
-  gap: 2rem;
+  gap: 4rem;
   font-size: 15px;
 }
 
-.pdf-section {
-  flex: 1;
-
-}
 
 .pdf-subtitle {
   font-size: 18px;

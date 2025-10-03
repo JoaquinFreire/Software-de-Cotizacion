@@ -13,12 +13,11 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import { ToastContainer, toast, Slide } from 'react-toastify';
 import { Calendar } from 'primereact/calendar';
 import { addLocale } from 'primereact/api';
-import { safeArray } from '../utils/safeArray'; // agrega este import
+import { safeArray } from '../utils/safeArray';
+import { Filter, X, Search, RotateCcw } from 'lucide-react';
 
-// solo uno
 const API_URL = process.env.REACT_APP_API_URL;
 
-// Configurar el calendario en español (si no está ya en otro archivo global)
 addLocale('es', {
     firstDayOfWeek: 1,
     dayNames: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
@@ -30,7 +29,6 @@ addLocale('es', {
     clear: 'Limpiar'
 });
 
-// Utilidad para resolver referencias $ref en un array de cotizaciones
 function resolveRefs(array) {
     const byId = {};
     array.forEach(obj => {
@@ -74,9 +72,7 @@ const Dashboard = () => {
     const [lastEditFromDate, setLastEditFromDate] = useState(null);
     const navigate = useNavigate();
 
-    // Nuevo: estado para usuario actual y lista de quotators
     const [currentUser, setCurrentUser] = useState(null);
-    // null indica que todavía no cargó el rol (evita flash en la UI)
     const [currentRole, setCurrentRole] = useState(null);
     const [quotators, setQuotators] = useState([]);
 
@@ -93,13 +89,11 @@ const Dashboard = () => {
                 const roleName = (user?.role?.role_name || user?.role || "").toString().toLowerCase();
                 setCurrentRole(roleName);
 
-                // Si es manager o coordinator (no quotator), pedir lista de usuarios y filtrar quotators
                 if (roleName !== "quotator") {
                     const usersRes = await axios.get(`${API_URL}/api/users`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
 
-                    // Iterative extractor: evita recursión profunda y busca objetos que parezcan usuarios
                     const extractUsersFromResponse = (data) => {
                         const queue = Array.isArray(data) ? [...data] : [data];
                         const found = [];
@@ -107,7 +101,6 @@ const Dashboard = () => {
                         while (queue.length) {
                             const node = queue.shift();
                             if (!node || typeof node !== 'object') continue;
-                            // intenta obtener un id aproximado
                             const id = node?.id ?? node?.Id ?? node?.userId ?? node?.user_id ?? node?.id_user ?? null;
                             const name = node?.name ?? node?.firstName ?? node?.first_name ?? node?.nombre ?? null;
                             if (id && name) {
@@ -115,9 +108,8 @@ const Dashboard = () => {
                                     seenIds.add(id);
                                     found.push(node);
                                 }
-                                continue; // ya es un usuario, no inspeccionar sus hijos
+                                continue;
                             }
-                            // encolar hijos (arrays/objetos)
                             for (const k in node) {
                                 const v = node[k];
                                 if (v && typeof v === 'object') {
@@ -130,7 +122,6 @@ const Dashboard = () => {
                     };
 
                     const usersArray = extractUsersFromResponse(usersRes.data);
-                    // Construir mapa byId para resolver $ref
                     const collectAllObjects = (data) => {
                         const queue = Array.isArray(data) ? [...data] : [data];
                         const collected = [];
@@ -184,7 +175,6 @@ const Dashboard = () => {
                     setQuotators(qlist);
                 }
             } catch (err) {
-                // Evitar spam en consola cuando la petición fue abortada/timeout
                 if (err && err.code === "ECONNABORTED") {
                     console.warn("Request aborted (ignored).");
                 } else {
@@ -195,16 +185,12 @@ const Dashboard = () => {
         fetchMeAndUsers();
     }, []);
 
-    // Ya no llamamos switchToDashboard aquí porque el contexto carga los datos iniciales
-
-    // Ya no necesitas filtrar pendientes aquí, quotations ya viene filtrado
     useEffect(() => {
         let arr = Array.isArray(quotations) ? quotations : safeArray(quotations);
-        arr = resolveRefs(arr); // <-- Resuelve $ref aquí
+        arr = resolveRefs(arr);
         setFilteredQuotations(arr);
     }, [quotations]);
 
-    // Scroll arriba al cambiar de página
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [dashboardState.page]);
@@ -219,16 +205,13 @@ const Dashboard = () => {
                 }
             );
             setShowModal(false);
-            // Recarga la página actual después de borrar
             goToDashboardPage(page);
         } catch (error) {
             console.error("Error deleting quotation:", error);
         }
     };
 
-    const handleDeleteSuccess = () => {
-        // Ya no necesitas modificar el estado localmente
-    };
+    const handleDeleteSuccess = () => {};
 
     const handleStatusChange = async (id, newStatus) => {
         const token = localStorage.getItem("token");
@@ -240,7 +223,6 @@ const Dashboard = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
-            // Recarga la página actual después de cambiar estado
             goToDashboardPage(page);
             toast.success("Estado de la cotización actualizado con éxito.");
         } catch (error) {
@@ -262,11 +244,9 @@ const Dashboard = () => {
         setIsFiltering(true);
         const token = localStorage.getItem("token");
         let params = { ...filters, page, pageSize, status: "pending" };
-        // Remove empty values except status
         Object.keys(params).forEach(k => {
             if (!params[k] && k !== "status") delete params[k];
         });
-        // Si el usuario actual es quotator, no enviar userId (el backend filtra por token)
         if (currentRole === "quotator") {
             delete params.userId;
         }
@@ -298,6 +278,9 @@ const Dashboard = () => {
             userId: "",
             customerDni: ""
         });
+        setDate(null);
+        setToDate(null);
+        setLastEditFromDate(null);
         setIsFiltering(false);
         setFilterResults([]);
         setFilterTotal(0);
@@ -305,180 +288,241 @@ const Dashboard = () => {
         goToDashboardPage(1);
     };
 
-    // Handler para "Desde"
     const handleCalendarChange = (e) => {
         setDate(e.value);
         setFilters({ ...filters, from: e.value ? e.value.toISOString().slice(0, 10) : "" });
     };
-    // Handler para "Hasta"
+
     const handleToCalendarChange = (e) => {
         setToDate(e.value);
         setFilters({ ...filters, to: e.value ? e.value.toISOString().slice(0, 10) : "" });
     };
-    // Handler para "Última Edición Desde"
+
     const handleLastEditFromCalendarChange = (e) => {
         setLastEditFromDate(e.value);
         setFilters({ ...filters, lastEditFrom: e.value ? e.value.toISOString().slice(0, 10) : "" });
     };
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
-            <h2 className="title">Cotizaciones Pendientes</h2>
+            
+            <div className="dashboard-header">
+                <h2 className="dashboard-title">Cotizaciones Pendientes</h2>
+                <div className="dashboard-stats">
+                    <span className="stat-badge">
+                        {isFiltering ? filterTotal : total} cotizaciones pendientes
+                    </span>
+                </div>
+            </div>
+
             <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
-            {/* Filtros avanzados */}
-            <div className="advanced-filters-menu">
-                <button
-                    type="button"
-                    className="advanced-filters-toggle"
-                    onClick={() => setShowFilters(!showFilters)}
-                >
-                    Filtros avanzados {showFilters ? "▲" : "▼"}
-                </button>
+            
+            {/* Filtros avanzados mejorados */}
+            <div className="advanced-filters-container">
+                <div className="filters-header">
+                    <button
+                        type="button"
+                        className="filters-toggle-btn"
+                        onClick={() => setShowFilters(!showFilters)}
+                    >
+                        <Filter size={18} />
+                        <span>Filtros Avanzados</span>
+                        <div className={`toggle-arrow ${showFilters ? 'open' : ''}`}>▼</div>
+                    </button>
+                    
+                    {isFiltering && (
+                        <div className="active-filters-indicator">
+                            <span>Filtros activos</span>
+                            <button 
+                                onClick={handleClearFilters}
+                                className="clear-filters-btn"
+                            >
+                                <X size={14} />
+                                Limpiar
+                            </button>
+                        </div>
+                    )}
+                </div>
+
                 {showFilters && (
-                    <form onSubmit={handleFilterSubmit} className="formulario-filtros">
-                        <div className="advanced-filter-form">
-                            <div className="date-filter">
-                                <Calendar
-                                    value={date}
-                                    onChange={handleCalendarChange}
-                                    showIcon
-                                    dateFormat="dd/mm/yy"
-                                    placeholder="Desde"
-                                    locale="es"
+                    <form onSubmit={handleFilterSubmit} className="filters-form">
+                        <div className="filters-grid">
+                            <div className="filter-group">
+                                <label>Rango de Fechas</label>
+                                <div className="date-filters">
+                                    <div className="date-input">
+                                        <Calendar
+                                            value={date}
+                                            onChange={handleCalendarChange}
+                                            showIcon
+                                            dateFormat="dd/mm/yy"
+                                            placeholder="Desde"
+                                            locale="es"
+                                            className="calendar-input"
+                                        />
+                                    </div>
+                                    <div className="date-input">
+                                        <Calendar
+                                            value={toDate}
+                                            onChange={handleToCalendarChange}
+                                            showIcon
+                                            dateFormat="dd/mm/yy"
+                                            placeholder="Hasta"
+                                            locale="es"
+                                            className="calendar-input"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="filter-group">
+                                <label>Última Edición</label>
+                                <div className="date-input">
+                                    <Calendar
+                                        value={lastEditFromDate}
+                                        onChange={handleLastEditFromCalendarChange}
+                                        showIcon
+                                        dateFormat="dd/mm/yy"
+                                        placeholder="Desde"
+                                        locale="es"
+                                        className="calendar-input"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="filter-group">
+                                <label>Precio Total</label>
+                                <input
+                                    type="number"
+                                    name="approxTotalPrice"
+                                    value={filters.approxTotalPrice}
+                                    onChange={handleFilterChange}
+                                    placeholder="Monto aproximado"
+                                    className="filter-input"
                                 />
                             </div>
-                            <div className="date-filter">
-                                <Calendar
-                                    value={toDate}
-                                    onChange={handleToCalendarChange}
-                                    showIcon
-                                    dateFormat="dd/mm/yy"
-                                    placeholder="Hasta"
-                                    locale="es"
-                                />
-                            </div>
-                            <div className="date-filter">
-                                <Calendar
-                                    value={lastEditFromDate}
-                                    onChange={handleLastEditFromCalendarChange}
-                                    showIcon
-                                    dateFormat="dd/mm/yy"
-                                    placeholder="Última edición desde"
-                                    locale="es"
+
+                            {currentRole !== null && currentRole !== "quotator" && (
+                                <div className="filter-group">
+                                    <label>Cotizador</label>
+                                    <select
+                                        name="userId"
+                                        value={filters.userId}
+                                        onChange={handleFilterChange}
+                                        className="filter-select"
+                                    >
+                                        <option value="">Todos los cotizadores</option>
+                                        {quotators.map(u => (
+                                            <option key={u.id} value={u.id}>
+                                                {`${u.name || ""} ${u.lastname || ""}`.trim()}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
+                            <div className="filter-group">
+                                <label>DNI Cliente</label>
+                                <input
+                                    type="text"
+                                    name="customerDni"
+                                    value={filters.customerDni}
+                                    onChange={handleFilterChange}
+                                    placeholder="Número de DNI"
+                                    className="filter-input"
                                 />
                             </div>
                         </div>
-                        <div className="advanced-filter-form">
-                            <input
-                                type="number"
-                                name="approxTotalPrice"
-                                value={filters.approxTotalPrice}
-                                onChange={handleFilterChange}
-                                placeholder="Precio total"
-                            />
-                            {/* Mostrar select solo cuando sepamos el rol y no sea quotator */}
-                            {currentRole !== null && currentRole !== "quotator" && (
-                                <select
-                                    name="userId"
-                                    value={filters.userId}
-                                    onChange={handleFilterChange}
-                                >
-                                    <option value="">Todos los quotators</option>
-                                    {quotators.map(u => (
-                                        <option key={u.id} value={u.id}>{`${u.name || ""} ${u.lastname || ""}`.trim()}</option>
-                                    ))}
-                                </select>
-                            )}
-                            <input
-                                type="text"
-                                name="customerDni"
-                                value={filters.customerDni}
-                                onChange={handleFilterChange}
-                                placeholder="DNI Cliente"
-                            />
-                            <div className="botones-filtros">
-                                <button type="submit" className="search-button">Buscar</button>
-                                <button type="button" className="search-button" onClick={handleClearFilters}>Borrar</button>
-                            </div>
+
+                        <div className="filters-actions">
+                            <button type="submit" className="btn-primary">
+                                <Search size={16} />
+                                Aplicar Filtros
+                            </button>
+                            <button 
+                                type="button" 
+                                onClick={handleClearFilters}
+                                className="btn-secondary"
+                            >
+                                <RotateCcw size={16} />
+                                Limpiar
+                            </button>
                         </div>
                     </form>
                 )}
             </div>
-            {loading && !isFiltering ? (
-                <div className="quote-container">
-                    {[...Array(3)].map((_, i) => (
-                        <div key={i} className="quote-card">
-                            <div className="quote-details">
-                                <p>
+
+            {/* Contenido principal */}
+            <div className="dashboard-content">
+                {loading && !isFiltering ? (
+                    <div className="skeleton-container">
+                        {[...Array(3)].map((_, i) => (
+                            <div key={i} className="quote-card-skeleton">
+                                <div className="skeleton-content">
                                     <Skeleton width="70%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2} />
-                                </p>
-                                <p>
-                                    <Skeleton width="70%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2} />
-                                </p>
-                                <p>
-                                    <Skeleton width="70%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2} />
-                                </p>
-                                <p>
-                                    <Skeleton width="70%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2} />
-                                </p>
+                                    <Skeleton width="50%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2} />
+                                    <Skeleton width="60%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2} />
+                                    <Skeleton width="40%" height={20} baseColor="#e0e0e0" highlightColor="#a9acac" duration={1.2} />
+                                </div>
+                                <div className="skeleton-actions">
+                                    <Skeleton width="100px" height="30px" baseColor="#1a2a1d" highlightColor="#f2f8f8" duration={1.2} />
+                                    <Skeleton width="100px" height="30px" baseColor="#16203a" highlightColor="#f2f8f8" duration={1.2} />
+                                    <Skeleton width="100px" height="30px" baseColor="#611616" highlightColor="#f2f8f8" duration={1.2} />
+                                    <Skeleton width="100px" height="30px" baseColor="#a0910e96" highlightColor="#f2f8f8" duration={1.2} />
+                                </div>
                             </div>
-                            <div className="quote-actions" style={{ display: 'flex', gap: 10 }}>
-                                <Skeleton
-                                    width="100px" height="30px" baseColor="#1a2a1d"
-                                    highlightColor="#f2f8f8" duration={1.2}
-                                />
-                                <Skeleton
-                                    width="100px" height="30px" baseColor="#16203a"
-                                    highlightColor="#f2f8f8" duration={1.2}
-                                />
-                                <Skeleton
-                                    width="100px" height="30px" baseColor="#611616"
-                                    highlightColor="#f2f8f8" duration={1.2}
-                                />
-                                <Skeleton
-                                    width="100px" height="30px" baseColor="#a0910e96"
-                                    highlightColor="#f2f8f8" duration={1.2}
-                                />
+                        ))}
+                    </div>
+                ) : (
+                    <>
+                        <QuotationList
+                            quotations={isFiltering ? filterResults : filteredQuotations}
+                            onDelete={handleDelete}
+                            onStatusChange={handleStatusChange}
+                            showModal={showModal}
+                            setShowModal={setShowModal}
+                            setQuotationToDelete={setQuotationToDelete}
+                            onDeleteSuccess={handleDeleteSuccess}
+                        />
+                        
+                        <div className="pagination-container">
+                            
+                            <div className="pagination-nav">
+                                <button
+                                    onClick={() => {
+                                        if (isFiltering) fetchFilteredQuotations(filterPage - 1);
+                                        else goToDashboardPage(page - 1);
+                                    }}
+                                    disabled={isFiltering ? filterPage <= 1 : page <= 1}
+                                    className="pagination-btn"
+                                >
+                                    Anterior
+                                </button>
+                                
+                                <span className="pagination-page">
+                                    Página {isFiltering ? filterPage : page} de {Math.ceil((isFiltering ? filterTotal : total) / pageSize)}
+                                </span>
+                                
+                                <button
+                                    onClick={() => {
+                                        if (isFiltering) fetchFilteredQuotations(filterPage + 1);
+                                        else goToDashboardPage(page + 1);
+                                    }}
+                                    disabled={
+                                        isFiltering
+                                            ? filterPage >= Math.ceil(filterTotal / pageSize)
+                                            : page >= Math.ceil(total / pageSize)
+                                    }
+                                    className="pagination-btn"
+                                >
+                                    Siguiente
+                                </button>
                             </div>
                         </div>
-                    ))}
-                </div>
-            ) : (
-                <>
-                    <QuotationList
-                        quotations={isFiltering ? filterResults : filteredQuotations}
-                        onDelete={handleDelete}
-                        onStatusChange={handleStatusChange}
-                        showModal={showModal}
-                        setShowModal={setShowModal}
-                        setQuotationToDelete={setQuotationToDelete}
-                        onDeleteSuccess={handleDeleteSuccess}
-                    />
-                    <div className="pagination-nav">
-                        <button
-                            onClick={() => {
-                                if (isFiltering) fetchFilteredQuotations(filterPage - 1);
-                                else goToDashboardPage(page - 1);
-                            }}
-                            disabled={isFiltering ? filterPage <= 1 : page <= 1}
-                        >Anterior</button>
-                        <span>
-                            Página {isFiltering ? filterPage : page} de {Math.ceil((isFiltering ? filterTotal : total) / pageSize)}
-                        </span>
-                        <button
-                            onClick={() => {
-                                if (isFiltering) fetchFilteredQuotations(filterPage + 1);
-                                else goToDashboardPage(page + 1);
-                            }}
-                            disabled={
-                                isFiltering
-                                    ? filterPage >= Math.ceil(filterTotal / pageSize)
-                                    : page >= Math.ceil(total / pageSize)
-                            }
-                        >Siguiente</button>
-                    </div>
-                </>
-            )}
+                    </>
+                )}
+            </div>
 
             <Footer />
         </div>

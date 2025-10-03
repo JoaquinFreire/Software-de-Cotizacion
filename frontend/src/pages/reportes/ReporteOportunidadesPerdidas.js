@@ -216,7 +216,7 @@ const ReporteDeOportunidadesPerdidas = () => {
                 justifyContent: 'center',
                 minHeight: 500
               }}>
-                <ReactLoading type="spin" color="#1ddfe6ff" height={80} width={80} />
+                 <ReactLoading type="spin" color="#26b7cd" height={60} width={60}/>
                 <div style={{ marginTop: 24, fontSize: 18, color: '#1dc8ceff' }}>Cargando reporte...</div>
               </div>
             ) : !generar ? (
