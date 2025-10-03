@@ -190,8 +190,8 @@ const BudgetDetail = () => {
               <div className="pdf-main-data">
                 <div className="pdf-budget-id">Cotización N°: {show(budget.budgetId)}</div>
                 <div className="pdf-date-info">
-                  <div>Fecha: {new Date(budget.creationDate).toLocaleDateString()}</div>
-                  <div>Válido hasta: {new Date(budget.ExpirationDate).toLocaleDateString()}</div>
+                  <div><u>Fecha:</u> {new Date(budget.creationDate).toLocaleDateString()}</div>
+                  <div><u>Válido hasta:</u> {new Date(budget.ExpirationDate).toLocaleDateString()}</div>
                 </div>
               </div>
               <hr className="pdf-separator" />
@@ -200,20 +200,20 @@ const BudgetDetail = () => {
               <div className="pdf-sections">
                 <div className="pdf-section">
                   <h4><strong>Cliente</strong><br /></h4>
-                  Nombre: {show(budget.customer?.name)} {show(budget.customer?.lastname)}<br />
-                  Correo: {show(budget.customer?.mail)}<br />
-                  Tel: {show(budget.customer?.tel)}<br />
-                  Dirección: {show(budget.customer?.address)}
+                  <u>Nombre:</u> {show(budget.customer?.name)} {show(budget.customer?.lastname)}<br />
+                  <u>Correo:</u> {show(budget.customer?.mail)}<br />
+                  <u>Tel:</u> {show(budget.customer?.tel)}<br />
+                  <u>Dirección:</u> {show(budget.customer?.address)}
                 </div>
                 <div className="pdf-section">
                   <h4><strong>Lugar de Trabajo</strong><br /></h4>
-                  Nombre: {show(budget.workPlace?.name)}<br />
-                  Dirección: {show(budget.workPlace?.address)}
+                  <u>Nombre:</u> {show(budget.workPlace?.name)}<br />
+                  <u>Dirección:</u> {show(budget.workPlace?.address)}
                 </div>
                 <div className="pdf-section">
                   <h4><strong>Vendedor</strong><br /></h4>
-                  Nombre: {show(budget.user?.name)} {show(budget.user?.lastName)}<br />
-                  Mail: {show(budget.user?.mail)}
+                  <u>Nombre:</u> {show(budget.user?.name)} {show(budget.user?.lastName)}<br />
+                  <u>Mail:</u> {show(budget.user?.mail)}
                 </div>
               </div>
               <hr className="pdf-separator" />
@@ -358,9 +358,9 @@ const BudgetDetail = () => {
 
               {/* Totales */}
               <div className="pdf-totals">
-                <div><b>Dólar Ref:</b> {show(budget.DollarReference)}</div>
-                <div><b>Mano de Obra:</b> {show(budget.LabourReference)}</div>
-                <h3 className="pdf-total" ><b>Total:</b></h3>{show(budget.Total)}
+                <div><b>Dólar Ref:</b>   ${show(budget.DollarReference)}</div>
+                <div><b>Mano de Obra:</b>   ${show(budget.LabourReference)}</div>
+                <h2 className="pdf-total" ><b>Total:  $</b>{show(budget.Total)}</h2>
               </div>
               <hr className="pdf-separator" />
               {/* Observaciones */}

@@ -17,6 +17,7 @@ import 'primereact/resources/themes/saga-blue/theme.css'; // PrimeReact theme
 import 'primereact/resources/primereact.min.css';         // PrimeReact core css
 import 'primeicons/primeicons.css';                       // PrimeIcons
 import { safeArray } from '../utils/safeArray'; // agrega este import
+import { Filter, X, Search, RotateCcw } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -307,99 +308,165 @@ const Historial = () => {
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
-            <h2 className="title">Todas las Cotizaciones</h2>
+           <div className="dashboard-header">
+                <h2 className="dashboard-title">Todas las Cotizaciones</h2>
+                    <div className="dashboard-stats">
+                          <span className="stat-badge">
+                         {isFiltering ? filterTotal : total} cotizaciones
+                         </span>
+                    </div>
+            </div>
             <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
 
-            <div className="advanced-filters-menu">
-                <button
-                    type="button"
-                    className="advanced-filters-toggle"
-                    onClick={() => setShowFilters(!showFilters)}
+            <div className="advanced-filters-container">
+    <div className="filters-header">
+        <button
+            type="button"
+            className="filters-toggle-btn"
+            onClick={() => setShowFilters(!showFilters)}
+        >
+            <Filter size={18} />
+            <span>Filtros Avanzados</span>
+            <div className={`toggle-arrow ${showFilters ? 'open' : ''}`}>▼</div>
+        </button>
+        
+        {isFiltering && (
+            <div className="active-filters-indicator">
+                <span>Filtros activos</span>
+                <button 
+                    onClick={handleClearFilters}
+                    className="clear-filters-btn"
                 >
-                    Filtros avanzados {showFilters ? "▲" : "▼"}
+                    <X size={14} />
+                    Limpiar
                 </button>
-                {showFilters && (
-                    <form onSubmit={handleFilterSubmit} className="formulario-filtros">
-                        <div className="advanced-filter-form">
-                            <div className="date-filter">
-                                <Calendar
-                                    value={date}
-                                    onChange={handleCalendarChange}
-                                    showIcon
-                                    dateFormat="dd/mm/yy"
-                                    placeholder="Desde"
-                                    locale="es"
-                                />
-                            </div>
-                            <div className="date-filter">
-                                <Calendar
-                                    value={toDate}
-                                    onChange={handleToCalendarChange}
-                                    showIcon
-                                    dateFormat="dd/mm/yy"
-                                    placeholder="Hasta"
-                                    locale="es"
-                                />
-                            </div>
-                            <div className="date-filter">
-                                <Calendar
-                                    value={lastEditFromDate}
-                                    onChange={handleLastEditFromCalendarChange}
-                                    showIcon
-                                    dateFormat="dd/mm/yy"
-                                    placeholder="Última edición desde"
-                                    locale="es"
-                                />
-                            </div>
-                        </div>
-                        <div className="advanced-filter-form">
-                            <select
-                                name="status"
-                                value={filters.status}
-                                onChange={handleFilterChange}
-                                className="filter-Advanced"
-                            >
-                                <option className="titulo" value="">Estado </option>
-                                <option className="filter-status-select" value="pending">Pendientes</option>
-                                <option className="filter-status-select" value="approved">Aprobados</option>
-                                <option className="filter-status-select" value="rejected">Rechazado</option>
-                                <option className="filter-status-select" value="finished">Finalizado</option>
-                            </select>
-                            <input
-                                type="number"
-                                name="approxTotalPrice"
-                                value={filters.approxTotalPrice}
-                                onChange={handleFilterChange}
-                                placeholder="Precio total"
-                            />
-                            {/* Mostrar select solo cuando sepamos el rol y no sea quotator */}
-                            {currentRole !== null && currentRole !== "quotator" && (
-                                <select
-                                    name="userId"
-                                    value={filters.userId}
-                                    onChange={handleFilterChange}
-                                >
-                                    <option value="">Todos los quotators</option>
-                                    {quotators.map(u => (
-                                        <option key={u.id} value={u.id}>{`${u.name || ""} ${u.lastname || ""}`.trim()}</option>
-                                    ))}
-                                </select>
-                            )}
-                            <input
-                                type="text"
-                                name="customerDni"
-                                value={filters.customerDni}
-                                onChange={handleFilterChange}
-                                placeholder="DNI Cliente"
-                            />
-                            <div className="botones-filtros">
-                                <button type="submit" className="search-button">Buscar</button>
-                                <button type="button" className="search-button" onClick={handleClearFilters}>Borrar</button>
-                            </div>
-                        </div>
-                    </form>
-                )}
             </div>
+        )}
+    </div>
+
+    {showFilters && (
+        <form onSubmit={handleFilterSubmit} className="filters-form">
+            <div className="filters-grid">
+                <div className="filter-group">
+                    <label>Rango de Fechas</label>
+                    <div className="date-filters">
+                        <div className="date-input">
+                            <Calendar
+                                value={date}
+                                onChange={handleCalendarChange}
+                                showIcon
+                                dateFormat="dd/mm/yy"
+                                placeholder="Desde"
+                                locale="es"
+                                className="calendar-input"
+                            />
+                        </div>
+                        <div className="date-input">
+                            <Calendar
+                                value={toDate}
+                                onChange={handleToCalendarChange}
+                                showIcon
+                                dateFormat="dd/mm/yy"
+                                placeholder="Hasta"
+                                locale="es"
+                                className="calendar-input"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="filter-group">
+                    <label>Última Edición</label>
+                    <div className="date-input">
+                        <Calendar
+                            value={lastEditFromDate}
+                            onChange={handleLastEditFromCalendarChange}
+                            showIcon
+                            dateFormat="dd/mm/yy"
+                            placeholder="Desde"
+                            locale="es"
+                            className="calendar-input"
+                        />
+                    </div>
+                </div>
+
+                <div className="filter-group">
+                    <label>Estado</label>
+                    <select
+                        name="status"
+                        value={filters.status}
+                        onChange={handleFilterChange}
+                        className="filter-select"
+                    >
+                        <option value="">Todos los estados</option>
+                        <option value="pending">Pendientes</option>
+                        <option value="approved">Aprobados</option>
+                        <option value="rejected">Rechazado</option>
+                        <option value="finished">Finalizado</option>
+                    </select>
+                </div>
+
+                <div className="filter-group">
+                    <label>Precio Total</label>
+                    <input
+                        type="number"
+                        name="approxTotalPrice"
+                        value={filters.approxTotalPrice}
+                        onChange={handleFilterChange}
+                        placeholder="Monto aproximado"
+                        className="filter-input"
+                    />
+                </div>
+
+                {currentRole !== null && currentRole !== "quotator" && (
+                    <div className="filter-group">
+                        <label>Cotizador</label>
+                        <select
+                            name="userId"
+                            value={filters.userId}
+                            onChange={handleFilterChange}
+                            className="filter-select"
+                        >
+                            <option value="">Todos los cotizadores</option>
+                            {quotators.map(u => (
+                                <option key={u.id} value={u.id}>
+                                    {`${u.name || ""} ${u.lastname || ""}`.trim()}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+
+                <div className="filter-group">
+                    <label>DNI Cliente</label>
+                    <input
+                        type="text"
+                        name="customerDni"
+                        value={filters.customerDni}
+                        onChange={handleFilterChange}
+                        placeholder="Número de DNI"
+                        className="filter-input"
+                    />
+                </div>
+            </div>
+
+            <div className="filters-actions">
+                <button type="submit" className="btn-primary">
+                    <Search size={16} />
+                    Aplicar Filtros
+                </button>
+                <button 
+                    type="button" 
+                    onClick={handleClearFilters}
+                    className="btn-secondary"
+                >
+                    <RotateCcw size={16} />
+                    Limpiar
+                </button>
+            </div>
+        </form>
+    )}
+</div>
 
             {loading && !isFiltering ? (
                 <div className="quote-container">

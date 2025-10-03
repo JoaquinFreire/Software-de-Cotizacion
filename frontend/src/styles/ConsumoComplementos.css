@@ -1,0 +1,165 @@
+.dashboard-container {
+  padding: 20px;
+}
+
+.title {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 28px;
+  font-weight: bold;
+  color: #1976d2;
+}
+
+.reporte-cotizaciones-root {
+  padding: 20px;
+}
+
+.reporte-cotizaciones-toolbar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.reporte-cotizaciones-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.reporte-cotizaciones-filtros label {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+  color: #333;
+}
+
+.reporte-cotizaciones-filtros input[type="date"] {
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.botton-Report,
+.reporte-cotizaciones-btn-pdf {
+  padding: 8px 16px;
+  border: none;
+  background-color: #1976d2;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.botton-Report:disabled,
+.reporte-cotizaciones-btn-pdf:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+.botton-Report:hover:not(:disabled),
+.reporte-cotizaciones-btn-pdf:hover:not(:disabled) {
+  background-color: #125a9c;
+}
+
+.reporte-cotizaciones-a4 {
+  display: flex;
+  justify-content: center;
+}
+
+.reporte-cotizaciones-pdf {
+  width: 100%;
+  max-width: 800px;
+  background-color: white;
+  padding: 24px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.reporte-cotizaciones-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.reporte-cotizaciones-logo {
+  height: 80px;
+}
+
+.reporte-cotizaciones-logo-placeholder {
+  width: 80px;
+}
+
+.reporte-cotizaciones-title {
+  font-size: 22px;
+  color: #1976d2;
+  text-align: center;
+  flex: 1;
+}
+
+.reporte-cotizaciones-main {
+  margin-top: 20px;
+}
+
+.reporte-cotizaciones-info {
+  font-size: 16px;
+  margin-bottom: 20px;
+  line-height: 1.6;
+  color: #444;
+}
+
+.tabla-cotizaciones-responsive {
+  overflow-x: auto;
+}
+
+.reporte-cotizaciones-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.reporte-cotizaciones-tabla th,
+.reporte-cotizaciones-tabla td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+.reporte-cotizaciones-tabla th {
+  background-color: #f0f0f0;
+  color: #1976d2;
+}
+
+.tabla-ajustada th,
+.tabla-ajustada td {
+  font-size: 14px;
+}
+
+.tablachild td {
+  font-size: 15px;
+}
+
+.reporte-cotizaciones-footer {
+  margin-top: 32px;
+  border-top: 1px solid #ccc;
+  padding-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 14px;
+  color: #333;
+}
+
+.reporte-cotizaciones-footer-logo {
+  height: 50px;
+}
+
+.reporte-cotizaciones-direccion {
+  max-width: 400px;
+}
+
+.reporte-cotizaciones-footer svg {
+  vertical-align: middle;
+}

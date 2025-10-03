@@ -16,6 +16,7 @@ import LineaDeTiempoCotizaciones from './pages/reportes/LineaDeTiempoCotizacione
 import ReporteDeOportunidadesPerdidas from './pages/reportes/ReporteOportunidadesPerdidas';
 import BeneficioEnCotizaciocionesPorTipoDeLinea from './pages/reportes/BeneficioEnCotizaciocionesPorTipoDeLinea';
 import ReporteDeProductividadPorCotizador from './pages/reportes/ReporteDeProductividadPorCotizador';
+import ReporteConsumoComplementos from './pages/reportes/ReporteConsumoComplementos';
 import BudgetDetail from './pages/BudgetDetail';
 import CreatePassword from './pages/CreatePassword';
 import SessionModal from './components/SessionModal';
@@ -201,6 +202,7 @@ function App() {
                         <Route path="/reportes/Oportunidades-Perdidas" element={<PrivateRoute element={<ReporteDeOportunidadesPerdidas />} />} />
                         <Route path="/reportes/beneficio-proyecto" element={<PrivateRoute element={<BeneficioEnCotizaciocionesPorTipoDeLinea />} />} />
                         <Route path="/reportes/productividad-cotizador" element={<PrivateRoute element={<ReporteDeProductividadPorCotizador />} />} />
+                        <Route path="/reportes/consumo-complementos" element={<PrivateRoute element={<ReporteConsumoComplementos />} />} />
                         <Route path="/quotation" element={<PrivateRoute element={<Quotation />} />} />
                         <Route path="/quotation/:id" element={<PrivateRoute element={<BudgetDetail />} />} />
                         <Route path="/crear-password" element={<PublicRoute element={<CreatePassword />} />} />

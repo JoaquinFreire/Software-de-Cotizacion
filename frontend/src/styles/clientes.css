@@ -37,8 +37,7 @@
 
 .cliente-card {
   margin-top: 10px;
-  background: #000000;
-  border-radius: 4px;
+  background: rgba(29, 27, 27, 0.8);  border-radius: 4px;
   padding: 18px 28px;
   box-shadow: 0 2px 8px rgba(30,40,60,0.08);
   display: flex;

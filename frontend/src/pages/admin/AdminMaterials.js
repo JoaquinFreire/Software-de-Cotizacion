@@ -6,9 +6,10 @@ import "../../styles/adminMaterials.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+
 const API_URL = process.env.REACT_APP_API_URL || "";
+
 const AdminMaterials = () => {
-	// solo mantenemos la verificación de usuario y el layout aquí
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -24,7 +25,7 @@ const AdminMaterials = () => {
 		}
 		try {
 			const resp = await axios.get(`${API_URL}/api/auth/me`, {
-					headers: { Authorization: `Bearer ${token}` },
+				headers: { Authorization: `Bearer ${token}` },
 			});
 			const role = resp.data?.user?.role;
 			const allowed = role === "coordinator" || role === "manager";
@@ -40,33 +41,46 @@ const AdminMaterials = () => {
 		}
 	};
 
-	// ---------- Render ----------
 	return (
 		<div className="dashboard-container">
 			<ToastContainer autoClose={4000} theme="dark" position="bottom-right" />
 			<Navigation />
+			
 			<div className="admin-materials-header">
 				<h2>Administrar Materiales</h2>
-				<p style={{ color: "#cfd8d8", marginTop: 6 }}>Seleccione una sección para administrar categorías específicas</p>
+				<p className="admin-subtitle">Seleccione una sección para administrar categorías específicas</p>
 			</div>
 
-			{/* Contenedor: mostrar enlaces hacia las páginas separadas */}
 			<div className="admin-materials-content">
-				<div className="materials-links" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 12 }}>
-					<Link to="/admin/materiales/tratamientos" className="btn update" style={{ display: "block", padding: 18, textAlign: "center", textDecoration: "none" }}>
-						Tratamientos de Aluminio
+				<div className="materials-grid">
+					<Link to="/admin/materiales/tratamientos" className="material-card">
+						<div className="card-icon">⚗️</div>
+						<h3>Tratamientos de Aluminio</h3>
+						<p>Gestionar procesos y acabados</p>
 					</Link>
-					<Link to="/admin/materiales/revestimientos" className="btn update" style={{ display: "block", padding: 18, textAlign: "center", textDecoration: "none" }}>
-						Revestimientos
+					
+					<Link to="/admin/materiales/revestimientos" className="material-card">
+						<div className="card-icon">🎨</div>
+						<h3>Revestimientos</h3>
+						<p>Administrar superficies y texturas</p>
 					</Link>
-					<Link to="/admin/materiales/complementos" className="btn update" style={{ display: "block", padding: 18, textAlign: "center", textDecoration: "none" }}>
-						Complementos (Puerta / Tabique / Baranda)
+					
+					<Link to="/admin/materiales/complementos" className="material-card">
+						<div className="card-icon">🚪</div>
+						<h3>Complementos</h3>
+						<p>Puertas, Tabiques y Barandas</p>
 					</Link>
-					<Link to="/admin/materiales/tipos-vidrio" className="btn update" style={{ display: "block", padding: 18, textAlign: "center", textDecoration: "none" }}>
-						Tipos de Vidrio
+					
+					<Link to="/admin/materiales/tipos-vidrio" className="material-card">
+						<div className="card-icon">🔍</div>
+						<h3>Tipos de Vidrio</h3>
+						<p>Variedades y especificaciones</p>
 					</Link>
-					<Link to="/admin/materiales/accesorios" className="btn update" style={{ display: "block", padding: 18, textAlign: "center", textDecoration: "none" }}>
-						Accesorios
+					
+					<Link to="/admin/materiales/accesorios" className="material-card">
+						<div className="card-icon">🔩</div>
+						<h3>Accesorios</h3>
+						<p>Componentes adicionales</p>
 					</Link>
 				</div>
 			</div>
