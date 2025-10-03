@@ -23,7 +23,7 @@ addLocale('es', {
     firstDayOfWeek: 1,
     dayNames: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
     dayNamesShort: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
-    dayNamesMin: ['D','L','M','X','J','V','S'],
+    dayNamesMin: ['D', 'L', 'M', 'X', 'J', 'V', 'S'],
     monthNames: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
     monthNamesShort: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
     today: 'Hoy',
@@ -335,78 +335,73 @@ const Dashboard = () => {
                     Filtros avanzados {showFilters ? "▲" : "▼"}
                 </button>
                 {showFilters && (
-                    <form onSubmit={handleFilterSubmit}>
-                    <div className="advanced-filter-form">
-                        <div className="date-filter">
-
-                            <Calendar
-                                value={date}
-                                onChange={handleCalendarChange}
-                                showIcon
-                                dateFormat="dd/mm/yy"
-                                placeholder="Desde"
-                                locale="es"
-                            />
-                        </div>
-                        <div className="date-filter">
-                            <Calendar
-                                value={toDate}
-                                onChange={handleToCalendarChange}
-                                showIcon
-                                dateFormat="dd/mm/yy"
-                                placeholder="Hasta"
-                                locale="es"
-                            />
+                    <form onSubmit={handleFilterSubmit} className="formulario-filtros">
+                        <div className="advanced-filter-form">
+                            <div className="date-filter">
+                                <Calendar
+                                    value={date}
+                                    onChange={handleCalendarChange}
+                                    showIcon
+                                    dateFormat="dd/mm/yy"
+                                    placeholder="Desde"
+                                    locale="es"
+                                />
+                            </div>
+                            <div className="date-filter">
+                                <Calendar
+                                    value={toDate}
+                                    onChange={handleToCalendarChange}
+                                    showIcon
+                                    dateFormat="dd/mm/yy"
+                                    placeholder="Hasta"
+                                    locale="es"
+                                />
+                            </div>
+                            <div className="date-filter">
+                                <Calendar
+                                    value={lastEditFromDate}
+                                    onChange={handleLastEditFromCalendarChange}
+                                    showIcon
+                                    dateFormat="dd/mm/yy"
+                                    placeholder="Última edición desde"
+                                    locale="es"
+                                />
+                            </div>
                         </div>
                         <div className="advanced-filter-form">
-                        <Calendar
-                            value={lastEditFromDate}
-                            onChange={handleLastEditFromCalendarChange}
-                            showIcon
-                            dateFormat="dd/mm/yy"
-                            placeholder="Última edición desde"
-                            locale="es"
-                        />
-                    </div>
-                    </div>
-                    <div className="filter-Advanced">
-                        <input
-                            type="number"
-                            name="approxTotalPrice"
-                            value={filters.approxTotalPrice}
-                            onChange={handleFilterChange}
-                            placeholder="Precio total"
-                            className="filter-Advanced"
-                        />
-                        {/* Mostrar select solo cuando sepamos el rol y no sea quotator */}
-                        {currentRole !== null && currentRole !== "quotator" && (
-                             <select
-                                 name="userId"
-                                 value={filters.userId}
-                                 onChange={handleFilterChange}
-                                 className="filter-Advanced"
-                             >
-                                 <option value="">Todos los quotators</option>
-                                 {quotators.map(u => (
-                                     <option key={u.id} value={u.id}>{`${u.name || ""} ${u.lastname || ""}`.trim()}</option>
-                                 ))}
-                             </select>
-                        )}
-                        <input
-                            type="text"
-                            name="customerDni"
-                            value={filters.customerDni}
-                            onChange={handleFilterChange}
-                            placeholder="DNI Cliente"
-                            className="filter-Advanced"
-                        />
-                    </div>
-                    <div className="fadvanced-filter-form">
-                        <button type="submit" className="search-button">Buscar
-                            <img src={logo_busqueda} alt="Buscar" /></button>
-                        <button type="button" className="clear-button" onClick={handleClearFilters}>Borrar filtro</button>
-                    </div>
-                </form>
+                            <input
+                                type="number"
+                                name="approxTotalPrice"
+                                value={filters.approxTotalPrice}
+                                onChange={handleFilterChange}
+                                placeholder="Precio total"
+                            />
+                            {/* Mostrar select solo cuando sepamos el rol y no sea quotator */}
+                            {currentRole !== null && currentRole !== "quotator" && (
+                                <select
+                                    name="userId"
+                                    value={filters.userId}
+                                    onChange={handleFilterChange}
+                                >
+                                    <option value="">Todos los quotators</option>
+                                    {quotators.map(u => (
+                                        <option key={u.id} value={u.id}>{`${u.name || ""} ${u.lastname || ""}`.trim()}</option>
+                                    ))}
+                                </select>
+                            )}
+                            <input
+                                type="text"
+                                name="customerDni"
+                                value={filters.customerDni}
+                                onChange={handleFilterChange}
+                                placeholder="DNI Cliente"
+                            />
+                            <div className="botones-filtros">
+                                <button type="submit" className="search-button">Buscar</button>
+                                <button type="button" className="search-button" onClick={handleClearFilters}>Borrar</button>
+                            </div>
+                        </div>
+                    </form>
                 )}
             </div>
             {loading && !isFiltering ? (

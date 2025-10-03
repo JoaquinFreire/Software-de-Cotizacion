@@ -1,19 +1,14 @@
 .advanced-filter-form {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
     align-items: baseline;
-    justify-content: center;
-    margin: 10px 10px 10px 10px;
-    gap: 25px;
+    justify-content: space-between;
     text-align: center;
-}
-
-.filter-Advanced{
-    margin: -3px 25px 18px 25px;
-    display: flex;
+    gap: 1rem;
+    width: 700px;
 
 }
+
 
 input, select {
     width: 140%;
@@ -52,17 +47,6 @@ input, select {
     transition: background 0.2s;
 }
 
-
-.clear-button {
-    background: #3f9e9e;
-    color: #ffffff;
-    border: none;
-    border-radius: 2px;
-    padding: 10px 24px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: background 0.2s;
-}
 .advanced-filters-toggle:hover {
     background: #2b7a7a;
 }
@@ -72,7 +56,7 @@ input, select {
     justify-content: center;
     margin-bottom: 1rem;
 }
-.date-filter {
+.date-filter{
     display: flex;
     flex-direction: column;
     align-items: flex-start;

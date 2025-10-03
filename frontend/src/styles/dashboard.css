@@ -40,18 +40,18 @@
     color: #fff;
     border: none;
     border-radius: 2px;
-    padding: 10px 24px;
-    font-size: 1.1rem;
+    padding: 8px 20px;
+    font-size: 1rem;
     cursor: pointer;
     margin-bottom: 10px;
-    margin-right: 16px;
+    margin-right: 4px;
     transition: background 0.2s;
 }
 
 .search-button img {
-    width: 18px;
-    height: 18px;
-    margin-left: 10px;
+    width: 10px;
+    height: 10px;
+    margin-left: 2px;
 }
 
 .filtro::after {
@@ -103,7 +103,9 @@ body.light-mode .quote-card {
     color: #222;
     border: 2px solid #26b7cd;
 }
-
+.quote-card {
+    min-width: 1000px;
+}
 body.light-mode .success-message {
     background: #e0f7fa;
     color: #00796b;
@@ -187,4 +189,23 @@ body,
         font-size: 18px;
     }
 
+}
+.formulario-filtros {
+    min-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.advanced-filter-form input, .advanced-filter-form select {
+    width: 12rem;
+}
+.botones-filtros {
+    display: flex;
+    align-items: right;
+    gap: 1px;
+    width: 200px;
+    font-size: 12px;
+    justify-content: right;
 }

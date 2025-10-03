@@ -25,7 +25,7 @@ addLocale('es', {
     firstDayOfWeek: 1,
     dayNames: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
     dayNamesShort: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
-    dayNamesMin: ['D','L','M','X','J','V','S'],
+    dayNamesMin: ['D', 'L', 'M', 'X', 'J', 'V', 'S'],
     monthNames: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
     monthNamesShort: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
     today: 'Hoy',
@@ -109,7 +109,7 @@ const Historial = () => {
                         }
                         return found;
                     };
-                    
+
                     const usersArray = extractUsersFromResponse(usersRes.data);
                     // Construir mapa byId para resolver referencias $ref dentro de la respuesta
                     const collectAllObjects = (data) => {
@@ -132,14 +132,14 @@ const Historial = () => {
                     const allNodes = collectAllObjects(usersRes.data);
                     const byId = {};
                     allNodes.forEach(n => { if (n && n.$id) byId[n.$id] = n; });
-    
+
                     const resolveRef = (obj) => {
                         if (obj && typeof obj === "object" && obj.$ref) {
-                          return byId[obj.$ref] || obj;
+                            return byId[obj.$ref] || obj;
                         }
                         return obj;
                     };
-    
+
                     const extractRoleName = (u) => {
                         let rawRole = u?.role ?? u?.role_name ?? u?.roleName ?? u?.userRole ?? null;
                         if (rawRole && typeof rawRole === "object") rawRole = resolveRef(rawRole);
@@ -155,7 +155,7 @@ const Historial = () => {
                         }
                         return "";
                     };
-    
+
                     const normalized = usersArray.map(u => {
                         const resolved = resolveRef(u);
                         return {
@@ -302,7 +302,7 @@ const Historial = () => {
     const handleLastEditFromCalendarChange = (e) => {
         setLastEditFromDate(e.value);
         setFilters({ ...filters, lastEditFrom: e.value ? e.value.toISOString().slice(0, 10) : "" });
-    };  
+    };
 
     return (
         <div className="dashboard-container">
@@ -319,36 +319,40 @@ const Historial = () => {
                     Filtros avanzados {showFilters ? "▲" : "▼"}
                 </button>
                 {showFilters && (
-                    <form onSubmit={handleFilterSubmit}>
+                    <form onSubmit={handleFilterSubmit} className="formulario-filtros">
                         <div className="advanced-filter-form">
-                            <Calendar
-                                value={date}
-                                onChange={handleCalendarChange}
-                                showIcon
-                                dateFormat="dd/mm/yy"
-                                placeholder="Desde"
-                                locale="es"
-                            />
-                            <Calendar
-                                value={toDate}
-                                onChange={handleToCalendarChange}
-                                showIcon
-                                dateFormat="dd/mm/yy"
-                                placeholder="Hasta"
-                                locale="es"
-                            />
-                            <div className="advanced-filter-form">
-                            <Calendar
-                                value={lastEditFromDate}
-                                onChange={handleLastEditFromCalendarChange}
-                                showIcon
-                                dateFormat="dd/mm/yy"
-                                placeholder="Ultima modificacion Desde"
-                                locale="es"
-                            />
+                            <div className="date-filter">
+                                <Calendar
+                                    value={date}
+                                    onChange={handleCalendarChange}
+                                    showIcon
+                                    dateFormat="dd/mm/yy"
+                                    placeholder="Desde"
+                                    locale="es"
+                                />
+                            </div>
+                            <div className="date-filter">
+                                <Calendar
+                                    value={toDate}
+                                    onChange={handleToCalendarChange}
+                                    showIcon
+                                    dateFormat="dd/mm/yy"
+                                    placeholder="Hasta"
+                                    locale="es"
+                                />
+                            </div>
+                            <div className="date-filter">
+                                <Calendar
+                                    value={lastEditFromDate}
+                                    onChange={handleLastEditFromCalendarChange}
+                                    showIcon
+                                    dateFormat="dd/mm/yy"
+                                    placeholder="Última edición desde"
+                                    locale="es"
+                                />
+                            </div>
                         </div>
-                        </div>
-                        <div className="filter-Advanced">
+                        <div className="advanced-filter-form">
                             <select
                                 name="status"
                                 value={filters.status}
@@ -361,29 +365,42 @@ const Historial = () => {
                                 <option className="filter-status-select" value="rejected">Rechazado</option>
                                 <option className="filter-status-select" value="finished">Finalizado</option>
                             </select>
-                            <input type="number" name="approxTotalPrice" value={filters.approxTotalPrice} onChange={handleFilterChange} placeholder="Precio total" className="filter-Advanced"/>
-                           
+                            <input
+                                type="number"
+                                name="approxTotalPrice"
+                                value={filters.approxTotalPrice}
+                                onChange={handleFilterChange}
+                                placeholder="Precio total"
+                            />
+                            {/* Mostrar select solo cuando sepamos el rol y no sea quotator */}
                             {currentRole !== null && currentRole !== "quotator" && (
-                                <select name="userId" value={filters.userId} onChange={handleFilterChange} className="filter-Advanced">
-                                    <option value="">Todos los cotizadores</option>
+                                <select
+                                    name="userId"
+                                    value={filters.userId}
+                                    onChange={handleFilterChange}
+                                >
+                                    <option value="">Todos los quotators</option>
                                     {quotators.map(u => (
                                         <option key={u.id} value={u.id}>{`${u.name || ""} ${u.lastname || ""}`.trim()}</option>
                                     ))}
                                 </select>
                             )}
-                            <input type="text" name="customerDni" value={filters.customerDni} onChange={handleFilterChange} placeholder="DNI Cliente" className="filter-Advanced"/>
-                        </div>
-
-                        <div className="advanced-filter-form">
-                            <button type="submit" className="search-button">Buscar
-                                <img src={logo_busqueda} alt="Buscar" />
-                            </button>
-                            <button type="button" className="clear-button" onClick={handleClearFilters}>Borrar filtro </button>
+                            <input
+                                type="text"
+                                name="customerDni"
+                                value={filters.customerDni}
+                                onChange={handleFilterChange}
+                                placeholder="DNI Cliente"
+                            />
+                            <div className="botones-filtros">
+                                <button type="submit" className="search-button">Buscar</button>
+                                <button type="button" className="search-button" onClick={handleClearFilters}>Borrar</button>
+                            </div>
                         </div>
                     </form>
                 )}
             </div>
-            
+
             {loading && !isFiltering ? (
                 <div className="quote-container">
                     {[...Array(3)].map((_, i) => (
