@@ -41,20 +41,34 @@ namespace Presentation.Controllers
             return Ok(result);
         }
 
-        // ✅ ENDPOINT PRINCIPAL - Timeline por DNI del cliente
-        [HttpGet("{customerDni}")]
-        public async Task<ActionResult<List<BudgetTimeLineDTO>>> GetTimelineByCustomerDni(
-            string customerDni,
-            [FromQuery] string? budgetId = null,
-            [FromQuery] DateTime? fromDate = null,
-            [FromQuery] DateTime? toDate = null)
+        // ENDPOINT PRINCIPAL - Timeline por DNI del cliente
+        [HttpGet("{dni}")]
+        public async Task<ActionResult<List<BudgetTimeLineDTO>>> GetTimeline(
+        string dni,
+        [FromQuery] string? fromDate,
+        [FromQuery] string? toDate,
+        [FromQuery] decimal? montoMin,
+        [FromQuery] decimal? montoMax,
+        [FromQuery] string? ubicacion,
+        [FromQuery] string? usuarioGenerador,
+        [FromQuery] string? agenteDni,
+        [FromQuery] string? tipoProducto,
+        [FromQuery] string? ordenMonto = "desc",
+        [FromQuery] string? ordenFecha = "desc")
         {
             var query = new TimelineQuery
             {
-                CustomerDni = customerDni,
-                BudgetIdFilter = budgetId,
-                FromDate = fromDate,
-                ToDate = toDate
+                CustomerDni = dni,
+                FromDate = fromDate != null ? DateTime.Parse(fromDate) : null,
+                ToDate = toDate != null ? DateTime.Parse(toDate) : null,
+                MontoMin = montoMin,
+                MontoMax = montoMax,
+                Ubicacion = ubicacion,
+                UsuarioGenerador = usuarioGenerador,
+                AgenteDni = agenteDni,
+                TipoProducto = tipoProducto,
+                OrdenMonto = ordenMonto,
+                OrdenFecha = ordenFecha
             };
 
             var result = await _mediator.Send(query);
