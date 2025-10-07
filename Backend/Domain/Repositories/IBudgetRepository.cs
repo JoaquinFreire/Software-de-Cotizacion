@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Domain.Enums;
 
 namespace Domain.Repositories
 {
@@ -12,8 +13,9 @@ namespace Domain.Repositories
         Task UpdateAsync(string id, Budget entity);
         Task DeleteAsync(string id);
         Task<List<Budget>> GetBudgetsByCustomerDniAsync(string customerDni);
-
         Task<List<Budget>> GetBudgetsByCustomerAsync(Customer Customer);
+        Task ChangeBudgetStatus(string budgetId, BudgetStatus newStatus, string? rejectionComment = null);
+
     }
 }
 

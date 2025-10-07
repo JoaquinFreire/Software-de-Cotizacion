@@ -11,6 +11,7 @@ namespace Domain.Repositories
         Task DeleteAsync(int id);
         Task<IEnumerable<Quotation>> GetByPeriodAsync(DateTime from, DateTime to);
         IQueryable<Quotation> Query();
+        Task ChangeQuotationStatus(int budgetId, string newStatus);
         Task<IEnumerable<Quotation>> AdvancedSearchAsync(
             DateTime? from = null,
             DateTime? to = null,
