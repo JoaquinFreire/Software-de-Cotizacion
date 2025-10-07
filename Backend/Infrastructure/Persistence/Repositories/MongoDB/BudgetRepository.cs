@@ -1,9 +1,10 @@
-﻿using MongoDB.Driver;
-using Microsoft.Extensions.Options;
-using Domain.Entities;
+﻿using Domain.Entities;
+using Domain.Enums;
 using Domain.Repositories;
-using ZstdSharp.Unsafe;
 using DotNetEnv;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using ZstdSharp.Unsafe;
 
 namespace Infrastructure.Persistence.Repositories
 {
@@ -80,6 +81,34 @@ namespace Infrastructure.Persistence.Repositories
             var filter = Builders<Budget>.Filter.Eq("customer.dni", customer.dni);
             return await _collection.Find(filter).ToListAsync();
         }
+
+        //Metodo para cambiar el estado de una cotización
+        public async Task ChangeBudgetStatus(string budgetId, BudgetStatus newStatus, string? rejectionComment = null)
+        {
+            var filter = Builders<Budget>.Filter.Eq(b => b.budgetId, budgetId);
+            var budgets = await _collection.Find(filter).ToListAsync();
+
+            foreach (var budget in budgets)
+            {
+                var update = Builders<Budget>.Update
+                    .Set(b => b.status, newStatus)
+                    .Set(b => b.EndDate, DateTime.UtcNow);
+
+                // Si es rechazado y hay comentario, agregarlo AL INICIO del comentario existente
+                if (newStatus == BudgetStatus.Rejected && !string.IsNullOrEmpty(rejectionComment))
+                {
+                    var motivoRechazo = $"--- MOTIVO DE RECHAZO ---\n{rejectionComment}\nFecha: {DateTime.UtcNow:yyyy-MM-dd HH:mm}\n\n";
+                    var nuevoComentario = motivoRechazo + (string.IsNullOrEmpty(budget.Comment) ? "" : budget.Comment);
+                    update = update.Set(b => b.Comment, nuevoComentario);
+                }
+
+                await _collection.UpdateOneAsync(
+                    Builders<Budget>.Filter.Eq(b => b.id, budget.id),
+                    update
+                );
+            }
+        }
+
         public async Task<object> DebugMongoConnection()
         {
             try
