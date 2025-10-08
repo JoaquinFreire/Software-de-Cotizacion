@@ -15,6 +15,7 @@ import ReactLoading from 'react-loading'; // <--- agregar import
 import { safeArray } from '../../utils/safeArray'; // agrega este import
 import Navigation from '../../components/Navigation';
 import Footer from '../../components/Footer';
+import { useNavigate } from 'react-router-dom'; // <-- agregado
 Chart.register(ChartDataLabels);
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -88,14 +89,20 @@ const ReporteEstadoCotizaciones = () => {
 
   // Nuevo: estado para rol actual
   const [currentRole, setCurrentRole] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null); // <-- ya agregado previamente
 
-  // Nuevo: dirección de ordenamiento por grupo ('asc'|'desc'|null)
+  // Estado de dirección de ordenamiento por grupo ('asc'|'desc'|null)
   const [sortDirection, setSortDirection] = useState({
     pending: null,
     approved: null,
     rejected: null,
     finished: null
   });
+
+  // nuevos estados para lista de usuarios / selección (coordinator/manager)
+  const [selectedUserId, setSelectedUserId] = useState(''); // '' = Todos
+
+  const navigate = useNavigate(); // <-- agregado
 
   // Fetch current user role on mount
   useEffect(() => {
@@ -111,6 +118,30 @@ const ReporteEstadoCotizaciones = () => {
         const roleRaw = (user?.role?.role_name ?? user?.role ?? "").toString().toLowerCase();
         const roleName = roleRaw || "";
         setCurrentRole(roleName);
+
+        // guardar id de usuario (si viene)
+        const resolvedUserId = user?.id ?? res.data?.userId ?? null;
+        if (resolvedUserId) setCurrentUserId(resolvedUserId);
+
+        // Si es coordinator o manager, cargar lista de usuarios (para seleccionar cotizador)
+        const roleLower = roleName.toLowerCase();
+        if (roleLower === 'manager' || roleLower === 'coordinator') {
+          try {
+            const usersRes = await axios.get(`${API_URL}/api/users`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            // Normalizar respuesta posible: array directo o { users: [...]} o { data: [...] }
+            const raw = usersRes.data;
+            let arr = [];
+            if (Array.isArray(raw)) arr = raw;
+            else if (raw && Array.isArray(raw.users)) arr = raw.users;
+            else if (raw && Array.isArray(raw.data)) arr = raw.data;
+            else arr = []; // fallback
+            setSelectedUserId(''); // por defecto Todos
+          } catch (uErr) {
+            console.error("Error fetching users list:", uErr);
+          }
+        }
 
         // Si no es manager, ocultar por defecto todos excepto pendientes.
         if (roleName !== 'manager') {
@@ -137,8 +168,18 @@ const ReporteEstadoCotizaciones = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
+
+      // Determinar parámetro userId según rol y selección
+      let userIdParam = '';
+      if (currentRole === 'quotator' && currentUserId) {
+        userIdParam = `&userId=${currentUserId}`;
+      } else if ((currentRole === 'manager' || currentRole === 'coordinator') && selectedUserId) {
+        // si selectedUserId es '' => todos (no param)
+        userIdParam = selectedUserId ? `&userId=${selectedUserId}` : '';
+      }
+
       const res = await axios.get(
-        `${API_URL}/api/quotations/by-period?from=${fechaDesde}&to=${fechaHasta}`,
+        `${API_URL}/api/quotations/by-period?from=${fechaDesde}&to=${fechaHasta}${userIdParam}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       // Normaliza y resuelve referencias
@@ -282,6 +323,9 @@ const ReporteEstadoCotizaciones = () => {
     return copy;
   };
 
+  // Helper para obtener id de cotización (más robusto)
+  const getQuotationId = (q) => q?.Id ?? q?.id ?? q?.IdBudget ?? null;
+
   return (
     <div className="dashboard-container">
       <Navigation />
@@ -290,6 +334,7 @@ const ReporteEstadoCotizaciones = () => {
         {/* Filtros y acciones arriba de todo */}
         <div className="reporte-cotizaciones-toolbar">
           <div className="reporte-cotizaciones-filtros">
+            {/* ...existing controls... */}
             <label>
               Desde:
               <input
@@ -306,6 +351,9 @@ const ReporteEstadoCotizaciones = () => {
                 onChange={(e) => setFechaHasta(e.target.value)}
               />
             </label>
+
+            
+
             <button className="botton-Report" onClick={handleGenerarReporte} disabled={loading || !fechaDesde || !fechaHasta}>
               {loading ? 'Cargando...' : 'Generar Reporte'}
             </button>
@@ -377,7 +425,8 @@ const ReporteEstadoCotizaciones = () => {
                         data={data}
                         options={{
                           plugins: {
-                            datalabels: {
+                            datalabels:
+                            {
                               color: '#222',
                               font: { weight: 'bold', size: 20 },
                               formatter: (value, context) => value,
@@ -524,21 +573,30 @@ const ReporteEstadoCotizaciones = () => {
                                 </tr>
                               </thead>
                               <tbody>
-                                {sortedGroup(cotizacionesPorEstado.pending, 'pending').map(q => (
-                                  <tr key={q.Id || q.id}>
-                                    <td>
-                                      {q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''}
-                                      {' '}
-                                      {q.Customer?.Customer?.lastname || q.Customer?.lastname || q.customer?.lastname || ''}
-                                    </td>
-                                    <td>{q.Customer?.Customer?.tel || q.Customer?.tel || q.customer?.tel || ''}</td>
-                                    <td>{q.Customer?.Customer?.mail || q.Customer?.mail || q.customer?.mail || ''}</td>
-                                    <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
-                                    <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
-                                    <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
-                                    <td style={{ whiteSpace: 'nowrap' }}>${q.TotalPrice || q.totalPrice}</td>
-                                  </tr>
-                                ))}
+                                {sortedGroup(cotizacionesPorEstado.pending, 'pending').map(q => {
+                                  const qId = getQuotationId(q);
+                                  return (
+                                    <tr
+                                      key={qId || Math.random()}
+                                      className={qId ? 'clickable-row' : ''}
+                                      onClick={() => qId && navigate(`/quotation/${qId}`)}
+                                      tabIndex={qId ? 0 : -1}
+                                      onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && qId) navigate(`/quotation/${qId}`); }}
+                                    >
+                                      <td>
+                                        {q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''}
+                                        {' '}
+                                        {q.Customer?.Customer?.lastname || q.Customer?.lastname || q.customer?.lastname || ''}
+                                      </td>
+                                      <td>{q.Customer?.Customer?.tel || q.Customer?.tel || q.customer?.tel || ''}</td>
+                                      <td>{q.Customer?.Customer?.mail || q.Customer?.mail || q.customer?.mail || ''}</td>
+                                      <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
+                                      <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
+                                      <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
+                                      <td style={{ whiteSpace: 'nowrap' }}>${q.TotalPrice || q.totalPrice}</td>
+                                    </tr>
+                                  );
+                                })}
                               </tbody>
                             </table>
                           </div>
@@ -575,21 +633,30 @@ const ReporteEstadoCotizaciones = () => {
                                 </tr>
                               </thead>
                               <tbody>
-                                {sortedGroup(cotizacionesPorEstado.approved, 'approved').map(q => (
-                                  <tr key={q.Id || q.id}>
-                                    <td>
-                                      {q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''}
-                                      {' '}
-                                      {q.Customer?.Customer?.lastname || q.Customer?.lastname || q.customer?.lastname || ''}
-                                    </td>
-                                    <td>{q.Customer?.Customer?.tel || q.Customer?.tel || q.customer?.tel || ''}</td>
-                                    <td>{q.Customer?.Customer?.mail || q.Customer?.mail || q.customer?.mail || ''}</td>
-                                    <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
-                                    <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
-                                    <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
-                                    <td style={{ whiteSpace: 'nowrap' }}>${q.TotalPrice || q.totalPrice}</td>
-                                  </tr>
-                                ))}
+                                {sortedGroup(cotizacionesPorEstado.approved, 'approved').map(q => {
+                                  const qId = getQuotationId(q);
+                                  return (
+                                    <tr
+                                      key={qId || Math.random()}
+                                      className={qId ? 'clickable-row' : ''}
+                                      onClick={() => qId && navigate(`/quotation/${qId}`)}
+                                      tabIndex={qId ? 0 : -1}
+                                      onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && qId) navigate(`/quotation/${qId}`); }}
+                                    >
+                                      <td>
+                                        {q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''}
+                                        {' '}
+                                        {q.Customer?.Customer?.lastname || q.Customer?.lastname || q.customer?.lastname || ''}
+                                      </td>
+                                      <td>{q.Customer?.Customer?.tel || q.Customer?.tel || q.customer?.tel || ''}</td>
+                                      <td>{q.Customer?.Customer?.mail || q.Customer?.mail || q.customer?.mail || ''}</td>
+                                      <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
+                                      <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
+                                      <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
+                                      <td style={{ whiteSpace: 'nowrap' }}>${q.TotalPrice || q.totalPrice}</td>
+                                    </tr>
+                                  );
+                                })}
                               </tbody>
                             </table>
                           </div>
@@ -626,21 +693,30 @@ const ReporteEstadoCotizaciones = () => {
                                 </tr>
                               </thead>
                               <tbody>
-                                {sortedGroup(cotizacionesPorEstado.rejected, 'rejected').map(q => (
-                                  <tr key={q.Id || q.id}>
-                                    <td>
-                                      {q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''}
-                                      {' '}
-                                      {q.Customer?.Customer?.lastname || q.Customer?.lastname || q.customer?.lastname || ''}
-                                    </td>
-                                    <td>{q.Customer?.Customer?.tel || q.Customer?.tel || q.customer?.tel || ''}</td>
-                                    <td>{q.Customer?.Customer?.mail || q.Customer?.mail || q.customer?.mail || ''}</td>
-                                    <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
-                                    <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
-                                    <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
-                                    <td style={{ whiteSpace: 'nowrap' }}>${q.TotalPrice || q.totalPrice}</td>
-                                  </tr>
-                                ))}
+                                {sortedGroup(cotizacionesPorEstado.rejected, 'rejected').map(q => {
+                                  const qId = getQuotationId(q);
+                                  return (
+                                    <tr
+                                      key={qId || Math.random()}
+                                      className={qId ? 'clickable-row' : ''}
+                                      onClick={() => qId && navigate(`/quotation/${qId}`)}
+                                      tabIndex={qId ? 0 : -1}
+                                      onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && qId) navigate(`/quotation/${qId}`); }}
+                                    >
+                                      <td>
+                                        {q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''}
+                                        {' '}
+                                        {q.Customer?.Customer?.lastname || q.Customer?.lastname || q.customer?.lastname || ''}
+                                      </td>
+                                      <td>{q.Customer?.Customer?.tel || q.Customer?.tel || q.customer?.tel || ''}</td>
+                                      <td>{q.Customer?.Customer?.mail || q.Customer?.mail || q.customer?.mail || ''}</td>
+                                      <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
+                                      <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
+                                      <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
+                                      <td style={{ whiteSpace: 'nowrap' }}>${q.TotalPrice || q.totalPrice}</td>
+                                    </tr>
+                                  );
+                                })}
                               </tbody>
                             </table>
                           </div>
@@ -677,21 +753,30 @@ const ReporteEstadoCotizaciones = () => {
                                 </tr>
                               </thead>
                               <tbody>
-                                {sortedGroup(cotizacionesPorEstado.finished, 'finished').map(q => (
-                                  <tr key={q.Id || q.id}>
-                                    <td>
-                                      {q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''}
-                                      {' '}
-                                      {q.Customer?.Customer?.lastname || q.Customer?.lastname || q.customer?.lastname || ''}
-                                    </td>
-                                    <td>{q.Customer?.Customer?.tel || q.Customer?.tel || q.customer?.tel || ''}</td>
-                                    <td>{q.Customer?.Customer?.mail || q.Customer?.mail || q.customer?.mail || ''}</td>
-                                    <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
-                                    <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
-                                    <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
-                                    <td style={{ whiteSpace: 'nowrap' }}>${q.TotalPrice || q.totalPrice}</td>
-                                  </tr>
-                                ))}
+                                {sortedGroup(cotizacionesPorEstado.finished, 'finished').map(q => {
+                                  const qId = getQuotationId(q);
+                                  return (
+                                    <tr
+                                      key={qId || Math.random()}
+                                      className={qId ? 'clickable-row' : ''}
+                                      onClick={() => qId && navigate(`/quotation/${qId}`)}
+                                      tabIndex={qId ? 0 : -1}
+                                      onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && qId) navigate(`/quotation/${qId}`); }}
+                                    >
+                                      <td>
+                                        {q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''}
+                                        {' '}
+                                        {q.Customer?.Customer?.lastname || q.Customer?.lastname || q.customer?.lastname || ''}
+                                      </td>
+                                      <td>{q.Customer?.Customer?.tel || q.Customer?.tel || q.customer?.tel || ''}</td>
+                                      <td>{q.Customer?.Customer?.mail || q.Customer?.mail || q.customer?.mail || ''}</td>
+                                      <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
+                                      <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
+                                      <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
+                                      <td style={{ whiteSpace: 'nowrap' }}>${q.TotalPrice || q.totalPrice}</td>
+                                    </tr>
+                                  );
+                                })}
                               </tbody>
                             </table>
                           </div>
@@ -708,8 +793,8 @@ const ReporteEstadoCotizaciones = () => {
               <div className="reporte-cotizaciones-direccion">
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   {/* SVG de ubicación */}
-                  <svg width="18" height="18" viewBox="0 0 20 20" fill="#1976d2" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: 4 }}>
-                    <path d="M10 2C6.686 2 4 4.686 4 8c0 4.418 5.25 9.54 5.473 9.753a1 1 0 0 0 1.054 0C10.75 17.54 16 12.418 16 8c0-3.314-2.686-6-6-6zm0 15.07C8.14 15.13 6 11.98 6 8c0-2.206 1.794-4 4-4s4 1.794 4 4c0 3.98-2.14 7.13-4 7.07z" />
+                  <svg width="18" height="18" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: 4 }}>
+                    <path fill="#1976d2" d="M10 2C6.686 2 4 4.686 4 8c0 4.418 5.25 9.54 5.473 9.753a1 1 0 0 0 1.054 0C10.75 17.54 16 12.418 16 8c0-3.314-2.686-6-6-6zm0 15.07C8.14 15.13 6 11.98 6 8c0-2.206 1.794-4 4-4s4 1.794 4 4c0 3.98-2.14 7.13-4 7.07z" />
                     <circle cx="10" cy="8" r="2" fill="#1976d2" />
                   </svg>
                   Avenida Japón 1292 / Córdoba / Argentina

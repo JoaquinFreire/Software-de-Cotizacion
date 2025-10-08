@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq; // <-- agregado
 using System.Security.Claims; // <- agregar para leer claims
 using System.Threading.Tasks;
 
@@ -280,11 +281,33 @@ public class QuotationController : ControllerBase
     public async Task<IActionResult> GetByPeriod([FromQuery] DateTime from, [FromQuery] DateTime to, [FromQuery] int? userId = null)
     {
         var quotations = await _quotationRepository.GetByPeriodAsync(from, to);
-        // Si se solicita filtrar por cotizador, aplicar filtro aquí (no afecta llamadas existentes)
-        if (userId.HasValue)
+
+        // Obtener rol e id del token
+        var roleClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+        if (!string.IsNullOrEmpty(roleClaim) && roleClaim.ToLower() == "quotator")
         {
-            quotations = quotations.Where(q => q.UserId == userId.Value).ToList();
+            // Si es quotator, forzar filtro para devolver solo sus cotizaciones
+            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out var parsedId))
+            {
+                quotations = quotations.Where(q => q.UserId == parsedId).ToList();
+            }
+            else
+            {
+                // Si no se puede resolver el id, devolver lista vacía por seguridad
+                quotations = new List<Domain.Entities.Quotation>();
+            }
         }
+        else
+        {
+            // Si el llamado incluye userId (coordinator/manager), permitir filtrar
+            if (userId.HasValue)
+            {
+                quotations = quotations.Where(q => q.UserId == userId.Value).ToList();
+            }
+        }
+
         return Ok(quotations);
     }
 
