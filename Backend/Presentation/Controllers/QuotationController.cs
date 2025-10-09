@@ -1,15 +1,16 @@
-using Application.UseCases;
+using Application.DTOs.QuotationDTOs; // Agrega el using para los DTOs
 using Application.Services;
+using Application.UseCases;
+using Application.DTOs.BudgetDTOs.ChangeBudgetStatus;
 using Domain.Entities;
 using Domain.Repositories;
+using MediatR; // Agrega el using para MediatR
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Application.DTOs.QuotationDTOs; // Agrega el using para los DTOs
-using MediatR; // Agrega el using para MediatR
 using System.Security.Claims; // <- agregar para leer claims
+using System.Threading.Tasks;
 
 [ApiController]
 [Route("api/quotations")]
@@ -286,18 +287,29 @@ public class QuotationController : ControllerBase
         }
         return Ok(quotations);
     }
-    
 
-    [HttpPut("{id}/status")]
-    public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateStatusRequest request)
+
+    [HttpPut("{budgetId}/status")]
+    public async Task<IActionResult> ChangeBudgetStatus(
+            string budgetId,
+            [FromBody] ChangeBudgetStatusDTO changeStatusDto)
     {
-        var quotation = await _quotationRepository.GetByIdAsync(id);
-        if (quotation == null) return NotFound();
+        if (string.IsNullOrEmpty(budgetId))
+        {
+            return BadRequest("BudgetId es requerido");
+        }
 
-        quotation.Status = request.Status ?? quotation.Status;
-        await _quotationRepository.UpdateAsync(quotation);
+        var command = new ChangeBudgetStatusCommand(budgetId, changeStatusDto);
+        var result = await _mediator.Send(command);
 
-        return NoContent();
+        if (result)
+        {
+            return Ok(new { message = "Estado de cotización actualizado exitosamente" });
+        }
+        else
+        {
+            return NotFound(new { message = "No se encontró la cotización o ocurrió un error" });
+        }
     }
 
     [HttpDelete("{id}")]

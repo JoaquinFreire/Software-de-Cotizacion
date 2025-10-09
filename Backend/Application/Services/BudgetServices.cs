@@ -43,5 +43,10 @@ namespace Application.Services
         {
             await _budgetRepository.DeleteAsync(id);
         }
+
+        public async Task<List<Budget>> ChangeBudgetAsync(Customer customer)
+        {
+            return await _budgetRepository.GetBudgetsByCustomerAsync(customer);
+        }
     }
 }

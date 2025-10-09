@@ -64,6 +64,17 @@ public class QuotationRepository : IQuotationRepository
         }
     }
 
+    public async Task ChangeQuotationStatus(int budgetId, string newStatus)
+    {
+        var quotation = await GetByIdAsync(budgetId);
+        if (quotation != null)
+        {
+            quotation.Status = newStatus;
+            quotation.LastEdit = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+    }
+
     public async Task DeleteAsync(int id)
     {
         try
