@@ -148,7 +148,11 @@ const AdminOpening = () => {
         <div className="dashboard-container">
             <Navigation />
             <div className="admin-opening">
-                <h2>Administrar Aberturas</h2>
+                <div className="admin-opening-header">
+                <h2 className="materials-title">Administrar Aberturas</h2>
+                <p className="materials-subtitle">Aquí puedes crear, actualizar y eliminar tipos de aberturas para las ventanas.</p>
+                </div>
+                
                 <button
                     className="create-opeinig-button"
                     onClick={() => handleOpenModal(null)}

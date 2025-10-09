@@ -714,7 +714,54 @@ const LineaDeTiempoCotizaciones = () => {
                             />
                         </div>
 
-                        <div className="clientes-list">
+                        <div className="filters-section">
+                            <div className="filter-group">
+                                <label>Desde:</label>
+                                <input
+                                    type="date"
+                                    value={filtros.fromDate}
+                                    onChange={(e) => setFiltros({ ...filtros, fromDate: e.target.value })}
+                                />
+                            </div>
+                            <div className="filter-group">
+                                <label>Hasta:</label>
+                                <input
+                                    type="date"
+                                    value={filtros.toDate}
+                                    onChange={(e) => setFiltros({ ...filtros, toDate: e.target.value })}
+                                />
+                            </div>
+                            <div className="filter-group">
+                                <label>Estado:</label>
+                                <select
+                                    value={filtros.status}
+                                    onChange={(e) => setFiltros({ ...filtros, status: e.target.value })}
+                                >
+                                    <option value="">Todos</option>
+                                    <option value="accepted">Aceptadas</option>
+                                    <option value="pending">Pendientes</option>
+                                    <option value="rejected">Rechazadas</option>
+                                </select>
+                            </div>
+                            <div className="filter-actions">
+                                <button
+                                    className="btn-apply-filters"
+                                    onClick={aplicarFiltros}
+                                >
+                                    <Filter size={16} />
+                                    Aplicar
+                                </button>
+                                <button
+                                    className="btn-clear-filters"
+                                    onClick={limpiarFiltros}
+                                >
+                                    Limpiar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="clientes-list-report">
+
                             {loadingClientes ? (
                                 <div className="loading-clientes">
                                     <ReactLoading type="spin" color="#1976d2" height={30} width={30} />

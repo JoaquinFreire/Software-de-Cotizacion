@@ -202,8 +202,11 @@ const Customers = () => {
     <div className="dashboard-container">
       <Navigation />
       <ToastContainer position="bottom-right" autoClose={3000} />
-      <h2 className="title clientes-title-centered">Clientes</h2>
-
+      <div className="materials-header">
+          <h2 className="materials-title">Gestión de Clientes</h2>
+          <p className="materials-subtitle">
+            Administre y consulte la información de los clientes, realizando busquedas rápidas y manteniendo sus datos actualizados</p>
+          </div>
       <div className="clientes-header">
 
 

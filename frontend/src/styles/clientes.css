@@ -124,11 +124,11 @@ color: #000;
   background: #a12a2a;
 }
 body.light-mode .btn-detalle {
-    background: #e0f7fa;
+    background: #0ec05249;
     color: #00796b;
 }
 body.light-mode .btn-actualizar {
-    background: #c2ddf0;
+    background: #1382d175;
     color: #0080ff;
 }
 body.light-mode .btn-agente {
@@ -136,7 +136,7 @@ body.light-mode .btn-agente {
     color: #d32f2f;
 }
 body.light-mode .btn-contactar {
-    background: hsl(55, 100%, 85%);
+    background: hsla(55, 100%, 85%, 0.671);
     color: #fbc02d;
     border: none;
 }
@@ -145,7 +145,7 @@ body.light-mode .cliente-card {
     border: 1px solid #26b7cd;
 }
 body.light-mode .btn-actualizar {
-    background: #e3f2fd;
+    background: #0d6eb449;
     color: #1976d2;
 }
 
@@ -261,10 +261,6 @@ body.light-mode .modal-content {
   cursor: not-allowed;
 }
 
-.clientes-title-centered {
-  text-align: center;
-  margin-bottom: 0;
-}
 
 .clientes-btn-container {
   display: flex;
@@ -293,10 +289,22 @@ body.light-mode .contact-menu {
   background: #fff;
   color: #000;
 }
-.contact-menu-title {
-  font-weight: 600;
-  margin-bottom: 8px;
-  font-size: 0.95rem;
+.Client-title {
+     font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #26b7cd, #2dd4bf);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+}
+body.light-mode .Client-title  {
+    color: #0e7490;
+    background: linear-gradient(135deg, #1c1e1f, #585f5d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 .contact-menu-actions { display: flex; flex-direction: column; gap: 8px; }
 .contact-menu-actions button {

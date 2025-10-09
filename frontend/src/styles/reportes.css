@@ -14,6 +14,16 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
+body.light-mode .reportes-title {
+    color: #0e7490;
+    background: linear-gradient(135deg, #1c1e1f, #585f5d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+body.light-mode .reportes-subtitle{
+    color: #64748b;
+}
 
 .reportes-subtitle {
     font-size: 1.1rem;
@@ -161,8 +171,9 @@ body.light-mode .reporte-description {
 }
 
 body.light-mode .card-icon-wrapper {
-    background: linear-gradient(135deg, var(--card-color, #26b7cd), transparent);
+    background: linear-gradient(135deg, var(--card-color, #26b7cd), #9b9ea1);
 }
+
 
 /* Responsive */
 @media (max-width: 1200px) {

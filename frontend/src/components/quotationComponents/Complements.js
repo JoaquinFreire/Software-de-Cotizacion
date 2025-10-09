@@ -820,11 +820,7 @@ const Complements = ({
                 </button>
             </div>
                
-        </div>
-                <div><button type="button" className="botton-carusel" onClick={handleLoadComplements}>
-                    Cargar complementos 
-                </button>
-                </div>
+        </div>        
          </div>
      
         

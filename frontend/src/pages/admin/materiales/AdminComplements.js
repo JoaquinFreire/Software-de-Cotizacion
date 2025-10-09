@@ -276,7 +276,8 @@ export default function AdminComplements() {
                     <div style={{ marginTop: 2 }}>
                         <Link to="/admin/materiales" className="btn update" style={{ display: "inline-block" }}>← Volver</Link>
                     </div>
-                    <div className="admin-materials-header"><h3>Complementos - Puerta</h3></div>
+                    <div className="admin-materials-header">
+                        <h3  className="materials-title">Complementos - Puerta</h3></div>
                     <form className="search-form" onSubmit={handleSearchDoor}>
                         <input type="text" placeholder="Buscar complemento..." value={queryDoor} onChange={(e) => setQueryDoor(e.target.value)} disabled={isLoadingDoor} />
                         <div className="search-actions">
@@ -318,7 +319,8 @@ export default function AdminComplements() {
 
                 {/* Partition */}
                 <div style={{ marginTop: 28 }}>
-                    <div className="admin-materials-header"><h3>Complementos - Tabique</h3></div>
+                    <div className="admin-materials-header">
+                        <h3  className="materials-title">Complementos - Tabique</h3></div>
                     <form className="search-form" onSubmit={handleSearchPartition}>
                         <input type="text" placeholder="Buscar tabique..." value={queryPartition} onChange={(e) => setQueryPartition(e.target.value)} disabled={isLoadingPartition} />
                         <div className="search-actions">
@@ -353,7 +355,8 @@ export default function AdminComplements() {
 
                 {/* Railing */}
                 <div style={{ marginTop: 28 }}>
-                    <div className="admin-materials-header"><h3>Complementos - Baranda</h3></div>
+                    <div className="admin-materials-header">
+                        <h3  className="materials-title">Complementos - Baranda</h3></div>
                     <form className="search-form" onSubmit={handleSearchRailing}>
                         <input type="text" placeholder="Buscar baranda..." value={queryRailing} onChange={(e) => setQueryRailing(e.target.value)} disabled={isLoadingRailing} />
                         <div className="search-actions">

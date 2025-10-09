@@ -307,13 +307,9 @@ const Dashboard = () => {
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
             
-            <div className="dashboard-header">
-                <h2 className="dashboard-title">Cotizaciones Pendientes</h2>
-                <div className="dashboard-stats">
-                    <span className="stat-badge">
-                        {isFiltering ? filterTotal : total} cotizaciones pendientes
-                    </span>
-                </div>
+            <div className="materials-header">
+                <h2 className="materials-title">Cotizaciones Pendientes</h2>
+                <p className="materials-subtitle"> Explore las cotizaciones pendientes que tiene como cotizador, gestionando cada una de las mismas </p>
             </div>
 
             <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
@@ -329,8 +325,11 @@ const Dashboard = () => {
                         <Filter size={18} />
                         <span>Filtros Avanzados</span>
                         <div className={`toggle-arrow ${showFilters ? 'open' : ''}`}>▼</div>
+                        
                     </button>
-                    
+                    <span className="stat-badge">
+            {isFiltering ? filterTotal : total} cotizaciones pendientes
+        </span>
                     {isFiltering && (
                         <div className="active-filters-indicator">
                             <span>Filtros activos</span>

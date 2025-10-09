@@ -7,16 +7,13 @@
 .admin-prices-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
+    flex-direction: column;
+
 }
 
-.admin-prices-header h2 {
-    color: #26b7cd;
-    margin: 0;
-    font-size: 30px;
-}
 
 .create-price {
     padding: 8px 14px;
@@ -77,10 +74,27 @@
 }
 .btn.update { background: transparent; border:1px solid #26b7cd; color:#26b7cd; padding:6px 10px; }
 .btn.delete { background:transparent; border:1px solid #dc3545; color:#fcd1d1; padding:6px 10px; }
-.btn.primary { background:#156b79; color:#fff; border:none; padding:8px 12px; }
+.btn.primary { background:#156b79; color:#fff; border:none; padding:4px 12px; }
 
-.no-results { padding: 18px; text-align:center; color:#ddd; }
+body.light-mode .btn.update {
+    border: 1px solid #1c8f97;
+    color: #385b5f;}
+body.light-mode .btn.delete {
+    border: 1px solid #b33a3a;}
+body.light-mode .btn.primary {
+    background: #26b7cd;}    
 
+.botton-create-price{
+    padding: 18px 24px;
+    border-radius: 4px;
+    background: #2098aa;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    margin-bottom: 12px;
+    font-size: 16px;
+}
 /* modal */
 .modal-overlay {
     position: fixed;

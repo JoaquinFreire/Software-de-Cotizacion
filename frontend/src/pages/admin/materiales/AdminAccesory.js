@@ -104,7 +104,8 @@ export default function AdminAccesory() {
                     <div style={{ marginTop: 2 }}>
                         <Link to="/admin/materiales" className="btn update" style={{ display: "inline-block" }}>← Volver</Link>
                     </div>
-                    <div className="admin-materials-header"><h3>Accesorios</h3></div>
+                    <div className="admin-materials-header">
+                        <h3 className="materials-title">Accesorios</h3></div>
                     <form className="search-form" onSubmit={handleSearch}>
                         <input type="text" placeholder="Buscar accesorio..." value={query} onChange={(e) => setQuery(e.target.value)} disabled={isLoading} />
                         <div className="search-actions">
@@ -127,7 +128,7 @@ export default function AdminAccesory() {
                                             <div key={itemKey} className="results-row">
                                                 <div className="col name">{t.name}</div>
                                                 <div className="col percent">{t.price}</div>
-                                                <div className="col actions">
+                                                <div className="col-actions">
                                                     <button className="btn update" onClick={() => { setSelected(t); setForm({ name: t.name || "", price: t.price || 0 }); setShowModal(true); }}>Actualizar</button>
                                                     <button className="btn delete" onClick={() => handleDelete(t)} disabled={isDeleting}>{isDeleting ? <ReactLoading type="spin" color="#fcd1d1" height={14} width={14} /> : "Eliminar"}</button>
                                                 </div>

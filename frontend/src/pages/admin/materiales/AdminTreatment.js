@@ -118,7 +118,8 @@ export default function AdminTreatment() {
                     <div style={{ marginTop: 2 }}>
                         <Link to="/admin/materiales" className="btn update" style={{ display: "inline-block" }}>← Volver</Link>
                     </div>
-                    <div className="admin-materials-header"><h3>Tratamientos de Aluminio</h3></div>
+                    <div className="admin-materials-header">
+                        <h3 className="materials-title">Tratamientos de Aluminio</h3></div>
 
                     <form className="search-form" onSubmit={handleSearch}>
                         <input type="text" placeholder="Buscar por nombre..." value={query} onChange={(e) => setQuery(e.target.value)} disabled={isLoading} />
@@ -133,7 +134,7 @@ export default function AdminTreatment() {
                         <div className="results-header">
                             <div className="col name">Nombre</div>
                             <div className="col percent">Porcentaje agregado</div>
-                            <div className="col actions">Acciones</div>
+                            <div className="col-actions">Acciones</div>
                         </div>
                         <div className="results-body">
                             {isLoading ? (
@@ -148,7 +149,7 @@ export default function AdminTreatment() {
                                     <div key={itemKey} className="results-row">
                                         <div className="col name">{t.name}</div>
                                         <div className="col percent">{t.pricePercentage}%</div>
-                                        <div className="col actions">
+                                        <div className="col-actions">
                                             <button className="btn update" onClick={() => handleSelect(t)}>Actualizar</button>
                                             <button className="btn delete" onClick={() => handleDelete(t)} disabled={isDeleting}>{isDeleting ? <ReactLoading type="spin" color="#fcd1d1" height={14} width={14} /> : "Eliminar"}</button>
                                         </div>
