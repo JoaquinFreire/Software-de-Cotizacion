@@ -245,7 +245,7 @@ const LineaDeTiempoCotizaciones = () => {
                             </div>
                         </div>
 
-                        <div className="clientes-list">
+                        <div className="clientes-list-report">
                             {loadingClientes ? (
                                 <div className="loading-clientes">
                                     <ReactLoading type="spin" color="#1976d2" height={30} width={30} />

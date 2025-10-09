@@ -1072,7 +1072,11 @@ const Quotation = () => {
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
-            <h2 className="title">Nueva Cotización</h2>
+            <div className="materials-header">
+                <h2 className="materials-title">Nueva Cotización</h2>
+                <p className="materials-subtitle">Complete los datos en cada sección y valindando los mismos en el resumen antes de crear la cotización.</p>
+                
+                </div>
             <div className="quotation-layout">
                 <aside className="quotation-indice" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                     <h3>Índice</h3>
@@ -1113,7 +1117,8 @@ const Quotation = () => {
                             slidesPerView={1}
                             onSlideChange={handleSlideChange}
                             initialSlide={0}
-                            style={{ minHeight: 400 }}
+                            autoHeight={true} // 👈 esta es la clave
+                            style={{marginTop: 20 , marginBottom: 20}}
                         >
                             <SwiperSlide>
                                 <Customer

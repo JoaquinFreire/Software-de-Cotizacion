@@ -127,7 +127,7 @@ export default function AdminAccesory() {
                                             <div key={itemKey} className="results-row">
                                                 <div className="col name">{t.name}</div>
                                                 <div className="col percent">{t.price}</div>
-                                                <div className="col actions">
+                                                <div className="col-actions">
                                                     <button className="btn update" onClick={() => { setSelected(t); setForm({ name: t.name || "", price: t.price || 0 }); setShowModal(true); }}>Actualizar</button>
                                                     <button className="btn delete" onClick={() => handleDelete(t)} disabled={isDeleting}>{isDeleting ? <ReactLoading type="spin" color="#fcd1d1" height={14} width={14} /> : "Eliminar"}</button>
                                                 </div>

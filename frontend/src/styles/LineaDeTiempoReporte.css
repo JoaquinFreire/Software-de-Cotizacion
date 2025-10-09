@@ -118,7 +118,7 @@ body.light-mode .filters-section {
 
 body.light-mode .filter-group input,
 body.light-mode .filter-group select {
-    background: white;
+    background: rgba(124, 124, 124, 0.363);
     border-color: #ccc;
     color: #333;
 }
@@ -162,7 +162,7 @@ body.light-mode .filter-group select {
 }
 
 /* Client List */
-.clientes-list {
+.clientes-list-report {
     max-height: 400px;
     overflow-y: auto;
 }

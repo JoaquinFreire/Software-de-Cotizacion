@@ -308,14 +308,13 @@ const Historial = () => {
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
-           <div className="dashboard-header">
-                <h2 className="dashboard-title">Todas las Cotizaciones</h2>
-                    <div className="dashboard-stats">
-                          <span className="stat-badge">
-                         {isFiltering ? filterTotal : total} cotizaciones
-                         </span>
-                    </div>
-            </div>
+            
+           <div className="materials-header">
+                <h2 className="materials-title">Todas las Cotizaciones</h2>
+                <p className="materials-subtitle">
+                    Explore el historial completo de cotizaciones, aplique filtros avanzados para encontrar cotizaciones específicas y gestione su estado fácilmente.</p>
+                </div>
+  
             <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
 
             <div className="advanced-filters-container">
@@ -329,7 +328,9 @@ const Historial = () => {
             <span>Filtros Avanzados</span>
             <div className={`toggle-arrow ${showFilters ? 'open' : ''}`}>▼</div>
         </button>
-        
+        <span className="stat-badge">
+                         {isFiltering ? filterTotal : total} cotizaciones
+                         </span>
         {isFiltering && (
             <div className="active-filters-indicator">
                 <span>Filtros activos</span>

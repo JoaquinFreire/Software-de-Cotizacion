@@ -14,10 +14,16 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
+body.light-mode .materials-title {
+    background: linear-gradient(135deg, #1c1e1f, #585f5d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
 
 .materials-subtitle {
     font-size: 1.1rem;
-    color: #94a3b8;
+    color: #9fa5ac;
     max-width: 600px;
     margin: 0 auto;
     line-height: 1.6;

@@ -93,7 +93,29 @@
     padding: 12px 16px;
     border-top: 1px solid #f1f1f1;
 }
+.col-actions{
+   display: flex;
+  justify-content: center;  /* Centra horizontalmente */
+  align-items: center;      /* Centra verticalmente (opcional) */
+  gap: 10px;                /* Espacio entre botones */
+  padding: 8px 0;
+  width: 100%;
+}
+.results-header .col-actions,
+.results-row .col-actions {
+  width: 200px;
+}
+.col.name {
+  width: 30%;
+}
 
+.col.percent {
+  width: 25%;
+}
+
+.col-actions {
+  width: 25%;
+}
 .btn {
     padding: 6px 10px;
     border-radius: 2px;
@@ -312,9 +334,9 @@
     flex: 1;
     padding: 10px 12px;
     border-radius: 8px;
-    border: 1px solid #334155;
+    border: 1px solid #223837;
     font-size: 14px;
-    background: #1e293b;
+    background: #0e3a3b;
     color: #f8fafc;
     transition: all 0.3s ease;
 }

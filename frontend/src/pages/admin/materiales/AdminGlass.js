@@ -118,7 +118,7 @@ export default function AdminGlass() {
                     </form>
 
                     <div className="results-table">
-                        <div className="results-header"><div className="col name">Nombre</div><div className="col percent">Precio</div><div className="col actions">Acciones</div></div>
+                        <div className="results-header"><div className="col name">Nombre</div><div className="col percent">Precio</div><div className="col-actions">Acciones</div></div>
                         <div className="results-body">
                             {isLoading ? <div style={{ padding: 28, display: "flex", justifyContent: "center" }}><ReactLoading type="spin" color="#26b7cd" height={36} width={36} /></div>
                                 : results.length === 0 ? <div className="no-results">Sin resultados</div>
@@ -130,7 +130,7 @@ export default function AdminGlass() {
                                             <div key={itemKey} className="results-row">
                                                 <div className="col name">{t.name}</div>
                                                 <div className="col percent">{t.price}</div>
-                                                <div className="col actions">
+                                                <div className="col-actions">
                                                     <button className="btn update" onClick={() => { setSelected(t); setForm({ name: t.name || "", price: t.price || 0 }); setShowModal(true); }}>Actualizar</button>
                                                     <button className="btn delete" onClick={() => handleDelete(t)} disabled={isDeleting}>{isDeleting ? <ReactLoading type="spin" color="#fcd1d1" height={14} width={14} /> : "Eliminar"}</button>
                                                 </div>

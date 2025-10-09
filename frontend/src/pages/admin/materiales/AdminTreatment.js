@@ -133,7 +133,7 @@ export default function AdminTreatment() {
                         <div className="results-header">
                             <div className="col name">Nombre</div>
                             <div className="col percent">Porcentaje agregado</div>
-                            <div className="col actions">Acciones</div>
+                            <div className="col-actions">Acciones</div>
                         </div>
                         <div className="results-body">
                             {isLoading ? (
@@ -148,7 +148,7 @@ export default function AdminTreatment() {
                                     <div key={itemKey} className="results-row">
                                         <div className="col name">{t.name}</div>
                                         <div className="col percent">{t.pricePercentage}%</div>
-                                        <div className="col actions">
+                                        <div className="col-actions">
                                             <button className="btn update" onClick={() => handleSelect(t)}>Actualizar</button>
                                             <button className="btn delete" onClick={() => handleDelete(t)} disabled={isDeleting}>{isDeleting ? <ReactLoading type="spin" color="#fcd1d1" height={14} width={14} /> : "Eliminar"}</button>
                                         </div>

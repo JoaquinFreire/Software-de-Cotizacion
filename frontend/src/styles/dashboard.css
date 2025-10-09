@@ -25,18 +25,31 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
+
+body.light-mode .title {
+    color: #0e7490;
+    background: linear-gradient(135deg, #1c1e1f, #6c7572);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
 .dashboard-title {
-     color: #26b7cd;
+    margin-left: 33%;
     font-size: 2.5rem;
     font-weight: 700;
-    margin-left: 33%;
+    margin-bottom: 1rem;
     background: linear-gradient(135deg, #26b7cd, #2dd4bf);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    font-size: 3.5rem;
 }
-
+body.light-mode .dashboard-title {
+    color: #0e7490;
+    background: linear-gradient(135deg, #1c1e1f, #585f5d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
 .dashboard-stats {
     display: flex;
     align-items: center;
@@ -357,7 +370,7 @@ body.light-mode .filters-header {
 body.light-mode .filter-input,
 body.light-mode .filter-select,
 body.light-mode .calendar-input .p-inputtext {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(112, 112, 112, 0.459);
     border: 1px solid #e2e8f0;
     color: #1e293b;
 }
