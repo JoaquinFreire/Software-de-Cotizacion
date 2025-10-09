@@ -353,7 +353,7 @@ body.light-mode .dashboard-title {
 /* Modo Claro */
 body.light-mode .dashboard-container {
     background: linear-gradient(135deg, #26b7cd 0%, #93d3db 50%, #cce3e1 100%);
-    color: #1e293b;
+    color: #ffffff;
 }
 
 body.light-mode .advanced-filters-container {

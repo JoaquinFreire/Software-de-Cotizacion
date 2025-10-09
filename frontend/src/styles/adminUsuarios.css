@@ -31,13 +31,14 @@
     display: flex;
     align-items: center;
     background: #2e3233;
-    border-radius: 6px;
-    padding: 4px 12px;
+    padding: 4px 16px;
     box-shadow: 0 1px 4px rgba(38,183,205,0.07);
-    min-width: 260px;
     transition: border 0.2s;
 }
 
+body.light-mode .search-bar-wrapper {
+    background: #ffffff;
+}
 
 .search-icon {
     font-size: 1.2rem;
@@ -70,6 +71,11 @@
 
 .create-user-button:hover {
     background: #11d9f3;
+}
+
+body.light-mode .create-user-button {
+    background: #387c86;
+    color: #ffffff;
 }
 
 /* Tabla mejorada */
@@ -195,12 +201,7 @@ body.light-mode .users-table td {
     border: 1.5px solid #2eb06a; /* borde verde en oscuro */
     color: #2eb06a;
 }
-body.light-mode .status-button.activate-button,
-body.light-mode .invite-button {
-    background: #2ecc71; /* verde más vivo en claro */
-    color: #ffffff;
-    border: none;
-}
+
 
 /* ESTADO: Desactivar (rojo)
    - modo oscuro: fondo transparente + borde rojo
@@ -211,11 +212,7 @@ body.light-mode .invite-button {
     border: 1.5px solid #e55b5b; /* borde rojo en oscuro */
     color: #e55b5b;
 }
-body.light-mode .status-button.deactivate-button {
-    background: #e74c3c; /* rojo más vivo en claro */
-    color: #ffffff;
-    border: none;
-}
+
 
 .details-button {
     background: transparent;

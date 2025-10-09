@@ -106,7 +106,8 @@ export default function AdminGlass() {
                     <div style={{ marginTop: 2 }}>
                         <Link to="/admin/materiales" className="btn update" style={{ display: "inline-block" }}>← Volver</Link>
                     </div>
-                    <div className="admin-materials-header"><h3>Tipos de Vidrio</h3></div>
+                    <div className="admin-materials-header">
+                        <h3 className="materials-title">Tipos de Vidrio</h3></div>
 
                     <form className="search-form" onSubmit={handleSearch}>
                         <input type="text" placeholder="Buscar tipo de vidrio..." value={query} onChange={(e) => setQuery(e.target.value)} disabled={isLoading} />

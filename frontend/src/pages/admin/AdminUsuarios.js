@@ -274,7 +274,8 @@ const filteredUsers = safeArray(users).filter(user => {
                 <Navigation onLogout={handleLogout} />
                 <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
                 <div className="admin-usuarios-header">
-                    <h2>Administrar Usuarios</h2>
+                    <h2 className="materials-title">Administrar Usuarios</h2>
+                    <p className="materials-subtitle">Gestione los usuarios: actualice su información, actívelos o desactívelos, envíe invitaciones y consulte sus detalles.</p>
                     {/* Solo mostrar filtro y botón cuando no está cargando y autorizado */}
                     {!loading && !unauthorized && (
                         <div className="Admin-filter-create">

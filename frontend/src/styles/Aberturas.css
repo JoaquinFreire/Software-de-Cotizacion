@@ -20,6 +20,9 @@ body.light-mode .materials-title {
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
+body.light-mode .materials-subtitle {
+    color: #55585f;
+}
 
 .materials-subtitle {
     font-size: 1.1rem;
@@ -168,8 +171,8 @@ body.light-mode .materials-title {
 
 /* Modo Claro */
 body.light-mode .material-card {
-    background: linear-gradient(145deg, #ffffff, #f8fafc);
-    border: 1px solid #e2e8f0;
+    background: linear-gradient(145deg, #8f9797, #76787a);
+    border: 1px solid #0fcec4;
 }
 
 body.light-mode .material-card:hover {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 import anodalLogo from "../images/anodal_logo.webp";
 import Logonegro from "../images/anodal_logo_Negro.webp";
@@ -21,6 +21,7 @@ const Navigation = ({ onLogout }) => {
     const adminMenuRef = useRef(null);
 
     const location = useLocation();
+    const navigate = useNavigate(); // Agrega el hook de navegación
 
     // Detecta si es móvil
     const isMobile = () => window.innerWidth <= 768;
@@ -109,6 +110,13 @@ const Navigation = ({ onLogout }) => {
 
     // Derivar rol como string (soporta estructura { role_name } o string)
     const userRole = user?.role?.role_name ? String(user.role.role_name).toLowerCase() : (user?.role ? String(user.role).toLowerCase() : null);
+
+    useEffect(() => {
+        // Abre el menú admin si la ruta comienza con /admin
+        if (location.pathname.startsWith("/admin")) {
+            setAdminMenuOpen(true);
+        }
+    }, [location.pathname]);
 
     return (
         <div className="navigation-root">
@@ -330,7 +338,10 @@ const Navigation = ({ onLogout }) => {
                     <div className="sidebar-admin-menu" ref={adminMenuRef}>
                         <button
                             className="sidebar-link sidebar-admin-btn"
-                            onClick={() => setAdminMenuOpen((prev) => !prev)}
+                            onClick={() => {
+                                setAdminMenuOpen(true); // Siempre deja abierto
+                                navigate("/admin");
+                            }}
                         >
                             Administrar
                             <span style={{ marginLeft: 6, fontSize: 14 }}>{adminMenuOpen ? "▲" : "▼"}</span>
@@ -341,7 +352,7 @@ const Navigation = ({ onLogout }) => {
                                 <NavLink to="/admin/materiales" className="sidebar-link">Administrar Materiales</NavLink>
                                 <NavLink to="/admin/prices" className="sidebar-link">Administrar Precios/Desc</NavLink>
                                 <NavLink to="/admin/aberturas" className="sidebar-link">Administrar Aberturas</NavLink>
-                                <NavLink to="/admin/Administrar" className="sidebar-link">Administrar General</NavLink>
+                                
                             </div>
                         )}
                     </div>

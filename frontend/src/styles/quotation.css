@@ -13,7 +13,6 @@
 .materials-subtitle {
     font-size: 1.1rem;
     color: #94a3b8;
-    line-height: 1.6;
     margin: 0 auto;
 }
 
@@ -53,9 +52,7 @@
     margin: 0 auto;
     
     /* Altura que crece con el contenido */
-    height: auto;
-    min-height: 400px;
-    
+  
     /* Flex para mejor control del espacio */
     display: flex;
     flex-direction: column;
@@ -73,7 +70,6 @@
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    height: fit-content;
     position: sticky;
     top: 20px;
 }
@@ -180,6 +176,9 @@
     transition: all 0.2s ease;
     box-sizing: border-box;
 }
+.form-group textarea{
+     width: 450px;
+}
 
 .form-group input:focus,
 .form-group select:focus,
@@ -219,17 +218,16 @@ body.light-mode .form-group textarea {
 
 /* Carousel */
 .embla {
-    height: auto !important;
+
 }
 
 .embla__container {
-    height: auto !important;
+
     display: flex;
     flex-direction: column;
 }
 
 .embla__slide {
-    height: auto !important;
     display: block !important;
     flex: 1 0 auto !important;
 }
@@ -383,6 +381,7 @@ body.light-mode .botton-carusel:hover {
     border-radius: 6px;
     color: white;
     margin-top: 15px;
+
 }
 
 .workplace-container h3, .agent-container h3 {
@@ -668,9 +667,7 @@ body.light-mode .quotation-summary h3 {
     right: 0;
     top: 12px;
     transition: color 0.2s;
-    line-height: 1;
     width: 24px;
-    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -695,7 +692,6 @@ body.light-mode .quotation-summary h3 {
     border: none;
     border-radius: 4px;
     width: 28px;
-    height: 28px;
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
@@ -747,7 +743,7 @@ body.light-mode .quotation-summary h3 {
 
 .opening-preview-svg-wrapper {
     width: 260px;
-    height: 160px;
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -876,7 +872,7 @@ body.light-mode .remove-complement-button:hover {
     border-radius: 4px;
     padding: 8px;
     font-weight: 500;
-    width: 450px;
+    width: 410px;
 }
 
 /* Agentes */
@@ -902,7 +898,6 @@ body.light-mode .remove-complement-button:hover {
     border: none;
     border-radius: 4px;
     width: 28px;
-    height: 28px;
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
@@ -1016,10 +1011,10 @@ body.light-mode .remove-complement-button:hover {
 /* Swiper adjustments */
 .swiper {
     width: 100%;
-    height: 100%;
+   
 }
 
 .swiper-slide {
     width: 100%;
-    height: auto;
+    
 }

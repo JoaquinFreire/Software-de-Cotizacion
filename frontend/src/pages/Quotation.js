@@ -1117,7 +1117,7 @@ const Quotation = () => {
                             slidesPerView={1}
                             onSlideChange={handleSlideChange}
                             initialSlide={0}
-                            autoHeight={true} // 👈 esta es la clave
+                             
                             style={{marginTop: 20 , marginBottom: 20}}
                         >
                             <SwiperSlide>

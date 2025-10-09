@@ -118,7 +118,8 @@ export default function AdminTreatment() {
                     <div style={{ marginTop: 2 }}>
                         <Link to="/admin/materiales" className="btn update" style={{ display: "inline-block" }}>← Volver</Link>
                     </div>
-                    <div className="admin-materials-header"><h3>Tratamientos de Aluminio</h3></div>
+                    <div className="admin-materials-header">
+                        <h3 className="materials-title">Tratamientos de Aluminio</h3></div>
 
                     <form className="search-form" onSubmit={handleSearch}>
                         <input type="text" placeholder="Buscar por nombre..." value={query} onChange={(e) => setQuery(e.target.value)} disabled={isLoading} />

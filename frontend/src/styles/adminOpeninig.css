@@ -52,6 +52,14 @@
     gap: 12px;
 }
 
+body.light-mode .AdminOpeningCard {
+    background: #ffffff;
+    border: 1px solid #1c8f97;
+    box-shadow: 0 2px 8px rgba(28, 143, 151, 0.08);
+    color: #000;
+    color-text: #000;
+}
+
 .opening-info {
     margin-bottom: 8px;
 }
@@ -66,6 +74,10 @@
 .opening-size {
     font-size: 16px;
     color: #fff;
+}
+body.light-mode .opening-weight,
+body.light-mode .opening-size {
+    color: #000;
 }
 
 .opening-actions {
@@ -211,6 +223,6 @@
     font-size: 1.1rem;
     cursor: pointer;
     width: fit-content;
-    margin: 0 auto;
-    margin-bottom: 20px;
+    margin: 20px 10px 30px 355px;
+    max-width: 240px;
 }
