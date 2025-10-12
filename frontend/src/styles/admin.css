@@ -1,15 +1,246 @@
-.AdminUser {
-  background: url('../images/AdministrarGeneral.webp') no-repeat center center/cover;
+/* Admin.css - Mismo estilo que Materials.css */
+.materials-header {
+    text-align: center;
+    margin: 2rem 0 3rem 0;
+    padding: 0 2rem;
 }
-.AdminMaterials{
-  background: url('../images/AdministrarAluminio.webp') no-repeat center center/cover;
+
+.materials-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #26b7cd, #2dd4bf);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
-.AdminDescuent {
-  background: url('../images/AdministrarDescuentos.webp') no-repeat center center/cover;
+
+body.light-mode .materials-title {
+    background: linear-gradient(135deg, #1c1e1f, #585f5d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
-.AdminLine {
-  background: url('../images/AdministrarLineas.webp') no-repeat center center/cover;
+
+body.light-mode .materials-subtitle {
+    color: #55585f;
 }
-.AdminGeneal {
-    background: url('../images/AdministrarMateriales.webp') no-repeat center center/cover;
+
+.materials-subtitle {
+    font-size: 1.1rem;
+    color: #9fa5ac;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.materials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    margin: 0 auto 4rem auto;
+    padding: 0 2rem;
+    max-width: 1200px;
+}
+
+.material-card {
+    position: relative;
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    overflow: hidden;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.material-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--card-color, #26b7cd), transparent);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.material-card:hover::before {
+    transform: scaleX(1);
+}
+
+.card-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.1;
+    transition: opacity 0.3s ease;
+}
+
+.material-card:hover .card-background {
+    opacity: 0.15;
+}
+
+/* Fondos específicos para cada tarjeta de administración */
+.AdminUser .card-background {
+    background-image: url('../images/AdministrarGeneral.webp');
+}
+
+.AdminMaterials .card-background {
+    background-image: url('../images/AdministrarAluminio.webp');
+}
+
+.AdminDescuent .card-background {
+    background-image: url('../images/AdministrarDescuentos.webp');
+}
+
+.AdminLine .card-background {
+    background-image: url('../images/AdministrarLineas.webp');
+}
+
+.card-content {
+    position: relative;
+    z-index: 2;
+    padding: 2rem;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    border-radius: 0 0 16px 16px;
+    transition: all 0.3s ease;
+}
+
+.material-card:hover .card-content {
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+}
+
+.card-icon-wrapper {
+    width: 70px;
+    height: 70px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--card-color, #26b7cd), transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.material-card:hover .card-icon-wrapper {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.card-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+}
+
+.card-description {
+    font-size: 0.95rem;
+    color: #94a3b8;
+    margin: 0 0 1rem 0;
+    line-height: 1.5;
+}
+
+.card-arrow {
+    color: #64748b;
+    font-size: 1.5rem;
+    font-weight: 300;
+    transition: all 0.3s ease;
+}
+
+.material-card:hover .card-arrow {
+    color: var(--card-color, #26b7cd);
+    transform: translateX(4px);
+}
+
+.material-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--card-color, #26b7cd);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.15),
+        0 8px 24px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(38, 183, 205, 0.1);
+}
+
+/* Modo Claro */
+body.light-mode .material-card {
+    background: linear-gradient(145deg, #8f9797, #76787a);
+    border: 1px solid #0fcec4;
+}
+
+body.light-mode .material-card:hover {
+    border-color: var(--card-color, #26b7cd);
+    box-shadow: 
+        0 12px 32px rgba(0, 0, 0, 0.1),
+        0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .card-content {
+    background: linear-gradient(transparent, rgba(255, 255, 255, 0.9));
+}
+
+body.light-mode .material-card:hover .card-content {
+    background: linear-gradient(transparent, rgba(255, 255, 255, 0.95));
+}
+
+body.light-mode .card-title {
+    color: #1e293b;
+}
+
+body.light-mode .card-description {
+    color: #64748b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .materials-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 0 1rem;
+    }
+    
+    .materials-title {
+        font-size: 2rem;
+    }
+    
+    .material-card {
+        min-height: 250px;
+    }
+    
+    .card-content {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .materials-header {
+        margin: 1.5rem 0 2rem 0;
+        padding: 0 1rem;
+    }
+    
+    .materials-title {
+        font-size: 1.75rem;
+    }
+    
+    .materials-grid {
+        padding: 0 0.5rem;
+    }
+    
+    .material-card {
+        padding: 1.25rem;
+    }
 }

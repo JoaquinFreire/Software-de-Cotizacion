@@ -47,7 +47,7 @@ const AdminMaterials = () => {
 			<Navigation />
 			
 			<div className="admin-materials-header">
-				<h2>Administrar Materiales</h2>
+				<h2 className="materials-title">Administrar Materiales</h2>
 				<p className="admin-subtitle">Seleccione una sección para administrar categorías específicas</p>
 			</div>
 

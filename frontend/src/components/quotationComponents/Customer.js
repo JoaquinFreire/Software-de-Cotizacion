@@ -77,7 +77,7 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {}, isCustomerFound, s
     };
 
     return (
-        <div>
+        <div className="agent-container">
             <h3>Cliente</h3>
             <div className="form-group">
                 <label>Buscar Cliente por DNI:</label>

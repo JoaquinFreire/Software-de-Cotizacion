@@ -214,6 +214,7 @@ body.light-mode .card-description {
     line-height: 1.6;
 }
 
+
 .treatments-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));

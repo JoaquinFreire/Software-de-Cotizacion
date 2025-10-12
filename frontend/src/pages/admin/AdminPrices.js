@@ -167,9 +167,12 @@ export default function AdminPrices() {
 			<ToastContainer autoClose={4000} theme="dark" position="bottom-right" />
 			<div className="admin-prices-wrapper">
 				<div className="admin-prices-header">
-					<h2>Administrar Precios</h2>
-					<button className="btn primary create-price" onClick={openCreate}>Crear Precio</button>
+					<h2 className="materials-title">Administrar Precios</h2>
+					<p className="materials-subtitle">Crear, actualizar y eliminar precios de productos o servicios.</p>
+					
 				</div>
+				
+				<button className="botton-create-price" onClick={openCreate}>Crear Precio</button>
 
 				{loading ? (
 					<div className="loader-center"><ReactLoading type="spin" color="#26b7cd" height={60} width={60} /></div>

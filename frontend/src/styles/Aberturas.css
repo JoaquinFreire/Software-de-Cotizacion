@@ -14,10 +14,19 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
+body.light-mode .materials-title {
+    background: linear-gradient(135deg, #1c1e1f, #585f5d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+body.light-mode .materials-subtitle {
+    color: #55585f;
+}
 
 .materials-subtitle {
     font-size: 1.1rem;
-    color: #94a3b8;
+    color: #9fa5ac;
     max-width: 600px;
     margin: 0 auto;
     line-height: 1.6;
@@ -162,8 +171,8 @@
 
 /* Modo Claro */
 body.light-mode .material-card {
-    background: linear-gradient(145deg, #ffffff, #f8fafc);
-    border: 1px solid #e2e8f0;
+    background: linear-gradient(145deg, #8f9797, #76787a);
+    border: 1px solid #0fcec4;
 }
 
 body.light-mode .material-card:hover {
