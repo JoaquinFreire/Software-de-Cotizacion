@@ -527,3 +527,19 @@
     width: 780px !important;
     box-sizing: border-box;
 }
+
+/* Filas clicables: cursor y efecto hover para indicar que se puede hacer click */
+.reporte-cotizaciones-tabla tbody tr.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.12s ease, transform 0.06s ease;
+}
+.reporte-cotizaciones-tabla tbody tr.clickable-row:hover {
+    background-color: #f1f7ff;
+    transform: translateY(-1px);
+}
+
+/* Asegurar que tabindex focus muestre outline accesible */
+.reporte-cotizaciones-tabla tbody tr.clickable-row:focus {
+    outline: 2px solid rgba(25,118,210,0.35);
+    background-color: #eef6ff;
+}

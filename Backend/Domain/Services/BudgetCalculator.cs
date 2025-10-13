@@ -45,7 +45,7 @@ namespace Domain.Services
 
         }
 
-        private async Task<decimal> CalculateOpeningPrice(Budget_Product budget_Product, bool excludeBackendTaxes = false) {
+        private async Task<decimal> CalculateOpeningPrice(Budget_Product budget_Product, bool excludeBackendTaxes = false, decimal? labourRateOverride = null) {
 
             // LOG: entrada del producto
             Console.WriteLine(">> CalculateOpeningPrice - producto recibido:");
@@ -100,50 +100,119 @@ namespace Domain.Services
             double totalGlassArea = panelArea * totalPanels; // área total de vidrio en m² por UNA abertura
             Console.WriteLine($"Area por panel (m2): {panelArea}, Area total vidrio (m2): {totalGlassArea}");
 
-            var glassType = await _glassTypeRepository.GetByNameAsync(budget_Product.GlassType.name);
+            // Preferir el precio que venga en el payload (si el frontend lo envió)
+            decimal glassPricePerM2 = 0m;
+            try
+            {
+                if (budget_Product?.GlassType != null)
+                {
+                    // intentos comunes: .price (decimal), .Price, .precio (string/decimal)
+                    var gt = budget_Product.GlassType;
+                    // propiedad strongly-typed (si existe en el model)
+                    try { glassPricePerM2 = gt.price; } catch { }
+
+                    if (glassPricePerM2 == 0m)
+                    {
+                        var gtypeRef = gt.GetType();
+                        var prop = gtypeRef.GetProperty("Price") ?? gtypeRef.GetProperty("precio") ?? gtypeRef.GetProperty("price", System.Reflection.BindingFlags.IgnoreCase | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                        if (prop != null)
+                        {
+                            var val = prop.GetValue(gt);
+                            if (val is decimal d) glassPricePerM2 = d;
+                            else if (val is double db) glassPricePerM2 = (decimal)db;
+                            else if (val is string s && decimal.TryParse(s.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out var parsed)) glassPricePerM2 = parsed;
+                        }
+                    }
+                }
+            }
+            catch { /* ignore */ }
+
             var glassScrapData = await _priceRepository.GetByIdAsync(17); // porcentaje de desperdicio del vidrio
-            decimal glassPricePerM2 = glassType.price;
-            Console.WriteLine($"Precio por m² del tipo de vidrio '{budget_Product.GlassType.name}': {glassPricePerM2} $/m²");
-            // Igual que con aluminio: evitar agregar scrap si el frontend solicitó exclusión
+            if (glassPricePerM2 == 0m)
+            {
+                var glassType = await _glassTypeRepository.GetByNameAsync(budget_Product.GlassType.name);
+                glassPricePerM2 = glassType?.price ?? 0m;
+                Console.WriteLine($"(fallback) Precio por m² del tipo de vidrio '{budget_Product.GlassType.name}': {glassPricePerM2} $/m² (desde repo)");
+            }
+            else
+            {
+                Console.WriteLine($"Precio por m² del tipo de vidrio '{budget_Product.GlassType.name}': {glassPricePerM2} $/m² (desde payload)");
+            }
+             // Igual que con aluminio: evitar agregar scrap si el frontend solicitó exclusión
             decimal totalGlassCost = (decimal)totalGlassArea * glassPricePerM2;
-            if (!excludeBackendTaxes)
-            {
-                totalGlassCost += (totalGlassCost * glassScrapData.price) / 100; // agregar costo por desperdicio del vidrio SOLO si corresponde
-            }
-            budget_Product.GlassType.price = totalGlassCost; // Guardar el precio del vidrio en el producto (total por UNA abertura)
-            Console.WriteLine($"Costo vidrio: {totalGlassCost}");
-
+             if (!excludeBackendTaxes)
+             {
+                 totalGlassCost += (totalGlassCost * glassScrapData.price) / 100; // agregar costo por desperdicio del vidrio SOLO si corresponde
+             }
+             budget_Product.GlassType.price = totalGlassCost; // Guardar el precio del vidrio en el producto (total por UNA abertura)
+             Console.WriteLine($"Costo vidrio: {totalGlassCost}");
+ 
             // 3. CALCULAR TRATAMIENTO DE ALUMINIO
-            var alumTreatment = await _alumTreatmentRepository.GetByNameAsync(budget_Product.AlumTreatment.name);
+            // Preferir el porcentaje que venga en el payload (si aplica), sino fallback a repo
             var alumTreatmentScrapData = await _priceRepository.GetByIdAsync(16); // porcentaje de desperdicio del tratamiento de aluminio
-            //            int alumTreatmentPrice = int.Parse(alumTreatment.pricePercentage);
-            // pricePercentage puede venir con coma (ej. "80,325000"), parsear robustamente
-            decimal alumTreatmentPriceDecimal = 0m;
-            if (!string.IsNullOrEmpty(alumTreatment.pricePercentage))
+            decimal alumTreatmentPct = 0m;
+            bool alumPctFromPayload = false;
+            try
             {
-                var normalized = alumTreatment.pricePercentage.Replace(',', '.');
-                decimal.TryParse(normalized, NumberStyles.Any, CultureInfo.InvariantCulture, out alumTreatmentPriceDecimal);
+                if (budget_Product?.AlumTreatment != null)
+                {
+                    // intentar leer pricePercentage o price desde payload (puede venir como string decimal)
+                    var at = budget_Product.AlumTreatment;
+                    // si existe propiedad pricePercentage y no es vacía, parsearla
+                    if (!string.IsNullOrEmpty(at.pricePercentage))
+                    {
+                        var normalized = at.pricePercentage.Replace(',', '.').Replace("%", "");
+                        if (decimal.TryParse(normalized, NumberStyles.Any, CultureInfo.InvariantCulture, out var parsed)) { alumTreatmentPct = parsed; alumPctFromPayload = true; }
+                    }
+                    // si no vino en pricePercentage, intentar propiedades alternativas (Price, price)
+                    if (!alumPctFromPayload)
+                    {
+                        var atRef = at.GetType();
+                        var prop = atRef.GetProperty("Price") ?? atRef.GetProperty("price");
+                        if (prop != null)
+                        {
+                            var val = prop.GetValue(at);
+                            if (val is decimal d) { alumTreatmentPct = d; alumPctFromPayload = true; }
+                            else if (val is double db) { alumTreatmentPct = (decimal)db; alumPctFromPayload = true; }
+                            else if (val is string s && decimal.TryParse(s.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out var parsed2)) { alumTreatmentPct = parsed2; alumPctFromPayload = true; }
+                        }
+                    }
+                }
             }
-            // si no se pudo parsear, asumir 0
-            int alumTreatmentPrice = (int)Math.Round(alumTreatmentPriceDecimal);
+            catch { /* ignore */ }
 
-            Console.WriteLine($"Porcentaje del tratamiento de aluminio '{budget_Product.AlumTreatment.name}': {alumTreatmentPrice}%");
-            decimal totalAlumTreatmentCost = (totalAluminumCost * alumTreatmentPrice) / 100;
+            // si no vino en payload, buscar en repo (comportamiento previo)
+            if (!alumPctFromPayload)
+            {
+                var alumTreatmentRepo = await _alumTreatmentRepository.GetByNameAsync(budget_Product.AlumTreatment.name);
+                if (alumTreatmentRepo != null)
+                {
+                    var normalized = (alumTreatmentRepo.pricePercentage ?? "").Replace(',', '.').Replace("%", "");
+                    decimal.TryParse(normalized, NumberStyles.Any, CultureInfo.InvariantCulture, out alumTreatmentPct);
+                }
+                Console.WriteLine($"Porcentaje tratamiento (desde repo) '{budget_Product.AlumTreatment.name}': {alumTreatmentPct}%");
+            }
+            else
+            {
+                Console.WriteLine($"Porcentaje tratamiento (desde payload) '{budget_Product.AlumTreatment.name}': {alumTreatmentPct}%");
+            }
+
+            decimal totalAlumTreatmentCost = (totalAluminumCost * alumTreatmentPct) / 100m;
             if (!excludeBackendTaxes)
             {
                 totalAlumTreatmentCost += (totalAlumTreatmentCost * alumTreatmentScrapData.price) / 100; // agregar costo por desperdicio del tratamiento de aluminio SOLO si corresponde
             }
-            budget_Product.AlumTreatment.pricePercentage = totalAlumTreatmentCost.ToString(CultureInfo.InvariantCulture); // Guardar el precio del tratamiento en el producto
+            // Guardar el porcentaje o el costo convertido a string (mantener compatibilidad)
+            try { budget_Product.AlumTreatment.pricePercentage = alumTreatmentPct.ToString(CultureInfo.InvariantCulture); } catch { }
             Console.WriteLine($"Costo tratamiento aluminio: {totalAlumTreatmentCost}");
 
             // 4. SUMAR MANO DE OBRA
-            //            var laborData = await _priceRepository.GetByIdAsync(6); // costo de mano de obra
-            //            decimal laborCost = laborData.price;
-            //            laborCost *= (decimal)aluminumWeight; // costo de mano de obra por UNA abertura
-            // Frontend aplica mano de obra como un valor fijo por abertura (no por kg).
-            var laborData = await _priceRepository.GetByIdAsync(6); // costo de mano de obra (por abertura)
-            decimal laborCost = laborData.price;
-            Console.WriteLine($"Costo de mano de obra por abertura: {laborCost} $");
+            // Determine labour rate: prefer override (sent by frontend), otherwise fallback to DB value.
+            var laborData = await _priceRepository.GetByIdAsync(6); // costo de mano de obra (fallback)
+            decimal labourRateToUse = labourRateOverride ?? laborData.price;
+            // Interpret labourRateToUse as price per kilogram (align with frontend).
+            decimal laborCost = (decimal)aluminumWeight * labourRateToUse;
+            Console.WriteLine($"Labour rate used (per kg): {labourRateToUse} -> Mano de obra (kg {aluminumWeight} × {labourRateToUse}) = {laborCost} $");
 
             // 5. SUMAR ACCESORIOS
             //            decimal totalAccessoriesCost = 0;
@@ -340,10 +409,15 @@ namespace Domain.Services
         bool excludeBackendTaxes = ReadExcludeBackendTaxesFlag(budget);
         Console.WriteLine($">> BudgetCalculator: excludeBackendTaxes = {excludeBackendTaxes}");
  
+        // Leer labour reference (si el frontend lo envió)
+        decimal? labourReferenceFromPayload = ReadLabourReference(budget);
+        Console.WriteLine($">> BudgetCalculator: labourReferenceFromPayload = {(labourReferenceFromPayload.HasValue ? labourReferenceFromPayload.Value.ToString() : "null (fallback DB will be used)")}");
+ 
           // Calculo de aberturas
           foreach (var product in budget.Products)
           {
-            var unitPrice = await CalculateOpeningPrice(product, excludeBackendTaxes);
+            // PASAR labour reference aquí para que el cálculo use kg * rate
+            var unitPrice = await CalculateOpeningPrice(product, excludeBackendTaxes, labourReferenceFromPayload);
  
              // Guardar el precio unitario en el producto (si lo querés persistir)
              product.price = Math.Round(unitPrice, 2);
@@ -419,6 +493,77 @@ namespace Domain.Services
              // En caso de cualquier error, no excluir impuestos por defecto
          }
          return false;
+     }
+
+     // NEW helper: lee LabourReference desde Budget o Budget.Meta (acepta number/string)
+     private decimal? ReadLabourReference(object budgetObj)
+     {
+         if (budgetObj == null) return null;
+         try
+         {
+             // Intentar encontrar una propiedad LabourReference o labourReference en la raíz
+             var props = budgetObj.GetType().GetProperty("LabourReference", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)
+                       ?? budgetObj.GetType().GetProperty("labourReference", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+             if (props != null)
+             {
+                 var val = props.GetValue(budgetObj);
+                 if (val is decimal d) return d;
+                 if (val is double db) return (decimal)db;
+                 if (val is float f) return (decimal)f;
+                 if (val is int i) return (decimal)i;
+                 if (val is long l) return (decimal)l;
+                 if (val is string s && decimal.TryParse(s.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out var parsed)) return parsed;
+             }
+
+             // Intentar buscar dentro de Budget wrapper (Budget.Budget?.LabourReference o Budget.Meta.LabourReference)
+             var innerBudgetProp = budgetObj.GetType().GetProperty("Budget", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+             if (innerBudgetProp != null)
+             {
+                 var innerBudget = innerBudgetProp.GetValue(budgetObj);
+                 if (innerBudget != null)
+                 {
+                     var lbProp = innerBudget.GetType().GetProperty("LabourReference", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)
+                                  ?? innerBudget.GetType().GetProperty("labourReference", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                     if (lbProp != null)
+                     {
+                         var val = lbProp.GetValue(innerBudget);
+                         if (val is decimal d) return d;
+                         if (val is double db) return (decimal)db;
+                         if (val is float f) return (decimal)f;
+                         if (val is int i) return (decimal)i;
+                         if (val is long l) return (decimal)l;
+                         if (val is string s && decimal.TryParse(s.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out var parsed)) return parsed;
+                     }
+
+                     // También buscar en Meta (Budget.Meta.excludeBackendTaxes ya tratado); ahora Meta.LabourReference
+                     var metaProp = innerBudget.GetType().GetProperty("Meta", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                     if (metaProp != null)
+                     {
+                         var metaVal = metaProp.GetValue(innerBudget);
+                         if (metaVal != null)
+                         {
+                             var lrProp = metaVal.GetType().GetProperty("LabourReference", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)
+                                          ?? metaVal.GetType().GetProperty("labourReference", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                             if (lrProp != null)
+                             {
+                                 var val = lrProp.GetValue(metaVal);
+                                 if (val is decimal d) return d;
+                                 if (val is double db) return (decimal)db;
+                                 if (val is float f) return (decimal)f;
+                                 if (val is int i) return (decimal)i;
+                                 if (val is long l) return (decimal)l;
+                                 if (val is string s && decimal.TryParse(s.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out var parsed)) return parsed;
+                             }
+                         }
+                     }
+                 }
+             }
+         }
+         catch
+         {
+             // ignore and fallback to null
+         }
+         return null;
      }
  
  }

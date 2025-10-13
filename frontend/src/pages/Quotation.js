@@ -657,7 +657,8 @@ const Quotation = () => {
                 const tratamientoPorc = treatmentObj && treatmentObj.pricePercentage ? Number(treatmentObj.pricePercentage) : 0;
                 const costoTratamiento = costoAluminio * (tratamientoPorc / 100);
 
-                const costoManoObra = Number(labourPrice || 0);
+                // MANO DE OBRA POR KILO - MODIFICADO
+                const costoManoObra = pesoAluminio * Number(labourPrice || 0);
 
                 // Build product payload, IMPORTANT: width & height sent in CENTIMETERS
                 const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
@@ -756,7 +757,7 @@ const Quotation = () => {
         return type ? (type.name || type.type) : '';
     };
 
-    // --- Cálculo de subtotal de abertura ---
+    // --- Cálculo de subtotal de abertura - MODIFICADO PARA MANO DE OBRA POR KILO ---
     const getOpeningSubtotal = (opening, logOnce = false) => {
         const configsArr = safeArray(openingConfigurations);
         // Opening.width/height stored in cm -> convertir a mm para buscar config
@@ -810,8 +811,8 @@ const Quotation = () => {
         const tratamientoPorc = treatment && treatment.pricePercentage ? Number(treatment.pricePercentage) : 0;
         const costoTratamiento = costoAluminio * (tratamientoPorc / 100);
 
-        // Paso 5 — Sumar mano de obra
-        const costoManoObra = labourPrice;
+        // Paso 5 — Sumar mano de obra POR KILO (MODIFICADO)
+        const costoManoObra = pesoAluminio * Number(labourPrice || 0);
 
         // Paso 6 — Subtotal (sin IVA) por UNA abertura
         const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
@@ -832,7 +833,7 @@ const Quotation = () => {
                 "Paso 3 — Vidrio: área panel (m2):", areaPanelM2, "Área total vidrio (m2):", areaTotalVidrio,
                 "Precio vidrio unitario:", glassType?.price, "Costo vidrio:", costoVidrio,
                 "Paso 4 — Tratamiento: %:", tratamientoPorc, "Costo tratamiento:", costoTratamiento,
-                "Paso 5 — Mano de obra:", costoManoObra,
+                "Paso 5 — Mano de obra (POR KILO):", `(${pesoAluminio.toFixed(2)} kg × $${labourPrice}) = $${costoManoObra.toFixed(2)}`,
                 "Paso 6 — Subtotal:", subtotal
             ];
             // calcular IVA y total front-end (para comparar con backend)
@@ -847,14 +848,24 @@ const Quotation = () => {
 
         return (
             <>
-                <div>
-                    Aluminio: ${costoAluminio.toFixed(2)}, Tratamiento: ${costoTratamiento.toFixed(2)}, Vidrio: ${costoVidrio.toFixed(2)}, Mano de obra: ${costoManoObra.toFixed(2)}, Subtotal: ${subtotal.toFixed(2)}
+                <div style={{ fontSize: '12px', lineHeight: '1.4' }}>
+                    <div><strong>Desglose por unidad:</strong></div>
+                    <div>• Aluminio: {pesoAluminio.toFixed(2)} kg × ${alumPrice.toFixed(2)} = ${costoAluminio.toFixed(2)}</div>
+                    <div>• Tratamiento ({tratamientoPorc}%): ${costoTratamiento.toFixed(2)}</div>
+                    <div>• Vidrio: {areaTotalVidrio.toFixed(3)} m² × ${glassType?.price?.toFixed(2) || '0.00'} = ${costoVidrio.toFixed(2)}</div>
+                    <div>• Mano obra: {pesoAluminio.toFixed(2)} kg × ${labourPrice.toFixed(2)} = ${costoManoObra.toFixed(2)}</div>
+                    <div style={{ borderTop: '1px solid #ddd', marginTop: '4px', paddingTop: '4px', fontWeight: 'bold' }}>
+                        Subtotal unidad: ${subtotal.toFixed(2)}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#666' }}>
+                        Cantidad: {opening.quantity || 1} → Total: ${(subtotal * (opening.quantity || 1)).toFixed(2)}
+                    </div>
                 </div>
             </>
         );
     };
 
-    // --- Total de aberturas ---
+    // --- Total de aberturas - MODIFICADO PARA MANO DE OBRA POR KILO ---
     const getTotalOpenings = () => {
         let total = 0;
         const configsArr = safeArray(openingConfigurations);
@@ -890,12 +901,55 @@ const Quotation = () => {
             const treatment = treatments.find(t => Number(t.id) === Number(opening.treatmentId));
             const tratamientoPorc = treatment && treatment.pricePercentage ? Number(treatment.pricePercentage) : 0;
             const costoTratamiento = costoAluminio * (tratamientoPorc / 100);
-            const costoManoObra = labourPrice;
+
+            // MANO DE OBRA POR KILO - MODIFICADO
+            const costoManoObra = pesoAluminio * Number(labourPrice || 0);
+
             const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
             // multiplicar por la cantidad de aberturas de este tipo
             total += subtotal * Number(opening.quantity || 1);
         });
-        return `Total aberturas: $${total.toFixed(2)}`;
+        return total;
+    };
+
+    // --- Total de complementos ---
+    const getTotalComplementsValue = () => {
+        let total = 0;
+        selectedComplements.forEach(complement => {
+            if (complement.totalPrice !== undefined && complement.totalPrice !== null) {
+                total += Number(complement.totalPrice);
+                return;
+            }
+            let arr = [];
+            if (complement.type === 'door') arr = complementDoors;
+            else if (complement.type === 'partition') arr = complementPartitions;
+            else if (complement.type === 'railing') arr = complementRailings;
+            const found = arr.find(item => String(item.id) === String(complement.complementId));
+            const price = found ? Number(found.price) : 0;
+            total += price * Number(complement.quantity);
+        });
+        return total;
+    };
+
+    // --- NUEVO: Cálculo de total general con costos adicionales ---
+    const getGeneralTotal = () => {
+        const totalOpenings = getTotalOpenings();
+        const totalComplements = getTotalComplementsValue();
+        const subtotalGeneral = totalOpenings + totalComplements;
+
+        const costoFabricacion = subtotalGeneral * 0.10; // 10%
+        const costoAdministrativo = subtotalGeneral * 0.05; // 5%
+
+        const totalGeneral = subtotalGeneral + costoFabricacion + costoAdministrativo;
+
+        return {
+            totalOpenings,
+            totalComplements,
+            subtotalGeneral,
+            costoFabricacion,
+            costoAdministrativo,
+            totalGeneral
+        };
     };
 
     // Handlers para resumen (quitar y modificar cantidad)
@@ -1018,25 +1072,6 @@ const Quotation = () => {
         return `Subtotal: $${(price * Number(complement.quantity)).toFixed(2)}`;
     };
 
-    // Total de complementos (usar totalPrice cuando exista)
-    const getTotalComplements = () => {
-        let total = 0;
-        selectedComplements.forEach(complement => {
-            if (complement.totalPrice !== undefined && complement.totalPrice !== null) {
-                total += Number(complement.totalPrice);
-                return;
-            }
-            let arr = [];
-            if (complement.type === 'door') arr = complementDoors;
-            else if (complement.type === 'partition') arr = complementPartitions;
-            else if (complement.type === 'railing') arr = complementRailings;
-            const found = arr.find(item => String(item.id) === String(complement.complementId));
-            const price = found ? Number(found.price) : 0;
-            total += price * Number(complement.quantity);
-        });
-        return `Total complementos: $${total.toFixed(2)}`;
-    };
-
     // Mostrar el log de la última abertura agregada (solo una vez)
     useEffect(() => {
         if (lastOpeningLog && lastOpeningLog.length > 0) {
@@ -1069,23 +1104,26 @@ const Quotation = () => {
         }
     };
 
+    // Calcular total general
+    const generalTotal = getGeneralTotal();
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
             <div className="materials-header">
                 <h2 className="materials-title">Nueva Cotización</h2>
                 <p className="materials-subtitle">Complete los datos en cada sección y valindando los mismos en el resumen antes de crear la cotización.</p>
-                
-                </div>
+
+            </div>
             <div className="quotation-layout">
-                <aside className="quotation-indice" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <aside className="quotation-indice">
                     <h3>Índice</h3>
-                    <p onClick={() => goToSlide(0)} style={{ cursor: 'pointer' }}><b><u>Datos Cliente</u></b></p>
-                    <p onClick={() => goToSlide(1)} style={{ cursor: 'pointer' }}><b><u>Datos Agentes</u></b></p>
-                    <p onClick={() => goToSlide(2)} style={{ cursor: 'pointer' }}><b><u>Espacio de trabajo</u></b></p>
-                    <p onClick={() => goToSlide(3)} style={{ cursor: 'pointer' }}><b><u>Carga de Aberturas</u></b></p>
-                    <p onClick={() => goToSlide(4)} style={{ cursor: 'pointer' }}><b><u>Carga de Complementos</u></b></p>
-                    <p onClick={() => goToSlide(5)} style={{ cursor: 'pointer' }}><b><u>Comentarios</u></b></p>
+                    <p onClick={() => goToSlide(0)}><b><u>Datos Cliente</u></b></p>
+                    <p onClick={() => goToSlide(1)}><b><u>Datos Agentes</u></b></p>
+                    <p onClick={() => goToSlide(2)}><b><u>Espacio de trabajo</u></b></p>
+                    <p onClick={() => goToSlide(3)}><b><u>Carga de Aberturas</u></b></p>
+                    <p onClick={() => goToSlide(4)}><b><u>Carga de Complementos</u></b></p>
+                    <p onClick={() => goToSlide(5)}><b><u>Comentarios</u></b></p>
                 </aside>
 
                 <main className="quotation-main">
@@ -1099,12 +1137,12 @@ const Quotation = () => {
                             >
                                 Atrás
                             </button>
-                            <span style={{ alignSelf: "center", fontWeight: 500, fontSize: 16, color: "#26b7cd" }}>
+                            <span className="page-indicator">
                                 Página {currentIndex + 1} de 6
                             </span>
                             <button
                                 type="button"
-                                className="embla__button embba__button--next"
+                                className="embla__button embla__button--next"
                                 onClick={handleNext}
                                 disabled={currentIndex === 5}
                             >
@@ -1117,8 +1155,7 @@ const Quotation = () => {
                             slidesPerView={1}
                             onSlideChange={handleSlideChange}
                             initialSlide={0}
-                             
-                            style={{marginTop: 20 , marginBottom: 20}}
+                            className="quotation-swiper"
                         >
                             <SwiperSlide>
                                 <Customer
@@ -1229,7 +1266,6 @@ const Quotation = () => {
                                 <button
                                     type="button"
                                     className="botton-carusel"
-                                    style={{ marginTop: 12 }}
                                     onClick={handleAddWorkPlaceToSummary}
                                 >
                                     Agregar espacio de trabajo
@@ -1258,7 +1294,6 @@ const Quotation = () => {
                                     complementRailings={complementRailings}
                                     selectedComplements={selectedComplements}
                                     setSelectedComplements={setSelectedComplements}
-                                // hideSelectedList={true} // si no lo usas, puedes quitarlo
                                 />
                             </SwiperSlide>
                             <SwiperSlide>
@@ -1268,7 +1303,7 @@ const Quotation = () => {
                                     setDollarReference={setDollarReference}
                                     setLabourReference={setLabourReference}
                                 />
-                                <div style={{ marginTop: 24 }}>
+                                <div className="submit-container">
                                     <button
                                         type="button"
                                         className="submit-button"
@@ -1278,10 +1313,10 @@ const Quotation = () => {
                                         {submitting ? "Enviando..." : "Cotizar"}
                                     </button>
                                     {submitError && (
-                                        <div style={{ color: 'red', marginTop: 8 }}>{submitError}</div>
+                                        <div className="submit-error">{submitError}</div>
                                     )}
                                     {Object.keys(validationErrors).length > 0 && (
-                                        <div style={{ color: 'red', marginTop: 8 }}>
+                                        <div className="validation-errors">
                                             {Object.entries(validationErrors).map(([field, msg]) => (
                                                 <div key={field}>{msg}</div>
                                             ))}
@@ -1295,44 +1330,42 @@ const Quotation = () => {
                 <aside className="quotation-summary">
                     <h3>Resumen</h3>
                     <div>
-                         <div className="agents-list">
-                            <h4 className='h4'>Clientes seleccionados:</h4>
+                        <div className="agents-list">
+                            <h4 className='summary-section-title'>Clientes seleccionados:</h4>
                             {clients.length === 0 && <div className="summary-empty">No tiene cliente.</div>}
                             {clients.map((client, idx) => (
                                 <div key={idx} className="agent-selected-row">
                                     <span>
                                         {client.name} {client.lastname} - {client.dni}
-
                                     </span>
                                 </div>
                             ))}
                         </div>
                         {/* Lista de agentes agregados */}
                         <div className="agents-list">
-                            <h4 className='h4'>Agentes seleccionados:</h4>
+                            <h4 className='summary-section-title'>Agentes seleccionados:</h4>
                             {agents.length === 0 && <div className="summary-empty">No tiene agentes.</div>}
                             {agents.map((agent, idx) => (
                                 <div key={idx} className="agent-selected-row">
                                     <span>
                                         {agent.name} {agent.lastname} - {agent.dni}
-
                                     </span>
                                 </div>
                             ))}
                         </div>
                         <div className="workplace-summary">
-                            <h4 className='h4'>Espacios de trabajo :</h4>
+                            <h4 className='summary-section-title'>Espacios de trabajo:</h4>
                             {workPlaces.length === 0 && <div className="summary-empty">No hay espacios de trabajo agregados.</div>}
                             {workPlaces.map((wp, idx) => (
                                 <div key={idx} className="summary-item">
                                     <span>
-                                        <b>{wp.location}</b> - {wp.address} 
+                                        <b>{wp.location}</b> - {wp.address}
                                     </span>
                                 </div>
                             ))}
                         </div>
-                        
-                        <h4 className='h4'>Aberturas agregadas:</h4>
+
+                        <h4 className='summary-section-title'>Aberturas agregadas:</h4>
                         {selectedOpenings.length === 0 && (
                             <div className="summary-empty">No hay aberturas agregadas.</div>
                         )}
@@ -1402,7 +1435,7 @@ const Quotation = () => {
                                     })()}
                                 </div>
 
-                                <div className="summary-actions-row" style={{ marginTop: 8 }}>
+                                <div className="summary-actions-row">
                                     <div className="summary-detail summary-qty-row">
                                         <button
                                             className="summary-qty-btn" type="button"
@@ -1414,18 +1447,18 @@ const Quotation = () => {
                                             onClick={() => handleChangeOpeningQty(idx, 1)}
                                         >+</button>
                                     </div>
-                                    <div style={{ marginLeft: 'auto', color: '#26b7cd', fontWeight: 600 }}>
+                                    <div className="opening-subtotal">
                                         {getOpeningSubtotal(opening)}
                                     </div>
                                 </div>
                             </div>
                         ))}
                         <div className="summary-total">
-                            {getTotalOpenings()}
+                            <strong>Total aberturas: ${generalTotal.totalOpenings.toFixed(2)}</strong>
                         </div>
                     </div>
-                    <div style={{ marginTop: 24 }}>
-                        <h4 className='h4'>Complementos agregados:</h4>
+                    <div className="complements-summary">
+                        <h4 className='summary-section-title'>Complementos agregados:</h4>
                         {selectedComplements.length === 0 && (
                             <div className="summary-empty">No hay complementos agregados.</div>
                         )}
@@ -1456,7 +1489,42 @@ const Quotation = () => {
                             </div>
                         ))}
                         <div className="summary-total">
-                            {getTotalComplements()}
+                            <strong>Total complementos: ${generalTotal.totalComplements.toFixed(2)}</strong>
+                        </div>
+                    </div>
+
+                    {/* NUEVO: TOTAL GENERAL CON COSTOS ADICIONALES */}
+                    <div className="general-total-container">
+                        <h4 className='summary-section-title'>Total General</h4>
+
+                        <div className="total-row">
+                            <span>Subtotal aberturas:</span>
+                            <span>${generalTotal.totalOpenings.toFixed(2)}</span>
+                        </div>
+
+                        <div className="total-row">
+                            <span>Subtotal complementos:</span>
+                            <span>${generalTotal.totalComplements.toFixed(2)}</span>
+                        </div>
+
+                        <div className="total-row subtotal-general">
+                            <span><strong>Subtotal general:</strong></span>
+                            <span><strong>${generalTotal.subtotalGeneral.toFixed(2)}</strong></span>
+                        </div>
+
+                        <div className="total-row cost-detail">
+                            <span>Costo fabricación (10%):</span>
+                            <span>${generalTotal.costoFabricacion.toFixed(2)}</span>
+                        </div>
+
+                        <div className="total-row cost-detail">
+                            <span>Costo administrativo (5%):</span>
+                            <span>${generalTotal.costoAdministrativo.toFixed(2)}</span>
+                        </div>
+
+                        <div className="total-row final-total">
+                            <span>TOTAL GENERAL:</span>
+                            <span>${generalTotal.totalGeneral.toFixed(2)}</span>
                         </div>
                     </div>
                 </aside>
