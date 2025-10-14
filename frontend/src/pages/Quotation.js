@@ -101,6 +101,7 @@ const Quotation = () => {
     const [alumPrice, setAlumPrice] = useState(0);
     const [labourPrice, setLabourPrice] = useState(0);
     const [taxRate, setTaxRate] = useState(0); // <-- nuevo estado para IVA
+    const [mosquitoPrice, setMosquitoPrice] = useState(0); // <-- nuevo estado para tela mosquitera
 
     // Nuevo estado para mostrar el log de cálculo de abertura solo una vez
     const [lastOpeningLog, setLastOpeningLog] = useState(null);
@@ -299,6 +300,10 @@ const Quotation = () => {
                 );
                 setLabourPrice(labour ? Number(labour.price) : 0);
 
+                // Tela mosquitera (id 7 o por nombre)
+                const mosquitoEntry = prices.find(p => p.name?.toLowerCase().includes("tela mosquitera") || String(p.id) === "7");
+                setMosquitoPrice(mosquitoEntry ? Number(mosquitoEntry.price) : 0);
+                
                 // extraer tasa de IVA (por nombre o por id si corresponde)
                 const ivaEntry = prices.find(p => p.name?.toLowerCase().includes("iva") || String(p.id) === "4");
                 setTaxRate(ivaEntry ? Number(ivaEntry.price) : 0);
@@ -618,28 +623,10 @@ const Quotation = () => {
                 const widthMM = widthCm * 10;
                 const heightMM = heightCm * 10;
 
-                // buscar configuración con mm
-                const cfg = safeArray(openingConfigurations).find(c =>
-                    Number(c.opening_type_id) === Number(opening.typeId) &&
-                    widthMM >= c.min_width_mm &&
-                    widthMM <= c.max_width_mm &&
-                    heightMM >= c.min_height_mm &&
-                    heightMM <= c.max_height_mm
-                );
-                const numW = opening.numPanelsWidth || (cfg ? cfg.num_panels_width : 1);
-                const numH = opening.numPanelsHeight || (cfg ? cfg.num_panels_height : 1);
-
-                // panel sizes en cm
-                const panelWidthCm = opening.panelWidth ? Number(opening.panelWidth) : (widthCm / numW);
-                const panelHeightCm = opening.panelHeight ? Number(opening.panelHeight) : (heightCm / numH);
-
-                const panelWidthMM = panelWidthCm * 10;
-                const panelHeightMM = panelHeightCm * 10;
-
-                const totalPanels = numW * numH;
+                const totalPanels = (opening.numPanelsWidth || 1) * (opening.numPanelsHeight || 1);
 
                 // cálculo aluminio (siguiendo la lógica del frontend)
-                const perimetroPanelMM = 2 * (panelWidthMM + panelHeightMM);
+                const perimetroPanelMM = 2 * (widthMM + heightMM);
                 const totalAluminioMM = perimetroPanelMM * totalPanels * (opening.quantity || 1);
                 const totalAluminioM = totalAluminioMM / 1000;
                 const openingTypeObj = safeArray(openingTypes).find(t => Number(t.id) === Number(opening.typeId));
@@ -647,10 +634,15 @@ const Quotation = () => {
                 const costoAluminio = pesoAluminio * Number(alumPrice || 0);
 
                 // vidrio
-                const areaPanelM2 = (panelWidthMM / 1000) * (panelHeightMM / 1000);
-                const areaTotalVidrio = areaPanelM2 * totalPanels * (opening.quantity || 1);
+                const areaPanelM2 = (widthMM / 1000) * (heightMM / 1000);
+                const areaTotalVidrioPerUnit = areaPanelM2 * totalPanels; // per unit
+                const areaTotalVidrio = areaTotalVidrioPerUnit * (opening.quantity || 1);
                 const glassObj = safeArray(glassTypes).find(g => Number(g.id) === Number(opening.glassTypeId));
-                const costoVidrio = glassObj ? areaTotalVidrio * Number(glassObj.price || 0) : 0;
+                const costoVidrio = glassObj ? areaTotalVidrioPerUnit * Number(glassObj.price || 0) : 0;
+
+                // Mosquitera por unidad (si fue marcada en el formulario)
+                const mosquitoSelected = !!opening.mosquito;
+                const costoMosquitera = mosquitoSelected ? areaTotalVidrioPerUnit * Number(mosquitoPrice || 0) : 0;
 
                 // tratamiento
                 const treatmentObj = safeArray(treatments).find(t => Number(t.id) === Number(opening.treatmentId));
@@ -661,7 +653,7 @@ const Quotation = () => {
                 const costoManoObra = pesoAluminio * Number(labourPrice || 0);
 
                 // Build product payload, IMPORTANT: width & height sent in CENTIMETERS
-                const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
+                const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra + costoMosquitera;
                 const quantity = Number(opening.quantity || 1);
 
                 return {
@@ -670,13 +662,15 @@ const Quotation = () => {
                         : { name: "" },
                     Quantity: quantity,
                     AlumTreatment: treatmentObj ? { name: treatmentObj.name } : { name: "" },
-                    GlassType: glassObj ? { name: glassObj.name, Price: Number(glassObj.price || 0) } : { name: "", Price: 0 },
+                    // enviar precio como "price" (minúscula) para coincidir con el schema backend/frontend
+                    GlassType: glassObj ? { name: glassObj.name, price: Number(glassObj.price || 0) } : { name: "", price: 0 },
+                    Mosquito: mosquitoSelected ? { selected: true, price: Number(mosquitoPrice || 0) } : { selected: false },
                     width: Number(widthCm),
                     height: Number(heightCm),
-                    WidthPanelQuantity: Number(numW),
-                    HeightPanelQuantity: Number(numH),
-                    PanelWidth: Number(panelWidthCm.toFixed(2)),
-                    PanelHeight: Number(panelHeightCm.toFixed(2)),
+                    WidthPanelQuantity: Number(opening.numPanelsWidth),
+                    HeightPanelQuantity: Number(opening.numPanelsHeight),
+                    PanelWidth: Number((widthCm / opening.numPanelsWidth).toFixed(2)),
+                    PanelHeight: Number((heightCm / opening.numPanelsHeight).toFixed(2)),
                     Accesory: (opening.accesories || opening.custom?.accesories || []).map(a => ({
                         Name: a.name || a.Name || '',
                         Quantity: Number(a.quantity || a.Quantity || 0),
@@ -806,46 +800,27 @@ const Quotation = () => {
         const glassType = safeArray(glassTypes).find(g => Number(g.id) === Number(opening.glassTypeId));
         const costoVidrio = glassType ? areaTotalVidrio * Number(glassType.price) : 0;
 
+        // --- MOSQUITERA: costo por unidad (si está marcada) ---
+        const mosquitoSelected = !!opening.mosquito;
+        const costoMosquitera = mosquitoSelected ? areaTotalVidrio * Number(mosquitoPrice || 0) : 0;
+
         // Paso 4 — Aplicar tratamiento aluminio
         const treatment = safeArray(treatments).find(t => Number(t.id) === Number(opening.treatmentId));
         const tratamientoPorc = treatment && treatment.pricePercentage ? Number(treatment.pricePercentage) : 0;
         const costoTratamiento = costoAluminio * (tratamientoPorc / 100);
 
-        // Paso 5 — Sumar mano de obra POR KILO (MODIFICADO)
+        // Paso 5 — Sumar mano de obra POR KILO - MODIFICADO
         const costoManoObra = pesoAluminio * Number(labourPrice || 0);
 
-        // Paso 6 — Subtotal (sin IVA) por UNA abertura
-        const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
+        // Build product payload, IMPORTANT: width & height sent in CENTIMETERS
+        // Incluir costo de mosquitera en subtotal
+        const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra + costoMosquitera;
+        const quantity = Number(opening.quantity || 1);
+        const panelWidthCm = opening.panelWidth ? Number(opening.panelWidth) : (Number(opening.width || 0) / (opening.numPanelsWidth || 1));
+        const panelHeightCm = opening.panelHeight ? Number(opening.panelHeight) : (Number(opening.height || 0) / (opening.numPanelsHeight || 1));
+        // mosquitoSelected ya fue declarada arriba; no redeclarar aquí
 
-        // LOG DETALLADO DEL PROCESO SOLO SI logOnce === true
-        if (logOnce) {
-            const logMsg = [
-                "==== CÁLCULO DE ABERTURA (FRONTEND) ====",
-                "Abertura:", opening,
-                "Config encontrada:", config,
-                "Paso 1 — Paneles: numPanelsWidth:", numPanelsWidth, "numPanelsHeight:", numPanelsHeight, "totalPanels:", totalPanels,
-                "Paso 2 — Aluminio: anchoPanel(mm):", anchoPanelMM, "altoPanel(mm):", altoPanelMM,
-                "Perímetro panel (mm):", perimetroPanelMM,
-                "Total aluminio (mm):", totalAluminioMM, "Total aluminio (m):", totalAluminioM,
-                "Peso aluminio (kg):", pesoAluminio, "weight:", openingType?.weight,
-                "Precio aluminio unitario:", alumPrice,
-                "Costo aluminio:", costoAluminio,
-                "Paso 3 — Vidrio: área panel (m2):", areaPanelM2, "Área total vidrio (m2):", areaTotalVidrio,
-                "Precio vidrio unitario:", glassType?.price, "Costo vidrio:", costoVidrio,
-                "Paso 4 — Tratamiento: %:", tratamientoPorc, "Costo tratamiento:", costoTratamiento,
-                "Paso 5 — Mano de obra (POR KILO):", `(${pesoAluminio.toFixed(2)} kg × $${labourPrice}) = $${costoManoObra.toFixed(2)}`,
-                "Paso 6 — Subtotal:", subtotal
-            ];
-            // calcular IVA y total front-end (para comparar con backend)
-            const iva = taxRate || 0;
-            const ivaAmount = subtotal * (iva / 100);
-            const totalWithIva = subtotal + ivaAmount;
-            logMsg.push(`IVA (frontend detectado): ${iva}% -> Monto IVA: ${ivaAmount}`);
-            logMsg.push(`Total (subtotal + IVA) (frontend): ${totalWithIva}`);
-            setLastOpeningLog(logMsg);
-            logMsg.forEach(line => console.log(line));
-        }
-
+        // Devolver JSX con desglose (se usa directamente en el render del resumen)
         return (
             <>
                 <div style={{ fontSize: '12px', lineHeight: '1.4' }}>
@@ -853,12 +828,15 @@ const Quotation = () => {
                     <div>• Aluminio: {pesoAluminio.toFixed(2)} kg × ${alumPrice.toFixed(2)} = ${costoAluminio.toFixed(2)}</div>
                     <div>• Tratamiento ({tratamientoPorc}%): ${costoTratamiento.toFixed(2)}</div>
                     <div>• Vidrio: {areaTotalVidrio.toFixed(3)} m² × ${glassType?.price?.toFixed(2) || '0.00'} = ${costoVidrio.toFixed(2)}</div>
+                    {mosquitoSelected && (
+                        <div>• Tela mosquitera: {areaTotalVidrio.toFixed(3)} m² × ${Number(mosquitoPrice || 0).toFixed(2)} = ${costoMosquitera.toFixed(2)}</div>
+                    )}
                     <div>• Mano obra: {pesoAluminio.toFixed(2)} kg × ${labourPrice.toFixed(2)} = ${costoManoObra.toFixed(2)}</div>
                     <div style={{ borderTop: '1px solid #ddd', marginTop: '4px', paddingTop: '4px', fontWeight: 'bold' }}>
                         Subtotal unidad: ${subtotal.toFixed(2)}
                     </div>
                     <div style={{ fontSize: '11px', color: '#666' }}>
-                        Cantidad: {opening.quantity || 1} → Total: ${(subtotal * (opening.quantity || 1)).toFixed(2)}
+                        Cantidad: {quantity} → Total: ${(subtotal * quantity).toFixed(2)}
                     </div>
                 </div>
             </>
@@ -898,6 +876,10 @@ const Quotation = () => {
             const areaTotalVidrio = areaPanel * totalPanels;
             const glassType = glassTypes.find(g => Number(g.id) === Number(opening.glassTypeId));
             const costoVidrio = glassType ? areaTotalVidrio * Number(glassType.price) : 0;
+            // Incluir mosquitera si está marcada
+            const mosquitoSelected = !!opening.mosquito;
+            const costoMosquitera = mosquitoSelected ? areaTotalVidrio * Number(mosquitoPrice || 0) : 0;
+
             const treatment = treatments.find(t => Number(t.id) === Number(opening.treatmentId));
             const tratamientoPorc = treatment && treatment.pricePercentage ? Number(treatment.pricePercentage) : 0;
             const costoTratamiento = costoAluminio * (tratamientoPorc / 100);
@@ -905,7 +887,7 @@ const Quotation = () => {
             // MANO DE OBRA POR KILO - MODIFICADO
             const costoManoObra = pesoAluminio * Number(labourPrice || 0);
 
-            const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
+            const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra + costoMosquitera;
             // multiplicar por la cantidad de aberturas de este tipo
             total += subtotal * Number(opening.quantity || 1);
         });
