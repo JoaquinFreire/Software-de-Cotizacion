@@ -62,6 +62,9 @@ builder.Services.AddScoped<AccessoryServices>(); // Registrar el servicio de apl
 builder.Services.AddAutoMapper(typeof(CreateBudgetProfile));//Mapeo de cotizaciones
 builder.Services.AddAutoMapper(typeof(CreateCustomerProfile));//Mapeo de clientes
 
+//REGISTRO DE SERVICIOS DE CACHE
+builder.Services.AddMemoryCache();
+
 //REGISTRO DE VALIDACIONES
 
 // -DNI Unico-

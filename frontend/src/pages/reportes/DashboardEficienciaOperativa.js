@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { Users, AlertTriangle, Clock, TrendingUp, Filter, Download, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
+import { Users, AlertTriangle, Clock, TrendingUp, Filter, Download, RefreshCw, ChevronDown, ChevronUp, User, Save, X } from 'lucide-react';
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
 import '../../styles/DashboardEficienciaOperativa.css';
@@ -9,6 +9,8 @@ const DashboardEficienciaOperativa = () => {
     const [alertsData, setAlertsData] = useState([]);
     const [kpiData, setKpiData] = useState({});
     const [problematicQuotations, setProblematicQuotations] = useState([]);
+    const [activeUsers, setActiveUsers] = useState([]);
+    const [loadingUsers, setLoadingUsers] = useState(false);
     const [loading, setLoading] = useState(true);
     const [filters, setFilters] = useState({
         timeRange: '30d',
@@ -16,7 +18,100 @@ const DashboardEficienciaOperativa = () => {
     });
     const [filtersVisible, setFiltersVisible] = useState(false);
 
+    // Estados para el modal de cambio de usuario
+    const [showUserModal, setShowUserModal] = useState(false);
+    const [selectedQuotation, setSelectedQuotation] = useState(null);
+    const [selectedUserId, setSelectedUserId] = useState('');
+    const [changingUser, setChangingUser] = useState(false);
+
     const API_BASE_URL = 'http://localhost:5187/api/OED';
+    const API_BASE_URL_MAIN = 'http://localhost:5187/api';
+
+    // Función para cargar usuarios activos
+    const fetchActiveUsers = async () => {
+        try {
+            setLoadingUsers(true);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL_MAIN}/users/active`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('📋 Respuesta de /users/active:', data);
+
+                // Extraer el array de usuarios de $values
+                if (data.$values && Array.isArray(data.$values)) {
+                    setActiveUsers(data.$values);
+                } else if (Array.isArray(data)) {
+                    setActiveUsers(data);
+                } else {
+                    console.error('Formato inesperado de usuarios:', data);
+                    setActiveUsers([]);
+                }
+            } else {
+                console.error('Error al cargar usuarios activos:', response.status);
+                setActiveUsers([]);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            setActiveUsers([]);
+        } finally {
+            setLoadingUsers(false);
+        }
+    };
+
+    // Función para cambiar usuario de cotización
+    const changeQuotationUser = async (quotationId, newUserId) => {
+        try {
+            setChangingUser(true);
+            const token = localStorage.getItem('token');
+
+            // Usar el mismo formato que en Postman: NewUserId con N mayúscula
+            const response = await fetch(`${API_BASE_URL_MAIN}/quotations/update/user/?QuotationId=${quotationId}&NewUserId=${newUserId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                // Recargar los datos del dashboard
+                await fetchDashboardData();
+                setShowUserModal(false);
+                alert('Usuario cambiado exitosamente');
+            } else {
+                const errorText = await response.text();
+                console.error('Error response:', errorText);
+                alert('Error al cambiar el usuario');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al cambiar el usuario');
+        } finally {
+            setChangingUser(false);
+        }
+    };
+
+    // Función para abrir el modal de cambio de usuario
+    const openChangeUserModal = (quotation) => {
+        setSelectedQuotation(quotation);
+        setSelectedUserId(quotation.AssigneeId || '');
+        setShowUserModal(true);
+    };
+
+    // Función para manejar el cambio de usuario
+    const handleUserChange = async () => {
+        if (!selectedQuotation || !selectedUserId) {
+            alert('Por favor selecciona un usuario');
+            return;
+        }
+
+        await changeQuotationUser(selectedQuotation.QuotationId, parseInt(selectedUserId));
+    };
 
     // Función para formatear fechas
     const formatTime = (dateString) => {
@@ -91,6 +186,7 @@ const DashboardEficienciaOperativa = () => {
     // Efecto para cargar datos iniciales
     useEffect(() => {
         fetchDashboardData();
+        fetchActiveUsers();
     }, []);
 
     // Efecto para recargar cuando cambian los filtros
@@ -301,7 +397,7 @@ const DashboardEficienciaOperativa = () => {
                             <div className="panel workload-panel">
                                 <div className="panel-header">
                                     <Users size={20} />
-                                    <h3>Matriz de Carga de Trabajo</h3>
+                                    <h3>Carga de Trabajo</h3>
                                     <span className="panel-badge">{workloadData.length} cotizadores</span>
                                 </div>
                                 <div className="panel-content">
@@ -384,9 +480,9 @@ const DashboardEficienciaOperativa = () => {
                                     <span className="panel-badge">{problematicQuotations.length} cotizaciones</span>
                                 </div>
                                 <div className="panel-content">
-                                    <div className="quotations-list">
+                                    <div className="quotations-list" style={{ maxHeight: '400px', overflowY: 'auto' }}>
                                         {problematicQuotations && problematicQuotations.length > 0 ? (
-                                            problematicQuotations.slice(0, 10).map((quotation, index) => (
+                                            problematicQuotations.map((quotation, index) => (
                                                 <div key={index} className="quotation-alert">
                                                     <div className="quotation-id">#{quotation.QuotationId || 'N/A'}</div>
                                                     <div className="quotation-info">
@@ -399,6 +495,23 @@ const DashboardEficienciaOperativa = () => {
                                                         <div className="quotation-customer">
                                                             {quotation.CustomerName || 'N/A'} - {quotation.WorkPlace || 'N/A'}
                                                         </div>
+                                                    </div>
+                                                    <div className="quotation-actions">
+                                                        <button
+                                                            className="btn-ver-pdf"
+                                                            onClick={() => window.open(`/quotation/${quotation.QuotationId}`, '_blank')}
+                                                            title="Ver PDF detallado de esta cotización"
+                                                        >
+                                                            📄 Ver PDF
+                                                        </button>
+                                                        <button
+                                                            className="btn-change-user"
+                                                            onClick={() => openChangeUserModal(quotation)}
+                                                            title="Cambiar usuario asignado"
+                                                        >
+                                                            <User size={14} />
+                                                            Cambiar Usuario
+                                                        </button>
                                                     </div>
                                                 </div>
                                             ))
@@ -417,11 +530,11 @@ const DashboardEficienciaOperativa = () => {
                             <div className="panel alerts-panel">
                                 <div className="panel-header">
                                     <AlertTriangle size={20} />
-                                    <h3>Semáforo de Alertas</h3>
+                                    <h3>Alertas</h3>
                                     <span className="alerts-badge">{alertsData.length}</span>
                                 </div>
                                 <div className="panel-content">
-                                    <div className="alerts-list">
+                                    <div className="alerts-list" style={{ maxHeight: '1100px', overflowY: 'auto' }}>
                                         {alertsData && alertsData.length > 0 ? (
                                             alertsData.map((alert, index) => (
                                                 <div key={index} className="alert-item">
@@ -454,6 +567,81 @@ const DashboardEficienciaOperativa = () => {
                     </div>
                 </div>
             </div>
+
+            {/* MODAL PARA CAMBIAR USUARIO */}
+            {showUserModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h3>Cambiar Usuario de Cotización</h3>
+                            <button
+                                className="modal-close"
+                                onClick={() => setShowUserModal(false)}
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="modal-body">
+                            <div className="current-user-info">
+                                <strong>Cotización:</strong> #{selectedQuotation?.QuotationId}<br />
+                                <strong>Usuario actual:</strong> {selectedQuotation?.Assignee}
+                            </div>
+
+                            <div className="form-group">
+                                <label>Seleccionar nuevo usuario:</label>
+                                <select
+                                    value={selectedUserId}
+                                    onChange={(e) => setSelectedUserId(e.target.value)}
+                                    className="user-select"
+                                    disabled={loadingUsers}
+                                >
+                                    <option value="">Selecciona un usuario...</option>
+                                    {loadingUsers ? (
+                                        <option value="" disabled>Cargando usuarios...</option>
+                                    ) : activeUsers && activeUsers.length > 0 ? (
+                                        activeUsers.map(user => (
+                                            <option key={user.id} value={user.id}>
+                                                {user.name} {user.lastName} - {user.mail}
+                                            </option>
+                                        ))
+                                    ) : (
+                                        <option value="" disabled>No hay usuarios disponibles</option>
+                                    )}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="modal-footer">
+                            <button
+                                className="btn-cancel"
+                                onClick={() => setShowUserModal(false)}
+                                disabled={changingUser}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className="btn-save"
+                                onClick={handleUserChange}
+                                disabled={changingUser || !selectedUserId}
+                            >
+                                {changingUser ? (
+                                    <>
+                                        <RefreshCw size={16} className="spinner" />
+                                        Guardando...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save size={16} />
+                                        Guardar Cambios
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <Footer />
         </div>
     );

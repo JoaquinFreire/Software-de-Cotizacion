@@ -20,6 +20,15 @@ public class UserRepository : IUserRepository
         return await _context.Users.Include(u => u.role).ToListAsync();
     }
 
+    // Método asíncrono para obtener todos los usuarios activos (status = 1)
+    public async Task<IEnumerable<User>> GetAllActiveAsync()
+    {
+        return await _context.Users
+            .Include(u => u.role)  // 🔹 Asegura que el usuario tenga su rol cargado
+            .Where(u => u.status == 1) // Filtra solo usuarios activos
+            .ToListAsync();
+    }
+
     // Método asíncrono para obtener un usuario por su legajo
     public async Task<User?> GetByLegajoAsync(string legajo)
     {

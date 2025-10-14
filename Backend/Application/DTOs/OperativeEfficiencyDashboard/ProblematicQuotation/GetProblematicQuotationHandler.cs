@@ -11,13 +11,16 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.ProblematicQuotation
     {
         private readonly BudgetServices _budgetServices;
         private readonly UserServices _userServices;
+        private readonly QuotationServices _quotationServices;
 
         public GetProblematicQuotationHandler(
             BudgetServices budgetServices,
-            UserServices userServices)
+            UserServices userServices,
+            QuotationServices quotationServices)
         {
             _budgetServices = budgetServices;
             _userServices = userServices;
+            _quotationServices = quotationServices;
         }
 
         public async Task<List<ProblematicQuotationDTO>> Handle(GetProblematicQuotationQuery request, CancellationToken cancellationToken)
@@ -28,7 +31,6 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.ProblematicQuotation
             var (startDate, endDate) = GetDateRange(normalizedTimeRange);
 
             var allBudgets = await _budgetServices.GetAllBudgetsAsync();
-            var allUsers = await _userServices.GetAllAsync();
 
             var filteredBudgets = allBudgets
                 .Where(b => b.creationDate >= startDate && b.creationDate <= endDate)
@@ -40,70 +42,148 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.ProblematicQuotation
                 .Select(g => g.OrderByDescending(b => b.version).First())
                 .ToList();
 
-            var problematicBudgets = latestBudgets
-                .Where(b => DashboardConstants.Statuses.ActiveStatuses.Contains(b.status))
-                .Where(b => (DateTime.UtcNow - b.creationDate).TotalDays > DashboardConstants.Thresholds.DaysWithoutEditYellow)
-                .Select(b =>
+            var problematicBudgets = new List<ProblematicQuotationDTO>();
+
+            foreach (var budget in latestBudgets)
+            {
+                if (!DashboardConstants.Statuses.ActiveStatuses.Contains(budget.status) ||
+                    (DateTime.UtcNow - budget.creationDate).TotalDays <= DashboardConstants.Thresholds.DaysWithoutEditYellow)
                 {
-                    // Buscar el usuario real en SQL para obtener el ID correcto
-                    var user = allUsers.FirstOrDefault(u =>
-                        u.mail?.Equals(b.user?.mail, StringComparison.OrdinalIgnoreCase) == true ||
-                        ($"{u.name} {u.lastName}".Trim().Equals($"{b.user?.name} {b.user?.lastName}".Trim(), StringComparison.OrdinalIgnoreCase)));
+                    continue;
+                }
 
-                    // Obtener el precio total de forma segura
-                    decimal totalPrice = 0;
-                    try
-                    {
-                        // Según tu estructura de MongoDB, el total puede estar en diferentes formatos
-                        if (b.Total != null)
-                        {
-                            // Si total es un objeto con propiedad amount
-                            if (b.Total.GetType().GetProperty("amount") != null)
-                            {
-                                var amountProperty = b.Total.GetType().GetProperty("amount");
-                                if (amountProperty != null)
-                                {
-                                    var amountValue = amountProperty.GetValue(b.Total);
-                                    if (amountValue != null)
-                                    {
-                                        totalPrice = Convert.ToDecimal(amountValue);
-                                    }
-                                }
-                            }
-                            // Si total es directamente un decimal
-                            else if (b.Total is decimal)
-                            {
-                                totalPrice = (decimal)b.Total;
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error al obtener precio total para cotización {b.budgetId}: {ex.Message}");
-                        totalPrice = 0;
-                    }
+                // Obtener información de la cotización desde SQL usando el budgetId como Id
+                var sqlQuotation = await GetQuotationFromSQL(budget.budgetId);
 
-                    return new ProblematicQuotationDTO
+                string assigneeName = "N/A";
+                int assigneeId = 0;
+
+                // Priorizar información desde SQL
+                if (sqlQuotation != null)
+                {
+                    // Obtener información del usuario desde SQL usando el UserId
+                    var sqlUser = await GetUserFromSQL(sqlQuotation.UserId);
+
+                    if (sqlUser != null)
                     {
-                        QuotationId = b.budgetId,
-                        Assignee = $"{b.user?.name} {b.user?.lastName}",
-                        AssigneeId = user?.id ?? 0, // Usar el ID real del usuario
-                        DaysWithoutEdit = (int)(DateTime.UtcNow - b.creationDate).TotalDays,
-                        VersionCount = b.version,
-                        CurrentStatus = b.status.ToString(),
-                        CreationDate = b.creationDate,
-                        LastEditDate = b.creationDate, // Por ahora usar creationDate
-                        TotalPrice = totalPrice,
-                        CustomerName = $"{b.customer?.name} {b.customer?.lastname}",
-                        WorkPlace = b.workPlace?.name,
-                        AlertLevel = GetAlertLevel((int)(DateTime.UtcNow - b.creationDate).TotalDays, b.version)
-                    };
-                })
+                        assigneeName = $"{sqlUser.name} {sqlUser.lastName}";
+                        assigneeId = sqlUser.id;
+                    }
+                    else
+                    {
+                        // Si no se encuentra el usuario en SQL, usar el UserId como referencia
+                        assigneeName = $"Usuario ID: {sqlQuotation.UserId}";
+                        assigneeId = sqlQuotation.UserId;
+                    }
+                }
+                else
+                {
+                    // Fallback a MongoDB si no hay datos en SQL
+                    assigneeName = $"{budget.user?.name} {budget.user?.lastName}";
+                    assigneeId = 0; // No tenemos ID confiable desde MongoDB
+                }
+
+                // Obtener el precio total de forma segura
+                decimal totalPrice = GetTotalPriceFromBudget(budget);
+
+                var problematicQuotation = new ProblematicQuotationDTO
+                {
+                    QuotationId = budget.budgetId,
+                    Assignee = assigneeName,
+                    AssigneeId = assigneeId,
+                    DaysWithoutEdit = (int)(DateTime.UtcNow - budget.creationDate).TotalDays,
+                    VersionCount = budget.version,
+                    CurrentStatus = budget.status.ToString(),
+                    CreationDate = budget.creationDate,
+                    LastEditDate = budget.creationDate,
+                    TotalPrice = totalPrice,
+                    CustomerName = $"{budget.customer?.name} {budget.customer?.lastname}",
+                    WorkPlace = budget.workPlace?.name,
+                    AlertLevel = GetAlertLevel((int)(DateTime.UtcNow - budget.creationDate).TotalDays, budget.version)
+                };
+
+                problematicBudgets.Add(problematicQuotation);
+            }
+
+            return problematicBudgets
                 .OrderByDescending(q => q.DaysWithoutEdit)
                 .ThenByDescending(q => q.VersionCount)
                 .ToList();
+        }
 
-            return problematicBudgets;
+        // Método para obtener cotización desde SQL usando budgetId como Id
+        private async Task<Quotation> GetQuotationFromSQL(string budgetId)
+        {
+            try
+            {
+                // Convertir budgetId a int (ya que Quotation.Id es int)
+                if (int.TryParse(budgetId, out int quotationId))
+                {
+                    var quotation = await _quotationServices.GetByIdAsync(quotationId);
+                    return quotation;
+                }
+                else
+                {
+                    Console.WriteLine($"No se pudo convertir budgetId a int: {budgetId}");
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al obtener cotización desde SQL para ID {budgetId}: {ex.Message}");
+                return null;
+            }
+        }
+
+        // Método para obtener usuario desde SQL
+        private async Task<User> GetUserFromSQL(int userId)
+        {
+            try
+            {
+                // Obtener usuario desde SQL usando UserServices
+                var user = await _userServices.GetByIdAsync(userId);
+                return user;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al obtener usuario desde SQL para ID {userId}: {ex.Message}");
+                return null;
+            }
+        }
+
+        private decimal GetTotalPriceFromBudget(Budget budget)
+        {
+            decimal totalPrice = 0;
+            try
+            {
+                if (budget.Total != null)
+                {
+                    // Si total es un objeto con propiedad amount
+                    if (budget.Total.GetType().GetProperty("amount") != null)
+                    {
+                        var amountProperty = budget.Total.GetType().GetProperty("amount");
+                        if (amountProperty != null)
+                        {
+                            var amountValue = amountProperty.GetValue(budget.Total);
+                            if (amountValue != null)
+                            {
+                                totalPrice = Convert.ToDecimal(amountValue);
+                            }
+                        }
+                    }
+                    // Si total es directamente un decimal
+                    else if (budget.Total is decimal)
+                    {
+                        totalPrice = (decimal)budget.Total;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al obtener precio total para cotización {budget.budgetId}: {ex.Message}");
+                totalPrice = 0;
+            }
+            return totalPrice;
         }
 
         private string GetAlertLevel(int daysWithoutEdit, int versionCount)

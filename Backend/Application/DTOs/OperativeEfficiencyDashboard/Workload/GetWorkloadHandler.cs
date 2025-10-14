@@ -12,44 +12,59 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.Workload
     {
         private readonly BudgetServices _budgetServices;
         private readonly UserServices _userServices;
+        private readonly QuotationServices _quotationServices; // Nuevo
 
         public GetWorkloadHandler(
             BudgetServices budgetServices,
-            UserServices userServices)
+            UserServices userServices,
+            QuotationServices quotationServices) // Agregar
         {
             _budgetServices = budgetServices;
             _userServices = userServices;
+            _quotationServices = quotationServices;
         }
 
         public async Task<List<WorkloadDTO>> Handle(GetWorkloadQuery request, CancellationToken cancellationToken)
         {
             // Normalizar el parámetro timeRange
             var normalizedTimeRange = NormalizeTimeRange(request.TimeRange);
-
             var (startDate, endDate) = GetDateRange(normalizedTimeRange);
 
             var allUsers = await _userServices.GetAllAsync();
-
-            // FILTRO MODIFICADO: Solo usuarios activos (status = 1) y con roles de cotización
             var quoters = allUsers.Where(u =>
-                u.status == 1 && // Solo usuarios activos
+                u.status == 1 &&
                 (u.role?.role_name == "quotator" || u.role?.role_name == "coordinator" || u.role?.role_name == "manager")
             ).ToList();
 
             var allBudgets = await _budgetServices.GetAllBudgetsAsync();
-            var allBudgetsList = allBudgets.ToList();
-            var filteredBudgets = allBudgetsList
+            var filteredBudgets = allBudgets
                 .Where(b => b.creationDate >= startDate && b.creationDate <= endDate)
                 .ToList();
 
-            Console.WriteLine($"DEBUG WORKLOAD: Total budgets: {allBudgetsList.Count}, En período: {filteredBudgets.Count}");
-            Console.WriteLine($"DEBUG WORKLOAD: Usuarios cotizadores ACTIVOS: {quoters.Count}");
+            // Obtener todas las cotizaciones de SQL para el período
+            var allQuotations = await _quotationServices.GetAllAsync();
+            var filteredQuotations = allQuotations
+                .Where(q => q.CreationDate >= startDate && q.CreationDate <= endDate)
+                .ToList();
+
+            Console.WriteLine($"DEBUG WORKLOAD: Budgets MongoDB: {filteredBudgets.Count}, Quotations SQL: {filteredQuotations.Count}");
 
             var workloadData = new List<WorkloadDTO>();
 
             foreach (var quoter in quoters)
             {
-                var userBudgets = FindUserBudgets(filteredBudgets, quoter);
+                // Contar desde SQL (fuente de verdad para asignación de usuarios)
+                var userQuotations = filteredQuotations
+                    .Where(q => q.UserId == quoter.id)
+                    .ToList();
+
+                // Obtener los budgetIds de las cotizaciones del usuario para buscar en MongoDB
+                var userBudgetIds = userQuotations.Select(q => q.Id.ToString()).ToList();
+
+                // Buscar en MongoDB solo las cotizaciones que pertenecen a este usuario en SQL
+                var userBudgets = filteredBudgets
+                    .Where(b => userBudgetIds.Contains(b.budgetId))
+                    .ToList();
 
                 var activeQuotations = userBudgets.Count(b =>
                     DashboardConstants.Statuses.ActiveStatuses.Contains(b.status));
@@ -64,7 +79,7 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.Workload
                 var efficiency = CalculateUserEfficiency(userBudgets);
                 var alerts = CalculateUserAlerts(activeQuotations, delayedQuotations, efficiency, userBudgets.Count);
 
-                Console.WriteLine($"DEBUG USER: {quoter.name} - Status: {quoter.status}, Budgets: {userBudgets.Count}, Activas: {activeQuotations}, Eficiencia: {efficiency}%");
+                Console.WriteLine($"DEBUG USER: {quoter.name} - Cotizaciones SQL: {userQuotations.Count}, Budgets MongoDB: {userBudgets.Count}");
 
                 workloadData.Add(new WorkloadDTO
                 {
@@ -79,32 +94,18 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.Workload
                 });
             }
 
-            // Ordenar por número de cotizaciones activas (descendente)
             return workloadData.OrderByDescending(w => w.ActiveQuotations).ToList();
         }
 
         // Los demás métodos permanecen igual...
-        private List<Budget> FindUserBudgets(List<Budget> budgets, User quoter)
-        {
-            return budgets.Where(b =>
-                // Comparar por email (más confiable)
-                b.user?.mail?.Equals(quoter.mail, StringComparison.OrdinalIgnoreCase) == true ||
-                // Comparar por nombre completo (backup)
-                ($"{b.user?.name} {b.user?.lastName}".Trim().Equals($"{quoter.name} {quoter.lastName}".Trim(), StringComparison.OrdinalIgnoreCase)) ||
-                // Comparar solo por ID si está disponible
-                (b.user?.id != null && b.user.id == quoter.id)
-            ).ToList();
-        }
-
         private decimal CalculateUserEfficiency(List<Budget> userBudgets)
         {
             var totalBudgets = userBudgets.Count;
-            if (totalBudgets == 0) return -1; // -1 indica "sin datos"
+            if (totalBudgets == 0) return -1;
 
             var completedBudgets = userBudgets.Count(b =>
                 DashboardConstants.Statuses.CompletedStatuses.Contains(b.status));
 
-            // Redondear a 2 decimales
             return Math.Round((decimal)completedBudgets / totalBudgets * 100, 2);
         }
 
@@ -112,7 +113,6 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.Workload
         {
             var alerts = new WorkloadAlertsDTO();
 
-            // Si no hay cotizaciones, mostrar estado neutral
             if (totalBudgets == 0 || efficiency == -1)
             {
                 alerts.Active = "gray";
@@ -121,15 +121,12 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.Workload
                 return alerts;
             }
 
-            // Alertas para cotizaciones activas
             alerts.Active = activeQuotations >= DashboardConstants.Thresholds.ActiveQuotationsRed ? "red" :
                            activeQuotations >= DashboardConstants.Thresholds.ActiveQuotationsYellow ? "yellow" : "green";
 
-            // Alertas para cotizaciones retrasadas
             alerts.Delayed = delayedQuotations >= DashboardConstants.Thresholds.DaysWithoutEditRed ? "red" :
                             delayedQuotations >= DashboardConstants.Thresholds.DaysWithoutEditYellow ? "yellow" : "green";
 
-            // Alertas para eficiencia general
             alerts.Overall = efficiency <= DashboardConstants.Thresholds.EfficiencyRed ? "red" :
                             efficiency <= DashboardConstants.Thresholds.EfficiencyYellow ? "yellow" : "green";
 
@@ -144,14 +141,13 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.Workload
                 DashboardConstants.TimeRanges.Last7Days => endDate.AddDays(-7),
                 DashboardConstants.TimeRanges.Last30Days => endDate.AddDays(-30),
                 DashboardConstants.TimeRanges.Last90Days => endDate.AddDays(-90),
-                _ => endDate.AddDays(-30) // Default a 30 días
+                _ => endDate.AddDays(-30)
             };
             return (startDate, endDate);
         }
 
         private string NormalizeTimeRange(string timeRange)
         {
-            // Normalizar diferentes formatos de timeRange
             return timeRange?.ToLower() switch
             {
                 "7" or "7d" or "last7days" => DashboardConstants.TimeRanges.Last7Days,

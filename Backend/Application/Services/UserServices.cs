@@ -31,6 +31,7 @@ namespace Application.Services
         public async Task<User?> GetByLegajoAsync(string legajo) { return await _userRepository.GetByLegajoAsync(legajo); }
         public async Task<User?> GetByIdAsync(int id) { return await _userRepository.GetByIdAsync(id); }
         public async Task<IEnumerable<User>> GetAllAsync() { return await _userRepository.GetAllAsync(); }
+        public async Task<IEnumerable<User>> GetAllActiveAsync() { return await _userRepository.GetAllActiveAsync(); }
         public async Task AddAsync(User user) { await _userRepository.AddAsync(user); }
         public async Task UpdateAsync(User user) { await _userRepository.UpdateAsync(user); }
         public async Task DeleteAsync(int id) { await _userRepository.DeleteAsync(id); }

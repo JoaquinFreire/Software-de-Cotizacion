@@ -14,6 +14,7 @@ namespace Application.Services
         public Task<Quotation?> GetByIdAsync(int id) { return _repository.GetByIdAsync(id); }
         public Task AddAsync(Quotation quotation) { return _repository.AddAsync(quotation); }
         public Task UpdateAsync(Quotation quotation) { return _repository.UpdateAsync(quotation); }
+        public Task UpdateUserAsync(int id, int newUserId) { return _repository.UpdateUserAsync(id, newUserId); }
         public Task DeleteAsync(int id) { return _repository.DeleteAsync(id);}
         public Task<IEnumerable<Quotation>> GetByPeriodAsync(DateTime from, DateTime to) { return _repository.GetByPeriodAsync(from, to); }
         public IQueryable<Quotation> Query() { return _repository.Query(); }
