@@ -12,6 +12,6 @@ namespace Domain.Entities
     public class UserRole
     {
         public int id { get; set; }  // ID del rol
-        public string? role_name { get; set; }  // Nombre del rol (Ej: "manager", "coordinator")
+        public string? role_name { get; set; }  // Nombre del rol (Ej: "manager", "coordinator", "quotator")
     }
 }

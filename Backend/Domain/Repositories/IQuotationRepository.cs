@@ -8,6 +8,7 @@ namespace Domain.Repositories
         Task<Quotation?> GetByIdAsync(int id);
         Task AddAsync(Quotation quotation);
         Task UpdateAsync(Quotation quotation);
+        Task UpdateUserAsync(int id, int newUserId);
         Task DeleteAsync(int id);
         Task<IEnumerable<Quotation>> GetByPeriodAsync(DateTime from, DateTime to);
         IQueryable<Quotation> Query();

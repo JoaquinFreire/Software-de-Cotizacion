@@ -30,6 +30,13 @@ public class UserController : ControllerBase
         var users = await _services.GetAllAsync();
         return Ok(users);
     }
+    [HttpGet("active")]
+    [Authorize(Roles = "coordinator,manager")]
+    public async Task<IActionResult> GetAllActive()
+    {
+        var users = await _services.GetAllActiveAsync();
+        return Ok(users);
+    }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)

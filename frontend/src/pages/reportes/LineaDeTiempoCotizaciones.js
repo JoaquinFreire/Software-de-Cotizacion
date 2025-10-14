@@ -676,7 +676,7 @@ const LineaDeTiempoCotizaciones = () => {
             <div className="timeline-report-container">
                 <h2 className="title timeline-title">
                     <FileText size={32} />
-                    Línea de Tiempo de Cotizaciones
+                    Trazabilidad de cotizaciones
                 </h2>
 
                 <div className="timeline-layout">
@@ -813,19 +813,12 @@ const LineaDeTiempoCotizaciones = () => {
                             <div className="timeline-content" ref={pdfRef}>
                                 <div className="report-header">
                                     <div className="report-title">
-                                        <h2>Línea de Tiempo - {getClienteProp(clienteSeleccionado, 'name')} {getClienteProp(clienteSeleccionado, 'lastname')}</h2>
-                                        <button
-                                            className="btn-download-pdf"
-                                            onClick={handleDescargarPDF}
-                                        >
-                                            <Download size={18} />
-                                            Descargar PDF
-                                        </button>
+                                        <h2>Cotizaciones - {getClienteProp(clienteSeleccionado, 'name')} {getClienteProp(clienteSeleccionado, 'lastname')}</h2>
+                                        
                                     </div>
                                     <div className="report-info">
                                         <div><strong>DNI:</strong> {getClienteProp(clienteSeleccionado, 'dni')}</div>
                                         <div><strong>Cotizaciones:</strong> {timelineData.length}</div>
-                                        <div><strong>Fecha de reporte:</strong> {new Date().toLocaleDateString()}</div>
                                     </div>
                                 </div>
 
@@ -863,7 +856,7 @@ const LineaDeTiempoCotizaciones = () => {
                                     {cotizacionSeleccionada && (
                                         <>
                                             <div className="timeline-header">
-                                                <h3>Serie: {cotizacionSeleccionada.BudgetId || 'N/A'}</h3>
+                                                <h3>Cotización N° {cotizacionSeleccionada.BudgetId || 'N/A'}</h3>
                                                 <div className="timeline-summary">
                                                     <span><strong>Obra:</strong> {cotizacionSeleccionada.WorkPlaceName || 'Sin obra'}</span>
                                                     <span><strong>Estado actual:</strong>

@@ -1,7 +1,9 @@
+using Application.DTOs.BudgetDTOs.ChangeBudgetStatus;
 using Application.DTOs.QuotationDTOs; // Agrega el using para los DTOs
+using Application.DTOs.QuotationDTOs.ChangeQuotationUser;
+using Application.DTOs.UserDTOs.UpdateUser;
 using Application.Services;
 using Application.UseCases;
-using Application.DTOs.BudgetDTOs.ChangeBudgetStatus;
 using Domain.Entities;
 using Domain.Repositories;
 using MediatR; // Agrega el using para MediatR
@@ -404,6 +406,25 @@ public class QuotationController : ControllerBase
         };
         var result = await _mediator.Send(query);
         return Ok(result);
+    }
+
+    [HttpPut("update/user")]
+    public async Task<IActionResult> UpdateQuotationUser([FromQuery] int QuotationId, [FromQuery] int newUserId)
+    {
+        if (QuotationId <= 0 || newUserId <= 0)
+        {
+            return BadRequest("Parámetros inválidos.");
+        }
+        var command = await _mediator.Send(new ChangeQuotationUserCommand { id = QuotationId, UserId = newUserId });
+
+        if (command)
+        {
+            return Ok(new { message = "Usuario de cotización actualizado exitosamente" });
+        }
+        else
+        {
+            return NotFound(new { message = "No se encontró la cotización o ocurrió un error" });
+        }
     }
 }
 
