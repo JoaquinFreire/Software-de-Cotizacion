@@ -24,15 +24,14 @@ const DashboardEficienciaOperativa = () => {
     const [selectedUserId, setSelectedUserId] = useState('');
     const [changingUser, setChangingUser] = useState(false);
 
-    const API_BASE_URL = 'http://localhost:5187/api/OED';
-    const API_BASE_URL_MAIN = 'http://localhost:5187/api';
+    const API_URL = process.env.REACT_APP_API_URL;
 
     // Función para cargar usuarios activos
     const fetchActiveUsers = async () => {
         try {
             setLoadingUsers(true);
             const token = localStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL_MAIN}/users/active`, {
+            const response = await fetch(`${API_URL}/api/users/active`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -70,7 +69,7 @@ const DashboardEficienciaOperativa = () => {
             const token = localStorage.getItem('token');
 
             // Usar el mismo formato que en Postman: NewUserId con N mayúscula
-            const response = await fetch(`${API_BASE_URL_MAIN}/quotations/update/user/?QuotationId=${quotationId}&NewUserId=${newUserId}`, {
+            const response = await fetch(`${API_URL}/api/quotations/update/user/?QuotationId=${quotationId}&NewUserId=${newUserId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -151,10 +150,10 @@ const DashboardEficienciaOperativa = () => {
 
             // Hacer todas las llamadas simultáneamente
             const [kpisResponse, workloadResponse, alertsResponse, problematicResponse] = await Promise.all([
-                fetch(`${API_BASE_URL}/kpis?timeRange=${timeRangeParam}`),
-                fetch(`${API_BASE_URL}/workload?timeRange=${timeRangeParam}`),
-                fetch(`${API_BASE_URL}/alerts?timeRange=${timeRangeParam}${filters.alertLevel !== 'all' ? `&level=${filters.alertLevel}` : ''}`),
-                fetch(`${API_BASE_URL}/problematic-quotations?timeRange=${timeRangeParam}`)
+                fetch(`${API_URL}/api/OED/kpis?timeRange=${timeRangeParam}`),
+                fetch(`${API_URL}/api/OED/workload?timeRange=${timeRangeParam}`),
+                fetch(`${API_URL}/api/OED/alerts?timeRange=${timeRangeParam}${filters.alertLevel !== 'all' ? `&level=${filters.alertLevel}` : ''}`),
+                fetch(`${API_URL}/api/OED/problematic-quotations?timeRange=${timeRangeParam}`)
             ]);
 
             // Procesar respuestas

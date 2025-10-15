@@ -1082,3 +1082,87 @@ body.dark-mode {
         width: 100%;
     }
 }
+/* Estilos específicos para el select del modal */
+.user-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #252525 !important; /* Fondo oscuro */
+    color: #ffffff !important; /* Texto blanco */
+    font-size: 14px;
+    appearance: none; /* Quita el estilo nativo del navegador */
+    -webkit-appearance: none; /* Para Safari/Chrome */
+    -moz-appearance: none; /* Para Firefox */
+    background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23ffffff' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 12px center !important;
+    background-size: 12px !important;
+    padding-right: 40px !important;
+}
+
+    .user-select option {
+        background: #252525 !important;
+        color: #ffffff !important;
+        padding: 10px !important;
+    }
+
+    .user-select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+    }
+
+    /* Para navegadores WebKit (Chrome, Safari, Edge) */
+    .user-select::-webkit-listbox {
+        background: #252525 !important;
+        color: #ffffff !important;
+    }
+
+    .user-select::-webkit-listbox-option {
+        background: #252525 !important;
+        color: #ffffff !important;
+        padding: 10px !important;
+    }
+
+    .user-select::-webkit-listbox-button {
+        background: #252525 !important;
+        color: #ffffff !important;
+    }
+
+    /* Para Firefox */
+    .user-select::-moz-focus-inner {
+        border: 0;
+    }
+
+    .user-select:-moz-focusring {
+        color: transparent;
+        text-shadow: 0 0 0 #ffffff;
+    }
+
+    /* Para Internet Explorer */
+    .user-select::-ms-expand {
+        display: none; /* Oculta la flecha por defecto de IE */
+    }
+
+    .user-select::-ms-value {
+        background: #252525 !important;
+        color: #ffffff !important;
+    }
+
+    .user-select::-ms-listbox {
+        background: #252525 !important;
+        color: #ffffff !important;
+    }
+
+    /* Estilos para cuando el select está deshabilitado */
+    .user-select:disabled {
+        background: #333333 !important;
+        color: #888888 !important;
+        cursor: not-allowed;
+    }
+
+        .user-select:disabled option {
+            background: #333333 !important;
+            color: #888888 !important;
+        }
