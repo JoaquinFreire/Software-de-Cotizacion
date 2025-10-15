@@ -88,9 +88,10 @@
               "RelativeDocumentMoniker": "src\\pages\\reportes\\LineaDeTiempoCotizaciones.js",
               "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\LineaDeTiempoCotizaciones.js",
               "RelativeToolTip": "src\\pages\\reportes\\LineaDeTiempoCotizaciones.js",
-              "ViewState": "AgIAAPQCAAAAAAAAAAASwAADAABfAAAAAAAAAA==",
+              "ViewState": "AgIAAEoBAAAAAAAAAAAAAGIBAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-10-12T23:12:30.803Z"
+              "WhenOpened": "2025-10-12T23:12:30.803Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -112,9 +113,10 @@
               "RelativeDocumentMoniker": "src\\styles\\DashboardEficienciaOperativa.css",
               "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\styles\\DashboardEficienciaOperativa.css",
               "RelativeToolTip": "src\\styles\\DashboardEficienciaOperativa.css",
-              "ViewState": "AgIAABwEAAAAAAAAAAAQwBwEAAAIAAAAAAAAAA==",
+              "ViewState": "AgIAAGoEAAAAAAAAAAAYwI8EAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2025-10-08T22:47:55.083Z"
+              "WhenOpened": "2025-10-08T22:47:55.083Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -124,7 +126,7 @@
               "RelativeDocumentMoniker": "src\\pages\\reportes\\DashboardEficienciaOperativa.js",
               "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\DashboardEficienciaOperativa.js",
               "RelativeToolTip": "src\\pages\\reportes\\DashboardEficienciaOperativa.js",
-              "ViewState": "AgIAAOsBAAAAAAAAAAASwAACAABLAAAAAAAAAA==",
+              "ViewState": "AgIAAD4CAAAAAAAAAAASwFICAAA7AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
               "WhenOpened": "2025-10-08T22:45:46.685Z",
               "EditorCaption": ""
