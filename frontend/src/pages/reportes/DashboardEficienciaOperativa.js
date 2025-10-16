@@ -140,43 +140,57 @@ const DashboardEficienciaOperativa = () => {
         return `$${price.toLocaleString('es-AR')}`;
     };
 
-    // Función para obtener datos de la API
+    // Función para obtener datos del endpoint unificado de OperativeEfficiencyDashboardController
     const fetchDashboardData = async () => {
         try {
             setLoading(true);
-            console.log('🔄 Cargando datos del dashboard...');
+            console.log('🔄 Cargando dashboard unificado...');
 
             const timeRangeParam = filters.timeRange;
+            const response = await fetch(`${API_URL}/api/OED/dashboard-unified?timeRange=${timeRangeParam}`);
 
-            // Hacer todas las llamadas simultáneamente
-            const [kpisResponse, workloadResponse, alertsResponse, problematicResponse] = await Promise.all([
-                fetch(`${API_URL}/api/OED/kpis?timeRange=${timeRangeParam}`),
-                fetch(`${API_URL}/api/OED/workload?timeRange=${timeRangeParam}`),
-                fetch(`${API_URL}/api/OED/alerts?timeRange=${timeRangeParam}${filters.alertLevel !== 'all' ? `&level=${filters.alertLevel}` : ''}`),
-                fetch(`${API_URL}/api/OED/problematic-quotations?timeRange=${timeRangeParam}`)
-            ]);
+            console.log('📡 Estado de respuesta:', response.status, response.statusText);
 
-            // Procesar respuestas
-            const kpisData = await kpisResponse.json();
-            const workloadData = await workloadResponse.json();
-            const alertsData = await alertsResponse.json();
-            const problematicData = await problematicResponse.json();
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('❌ Error del servidor:', errorText);
+                throw new Error(`Error ${response.status}: ${errorText}`);
+            }
 
-            console.log('📊 Datos procesados:', {
-                kpis: kpisData,
-                workload: workloadData,
-                alerts: alertsData,
-                problematic: problematicData
+            const data = await response.json();
+            console.log('📊 Respuesta completa del backend:', data);
+
+            const extractArray = (obj) => {
+                if (!obj) return [];
+                if (obj.$values && Array.isArray(obj.$values)) return obj.$values;
+                if (Array.isArray(obj)) return obj;
+                return [];
+            };
+
+            const extractObject = (obj) => {
+                if (!obj) return {};
+                if (typeof obj === 'object' && !Array.isArray(obj)) return obj;
+                return {};
+            };
+
+            setKpiData(extractObject(data.Kpis));
+            setWorkloadData(extractArray(data.Workload));
+            setAlertsData(extractArray(data.Alerts));
+            setProblematicQuotations(extractArray(data.ProblematicQuotations));
+
+            console.log('✅ Datos procesados:', {
+                kpis: extractObject(data.Kpis),
+                workload: extractArray(data.Workload).length,
+                alerts: extractArray(data.Alerts).length,
+                problematic: extractArray(data.ProblematicQuotations).length
             });
 
-            // Actualizar estados
-            setKpiData(kpisData);
-            setWorkloadData(workloadData.$values || workloadData);
-            setAlertsData(alertsData.$values || alertsData);
-            setProblematicQuotations(problematicData.$values || problematicData);
-
         } catch (error) {
-            console.error('❌ Error cargando datos:', error);
+            console.error('❌ Error cargando dashboard:', error);
+            setKpiData({});
+            setWorkloadData([]);
+            setAlertsData([]);
+            setProblematicQuotations([]);
         } finally {
             setLoading(false);
         }
@@ -238,9 +252,9 @@ const DashboardEficienciaOperativa = () => {
     console.log('🎯 ESTADO ACTUAL:', {
         loading,
         kpiData,
-        workloadData: workloadData.length,
-        alertsData: alertsData.length,
-        problematicQuotations: problematicQuotations.length
+        workloadData: (workloadData || []).length,
+        alertsData: (alertsData || []).length,
+        problematicQuotations: (problematicQuotations || []).length
     });
 
     if (loading) {
@@ -397,7 +411,7 @@ const DashboardEficienciaOperativa = () => {
                                 <div className="panel-header">
                                     <Users size={20} />
                                     <h3>Carga de Trabajo</h3>
-                                    <span className="panel-badge">{workloadData.length} cotizadores</span>
+                                    <span className="panel-badge">{(workloadData && workloadData.length) || 0} cotizadores</span>
                                 </div>
                                 <div className="panel-content">
                                     <div className="workload-table-container">
@@ -476,7 +490,7 @@ const DashboardEficienciaOperativa = () => {
                                 <div className="panel-header">
                                     <AlertTriangle size={20} />
                                     <h3>Cotizaciones Problemáticas</h3>
-                                    <span className="panel-badge">{problematicQuotations.length} cotizaciones</span>
+                                    <span className="panel-badge">{(problematicQuotations && problematicQuotations.length) || 0} cotizaciones</span>
                                 </div>
                                 <div className="panel-content">
                                     <div className="quotations-list" style={{ maxHeight: '400px', overflowY: 'auto' }}>
@@ -530,7 +544,7 @@ const DashboardEficienciaOperativa = () => {
                                 <div className="panel-header">
                                     <AlertTriangle size={20} />
                                     <h3>Alertas</h3>
-                                    <span className="alerts-badge">{alertsData.length}</span>
+                                    <span className="alerts-badge">{(alertsData && alertsData.length) || 0}</span>
                                 </div>
                                 <div className="panel-content">
                                     <div className="alerts-list" style={{ maxHeight: '1100px', overflowY: 'auto' }}>

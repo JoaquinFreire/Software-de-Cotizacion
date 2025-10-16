@@ -9,20 +9,6 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.ProblematicQuotation
 {
     public class GetProblematicQuotationHandler : IRequestHandler<GetProblematicQuotationQuery, List<ProblematicQuotationDTO>>
     {
-        private readonly BudgetServices _budgetServices;
-        private readonly UserServices _userServices;
-        private readonly QuotationServices _quotationServices;
-
-        public GetProblematicQuotationHandler(
-            BudgetServices budgetServices,
-            UserServices userServices,
-            QuotationServices quotationServices)
-        {
-            _budgetServices = budgetServices;
-            _userServices = userServices;
-            _quotationServices = quotationServices;
-        }
-
         public async Task<List<ProblematicQuotationDTO>> Handle(GetProblematicQuotationQuery request, CancellationToken cancellationToken)
         {
             // Normalizar el parámetro timeRange
@@ -30,7 +16,10 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.ProblematicQuotation
 
             var (startDate, endDate) = GetDateRange(normalizedTimeRange);
 
-            var allBudgets = await _budgetServices.GetAllBudgetsAsync();
+            // ✅ USAR DATOS PRE-CARGADOS en lugar de llamar a servicios
+            var allBudgets = request.DashboardData.AllBudgets;
+            var allUsers = request.DashboardData.AllUsers;
+            var allQuotations = request.DashboardData.AllQuotations;
 
             var filteredBudgets = allBudgets
                 .Where(b => b.creationDate >= startDate && b.creationDate <= endDate)
@@ -42,6 +31,10 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.ProblematicQuotation
                 .Select(g => g.OrderByDescending(b => b.version).First())
                 .ToList();
 
+            // ✅ PRE-CARGAR diccionarios para búsquedas rápidas
+            var quotationsDict = allQuotations.ToDictionary(q => q.Id.ToString(), q => q);
+            var usersDict = allUsers.ToDictionary(u => u.id, u => u);
+
             var problematicBudgets = new List<ProblematicQuotationDTO>();
 
             foreach (var budget in latestBudgets)
@@ -52,35 +45,21 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.ProblematicQuotation
                     continue;
                 }
 
-                // Obtener información de la cotización desde SQL usando el budgetId como Id
-                var sqlQuotation = await GetQuotationFromSQL(budget.budgetId);
-
                 string assigneeName = "N/A";
                 int assigneeId = 0;
 
-                // Priorizar información desde SQL
-                if (sqlQuotation != null)
+                // ✅ BUSCAR EN DICCIONARIOS PRE-CARGADOS (MUCHO MÁS RÁPIDO)
+                if (quotationsDict.TryGetValue(budget.budgetId, out var quotation) &&
+                    usersDict.TryGetValue(quotation.UserId, out var user))
                 {
-                    // Obtener información del usuario desde SQL usando el UserId
-                    var sqlUser = await GetUserFromSQL(sqlQuotation.UserId);
-
-                    if (sqlUser != null)
-                    {
-                        assigneeName = $"{sqlUser.name} {sqlUser.lastName}";
-                        assigneeId = sqlUser.id;
-                    }
-                    else
-                    {
-                        // Si no se encuentra el usuario en SQL, usar el UserId como referencia
-                        assigneeName = $"Usuario ID: {sqlQuotation.UserId}";
-                        assigneeId = sqlQuotation.UserId;
-                    }
+                    assigneeName = $"{user.name} {user.lastName}";
+                    assigneeId = user.id;
                 }
                 else
                 {
                     // Fallback a MongoDB si no hay datos en SQL
                     assigneeName = $"{budget.user?.name} {budget.user?.lastName}";
-                    assigneeId = 0; // No tenemos ID confiable desde MongoDB
+                    assigneeId = 0;
                 }
 
                 // Obtener el precio total de forma segura
@@ -111,45 +90,8 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.ProblematicQuotation
                 .ToList();
         }
 
-        // Método para obtener cotización desde SQL usando budgetId como Id
-        private async Task<Quotation> GetQuotationFromSQL(string budgetId)
-        {
-            try
-            {
-                // Convertir budgetId a int (ya que Quotation.Id es int)
-                if (int.TryParse(budgetId, out int quotationId))
-                {
-                    var quotation = await _quotationServices.GetByIdAsync(quotationId);
-                    return quotation;
-                }
-                else
-                {
-                    Console.WriteLine($"No se pudo convertir budgetId a int: {budgetId}");
-                    return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error al obtener cotización desde SQL para ID {budgetId}: {ex.Message}");
-                return null;
-            }
-        }
-
-        // Método para obtener usuario desde SQL
-        private async Task<User> GetUserFromSQL(int userId)
-        {
-            try
-            {
-                // Obtener usuario desde SQL usando UserServices
-                var user = await _userServices.GetByIdAsync(userId);
-                return user;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error al obtener usuario desde SQL para ID {userId}: {ex.Message}");
-                return null;
-            }
-        }
+        // ✅ ELIMINAR métodos que hacían llamadas individuales a la BD
+        // Ya no necesitamos GetQuotationFromSQL ni GetUserFromSQL
 
         private decimal GetTotalPriceFromBudget(Budget budget)
         {
@@ -158,7 +100,6 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.ProblematicQuotation
             {
                 if (budget.Total != null)
                 {
-                    // Si total es un objeto con propiedad amount
                     if (budget.Total.GetType().GetProperty("amount") != null)
                     {
                         var amountProperty = budget.Total.GetType().GetProperty("amount");
@@ -171,7 +112,6 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.ProblematicQuotation
                             }
                         }
                     }
-                    // Si total es directamente un decimal
                     else if (budget.Total is decimal)
                     {
                         totalPrice = (decimal)budget.Total;

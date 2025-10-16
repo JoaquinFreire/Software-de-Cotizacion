@@ -10,39 +10,27 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.Workload
 {
     public class GetWorkloadHandler : IRequestHandler<GetWorkloadQuery, List<WorkloadDTO>>
     {
-        private readonly BudgetServices _budgetServices;
-        private readonly UserServices _userServices;
-        private readonly QuotationServices _quotationServices; // Nuevo
-
-        public GetWorkloadHandler(
-            BudgetServices budgetServices,
-            UserServices userServices,
-            QuotationServices quotationServices) // Agregar
-        {
-            _budgetServices = budgetServices;
-            _userServices = userServices;
-            _quotationServices = quotationServices;
-        }
-
         public async Task<List<WorkloadDTO>> Handle(GetWorkloadQuery request, CancellationToken cancellationToken)
         {
             // Normalizar el parámetro timeRange
             var normalizedTimeRange = NormalizeTimeRange(request.TimeRange);
             var (startDate, endDate) = GetDateRange(normalizedTimeRange);
 
-            var allUsers = await _userServices.GetAllAsync();
+            // ✅ USAR DATOS PRE-CARGADOS en lugar de llamar a servicios
+            var allUsers = request.DashboardData.AllUsers;
+            var allBudgets = request.DashboardData.AllBudgets;
+            var allQuotations = request.DashboardData.AllQuotations;
+
             var quoters = allUsers.Where(u =>
                 u.status == 1 &&
                 (u.role?.role_name == "quotator" || u.role?.role_name == "coordinator" || u.role?.role_name == "manager")
             ).ToList();
 
-            var allBudgets = await _budgetServices.GetAllBudgetsAsync();
             var filteredBudgets = allBudgets
                 .Where(b => b.creationDate >= startDate && b.creationDate <= endDate)
                 .ToList();
 
             // Obtener todas las cotizaciones de SQL para el período
-            var allQuotations = await _quotationServices.GetAllAsync();
             var filteredQuotations = allQuotations
                 .Where(q => q.CreationDate >= startDate && q.CreationDate <= endDate)
                 .ToList();
@@ -97,7 +85,7 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.Workload
             return workloadData.OrderByDescending(w => w.ActiveQuotations).ToList();
         }
 
-        // Los demás métodos permanecen igual...
+        // Los métodos auxiliares permanecen igual...
         private decimal CalculateUserEfficiency(List<Budget> userBudgets)
         {
             var totalBudgets = userBudgets.Count;
