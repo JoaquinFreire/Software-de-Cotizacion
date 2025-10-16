@@ -57,6 +57,7 @@ builder.Services.AddScoped<UserServices>(); // Registrar el servicio de aplicaci
 builder.Services.AddScoped<UserInvitationServices>(); // Registrar el servicio de aplicación para invitaciones de usuario
 builder.Services.AddScoped<WorkTypeServices>(); // Registrar el servicio de aplicación para tipos de trabajo
 builder.Services.AddScoped<AccessoryServices>(); // Registrar el servicio de aplicación para accesorios
+builder.Services.AddScoped<DashboardDataService>(); // Registrar el servicio de aplicación para datos del dashboard de reporte de carga de trabajo
 
 //REGISTRO DE MAPEO DE ENTIDADES DE DOMINIO
 builder.Services.AddAutoMapper(typeof(CreateBudgetProfile));//Mapeo de cotizaciones

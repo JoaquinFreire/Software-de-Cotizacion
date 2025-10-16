@@ -10,17 +10,10 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.DashboardKpis
 {
     public class GetDashboardKpisHandler : IRequestHandler<GetDashboardKpisQuery, DashboardKpisDTO>
     {
-        private readonly BudgetServices _budgetServices;
-        private readonly UserServices _userServices;
         private readonly IMediator _mediator;
 
-        public GetDashboardKpisHandler(
-            BudgetServices budgetServices,
-            UserServices userServices,
-            IMediator mediator)
+        public GetDashboardKpisHandler(IMediator mediator)
         {
-            _budgetServices = budgetServices;
-            _userServices = userServices;
             _mediator = mediator;
         }
 
@@ -32,8 +25,8 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.DashboardKpis
             var (startDate, endDate) = GetDateRange(normalizedTimeRange);
             var (previousStartDate, previousEndDate) = GetPreviousDateRange(normalizedTimeRange);
 
-            // Obtener todos los budgets
-            var allBudgets = await _budgetServices.GetAllBudgetsAsync();
+            // ✅ USAR DATOS PRE-CARGADOS en lugar de llamar a servicios
+            var allBudgets = request.DashboardData.AllBudgets;
             var allBudgetsList = allBudgets.ToList();
 
             // Filtrar budgets del período actual
@@ -60,10 +53,11 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.DashboardKpis
 
             var teamEfficiency = CalculateTeamEfficiency(currentBudgets);
 
-            // Obtener alertas
+            // Obtener alertas usando datos pre-cargados
             var alerts = await _mediator.Send(new GetAlertsQuery
             {
-                TimeRange = normalizedTimeRange
+                TimeRange = normalizedTimeRange,
+                DashboardData = request.DashboardData // ← Pasar los datos pre-cargados
             }, cancellationToken);
 
             var activeAlerts = alerts.Count(a => a.Level == "red" || a.Level == "yellow");
@@ -91,6 +85,7 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.DashboardKpis
             };
         }
 
+        // Los métodos auxiliares permanecen igual...
         private decimal CalculateTeamEfficiency(List<Budget> budgets)
         {
             var totalBudgets = budgets.Count;
@@ -101,7 +96,6 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.DashboardKpis
 
             Console.WriteLine($"DEBUG: Total budgets: {totalBudgets}, Completados: {completedBudgets}");
 
-            // Redondear a 2 decimales
             return Math.Round((decimal)completedBudgets / totalBudgets * 100, 2);
         }
 
@@ -110,14 +104,12 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.DashboardKpis
             int currentDelayed, int previousDelayed,
             decimal currentEfficiency, decimal previousEfficiency)
         {
-            // Calcular tendencias basadas en comparación con período anterior
             var activeTrend = currentActive > previousActive ? "up" :
                              currentActive < previousActive ? "down" : "stable";
 
             var delayedTrend = currentDelayed > previousDelayed ? "up" :
                               currentDelayed < previousDelayed ? "down" : "stable";
 
-            // Para eficiencia, "up" significa mejora (número mayor)
             var efficiencyTrend = currentEfficiency > previousEfficiency ? "up" :
                                  currentEfficiency < previousEfficiency ? "down" : "stable";
 
@@ -137,7 +129,7 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.DashboardKpis
                 DashboardConstants.TimeRanges.Last7Days => endDate.AddDays(-7),
                 DashboardConstants.TimeRanges.Last30Days => endDate.AddDays(-30),
                 DashboardConstants.TimeRanges.Last90Days => endDate.AddDays(-90),
-                _ => endDate.AddDays(-30) // Default a 30 días
+                _ => endDate.AddDays(-30)
             };
 
             Console.WriteLine($"DEBUG: Rango de fechas - Desde: {startDate}, Hasta: {endDate}");
@@ -157,13 +149,11 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.DashboardKpis
 
         private DateTime GetComparisonDate(DateTime creationDate, DateTime periodEndDate)
         {
-            // Para comparación histórica, usar la fecha fin del período en lugar de DateTime.UtcNow
             return creationDate > periodEndDate ? periodEndDate : DateTime.UtcNow;
         }
 
         private string NormalizeTimeRange(string timeRange)
         {
-            // Normalizar diferentes formatos de timeRange
             return timeRange?.ToLower() switch
             {
                 "7" or "7d" or "last7days" => DashboardConstants.TimeRanges.Last7Days,

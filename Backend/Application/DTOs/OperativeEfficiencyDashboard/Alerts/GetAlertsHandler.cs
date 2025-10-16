@@ -29,12 +29,10 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.Alerts
             var normalizedLevel = NormalizeLevel(request.Level);
             var (startDate, endDate) = GetDateRange(normalizedTimeRange);
 
-            // Obtener datos básicos
-            var allUsers = await _userServices.GetAllAsync();
-            var allBudgets = await _budgetServices.GetAllBudgetsAsync();
-            var allQuotations = await _quotationServices.GetAllAsync();
+            var allUsers = request.DashboardData.AllUsers;
+            var allBudgets = request.DashboardData.AllBudgets;
+            var allQuotations = request.DashboardData.AllQuotations;
 
-            // Filtrar por fecha
             var filteredBudgets = allBudgets
                 .Where(b => b.creationDate >= startDate && b.creationDate <= endDate)
                 .ToList();
@@ -43,21 +41,19 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.Alerts
                 .Where(q => q.CreationDate >= startDate && q.CreationDate <= endDate)
                 .ToList();
 
-            // Ejecutar alertas en paralelo
             var alertTasks = new List<Task<List<AlertDTO>>>
-            {
-                GetOverloadAlerts(allUsers, filteredBudgets, filteredQuotations),
-                GetInactivityAlerts(allUsers, filteredBudgets, filteredQuotations),
-                GetEfficiencyAlerts(allUsers, filteredBudgets, filteredQuotations),
-                GetTrendAlerts(allUsers, filteredBudgets, filteredQuotations, startDate, endDate),
-                GetPriorityAlerts(allUsers, filteredBudgets, filteredQuotations),
-                GetCoordinationAlerts(allUsers, filteredBudgets, filteredQuotations)
-            };
+    {
+        GetOverloadAlerts(allUsers, filteredBudgets, filteredQuotations),
+        GetInactivityAlerts(allUsers, filteredBudgets, filteredQuotations),
+        GetEfficiencyAlerts(allUsers, filteredBudgets, filteredQuotations),
+        GetTrendAlerts(allUsers, filteredBudgets, filteredQuotations, startDate, endDate, request), // ← AGREGAR request aquí
+        GetPriorityAlerts(allUsers, filteredBudgets, filteredQuotations),
+        GetCoordinationAlerts(allUsers, filteredBudgets, filteredQuotations)
+    };
 
             var alertResults = await Task.WhenAll(alertTasks);
             var alerts = alertResults.SelectMany(x => x).ToList();
 
-            // Aplicar filtros y ordenamiento
             if (!string.IsNullOrEmpty(normalizedLevel) && normalizedLevel != "all")
             {
                 alerts = alerts.Where(a => a.Level == normalizedLevel).ToList();
@@ -134,7 +130,6 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.Alerts
                            (DateTime.UtcNow - b.creationDate).TotalDays > DashboardConstants.Thresholds.DaysWithoutEditYellow)
                 .ToList();
 
-            // Pre-calcular mapeo de quotationId a usuario
             var quotationToUserMap = filteredQuotations
                 .ToDictionary(q => q.Id.ToString(), q => q.UserId);
 
@@ -157,7 +152,6 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.Alerts
                 }
                 else
                 {
-                    // Fallback a datos del budget
                     assigneeName = $"{budget.user?.name} {budget.user?.lastName}";
                 }
 
@@ -232,21 +226,22 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.Alerts
         }
 
         private async Task<List<AlertDTO>> GetTrendAlerts(
-            IEnumerable<User> allUsers,
-            IEnumerable<Budget> filteredBudgets,
-            IEnumerable<Quotation> filteredQuotations,
-            DateTime startDate,
-            DateTime endDate)
+    IEnumerable<User> allUsers,
+    IEnumerable<Budget> filteredBudgets,
+    IEnumerable<Quotation> filteredQuotations,
+    DateTime startDate,
+    DateTime endDate,
+    GetAlertsQuery request)
         {
             var alerts = new List<AlertDTO>();
             var quoters = allUsers.Where(u => u.role?.role_name == "quotator").ToList();
 
-            // Para tendencias necesitamos datos del período anterior
             var previousStartDate = startDate.AddDays(-(endDate - startDate).Days);
             var previousEndDate = startDate;
 
-            var allBudgetsForTrends = await _budgetServices.GetAllBudgetsAsync();
-            var allQuotationsForTrends = await _quotationServices.GetAllAsync();
+            // ✅ AHORA request está disponible
+            var allBudgetsForTrends = request.DashboardData.AllBudgets;
+            var allQuotationsForTrends = request.DashboardData.AllQuotations;
 
             var previousBudgets = allBudgetsForTrends
                 .Where(b => b.creationDate >= previousStartDate && b.creationDate <= previousEndDate)
