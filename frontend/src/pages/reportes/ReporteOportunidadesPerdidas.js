@@ -67,14 +67,22 @@ const ReporteDeOportunidadesPerdidas = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
+      // Cambia el endpoint a BudgetController y filtra por fechas en frontend
       const res = await axios.get(
-        `${API_URL}/api/quotations/by-period?from=${fechaDesde}&to=${fechaHasta}`,
+        `${API_URL}/api/Mongo/GetAllBudgets`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       let data = safeArray(res.data);
-      data = resolveRefs(data);
-      // Solo rechazadas
-      setCotizaciones(data.filter(q => q.Status === 'rejected'));
+      // Filtra por fechas (creationDate) en frontend
+      data = data.filter(b => {
+        const fecha = b.creationDate || b.CreationDate;
+        if (!fecha) return false;
+        const f = new Date(fecha.split('T')[0]);
+        return f >= new Date(fechaDesde) && f <= new Date(fechaHasta);
+      });
+      // Solo rechazadas (status === 'Rejected')
+      data = data.filter(q => (q.status || q.Status) === 'Rejected' || (q.status || q.Status) === 'rejected');
+      setCotizaciones(data);
     } catch (err) {
       setCotizaciones([]);
     }
@@ -108,7 +116,7 @@ const ReporteDeOportunidadesPerdidas = () => {
   // Gráfico: cantidad por motivo de rechazo
   const motivos = {};
   cotizaciones.forEach(c => {
-    const motivo = c.RejectionReason || c.motivoRechazo || 'Sin especificar';
+    const motivo = c.comment || c.Comment || c.RejectionReason || c.motivoRechazo || 'Sin especificar';
     motivos[motivo] = (motivos[motivo] || 0) + 1;
   });
   const chartDataMotivos = {
@@ -127,9 +135,8 @@ const ReporteDeOportunidadesPerdidas = () => {
   // Agrupa cotizaciones rechazadas por mes (MM-YYYY)
   const rechazadasPorMes = {};
   cotizaciones.forEach(c => {
-    let fecha = c.CreationDate || c.creationDate;
+    let fecha = c.creationDate || c.CreationDate;
     if (fecha) {
-      // Soporta tanto "2024-06-11" como "2024-06-11T13:00:00"
       const [datePart] = fecha.split('T');
       const [y, m] = datePart.split('-');
       const mesAnio = `${m}-${y}`;
@@ -151,16 +158,17 @@ const ReporteDeOportunidadesPerdidas = () => {
     ]
   };
 
-  const totalMonto = cotizaciones.reduce((sum, c) => sum + (Number(c.TotalPrice || c.monto) || 0), 0);
+  const totalMonto = cotizaciones.reduce((sum, c) => sum + (Number(c.total || c.Total || c.TotalPrice || c.monto) || 0), 0);
 
   const getMotivoRechazo = (q) => {
-    // Busca el motivo en distintas variantes posibles o en localStorage
     return (
+      q.comment ||
+      q.Comment ||
       q.RejectionReason ||
       q.motivoRechazo ||
       q.rejectionReason ||
       q.MotivoRechazo ||
-      localStorage.getItem(`motivoRechazo_${q.Id || q.id}`) ||
+      localStorage.getItem(`motivoRechazo_${q.budgetId || q.Id || q.id}`) ||
       (q.extra && (q.extra.RejectionReason || q.extra.motivoRechazo)) ||
       'Sin especificar'
     );
@@ -300,18 +308,18 @@ const ReporteDeOportunidadesPerdidas = () => {
                             <td colSpan={8}>No hay cotizaciones rechazadas en el período seleccionado.</td>
                           </tr>
                         ) : cotizaciones.map(q => (
-                          <tr key={q.Id || q.id}>
+                          <tr key={q.budgetId || q.Id || q.id}>
                             <td>
-                              {q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''}
+                              {q.customer?.name || q.Customer?.name || ''}
                               {' '}
-                              {q.Customer?.Customer?.lastname || q.Customer?.lastname || q.customer?.lastname || ''}
+                              {q.customer?.lastname || q.Customer?.lastname || ''}
                             </td>
-                            <td>{q.Customer?.Customer?.tel || q.Customer?.tel || q.customer?.tel || ''}</td>
-                            <td>{q.Customer?.Customer?.mail || q.Customer?.mail || q.customer?.mail || ''}</td>
-                            <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
-                            <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
-                            <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
-                            <td style={{ whiteSpace: 'nowrap' }}>${q.TotalPrice || q.monto}</td>
+                            <td>{q.customer?.tel || q.Customer?.tel || ''}</td>
+                            <td>{q.customer?.mail || q.Customer?.mail || ''}</td>
+                            <td>{q.customer?.address || q.Customer?.address || ''}</td>
+                            <td>{q.creationDate ? formatFechaCorta(q.creationDate) : (q.CreationDate ? formatFechaCorta(q.CreationDate) : '')}</td>
+                            <td>{q.lastEdit ? formatFechaCorta(q.lastEdit) : (q.LastEdit ? formatFechaCorta(q.LastEdit) : '')}</td>
+                            <td style={{ whiteSpace: 'nowrap' }}>${q.total || q.Total || q.TotalPrice || q.monto}</td>
                             <td>{getMotivoRechazo(q)}</td>
                           </tr>
                         ))}

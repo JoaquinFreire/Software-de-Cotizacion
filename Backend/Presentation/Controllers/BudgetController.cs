@@ -7,6 +7,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Request;
+using Application.DTOs.BudgetDTOs.GetAllBudgetByComplement;
 using System.Text.Json; // <-- para serializar en consola
 
 namespace Presentation.Controllers
@@ -107,6 +108,36 @@ namespace Presentation.Controllers
             var budgets = await _budgetService.GetAllBudgetsAsync();
             return Ok(budgets);
         }
+
+        [HttpGet("GetAllBudgetsWithComplements")]
+        public async Task<IActionResult> GetAllBudgetsWithComplements()
+        {
+            var query = new GetAllBudgetByComplementQuery();
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+
+        [HttpGet("GetBudgetsByPeriod")]
+        public async Task<IActionResult> GetBudgetsByPeriod([FromQuery] string from, [FromQuery] string to)
+        {
+            if (string.IsNullOrEmpty(from) || string.IsNullOrEmpty(to))
+                return BadRequest("Debe especificar las fechas 'from' y 'to'.");
+
+            DateTime desde, hasta;
+            if (!DateTime.TryParse(from, out desde) || !DateTime.TryParse(to, out hasta))
+                return BadRequest("Formato de fecha inválido.");
+
+            var allBudgets = await _budgetService.GetAllBudgetsAsync();
+            // Filtra por fecha de creación y estado rechazado
+            var filtered = allBudgets.Where(b =>
+                (b.creationDate >= desde && b.creationDate <= hasta) &&
+                (b.status == Domain.Enums.BudgetStatus.Rejected)
+            ).ToList();
+
+            return Ok(filtered);
+        }
+
 
     }
 }

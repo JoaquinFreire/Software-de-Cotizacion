@@ -354,7 +354,9 @@ public class QuotationController : ControllerBase
         [FromQuery] int? userId = null,
         [FromQuery] string? customerDni = null,
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 5
+        [FromQuery] int pageSize = 5,
+        [FromQuery] string? sortKey = null,
+        [FromQuery] string? sortDirection = "desc"
     )
     {
         // Si el usuario autenticado tiene rol 'quotator', forzar userId al id del token
@@ -385,9 +387,33 @@ public class QuotationController : ControllerBase
         if (!string.IsNullOrEmpty(customerDni))
             query = query.Where(q => q.Customer.dni == customerDni);
 
+        // Ordenamiento dinámico
+        if (!string.IsNullOrEmpty(sortKey))
+        {
+            bool desc = sortDirection?.ToLower() == "desc";
+            switch (sortKey.ToLower())
+            {
+                case "date":
+                    query = desc ? query.OrderByDescending(q => q.CreationDate) : query.OrderBy(q => q.CreationDate);
+                    break;
+                case "price":
+                    query = desc ? query.OrderByDescending(q => q.TotalPrice) : query.OrderBy(q => q.TotalPrice);
+                    break;
+                case "customer":
+                    query = desc ? query.OrderByDescending(q => q.Customer.name) : query.OrderBy(q => q.Customer.name);
+                    break;
+                default:
+                    query = query.OrderByDescending(q => q.CreationDate);
+                    break;
+            }
+        }
+        else
+        {
+            query = query.OrderByDescending(q => q.CreationDate);
+        }
+
         var total = await query.CountAsync();
         var quotations = await query
-            .OrderByDescending(q => q.CreationDate)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();

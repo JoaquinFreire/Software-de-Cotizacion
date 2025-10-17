@@ -76,6 +76,14 @@ const Dashboard = () => {
     const [currentRole, setCurrentRole] = useState(null);
     const [quotators, setQuotators] = useState([]);
 
+    // Estados para ordenamiento
+    const [sortConfig, setSortConfig] = useState({
+        key: null,
+        direction: 'asc'
+    });
+       const [orderField, setOrderField] = useState('');
+        const [orderDirection, setOrderDirection] = useState('desc');
+
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) return;
@@ -250,6 +258,11 @@ const Dashboard = () => {
         if (currentRole === "quotator") {
             delete params.userId;
         }
+        // Agrega los parámetros de ordenamiento
+        if (sortConfig.key) {
+            params.sortKey = sortConfig.key;
+            params.sortDirection = sortConfig.direction;
+        }
         try {
             const res = await axios.get(`${API_URL}/api/quotations/advanced-search`, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -302,6 +315,26 @@ const Dashboard = () => {
         setLastEditFromDate(e.value);
         setFilters({ ...filters, lastEditFrom: e.value ? e.value.toISOString().slice(0, 10) : "" });
     };
+
+    // Modifica handleSort para que actualice los filtros si están activos
+    const handleSort = (key) => {
+        setSortConfig(prevConfig => {
+            const newConfig = prevConfig.key === key
+                ? { key, direction: prevConfig.direction === 'asc' ? 'desc' : 'asc' }
+                : { key, direction: 'asc' };
+            // Si hay filtros activos, vuelve a pedir los datos ordenados
+            if (isFiltering) {
+                fetchFilteredQuotations(filterPage);
+            }
+            return newConfig;
+        });
+    };
+
+    // Elimina el ordenamiento local cuando hay filtros activos
+    // const quotationsToShow = isFiltering ? filterResults : filteredQuotations;
+    const quotationsToShow = isFiltering
+        ? filterResults
+        : filteredQuotations;
 
     return (
         <div className="dashboard-container">
@@ -433,7 +466,29 @@ const Dashboard = () => {
                                 />
                             </div>
                         </div>
-
+                        <div className="order-fields" style={{marginTop: 20, marginBottom: 10}}>
+                            <label style={{ marginBottom: 16, display: 'flex', color: '#a49b9b' }}>Ordenar por:</label>
+                            <select
+                                value={orderField}
+                                onChange={e => setOrderField(e.target.value)}
+                                className="filter-select"
+                                style={{marginRight: 10}}
+                            >   
+                                
+                                <option value="">Sin orden</option>
+                                <option value="date">Fecha</option>
+                                <option value="price">Precio</option>
+                                <option value="customer">Cliente</option>
+                            </select>
+                            <select
+                                value={orderDirection}
+                                onChange={e => setOrderDirection(e.target.value)}
+                                className="filter-select"
+                            >
+                                <option value="asc">Ascendente</option>
+                                <option value="desc">Descendente</option>
+                            </select>
+                        </div>
                         <div className="filters-actions">
                             <button type="submit" className="btn-primary">
                                 <Search size={16} />
@@ -476,7 +531,7 @@ const Dashboard = () => {
                 ) : (
                     <>
                         <QuotationList
-                            quotations={isFiltering ? filterResults : filteredQuotations}
+                            quotations={quotationsToShow}
                             onDelete={handleDelete}
                             onStatusChange={handleStatusChange}
                             showModal={showModal}
