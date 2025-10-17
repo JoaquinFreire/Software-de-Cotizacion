@@ -380,7 +380,10 @@ const BudgetDetail = () => {
             </div>
 
             {/* Encuesta */}
-            <div className="pdf-survey">
+            
+            {/* Footer */}
+            <div className="pdf-footer">
+              <div className="pdf-survey">
               <h3>Encuesta de Satisfacción</h3>
               <div>
                 Nos gustaría conocer tu opinión sobre nuestro servicio.<br />
@@ -390,8 +393,6 @@ const BudgetDetail = () => {
               <div className="pdf-qr-instruction">Escanea el código QR para acceder a la encuesta</div>
             </div>
 
-            {/* Footer */}
-            <div className="pdf-footer">
               <img src={miniLogo} alt="Mini Logo" /><br />
               Avenida Japón 1292 / Córdoba / Argentina<br />
               Solo para uso interno de la empresa Anodal S.A.

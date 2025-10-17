@@ -469,13 +469,14 @@ const Historial = () => {
 
                         {/* Selects para ordenamiento */}
                         <div className="order-fields" style={{marginTop: 20, marginBottom: 10}}>
-                            <label style={{marginRight: 10}}>Ordenar por:</label>
+                            <label style={{ marginBottom: 16, display: 'flex', color: '#a49b9b' }}>Ordenar por:</label>
                             <select
                                 value={orderField}
                                 onChange={e => setOrderField(e.target.value)}
                                 className="filter-select"
                                 style={{marginRight: 10}}
-                            >
+                            >   
+                                
                                 <option value="">Sin orden</option>
                                 <option value="date">Fecha</option>
                                 <option value="price">Precio</option>

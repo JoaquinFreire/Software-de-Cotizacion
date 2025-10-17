@@ -1,4 +1,4 @@
-using Domain.Entities;
+ using Domain.Entities;
 using Domain.Enums;
 
 namespace Domain.Repositories
@@ -6,8 +6,8 @@ namespace Domain.Repositories
     public interface IBudgetRepository
     {
         Task<List<Budget>> GetAllAsync();
-        Task<Budget> GetByIdAsync(string budgetid); // método para id de mongo
-        Task<Budget> GetByBudgetIdAsync(string budgetId); // método para BudgetId
+        Task<Budget> GetByIdAsync(string budgetid); // mï¿½todo para id de mongo
+        Task<Budget> GetByBudgetIdAsync(string budgetId); // mï¿½todo para BudgetId
         Task<List<Budget>> GetBudgetsByBudgetIdAsync(string budgetId);
         Task AddAsync(Budget entity);
         Task UpdateAsync(string id, Budget entity);

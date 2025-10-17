@@ -5,6 +5,7 @@ import anodalLogo from "../images/anodal_logo.webp";
 import Logonegro from "../images/anodal_logo_Negro.webp";
 import "../styles/navigation.css";
 import "../styles/scrollbar.css";
+import axios from "axios"; // <-- agregado
 
 const Navigation = ({ onLogout }) => {
     const { user, loading } = useContext(UserContext);
@@ -21,7 +22,7 @@ const Navigation = ({ onLogout }) => {
     const adminMenuRef = useRef(null);
 
     const location = useLocation();
-    const navigate = useNavigate(); // Agrega el hook de navegación
+    const navigate = useNavigate();
 
     // Detecta si es móvil
     const isMobile = () => window.innerWidth <= 768;
@@ -41,7 +42,6 @@ const Navigation = ({ onLogout }) => {
     // Cierra el sidebar por defecto en móvil al cambiar de ruta
     useEffect(() => {
         if (isMobile()) setSidebarOpen(false);
-        // Si quieres que en desktop se mantenga el estado, no cambies nada aquí
     }, [location.pathname]);
 
     // Actualiza sidebarOpen si cambia el tamaño de pantalla (desktop <-> mobile)
@@ -57,10 +57,8 @@ const Navigation = ({ onLogout }) => {
     useEffect(() => {
         if (theme === "light") {
             document.body.classList.add("light-mode");
-
         } else {
             document.body.classList.remove("light-mode");
-            <img src={Logonegro} alt="Logo Anodal" />
         }
         localStorage.setItem("theme", theme);
     }, [theme]);
@@ -117,6 +115,111 @@ const Navigation = ({ onLogout }) => {
             setAdminMenuOpen(true);
         }
     }, [location.pathname]);
+
+    // nuevo estado para almacenar usuario traído desde la API (fallback)
+    const [fetchedUser, setFetchedUser] = useState(null);
+    const API_URL = process.env.REACT_APP_API_URL; // <-- agregado
+
+    // Helper: extrae nombre y apellido desde varias posibles keys del objeto user
+    const getUserNameParts = (u) => {
+        if (!u) return { firstName: "", lastName: "" };
+        const firstName =
+            u.name ||
+            u.firstName ||
+            u.firstname ||
+            u.first_name ||
+            u.nombres ||
+            (typeof u.fullName === "string" && u.fullName.split(" ")[0]) ||
+            "";
+        const lastName =
+            u.lastName ||
+            u.last_name ||
+            u.lastname ||
+            u.apellido ||
+            u.apellidos ||
+            u.surname ||
+            (typeof u.fullName === "string" && u.fullName.split(" ").slice(1).join(" ")) ||
+            "";
+        return { firstName, lastName };
+    };
+
+    // Si el contexto no trae apellido, intentar pedir /api/auth/me y guardarlo en fetchedUser
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        // si ya tenemos apellido en contexto no hace falta pedir
+        const ctxHasLastName =
+            user &&
+            (Boolean(user.lastName) ||
+                Boolean(user.last_name) ||
+                Boolean(user.lastname) ||
+                Boolean(user.apellido) ||
+                Boolean(user.apellidos));
+        if (ctxHasLastName) return;
+
+        if (!API_URL) return;
+
+        let mounted = true;
+        (async () => {
+            try {
+                const resp = await axios.get(`${API_URL}/api/auth/me`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const u = resp.data?.user || resp.data;
+                if (mounted && u) setFetchedUser(u);
+            } catch (err) {
+                // no hacer nada crítico si falla
+                console.debug("Navigation: no se pudo obtener user desde API", err);
+            }
+        })();
+        return () => { mounted = false; };
+    }, [user, API_URL]);
+
+    // Función para obtener iniciales a partir del objeto user (combina fetchedUser + contexto)
+    const getInitials = (u) => {
+        const combined = { ...(fetchedUser || {}), ...(u || {}) }; // fetchedUser primero, luego contexto sobreescribe si existe
+        const { firstName, lastName } = getUserNameParts(combined);
+        const firstInitial = firstName ? firstName.charAt(0).toUpperCase() : "U";
+        const lastInitial = lastName ? lastName.charAt(0).toUpperCase() : "";
+        return `${firstInitial}${lastInitial}`;
+    };
+
+    // Componente reutilizable para el menú de usuario (usa nombres normalizados y combinación)
+    const UserMenu = () => {
+        const combined = { ...(fetchedUser || {}), ...(user || {}) };
+        const { firstName, lastName } = getUserNameParts(combined);
+
+        return (
+            <div className="user-menu-container" ref={userMenuRef}>
+                <button
+                    className="user-initials-btn"
+                    title="Usuario"
+                    onClick={() => setUserMenuOpen((prev) => !prev)}
+                    aria-label="Usuario"
+                >
+                    <div className="nav-profile-initials">
+                        {getInitials(user)}
+                    </div>
+                </button>
+                {userMenuOpen && (
+                    <div className="dropdown-menu user-dropdown">
+                        {loading ? (
+                            <p className="user-text">Cargando...</p>
+                        ) : (
+                            <>
+                                <p className="user-text">
+                                    <h2><strong>{firstName} {lastName}</strong></h2>
+                                </p>
+                                <p className="user-text"><h2>Rol: <span>{user?.role || "Sin rol"}</span></h2></p>
+                                <button className="dropdown-link" onClick={() => { setUserMenuOpen(false); navigate('/config-cliente'); }}><h3>Configuración</h3></button>
+                                <button className="dropdown-link" onClick={onLogout}><h3>Cerrar Sesión</h3></button>
+                            </>
+                        )}
+                    </div>
+                )}
+            </div>
+        );
+    };
 
     return (
         <div className="navigation-root">
@@ -179,34 +282,7 @@ const Navigation = ({ onLogout }) => {
                                 </svg>
                             )}
                         </button>
-                        <div className="user-menu-container" ref={userMenuRef}>
-                            <button
-                                className="icon-btn"
-                                title="Usuario"
-                                onClick={() => setUserMenuOpen((prev) => !prev)}
-                                aria-label="Usuario"
-                            >
-                                {/* Usuario SVG */}
-                                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                                    <circle cx="12" cy="8" r="4" stroke="#00FFFF" strokeWidth="2" fill="none" />
-                                    <path d="M4 20c0-3.3137 3.134-6 7-6s7 2.6863 7 6" stroke="#00FFFF" strokeWidth="2" fill="none" />
-                                </svg>
-                            </button>
-                            {userMenuOpen && (
-                                <div className="dropdown-menu user-dropdown">
-                                    {loading ? (
-                                        <p className="user-text">Cargando...</p>
-                                    ) : (
-                                        <>
-                                            <p className="user-text"><strong>{user?.name || "Desconocido"}</strong></p>
-                                            <p className="user-text">Rol: <span>{user?.role || "Sin rol"}</span></p>
-                                            <button className="dropdown-link" onClick={() => { /* Configuración futura */ }}>Configuración</button>
-                                            <button className="dropdown-link" onClick={onLogout}>Cerrar Sesión</button>
-                                        </>
-                                    )}
-                                </div>
-                            )}
-                        </div>
+                        <UserMenu />
                     </div>
                 )}
                 {/* Botones a la derecha solo en desktop */}
@@ -257,34 +333,7 @@ const Navigation = ({ onLogout }) => {
                                 </svg>
                             )}
                         </button>
-                        <div className="user-menu-container" ref={userMenuRef}>
-                            <button
-                                className="icon-btn"
-                                title="Usuario"
-                                onClick={() => setUserMenuOpen((prev) => !prev)}
-                                aria-label="Usuario"
-                            >
-                                {/* Usuario SVG */}
-                                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                                    <circle cx="12" cy="8" r="4" stroke="#00FFFF" strokeWidth="2" fill="none" />
-                                    <path d="M4 20c0-3.3137 3.134-6 7-6s7 2.6863 7 6" stroke="#00FFFF" strokeWidth="2" fill="none" />
-                                </svg>
-                            </button>
-                            {userMenuOpen && (
-                                <div className="dropdown-menu user-dropdown">
-                                    {loading ? (
-                                        <p className="user-text">Cargando...</p>
-                                    ) : (
-                                        <>
-                                            <p className="user-text"><strong>{user?.name || "Desconocido"}</strong></p>
-                                            <p className="user-text">Rol: <span>{user?.role || "Sin rol"}</span></p>
-                                            <button className="dropdown-link" onClick={() => { /* Configuración futura */ }}>Configuración</button>
-                                            <button className="dropdown-link" onClick={onLogout}>Cerrar Sesión</button>
-                                        </>
-                                    )}
-                                </div>
-                            )}
-                        </div>
+                        <UserMenu />
                     </div>
                 )}
             </header>
@@ -295,7 +344,6 @@ const Navigation = ({ onLogout }) => {
                 style={{
                     width: sidebarOpen ? "250px" : "0px",
                     backgroundColor: theme === "light" ? "#ffffffff" : "#121212",
-    
                 }}
             >
                 <button
@@ -352,7 +400,6 @@ const Navigation = ({ onLogout }) => {
                                 <NavLink to="/admin/materiales" className="sidebar-link">Administrar Materiales</NavLink>
                                 <NavLink to="/admin/prices" className="sidebar-link">Administrar Precios/Desc</NavLink>
                                 <NavLink to="/admin/aberturas" className="sidebar-link">Administrar Aberturas</NavLink>
-                                
                             </div>
                         )}
                     </div>

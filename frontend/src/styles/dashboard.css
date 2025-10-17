@@ -196,30 +196,22 @@ body.light-mode .dashboard-title {
 .filter-input,
 .filter-select {
     width: 100%;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: #2d2d2d;
+    border: 1px solid rgba(0, 0, 0, 0.2);
     color: white;
     border-radius: 6px;
-    padding: 0.75rem;
+    padding: 0.61rem;
     font-size: 0.9rem;
     transition: all 0.3s ease;
+    width: calc(20% - 10px);
 }
+
 
 .filter-input::placeholder {
     color: #94a3b8;
 }
 
-.filter-input:focus,
-.filter-select:focus {
-    outline: none;
-    border-color: #26b7cd;
-    box-shadow: 0 0 0 2px rgba(38, 183, 205, 0.2);
-}
 
-.filter-select option {
-    background: #0c7477;
-    color: white;
-}
 
 /* Botones de Filtros */
 .filters-actions {

@@ -81,6 +81,8 @@ const Dashboard = () => {
         key: null,
         direction: 'asc'
     });
+       const [orderField, setOrderField] = useState('');
+        const [orderDirection, setOrderDirection] = useState('desc');
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -464,7 +466,29 @@ const Dashboard = () => {
                                 />
                             </div>
                         </div>
-
+                        <div className="order-fields" style={{marginTop: 20, marginBottom: 10}}>
+                            <label style={{ marginBottom: 16, display: 'flex', color: '#a49b9b' }}>Ordenar por:</label>
+                            <select
+                                value={orderField}
+                                onChange={e => setOrderField(e.target.value)}
+                                className="filter-select"
+                                style={{marginRight: 10}}
+                            >   
+                                
+                                <option value="">Sin orden</option>
+                                <option value="date">Fecha</option>
+                                <option value="price">Precio</option>
+                                <option value="customer">Cliente</option>
+                            </select>
+                            <select
+                                value={orderDirection}
+                                onChange={e => setOrderDirection(e.target.value)}
+                                className="filter-select"
+                            >
+                                <option value="asc">Ascendente</option>
+                                <option value="desc">Descendente</option>
+                            </select>
+                        </div>
                         <div className="filters-actions">
                             <button type="submit" className="btn-primary">
                                 <Search size={16} />
