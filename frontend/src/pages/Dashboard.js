@@ -76,6 +76,12 @@ const Dashboard = () => {
     const [currentRole, setCurrentRole] = useState(null);
     const [quotators, setQuotators] = useState([]);
 
+    // Estados para ordenamiento
+    const [sortConfig, setSortConfig] = useState({
+        key: null,
+        direction: 'asc'
+    });
+
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) return;
@@ -250,6 +256,11 @@ const Dashboard = () => {
         if (currentRole === "quotator") {
             delete params.userId;
         }
+        // Agrega los parámetros de ordenamiento
+        if (sortConfig.key) {
+            params.sortKey = sortConfig.key;
+            params.sortDirection = sortConfig.direction;
+        }
         try {
             const res = await axios.get(`${API_URL}/api/quotations/advanced-search`, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -302,6 +313,26 @@ const Dashboard = () => {
         setLastEditFromDate(e.value);
         setFilters({ ...filters, lastEditFrom: e.value ? e.value.toISOString().slice(0, 10) : "" });
     };
+
+    // Modifica handleSort para que actualice los filtros si están activos
+    const handleSort = (key) => {
+        setSortConfig(prevConfig => {
+            const newConfig = prevConfig.key === key
+                ? { key, direction: prevConfig.direction === 'asc' ? 'desc' : 'asc' }
+                : { key, direction: 'asc' };
+            // Si hay filtros activos, vuelve a pedir los datos ordenados
+            if (isFiltering) {
+                fetchFilteredQuotations(filterPage);
+            }
+            return newConfig;
+        });
+    };
+
+    // Elimina el ordenamiento local cuando hay filtros activos
+    // const quotationsToShow = isFiltering ? filterResults : filteredQuotations;
+    const quotationsToShow = isFiltering
+        ? filterResults
+        : filteredQuotations;
 
     return (
         <div className="dashboard-container">
@@ -476,7 +507,7 @@ const Dashboard = () => {
                 ) : (
                     <>
                         <QuotationList
-                            quotations={isFiltering ? filterResults : filteredQuotations}
+                            quotations={quotationsToShow}
                             onDelete={handleDelete}
                             onStatusChange={handleStatusChange}
                             showModal={showModal}

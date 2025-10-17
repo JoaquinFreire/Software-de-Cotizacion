@@ -69,6 +69,71 @@ input, select {
     margin-bottom: 0.7rem;
     gap: 1rem;
 }
+
+/* Controles de Ordenamiento */
+.sorting-controls {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.sorting-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.sort-buttons {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.sort-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid #dee2e6;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+    color: #495057;
+}
+
+.sort-button:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.sort-button.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.sort-button.active:hover {
+    background: #0056b3;
+    border-color: #0056b3;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sort-buttons {
+        flex-direction: column;
+    }
+    
+    .sort-button {
+        justify-content: center;
+    }
+}
 @media (max-width: 768px) {
     .dashboard-container {
         padding: 0 2vw;

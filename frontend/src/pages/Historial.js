@@ -17,7 +17,7 @@ import 'primereact/resources/themes/saga-blue/theme.css'; // PrimeReact theme
 import 'primereact/resources/primereact.min.css';         // PrimeReact core css
 import 'primeicons/primeicons.css';                       // PrimeIcons
 import { safeArray } from '../utils/safeArray'; // agrega este import
-import { Filter, X, Search, RotateCcw } from 'lucide-react';
+import { Filter, X, Search, RotateCcw, ArrowUpDown, Calendar as CalendarIcon, DollarSign, User } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -65,6 +65,10 @@ const Historial = () => {
     // null indica que todavía no cargó el rol (evita flash en la UI)
     const [currentRole, setCurrentRole] = useState(null);
     const [quotators, setQuotators] = useState([]);
+
+    // Estados para ordenamiento (ahora solo para el filtro)
+    const [orderField, setOrderField] = useState('');
+    const [orderDirection, setOrderDirection] = useState('desc');
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -249,8 +253,15 @@ const Historial = () => {
         Object.keys(params).forEach(k => {
             if (!params[k]) delete params[k];
         });
-        // Si el usuario actual es quotator, no enviar userId (el backend filtrará)
+        // Si el usuario currentRole es quotator, no enviar userId (el backend filtrará)
         if (currentRole === "quotator") delete params.userId;
+
+        // Agrega los parámetros de ordenamiento SOLO cuando se aplica el filtro
+        if (orderField) {
+            params.sortKey = orderField;
+            params.sortDirection = orderDirection;
+        }
+
         try {
             const res = await axios.get(`${API_URL}/api/quotations/advanced-search`, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -280,6 +291,8 @@ const Historial = () => {
             userId: "",
             customerDni: ""
         });
+        setOrderField('');
+        setOrderDirection('desc');
         setIsFiltering(false);
         setFilterResults([]);
         setFilterTotal(0);
@@ -305,169 +318,196 @@ const Historial = () => {
         setFilters({ ...filters, lastEditFrom: e.value ? e.value.toISOString().slice(0, 10) : "" });
     };
 
+    // Determina qué cotizaciones mostrar según el estado de filtrado
+    const quotationsToShow = isFiltering ? filterResults : filteredQuotations;
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
             
-           <div className="materials-header">
+            <div className="materials-header">
                 <h2 className="materials-title">Todas las Cotizaciones</h2>
                 <p className="materials-subtitle">
                     Explore el historial completo de cotizaciones, aplique filtros avanzados para encontrar cotizaciones específicas y gestione su estado fácilmente.</p>
-                </div>
+            </div>
   
             <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
 
             <div className="advanced-filters-container">
-    <div className="filters-header">
-        <button
-            type="button"
-            className="filters-toggle-btn"
-            onClick={() => setShowFilters(!showFilters)}
-        >
-            <Filter size={18} />
-            <span>Filtros Avanzados</span>
-            <div className={`toggle-arrow ${showFilters ? 'open' : ''}`}>▼</div>
-        </button>
-        <span className="stat-badge">
-                         {isFiltering ? filterTotal : total} cotizaciones
-                         </span>
-        {isFiltering && (
-            <div className="active-filters-indicator">
-                <span>Filtros activos</span>
-                <button 
-                    onClick={handleClearFilters}
-                    className="clear-filters-btn"
-                >
-                    <X size={14} />
-                    Limpiar
-                </button>
-            </div>
-        )}
-    </div>
-
-    {showFilters && (
-        <form onSubmit={handleFilterSubmit} className="filters-form">
-            <div className="filters-grid">
-                <div className="filter-group">
-                    <label>Rango de Fechas</label>
-                    <div className="date-filters">
-                        <div className="date-input">
-                            <Calendar
-                                value={date}
-                                onChange={handleCalendarChange}
-                                showIcon
-                                dateFormat="dd/mm/yy"
-                                placeholder="Desde"
-                                locale="es"
-                                className="calendar-input"
-                            />
-                        </div>
-                        <div className="date-input">
-                            <Calendar
-                                value={toDate}
-                                onChange={handleToCalendarChange}
-                                showIcon
-                                dateFormat="dd/mm/yy"
-                                placeholder="Hasta"
-                                locale="es"
-                                className="calendar-input"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="filter-group">
-                    <label>Última Edición</label>
-                    <div className="date-input">
-                        <Calendar
-                            value={lastEditFromDate}
-                            onChange={handleLastEditFromCalendarChange}
-                            showIcon
-                            dateFormat="dd/mm/yy"
-                            placeholder="Desde"
-                            locale="es"
-                            className="calendar-input"
-                        />
-                    </div>
-                </div>
-
-                <div className="filter-group">
-                    <label>Estado</label>
-                    <select
-                        name="status"
-                        value={filters.status}
-                        onChange={handleFilterChange}
-                        className="filter-select"
+                <div className="filters-header">
+                    <button
+                        type="button"
+                        className="filters-toggle-btn"
+                        onClick={() => setShowFilters(!showFilters)}
                     >
-                        <option value="">Todos los estados</option>
-                        <option value="pending">Pendientes</option>
-                        <option value="approved">Aprobados</option>
-                        <option value="rejected">Rechazado</option>
-                        <option value="finished">Finalizado</option>
-                    </select>
+                        <Filter size={18} />
+                        <span>Filtros Avanzados</span>
+                        <div className={`toggle-arrow ${showFilters ? 'open' : ''}`}>▼</div>
+                    </button>
+                    <span className="stat-badge">
+                        {isFiltering ? filterTotal : total} cotizaciones
+                    </span>
+                    {isFiltering && (
+                        <div className="active-filters-indicator">
+                            <span>Filtros activos</span>
+                            <button 
+                                onClick={handleClearFilters}
+                                className="clear-filters-btn"
+                            >
+                                <X size={14} />
+                                Limpiar
+                            </button>
+                        </div>
+                    )}
                 </div>
 
-                <div className="filter-group">
-                    <label>Precio Total</label>
-                    <input
-                        type="number"
-                        name="approxTotalPrice"
-                        value={filters.approxTotalPrice}
-                        onChange={handleFilterChange}
-                        placeholder="Monto aproximado"
-                        className="filter-input"
-                    />
-                </div>
+                {showFilters && (
+                    <form onSubmit={handleFilterSubmit} className="filters-form">
+                        <div className="filters-grid">
+                            <div className="filter-group">
+                                <label>Rango de Fechas</label>
+                                <div className="date-filters">
+                                    <div className="date-input">
+                                        <Calendar
+                                            value={date}
+                                            onChange={handleCalendarChange}
+                                            showIcon
+                                            dateFormat="dd/mm/yy"
+                                            placeholder="Desde"
+                                            locale="es"
+                                            className="calendar-input"
+                                        />
+                                    </div>
+                                    <div className="date-input">
+                                        <Calendar
+                                            value={toDate}
+                                            onChange={handleToCalendarChange}
+                                            showIcon
+                                            dateFormat="dd/mm/yy"
+                                            placeholder="Hasta"
+                                            locale="es"
+                                            className="calendar-input"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
 
-                {currentRole !== null && currentRole !== "quotator" && (
-                    <div className="filter-group">
-                        <label>Cotizador</label>
-                        <select
-                            name="userId"
-                            value={filters.userId}
-                            onChange={handleFilterChange}
-                            className="filter-select"
-                        >
-                            <option value="">Todos los cotizadores</option>
-                            {quotators.map(u => (
-                                <option key={u.id} value={u.id}>
-                                    {`${u.name || ""} ${u.lastname || ""}`.trim()}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                            <div className="filter-group">
+                                <label>Última Edición</label>
+                                <div className="date-input">
+                                    <Calendar
+                                        value={lastEditFromDate}
+                                        onChange={handleLastEditFromCalendarChange}
+                                        showIcon
+                                        dateFormat="dd/mm/yy"
+                                        placeholder="Desde"
+                                        locale="es"
+                                        className="calendar-input"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="filter-group">
+                                <label>Estado</label>
+                                <select
+                                    name="status"
+                                    value={filters.status}
+                                    onChange={handleFilterChange}
+                                    className="filter-select"
+                                >
+                                    <option value="">Todos los estados</option>
+                                    <option value="pending">Pendientes</option>
+                                    <option value="approved">Aprobados</option>
+                                    <option value="rejected">Rechazado</option>
+                                    <option value="finished">Finalizado</option>
+                                </select>
+                            </div>
+
+                            <div className="filter-group">
+                                <label>Precio Total</label>
+                                <input
+                                    type="number"
+                                    name="approxTotalPrice"
+                                    value={filters.approxTotalPrice}
+                                    onChange={handleFilterChange}
+                                    placeholder="Monto aproximado"
+                                    className="filter-input"
+                                />
+                            </div>
+
+                            {currentRole !== null && currentRole !== "quotator" && (
+                                <div className="filter-group">
+                                    <label>Cotizador</label>
+                                    <select
+                                        name="userId"
+                                        value={filters.userId}
+                                        onChange={handleFilterChange}
+                                        className="filter-select"
+                                    >
+                                        <option value="">Todos los cotizadores</option>
+                                        {quotators.map(u => (
+                                            <option key={u.id} value={u.id}>
+                                                {`${u.name || ""} ${u.lastname || ""}`.trim()}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
+                            <div className="filter-group">
+                                <label>DNI Cliente</label>
+                                <input
+                                    type="text"
+                                    name="customerDni"
+                                    value={filters.customerDni}
+                                    onChange={handleFilterChange}
+                                    placeholder="Número de DNI"
+                                    className="filter-input"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Selects para ordenamiento */}
+                        <div className="order-fields" style={{marginTop: 20, marginBottom: 10}}>
+                            <label style={{marginRight: 10}}>Ordenar por:</label>
+                            <select
+                                value={orderField}
+                                onChange={e => setOrderField(e.target.value)}
+                                className="filter-select"
+                                style={{marginRight: 10}}
+                            >
+                                <option value="">Sin orden</option>
+                                <option value="date">Fecha</option>
+                                <option value="price">Precio</option>
+                                <option value="customer">Cliente</option>
+                            </select>
+                            <select
+                                value={orderDirection}
+                                onChange={e => setOrderDirection(e.target.value)}
+                                className="filter-select"
+                            >
+                                <option value="asc">Ascendente</option>
+                                <option value="desc">Descendente</option>
+                            </select>
+                        </div>
+
+                        <div className="filters-actions">
+                            <button type="submit" className="btn-primary">
+                                <Search size={16} />
+                                Aplicar Filtros
+                            </button>
+                            <button 
+                                type="button" 
+                                onClick={handleClearFilters}
+                                className="btn-secondary"
+                            >
+                                <RotateCcw size={16} />
+                                Limpiar
+                            </button>
+                        </div>
+                    </form>
                 )}
-
-                <div className="filter-group">
-                    <label>DNI Cliente</label>
-                    <input
-                        type="text"
-                        name="customerDni"
-                        value={filters.customerDni}
-                        onChange={handleFilterChange}
-                        placeholder="Número de DNI"
-                        className="filter-input"
-                    />
-                </div>
             </div>
-
-            <div className="filters-actions">
-                <button type="submit" className="btn-primary">
-                    <Search size={16} />
-                    Aplicar Filtros
-                </button>
-                <button 
-                    type="button" 
-                    onClick={handleClearFilters}
-                    className="btn-secondary"
-                >
-                    <RotateCcw size={16} />
-                    Limpiar
-                </button>
-            </div>
-        </form>
-    )}
-</div>
 
             {loading && !isFiltering ? (
                 <div className="quote-container">
@@ -499,7 +539,7 @@ const Historial = () => {
             ) : (
                 <>
                     <QuotationList
-                        quotations={isFiltering ? filterResults : filteredQuotations}
+                        quotations={quotationsToShow}
                         onDelete={handleDelete}
                         onStatusChange={handleStatusChange}
                         showModal={showModal}
