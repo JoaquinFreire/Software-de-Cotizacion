@@ -190,7 +190,7 @@
 
 /* Secciones del Formulario */
 .config-section {
-	background: white;
+	background: rgba(225, 228, 227, 0.911);
 	border: 1px solid #dadce0;
 	border-radius: 8px;
 	padding: 24px;
@@ -242,11 +242,6 @@
 	box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
 }
 
-.form-input.readonly {
-	background: #f8f9fa;
-	color: #5f6368;
-	cursor: not-allowed;
-}
 
 /* Campos Dinámicos */
 .dynamic-field-group {
