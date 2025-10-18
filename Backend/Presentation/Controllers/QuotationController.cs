@@ -1,9 +1,7 @@
-using Application.DTOs.BudgetDTOs.ChangeBudgetStatus;
 using Application.DTOs.QuotationDTOs; // Agrega el using para los DTOs
-using Application.DTOs.QuotationDTOs.ChangeQuotationUser;
-using Application.DTOs.UserDTOs.UpdateUser;
 using Application.Services;
 using Application.UseCases;
+using Application.DTOs.BudgetDTOs.ChangeBudgetStatus;
 using Domain.Entities;
 using Domain.Repositories;
 using MediatR; // Agrega el using para MediatR
@@ -11,7 +9,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq; // <-- agregado
 using System.Security.Claims; // <- agregar para leer claims
 using System.Threading.Tasks;
 
@@ -283,33 +280,11 @@ public class QuotationController : ControllerBase
     public async Task<IActionResult> GetByPeriod([FromQuery] DateTime from, [FromQuery] DateTime to, [FromQuery] int? userId = null)
     {
         var quotations = await _quotationRepository.GetByPeriodAsync(from, to);
-
-        // Obtener rol e id del token
-        var roleClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-
-        if (!string.IsNullOrEmpty(roleClaim) && roleClaim.ToLower() == "quotator")
+        // Si se solicita filtrar por cotizador, aplicar filtro aquí (no afecta llamadas existentes)
+        if (userId.HasValue)
         {
-            // Si es quotator, forzar filtro para devolver solo sus cotizaciones
-            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out var parsedId))
-            {
-                quotations = quotations.Where(q => q.UserId == parsedId).ToList();
-            }
-            else
-            {
-                // Si no se puede resolver el id, devolver lista vacía por seguridad
-                quotations = new List<Domain.Entities.Quotation>();
-            }
+            quotations = quotations.Where(q => q.UserId == userId.Value).ToList();
         }
-        else
-        {
-            // Si el llamado incluye userId (coordinator/manager), permitir filtrar
-            if (userId.HasValue)
-            {
-                quotations = quotations.Where(q => q.UserId == userId.Value).ToList();
-            }
-        }
-
         return Ok(quotations);
     }
 
@@ -432,25 +407,6 @@ public class QuotationController : ControllerBase
         };
         var result = await _mediator.Send(query);
         return Ok(result);
-    }
-
-    [HttpPut("update/user")]
-    public async Task<IActionResult> UpdateQuotationUser([FromQuery] int QuotationId, [FromQuery] int newUserId)
-    {
-        if (QuotationId <= 0 || newUserId <= 0)
-        {
-            return BadRequest("Parámetros inválidos.");
-        }
-        var command = await _mediator.Send(new ChangeQuotationUserCommand { id = QuotationId, UserId = newUserId });
-
-        if (command)
-        {
-            return Ok(new { message = "Usuario de cotización actualizado exitosamente" });
-        }
-        else
-        {
-            return NotFound(new { message = "No se encontró la cotización o ocurrió un error" });
-        }
     }
 }
 

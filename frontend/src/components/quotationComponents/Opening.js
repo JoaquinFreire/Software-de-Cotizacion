@@ -104,8 +104,7 @@ const OpeningType = ({
             numPanelsHeight: numPanelsHeight,
             // guardamos tamaño de panel en cm calculado en función de la cantidad
             panelWidth: anchoPanelCmComputed || undefined,
-            panelHeight: altoPanelCmComputed || undefined,
-            mosquito: openingForm.mosquito ? true : false // <-- nuevo campo
+            panelHeight: altoPanelCmComputed || undefined
         };
         if (existingOpening) {
             setSelectedOpenings((prev) =>
@@ -123,7 +122,7 @@ const OpeningType = ({
             ]);
             if (onLogOpening) onLogOpening(newOpening);
         }
-        setOpeningForm({ typeId: '', widthCm: '', heightCm: '', quantity: 1, treatmentId: '', glassTypeId: '', numPanelsWidth: undefined, numPanelsHeight: undefined, mosquito: false });
+        setOpeningForm({ typeId: '', widthCm: '', heightCm: '', quantity: 1, treatmentId: '', glassTypeId: '', numPanelsWidth: undefined, numPanelsHeight: undefined });
     };
 
     const handleInputChange = (field, value) => {
@@ -308,17 +307,6 @@ const OpeningType = ({
                     ))}
                 </select>
                 {errors.glassTypeId && <span className="error-message">{errors.glassTypeId}</span>}
-            </div>
-            <div className="form-group">
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={!!openingForm.mosquito}
-                        onChange={e => handleInputChange("mosquito", e.target.checked)}
-                        style={{ marginRight: 8 }}
-                    />
-                    Tela mosquitera (agrega precio por m²)
-                </label>
             </div>
             <button className="botton-carusel" type="button" onClick={handleAddOpening}>
                 Agregar Abertura

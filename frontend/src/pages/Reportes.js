@@ -76,11 +76,11 @@ const reportCards = [
         color: "#64748b"
     },
     {
-        title: "Carga de trabajo del equipo de cotización",
-        description: "Análisis de cotizaciónes pendientes",
+        title: "Reporte de Variación de Precios",
+        description: "Análisis de cambios en precios",
         icon: <User size={32} />,
         className: "reporte-productividad-vendedor",
-        route: "/operational-dashboard",
+        route: "/reportes/productividad-vendedor",
         color: "#f97316"
     },
     {
@@ -108,7 +108,7 @@ const reportCards = [
         color: "#6366f1"
     },
     {
-        title: "Trazabilidad de cotizaciones",
+        title: "Análisis de Ciclo de Vida de los Proyectos",
         description: "Duración y etapas de proyectos",
         icon: <Layers size={32} />,
         className: "reporte-ciclo-vida",

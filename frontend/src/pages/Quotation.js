@@ -101,7 +101,6 @@ const Quotation = () => {
     const [alumPrice, setAlumPrice] = useState(0);
     const [labourPrice, setLabourPrice] = useState(0);
     const [taxRate, setTaxRate] = useState(0); // <-- nuevo estado para IVA
-    const [mosquitoPrice, setMosquitoPrice] = useState(0); // <-- nuevo estado para tela mosquitera
 
     // Nuevo estado para mostrar el log de cálculo de abertura solo una vez
     const [lastOpeningLog, setLastOpeningLog] = useState(null);
@@ -300,10 +299,6 @@ const Quotation = () => {
                 );
                 setLabourPrice(labour ? Number(labour.price) : 0);
 
-                // Tela mosquitera (id 7 o por nombre)
-                const mosquitoEntry = prices.find(p => p.name?.toLowerCase().includes("tela mosquitera") || String(p.id) === "7");
-                setMosquitoPrice(mosquitoEntry ? Number(mosquitoEntry.price) : 0);
-                
                 // extraer tasa de IVA (por nombre o por id si corresponde)
                 const ivaEntry = prices.find(p => p.name?.toLowerCase().includes("iva") || String(p.id) === "4");
                 setTaxRate(ivaEntry ? Number(ivaEntry.price) : 0);
@@ -623,10 +618,28 @@ const Quotation = () => {
                 const widthMM = widthCm * 10;
                 const heightMM = heightCm * 10;
 
-                const totalPanels = (opening.numPanelsWidth || 1) * (opening.numPanelsHeight || 1);
+                // buscar configuración con mm
+                const cfg = safeArray(openingConfigurations).find(c =>
+                    Number(c.opening_type_id) === Number(opening.typeId) &&
+                    widthMM >= c.min_width_mm &&
+                    widthMM <= c.max_width_mm &&
+                    heightMM >= c.min_height_mm &&
+                    heightMM <= c.max_height_mm
+                );
+                const numW = opening.numPanelsWidth || (cfg ? cfg.num_panels_width : 1);
+                const numH = opening.numPanelsHeight || (cfg ? cfg.num_panels_height : 1);
+
+                // panel sizes en cm
+                const panelWidthCm = opening.panelWidth ? Number(opening.panelWidth) : (widthCm / numW);
+                const panelHeightCm = opening.panelHeight ? Number(opening.panelHeight) : (heightCm / numH);
+
+                const panelWidthMM = panelWidthCm * 10;
+                const panelHeightMM = panelHeightCm * 10;
+
+                const totalPanels = numW * numH;
 
                 // cálculo aluminio (siguiendo la lógica del frontend)
-                const perimetroPanelMM = 2 * (widthMM + heightMM);
+                const perimetroPanelMM = 2 * (panelWidthMM + panelHeightMM);
                 const totalAluminioMM = perimetroPanelMM * totalPanels * (opening.quantity || 1);
                 const totalAluminioM = totalAluminioMM / 1000;
                 const openingTypeObj = safeArray(openingTypes).find(t => Number(t.id) === Number(opening.typeId));
@@ -634,26 +647,20 @@ const Quotation = () => {
                 const costoAluminio = pesoAluminio * Number(alumPrice || 0);
 
                 // vidrio
-                const areaPanelM2 = (widthMM / 1000) * (heightMM / 1000);
-                const areaTotalVidrioPerUnit = areaPanelM2 * totalPanels; // per unit
-                const areaTotalVidrio = areaTotalVidrioPerUnit * (opening.quantity || 1);
+                const areaPanelM2 = (panelWidthMM / 1000) * (panelHeightMM / 1000);
+                const areaTotalVidrio = areaPanelM2 * totalPanels * (opening.quantity || 1);
                 const glassObj = safeArray(glassTypes).find(g => Number(g.id) === Number(opening.glassTypeId));
-                const costoVidrio = glassObj ? areaTotalVidrioPerUnit * Number(glassObj.price || 0) : 0;
-
-                // Mosquitera por unidad (si fue marcada en el formulario)
-                const mosquitoSelected = !!opening.mosquito;
-                const costoMosquitera = mosquitoSelected ? areaTotalVidrioPerUnit * Number(mosquitoPrice || 0) : 0;
+                const costoVidrio = glassObj ? areaTotalVidrio * Number(glassObj.price || 0) : 0;
 
                 // tratamiento
                 const treatmentObj = safeArray(treatments).find(t => Number(t.id) === Number(opening.treatmentId));
                 const tratamientoPorc = treatmentObj && treatmentObj.pricePercentage ? Number(treatmentObj.pricePercentage) : 0;
                 const costoTratamiento = costoAluminio * (tratamientoPorc / 100);
 
-                // MANO DE OBRA POR KILO - MODIFICADO
-                const costoManoObra = pesoAluminio * Number(labourPrice || 0);
+                const costoManoObra = Number(labourPrice || 0);
 
                 // Build product payload, IMPORTANT: width & height sent in CENTIMETERS
-                const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra + costoMosquitera;
+                const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
                 const quantity = Number(opening.quantity || 1);
 
                 return {
@@ -662,15 +669,13 @@ const Quotation = () => {
                         : { name: "" },
                     Quantity: quantity,
                     AlumTreatment: treatmentObj ? { name: treatmentObj.name } : { name: "" },
-                    // enviar precio como "price" (minúscula) para coincidir con el schema backend/frontend
-                    GlassType: glassObj ? { name: glassObj.name, price: Number(glassObj.price || 0) } : { name: "", price: 0 },
-                    Mosquito: mosquitoSelected ? { selected: true, price: Number(mosquitoPrice || 0) } : { selected: false },
+                    GlassType: glassObj ? { name: glassObj.name, Price: Number(glassObj.price || 0) } : { name: "", Price: 0 },
                     width: Number(widthCm),
                     height: Number(heightCm),
-                    WidthPanelQuantity: Number(opening.numPanelsWidth),
-                    HeightPanelQuantity: Number(opening.numPanelsHeight),
-                    PanelWidth: Number((widthCm / opening.numPanelsWidth).toFixed(2)),
-                    PanelHeight: Number((heightCm / opening.numPanelsHeight).toFixed(2)),
+                    WidthPanelQuantity: Number(numW),
+                    HeightPanelQuantity: Number(numH),
+                    PanelWidth: Number(panelWidthCm.toFixed(2)),
+                    PanelHeight: Number(panelHeightCm.toFixed(2)),
                     Accesory: (opening.accesories || opening.custom?.accesories || []).map(a => ({
                         Name: a.name || a.Name || '',
                         Quantity: Number(a.quantity || a.Quantity || 0),
@@ -751,7 +756,7 @@ const Quotation = () => {
         return type ? (type.name || type.type) : '';
     };
 
-    // --- Cálculo de subtotal de abertura - MODIFICADO PARA MANO DE OBRA POR KILO ---
+    // --- Cálculo de subtotal de abertura ---
     const getOpeningSubtotal = (opening, logOnce = false) => {
         const configsArr = safeArray(openingConfigurations);
         // Opening.width/height stored in cm -> convertir a mm para buscar config
@@ -800,50 +805,56 @@ const Quotation = () => {
         const glassType = safeArray(glassTypes).find(g => Number(g.id) === Number(opening.glassTypeId));
         const costoVidrio = glassType ? areaTotalVidrio * Number(glassType.price) : 0;
 
-        // --- MOSQUITERA: costo por unidad (si está marcada) ---
-        const mosquitoSelected = !!opening.mosquito;
-        const costoMosquitera = mosquitoSelected ? areaTotalVidrio * Number(mosquitoPrice || 0) : 0;
-
         // Paso 4 — Aplicar tratamiento aluminio
         const treatment = safeArray(treatments).find(t => Number(t.id) === Number(opening.treatmentId));
         const tratamientoPorc = treatment && treatment.pricePercentage ? Number(treatment.pricePercentage) : 0;
         const costoTratamiento = costoAluminio * (tratamientoPorc / 100);
 
-        // Paso 5 — Sumar mano de obra POR KILO - MODIFICADO
-        const costoManoObra = pesoAluminio * Number(labourPrice || 0);
+        // Paso 5 — Sumar mano de obra
+        const costoManoObra = labourPrice;
 
-        // Build product payload, IMPORTANT: width & height sent in CENTIMETERS
-        // Incluir costo de mosquitera en subtotal
-        const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra + costoMosquitera;
-        const quantity = Number(opening.quantity || 1);
-        const panelWidthCm = opening.panelWidth ? Number(opening.panelWidth) : (Number(opening.width || 0) / (opening.numPanelsWidth || 1));
-        const panelHeightCm = opening.panelHeight ? Number(opening.panelHeight) : (Number(opening.height || 0) / (opening.numPanelsHeight || 1));
-        // mosquitoSelected ya fue declarada arriba; no redeclarar aquí
+        // Paso 6 — Subtotal (sin IVA) por UNA abertura
+        const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
 
-        // Devolver JSX con desglose (se usa directamente en el render del resumen)
+        // LOG DETALLADO DEL PROCESO SOLO SI logOnce === true
+        if (logOnce) {
+            const logMsg = [
+                "==== CÁLCULO DE ABERTURA (FRONTEND) ====",
+                "Abertura:", opening,
+                "Config encontrada:", config,
+                "Paso 1 — Paneles: numPanelsWidth:", numPanelsWidth, "numPanelsHeight:", numPanelsHeight, "totalPanels:", totalPanels,
+                "Paso 2 — Aluminio: anchoPanel(mm):", anchoPanelMM, "altoPanel(mm):", altoPanelMM,
+                "Perímetro panel (mm):", perimetroPanelMM,
+                "Total aluminio (mm):", totalAluminioMM, "Total aluminio (m):", totalAluminioM,
+                "Peso aluminio (kg):", pesoAluminio, "weight:", openingType?.weight,
+                "Precio aluminio unitario:", alumPrice,
+                "Costo aluminio:", costoAluminio,
+                "Paso 3 — Vidrio: área panel (m2):", areaPanelM2, "Área total vidrio (m2):", areaTotalVidrio,
+                "Precio vidrio unitario:", glassType?.price, "Costo vidrio:", costoVidrio,
+                "Paso 4 — Tratamiento: %:", tratamientoPorc, "Costo tratamiento:", costoTratamiento,
+                "Paso 5 — Mano de obra:", costoManoObra,
+                "Paso 6 — Subtotal:", subtotal
+            ];
+            // calcular IVA y total front-end (para comparar con backend)
+            const iva = taxRate || 0;
+            const ivaAmount = subtotal * (iva / 100);
+            const totalWithIva = subtotal + ivaAmount;
+            logMsg.push(`IVA (frontend detectado): ${iva}% -> Monto IVA: ${ivaAmount}`);
+            logMsg.push(`Total (subtotal + IVA) (frontend): ${totalWithIva}`);
+            setLastOpeningLog(logMsg);
+            logMsg.forEach(line => console.log(line));
+        }
+
         return (
             <>
-                <div style={{ fontSize: '12px', lineHeight: '1.4' }}>
-                    <div><strong>Desglose por unidad:</strong></div>
-                    <div>• Aluminio: {pesoAluminio.toFixed(2)} kg × ${alumPrice.toFixed(2)} = ${costoAluminio.toFixed(2)}</div>
-                    <div>• Tratamiento ({tratamientoPorc}%): ${costoTratamiento.toFixed(2)}</div>
-                    <div>• Vidrio: {areaTotalVidrio.toFixed(3)} m² × ${glassType?.price?.toFixed(2) || '0.00'} = ${costoVidrio.toFixed(2)}</div>
-                    {mosquitoSelected && (
-                        <div>• Tela mosquitera: {areaTotalVidrio.toFixed(3)} m² × ${Number(mosquitoPrice || 0).toFixed(2)} = ${costoMosquitera.toFixed(2)}</div>
-                    )}
-                    <div>• Mano obra: {pesoAluminio.toFixed(2)} kg × ${labourPrice.toFixed(2)} = ${costoManoObra.toFixed(2)}</div>
-                    <div style={{ borderTop: '1px solid #ddd', marginTop: '4px', paddingTop: '4px', fontWeight: 'bold' }}>
-                        Subtotal unidad: ${subtotal.toFixed(2)}
-                    </div>
-                    <div style={{ fontSize: '11px', color: '#666' }}>
-                        Cantidad: {quantity} → Total: ${(subtotal * quantity).toFixed(2)}
-                    </div>
+                <div>
+                    Aluminio: ${costoAluminio.toFixed(2)}, Tratamiento: ${costoTratamiento.toFixed(2)}, Vidrio: ${costoVidrio.toFixed(2)}, Mano de obra: ${costoManoObra.toFixed(2)}, Subtotal: ${subtotal.toFixed(2)}
                 </div>
             </>
         );
     };
 
-    // --- Total de aberturas - MODIFICADO PARA MANO DE OBRA POR KILO ---
+    // --- Total de aberturas ---
     const getTotalOpenings = () => {
         let total = 0;
         const configsArr = safeArray(openingConfigurations);
@@ -876,62 +887,15 @@ const Quotation = () => {
             const areaTotalVidrio = areaPanel * totalPanels;
             const glassType = glassTypes.find(g => Number(g.id) === Number(opening.glassTypeId));
             const costoVidrio = glassType ? areaTotalVidrio * Number(glassType.price) : 0;
-            // Incluir mosquitera si está marcada
-            const mosquitoSelected = !!opening.mosquito;
-            const costoMosquitera = mosquitoSelected ? areaTotalVidrio * Number(mosquitoPrice || 0) : 0;
-
             const treatment = treatments.find(t => Number(t.id) === Number(opening.treatmentId));
             const tratamientoPorc = treatment && treatment.pricePercentage ? Number(treatment.pricePercentage) : 0;
             const costoTratamiento = costoAluminio * (tratamientoPorc / 100);
-
-            // MANO DE OBRA POR KILO - MODIFICADO
-            const costoManoObra = pesoAluminio * Number(labourPrice || 0);
-
-            const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra + costoMosquitera;
+            const costoManoObra = labourPrice;
+            const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
             // multiplicar por la cantidad de aberturas de este tipo
             total += subtotal * Number(opening.quantity || 1);
         });
-        return total;
-    };
-
-    // --- Total de complementos ---
-    const getTotalComplementsValue = () => {
-        let total = 0;
-        selectedComplements.forEach(complement => {
-            if (complement.totalPrice !== undefined && complement.totalPrice !== null) {
-                total += Number(complement.totalPrice);
-                return;
-            }
-            let arr = [];
-            if (complement.type === 'door') arr = complementDoors;
-            else if (complement.type === 'partition') arr = complementPartitions;
-            else if (complement.type === 'railing') arr = complementRailings;
-            const found = arr.find(item => String(item.id) === String(complement.complementId));
-            const price = found ? Number(found.price) : 0;
-            total += price * Number(complement.quantity);
-        });
-        return total;
-    };
-
-    // --- NUEVO: Cálculo de total general con costos adicionales ---
-    const getGeneralTotal = () => {
-        const totalOpenings = getTotalOpenings();
-        const totalComplements = getTotalComplementsValue();
-        const subtotalGeneral = totalOpenings + totalComplements;
-
-        const costoFabricacion = subtotalGeneral * 0.10; // 10%
-        const costoAdministrativo = subtotalGeneral * 0.05; // 5%
-
-        const totalGeneral = subtotalGeneral + costoFabricacion + costoAdministrativo;
-
-        return {
-            totalOpenings,
-            totalComplements,
-            subtotalGeneral,
-            costoFabricacion,
-            costoAdministrativo,
-            totalGeneral
-        };
+        return `Total aberturas: $${total.toFixed(2)}`;
     };
 
     // Handlers para resumen (quitar y modificar cantidad)
@@ -1054,6 +1018,25 @@ const Quotation = () => {
         return `Subtotal: $${(price * Number(complement.quantity)).toFixed(2)}`;
     };
 
+    // Total de complementos (usar totalPrice cuando exista)
+    const getTotalComplements = () => {
+        let total = 0;
+        selectedComplements.forEach(complement => {
+            if (complement.totalPrice !== undefined && complement.totalPrice !== null) {
+                total += Number(complement.totalPrice);
+                return;
+            }
+            let arr = [];
+            if (complement.type === 'door') arr = complementDoors;
+            else if (complement.type === 'partition') arr = complementPartitions;
+            else if (complement.type === 'railing') arr = complementRailings;
+            const found = arr.find(item => String(item.id) === String(complement.complementId));
+            const price = found ? Number(found.price) : 0;
+            total += price * Number(complement.quantity);
+        });
+        return `Total complementos: $${total.toFixed(2)}`;
+    };
+
     // Mostrar el log de la última abertura agregada (solo una vez)
     useEffect(() => {
         if (lastOpeningLog && lastOpeningLog.length > 0) {
@@ -1086,26 +1069,23 @@ const Quotation = () => {
         }
     };
 
-    // Calcular total general
-    const generalTotal = getGeneralTotal();
-
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
             <div className="materials-header">
                 <h2 className="materials-title">Nueva Cotización</h2>
                 <p className="materials-subtitle">Complete los datos en cada sección y valindando los mismos en el resumen antes de crear la cotización.</p>
-
-            </div>
+                
+                </div>
             <div className="quotation-layout">
-                <aside className="quotation-indice">
+                <aside className="quotation-indice" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                     <h3>Índice</h3>
-                    <p onClick={() => goToSlide(0)}><b><u>Datos Cliente</u></b></p>
-                    <p onClick={() => goToSlide(1)}><b><u>Datos Agentes</u></b></p>
-                    <p onClick={() => goToSlide(2)}><b><u>Espacio de trabajo</u></b></p>
-                    <p onClick={() => goToSlide(3)}><b><u>Carga de Aberturas</u></b></p>
-                    <p onClick={() => goToSlide(4)}><b><u>Carga de Complementos</u></b></p>
-                    <p onClick={() => goToSlide(5)}><b><u>Comentarios</u></b></p>
+                    <p onClick={() => goToSlide(0)} style={{ cursor: 'pointer' }}><b><u>Datos Cliente</u></b></p>
+                    <p onClick={() => goToSlide(1)} style={{ cursor: 'pointer' }}><b><u>Datos Agentes</u></b></p>
+                    <p onClick={() => goToSlide(2)} style={{ cursor: 'pointer' }}><b><u>Espacio de trabajo</u></b></p>
+                    <p onClick={() => goToSlide(3)} style={{ cursor: 'pointer' }}><b><u>Carga de Aberturas</u></b></p>
+                    <p onClick={() => goToSlide(4)} style={{ cursor: 'pointer' }}><b><u>Carga de Complementos</u></b></p>
+                    <p onClick={() => goToSlide(5)} style={{ cursor: 'pointer' }}><b><u>Comentarios</u></b></p>
                 </aside>
 
                 <main className="quotation-main">
@@ -1119,12 +1099,12 @@ const Quotation = () => {
                             >
                                 Atrás
                             </button>
-                            <span className="page-indicator">
+                            <span style={{ alignSelf: "center", fontWeight: 500, fontSize: 16, color: "#26b7cd" }}>
                                 Página {currentIndex + 1} de 6
                             </span>
                             <button
                                 type="button"
-                                className="embla__button embla__button--next"
+                                className="embla__button embba__button--next"
                                 onClick={handleNext}
                                 disabled={currentIndex === 5}
                             >
@@ -1137,7 +1117,8 @@ const Quotation = () => {
                             slidesPerView={1}
                             onSlideChange={handleSlideChange}
                             initialSlide={0}
-                            className="quotation-swiper"
+                             
+                            style={{marginTop: 20 , marginBottom: 20}}
                         >
                             <SwiperSlide>
                                 <Customer
@@ -1248,6 +1229,7 @@ const Quotation = () => {
                                 <button
                                     type="button"
                                     className="botton-carusel"
+                                    style={{ marginTop: 12 }}
                                     onClick={handleAddWorkPlaceToSummary}
                                 >
                                     Agregar espacio de trabajo
@@ -1276,6 +1258,7 @@ const Quotation = () => {
                                     complementRailings={complementRailings}
                                     selectedComplements={selectedComplements}
                                     setSelectedComplements={setSelectedComplements}
+                                // hideSelectedList={true} // si no lo usas, puedes quitarlo
                                 />
                             </SwiperSlide>
                             <SwiperSlide>
@@ -1285,7 +1268,7 @@ const Quotation = () => {
                                     setDollarReference={setDollarReference}
                                     setLabourReference={setLabourReference}
                                 />
-                                <div className="submit-container">
+                                <div style={{ marginTop: 24 }}>
                                     <button
                                         type="button"
                                         className="submit-button"
@@ -1295,10 +1278,10 @@ const Quotation = () => {
                                         {submitting ? "Enviando..." : "Cotizar"}
                                     </button>
                                     {submitError && (
-                                        <div className="submit-error">{submitError}</div>
+                                        <div style={{ color: 'red', marginTop: 8 }}>{submitError}</div>
                                     )}
                                     {Object.keys(validationErrors).length > 0 && (
-                                        <div className="validation-errors">
+                                        <div style={{ color: 'red', marginTop: 8 }}>
                                             {Object.entries(validationErrors).map(([field, msg]) => (
                                                 <div key={field}>{msg}</div>
                                             ))}
@@ -1312,42 +1295,44 @@ const Quotation = () => {
                 <aside className="quotation-summary">
                     <h3>Resumen</h3>
                     <div>
-                        <div className="agents-list">
-                            <h4 className='summary-section-title'>Clientes seleccionados:</h4>
+                         <div className="agents-list">
+                            <h4 className='h4'>Clientes seleccionados:</h4>
                             {clients.length === 0 && <div className="summary-empty">No tiene cliente.</div>}
                             {clients.map((client, idx) => (
                                 <div key={idx} className="agent-selected-row">
                                     <span>
                                         {client.name} {client.lastname} - {client.dni}
+
                                     </span>
                                 </div>
                             ))}
                         </div>
                         {/* Lista de agentes agregados */}
                         <div className="agents-list">
-                            <h4 className='summary-section-title'>Agentes seleccionados:</h4>
+                            <h4 className='h4'>Agentes seleccionados:</h4>
                             {agents.length === 0 && <div className="summary-empty">No tiene agentes.</div>}
                             {agents.map((agent, idx) => (
                                 <div key={idx} className="agent-selected-row">
                                     <span>
                                         {agent.name} {agent.lastname} - {agent.dni}
+
                                     </span>
                                 </div>
                             ))}
                         </div>
                         <div className="workplace-summary">
-                            <h4 className='summary-section-title'>Espacios de trabajo:</h4>
+                            <h4 className='h4'>Espacios de trabajo :</h4>
                             {workPlaces.length === 0 && <div className="summary-empty">No hay espacios de trabajo agregados.</div>}
                             {workPlaces.map((wp, idx) => (
                                 <div key={idx} className="summary-item">
                                     <span>
-                                        <b>{wp.location}</b> - {wp.address}
+                                        <b>{wp.location}</b> - {wp.address} 
                                     </span>
                                 </div>
                             ))}
                         </div>
-
-                        <h4 className='summary-section-title'>Aberturas agregadas:</h4>
+                        
+                        <h4 className='h4'>Aberturas agregadas:</h4>
                         {selectedOpenings.length === 0 && (
                             <div className="summary-empty">No hay aberturas agregadas.</div>
                         )}
@@ -1417,7 +1402,7 @@ const Quotation = () => {
                                     })()}
                                 </div>
 
-                                <div className="summary-actions-row">
+                                <div className="summary-actions-row" style={{ marginTop: 8 }}>
                                     <div className="summary-detail summary-qty-row">
                                         <button
                                             className="summary-qty-btn" type="button"
@@ -1429,18 +1414,18 @@ const Quotation = () => {
                                             onClick={() => handleChangeOpeningQty(idx, 1)}
                                         >+</button>
                                     </div>
-                                    <div className="opening-subtotal">
+                                    <div style={{ marginLeft: 'auto', color: '#26b7cd', fontWeight: 600 }}>
                                         {getOpeningSubtotal(opening)}
                                     </div>
                                 </div>
                             </div>
                         ))}
                         <div className="summary-total">
-                            <strong>Total aberturas: ${generalTotal.totalOpenings.toFixed(2)}</strong>
+                            {getTotalOpenings()}
                         </div>
                     </div>
-                    <div className="complements-summary">
-                        <h4 className='summary-section-title'>Complementos agregados:</h4>
+                    <div style={{ marginTop: 24 }}>
+                        <h4 className='h4'>Complementos agregados:</h4>
                         {selectedComplements.length === 0 && (
                             <div className="summary-empty">No hay complementos agregados.</div>
                         )}
@@ -1471,42 +1456,7 @@ const Quotation = () => {
                             </div>
                         ))}
                         <div className="summary-total">
-                            <strong>Total complementos: ${generalTotal.totalComplements.toFixed(2)}</strong>
-                        </div>
-                    </div>
-
-                    {/* NUEVO: TOTAL GENERAL CON COSTOS ADICIONALES */}
-                    <div className="general-total-container">
-                        <h4 className='summary-section-title'>Total General</h4>
-
-                        <div className="total-row">
-                            <span>Subtotal aberturas:</span>
-                            <span>${generalTotal.totalOpenings.toFixed(2)}</span>
-                        </div>
-
-                        <div className="total-row">
-                            <span>Subtotal complementos:</span>
-                            <span>${generalTotal.totalComplements.toFixed(2)}</span>
-                        </div>
-
-                        <div className="total-row subtotal-general">
-                            <span><strong>Subtotal general:</strong></span>
-                            <span><strong>${generalTotal.subtotalGeneral.toFixed(2)}</strong></span>
-                        </div>
-
-                        <div className="total-row cost-detail">
-                            <span>Costo fabricación (10%):</span>
-                            <span>${generalTotal.costoFabricacion.toFixed(2)}</span>
-                        </div>
-
-                        <div className="total-row cost-detail">
-                            <span>Costo administrativo (5%):</span>
-                            <span>${generalTotal.costoAdministrativo.toFixed(2)}</span>
-                        </div>
-
-                        <div className="total-row final-total">
-                            <span>TOTAL GENERAL:</span>
-                            <span>${generalTotal.totalGeneral.toFixed(2)}</span>
+                            {getTotalComplements()}
                         </div>
                     </div>
                 </aside>
