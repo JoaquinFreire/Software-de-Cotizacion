@@ -221,12 +221,23 @@ const Dashboard = () => {
 
     const handleDeleteSuccess = () => {};
 
-    const handleStatusChange = async (id, newStatus) => {
+    const handleStatusChange = async (id, newStatus, comment = null) => {
         const token = localStorage.getItem("token");
         try {
+            // Mapear los estados lowercase del frontend a los nombres del enum en backend
+            const mapStatus = {
+                pending: "Pending",
+                approved: "Approved",
+                rejected: "Rejected",
+                finished: "Finished"
+            };
+            const payload = {
+                Status: mapStatus[newStatus] ?? newStatus,
+                Comment: comment
+            };
             await axios.put(
                 `${API_URL}/api/quotations/${id}/status`,
-                { status: newStatus },
+                payload,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }

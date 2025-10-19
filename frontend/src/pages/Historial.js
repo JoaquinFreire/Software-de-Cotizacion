@@ -221,12 +221,25 @@ const Historial = () => {
         // Ya no necesitas modificar el estado localmente
     };
 
-    const handleStatusChange = async (id, newStatus) => {
+    const handleStatusChange = async (id, newStatus, comment = null) => {
         const token = localStorage.getItem("token");
+        
         try {
-            await axios.put(`${API_URL}/api/quotations/${id}/status`, { status: newStatus }, {
+            console.log(`Changing status of quotation ${id} to ${newStatus} (comment: ${comment})`);
+            // Mapear los estados lowercase del frontend a los nombres del enum en backend
+            const mapStatus = {
+                pending: "Pending",
+                approved: "Approved",
+                rejected: "Rejected",
+                finished: "Finished"
+            };
+            const payload = {
+                Status: mapStatus[newStatus] ?? newStatus,
+                Comment: comment
+            };
+            await axios.put(`${API_URL}/api/quotations/${id}/status`, payload, {
                 headers: { Authorization: `Bearer ${token}` },
-            });
+            }); 
             // Recarga la página actual después de cambiar estado
             goToHistorialPage(page);
             toast.success("Estado de la cotización actualizado con éxito.");

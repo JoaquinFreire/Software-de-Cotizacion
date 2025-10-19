@@ -319,6 +319,7 @@ public class QuotationController : ControllerBase
             string budgetId,
             [FromBody] ChangeBudgetStatusDTO changeStatusDto)
     {
+        Console.WriteLine($"Request para cambiar estado de cotización {budgetId} a {changeStatusDto.Status}");
         if (string.IsNullOrEmpty(budgetId))
         {
             return BadRequest("BudgetId es requerido");

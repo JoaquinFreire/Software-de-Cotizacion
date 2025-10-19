@@ -13,6 +13,7 @@ import ReactLoading from 'react-loading';
 import { safeArray } from '../../utils/safeArray';
 import Navigation from '../../components/Navigation';
 import Footer from '../../components/Footer';
+import { useNavigate } from 'react-router-dom'; // <-- agregado
 Chart.register(ChartDataLabels);
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -61,27 +62,49 @@ const ReporteDeOportunidadesPerdidas = () => {
   const [loading, setLoading] = useState(false);
   const [cotizaciones, setCotizaciones] = useState([]);
   const pdfRef = useRef();
+  const navigate = useNavigate(); // <-- agregado
+
+  // nuevo estado para ordenamiento por precio
+  const [priceSortDirection, setPriceSortDirection] = useState(null); // 'asc' | 'desc' | null
 
   const fetchData = async () => {
     if (!fechaDesde || !fechaHasta) return;
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      // Cambia el endpoint a BudgetController y filtra por fechas en frontend
       const res = await axios.get(
         `${API_URL}/api/Mongo/GetAllBudgets`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      let data = safeArray(res.data);
-      // Filtra por fechas (creationDate) en frontend
+
+      // Normalizar la fuente de datos: soporta varias formas de respuesta
+      let raw = res.data;
+      let data = [];
+      if (Array.isArray(raw)) data = raw;
+      else if (Array.isArray(raw.budgets)) data = raw.budgets;
+      else if (Array.isArray(raw.quotations)) data = raw.quotations;
+      else if (Array.isArray(raw.items)) data = raw.items;
+      else data = safeArray(raw);
+
+      // Filtrar por fechas (tolerante a diferentes nombres y formatos)
+      const fromDate = new Date(fechaDesde);
+      const toDate = new Date(fechaHasta);
       data = data.filter(b => {
-        const fecha = b.creationDate || b.CreationDate;
-        if (!fecha) return false;
-        const f = new Date(fecha.split('T')[0]);
-        return f >= new Date(fechaDesde) && f <= new Date(fechaHasta);
+        const fechaRaw = b.creationDate ?? b.CreationDate ?? b.creation_date ?? b.Creationdate ?? b.createdAt ?? b.created_at;
+        if (!fechaRaw) return false;
+        const fechaObj = new Date(typeof fechaRaw === 'string' ? fechaRaw : fechaRaw);
+        if (isNaN(fechaObj.getTime())) return false;
+        // compare by date portion
+        const f = new Date(fechaObj.toISOString().slice(0,10));
+        return f >= fromDate && f <= toDate;
       });
-      // Solo rechazadas (status === 'Rejected')
-      data = data.filter(q => (q.status || q.Status) === 'Rejected' || (q.status || q.Status) === 'rejected');
+
+      // Solo rechazadas (case-insensitive)
+      data = data.filter(q => {
+        const status = (q.status ?? q.Status ?? q.StatusName ?? '').toString().toLowerCase();
+        return status === 'rejected' || status === 'rechazado';
+      });
+
       setCotizaciones(data);
     } catch (err) {
       setCotizaciones([]);
@@ -158,21 +181,73 @@ const ReporteDeOportunidadesPerdidas = () => {
     ]
   };
 
-  const totalMonto = cotizaciones.reduce((sum, c) => sum + (Number(c.total || c.Total || c.TotalPrice || c.monto) || 0), 0);
+  const totalMonto = cotizaciones.reduce((sum, c) => {
+    const val = Number(c.total ?? c.Total ?? c.TotalPrice ?? c.monto ?? c.amount ?? 0) || 0;
+    return sum + val;
+  }, 0);
 
-  const getMotivoRechazo = (q) => {
-    return (
+  // normalizar motivo: toma la parte antes de "Validez de la cotización" u otros bloques largos
+  const extractShortComment = (q) => {
+    const raw =
       q.comment ||
       q.Comment ||
       q.RejectionReason ||
       q.motivoRechazo ||
       q.rejectionReason ||
       q.MotivoRechazo ||
-      localStorage.getItem(`motivoRechazo_${q.budgetId || q.Id || q.id}`) ||
       (q.extra && (q.extra.RejectionReason || q.extra.motivoRechazo)) ||
-      'Sin especificar'
-    );
+      (q.meta && (q.meta.comment || q.meta.Comment)) ||
+      '';
+    if (!raw) return 'Sin especificar';
+    // separar por la frase de validez u otros encabezados largos comunes
+    const separators = [
+      'Validez de la cotización',
+      'Validez',
+      'Precio de los materiales',
+      'Precio de los materiales'
+    ];
+    let short = raw;
+    for (const sep of separators) {
+      const idx = short.indexOf(sep);
+      if (idx > -1) {
+        short = short.slice(0, idx);
+        break;
+      }
+    }
+    short = short.trim();
+    // Si contiene múltiples líneas, devolver hasta la primera línea en blanco grande (o la primera 3 líneas como fallback)
+    const lines = short.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+    if (lines.length === 0) return 'Sin especificar';
+    // juntar hasta 3 líneas para no perder contexto
+    return lines.slice(0, 3).join(' ').trim() || 'Sin especificar';
   };
+
+  const parseTotalNumeric = (q) => {
+    const val = q.total ?? q.Total ?? q.TotalPrice ?? q.monto ?? q.amount ?? 0;
+    const n = Number(String(val).replace(/[^0-9.-]+/g, ''));
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  const togglePriceSort = () => {
+    setPriceSortDirection(prev => {
+      if (prev === 'asc') return 'desc';
+      if (prev === 'desc') return null;
+      return 'asc';
+    });
+  };
+
+  // crear array ordenado según priceSortDirection
+  const cotizacionesToRender = (() => {
+    if (!Array.isArray(cotizaciones)) return [];
+    if (!priceSortDirection) return cotizaciones;
+    const copy = [...cotizaciones];
+    copy.sort((a, b) => {
+      const pa = parseTotalNumeric(a);
+      const pb = parseTotalNumeric(b);
+      return priceSortDirection === 'asc' ? pa - pb : pb - pa;
+    });
+    return copy;
+  })();
 
   return (
     <div className="dashboard-container">
@@ -298,7 +373,16 @@ const ReporteDeOportunidadesPerdidas = () => {
                           <th>Dirección</th>
                           <th>Fecha Creación</th>
                           <th>Última Edición</th>
-                          <th>Precio Total</th>
+                          <th style={{ whiteSpace: 'nowrap' }}>
+                            Precio Total
+                            <button
+                              onClick={togglePriceSort}
+                              style={{ marginLeft: 8, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 14 }}
+                              title="Ordenar por precio"
+                            >
+                              {priceSortDirection === 'asc' ? '↑' : priceSortDirection === 'desc' ? '↓' : '↕'}
+                            </button>
+                          </th>
                           <th>Motivo Rechazo</th>
                         </tr>
                       </thead>
@@ -307,22 +391,31 @@ const ReporteDeOportunidadesPerdidas = () => {
                           <tr>
                             <td colSpan={8}>No hay cotizaciones rechazadas en el período seleccionado.</td>
                           </tr>
-                        ) : cotizaciones.map(q => (
-                          <tr key={q.budgetId || q.Id || q.id}>
-                            <td>
-                              {q.customer?.name || q.Customer?.name || ''}
-                              {' '}
-                              {q.customer?.lastname || q.Customer?.lastname || ''}
-                            </td>
-                            <td>{q.customer?.tel || q.Customer?.tel || ''}</td>
-                            <td>{q.customer?.mail || q.Customer?.mail || ''}</td>
-                            <td>{q.customer?.address || q.Customer?.address || ''}</td>
-                            <td>{q.creationDate ? formatFechaCorta(q.creationDate) : (q.CreationDate ? formatFechaCorta(q.CreationDate) : '')}</td>
-                            <td>{q.lastEdit ? formatFechaCorta(q.lastEdit) : (q.LastEdit ? formatFechaCorta(q.LastEdit) : '')}</td>
-                            <td style={{ whiteSpace: 'nowrap' }}>${q.total || q.Total || q.TotalPrice || q.monto}</td>
-                            <td>{getMotivoRechazo(q)}</td>
-                          </tr>
-                        ))}
+                        ) : cotizacionesToRender.map(q => {
+                          const qId = q.budgetId || q.Id || q.id || q.BudgetId || null;
+                          return (
+                            <tr
+                              key={qId || Math.random()}
+                              className={qId ? 'clickable-row' : ''}
+                              onClick={() => qId && navigate(`/quotation/${qId}`)}
+                              tabIndex={qId ? 0 : -1}
+                              onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && qId) navigate(`/quotation/${qId}`); }}
+                            >
+                              <td>
+                                {q.customer?.name || q.Customer?.name || ''}
+                                {' '}
+                                {q.customer?.lastname || q.Customer?.lastname || ''}
+                              </td>
+                              <td>{q.customer?.tel || q.Customer?.tel || ''}</td>
+                              <td>{q.customer?.mail || q.Customer?.mail || ''}</td>
+                              <td>{q.customer?.address || q.Customer?.address || ''}</td>
+                              <td>{q.creationDate ? formatFechaCorta(q.creationDate) : (q.CreationDate ? formatFechaCorta(q.CreationDate) : '')}</td>
+                              <td>{q.lastEdit ? formatFechaCorta(q.lastEdit) : (q.LastEdit ? formatFechaCorta(q.LastEdit) : '')}</td>
+                              <td style={{ whiteSpace: 'nowrap' }}>${(parseTotalNumeric(q)).toLocaleString()}</td>
+                              <td>{extractShortComment(q)}</td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>

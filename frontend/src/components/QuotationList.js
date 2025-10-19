@@ -44,7 +44,7 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
     if (quotationToReject && pendingStatus) {
       setIsRecovering(true);
       try {
-        localStorage.setItem(`motivoRechazo_${quotationToReject}`, rejectReason.trim());
+        // Ya no usamos localStorage; enviamos el motivo directamente al callback
         await onStatusChange(quotationToReject, pendingStatus, rejectReason.trim());
       } finally {
         setIsRecovering(false);
