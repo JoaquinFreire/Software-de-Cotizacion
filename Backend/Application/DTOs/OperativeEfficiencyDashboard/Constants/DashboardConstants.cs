@@ -10,12 +10,12 @@ namespace Application.DTOs.OperativeEfficiencyDashboard.Constants
             // Estados considerados como "activos" (en proceso)
             public static readonly BudgetStatus[] ActiveStatuses = {
                 BudgetStatus.Pending,
-                BudgetStatus.Accepted,
+                BudgetStatus.Approved,
             };
 
             // Estados considerados como "completados" (finalizados)
             public static readonly BudgetStatus[] CompletedStatuses = {
-                BudgetStatus.Accepted,
+                BudgetStatus.Approved,
                 BudgetStatus.Rejected,
                 BudgetStatus.Finished
             };

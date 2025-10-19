@@ -31,7 +31,7 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 const estadoColor = (status) => {
     switch (status?.toLowerCase()) {
-        case 'accepted': return '#4caf50';
+        case 'approved': return '#4caf50';
         case 'rejected': return '#f44336';
         case 'pending': return '#ff9800';
         default: return '#9e9e9e';
@@ -40,7 +40,7 @@ const estadoColor = (status) => {
 
 const estadoTexto = (status) => {
     switch (status?.toLowerCase()) {
-        case 'accepted': return 'Aceptada';
+        case 'approved': return 'Aceptada';
         case 'rejected': return 'Rechazada';
         case 'pending': return 'Pendiente';
         default: return status || 'Desconocido';
@@ -738,7 +738,7 @@ const LineaDeTiempoCotizaciones = () => {
                                     onChange={(e) => setFiltros({ ...filtros, status: e.target.value })}
                                 >
                                     <option value="">Todos</option>
-                                    <option value="accepted">Aceptadas</option>
+                                    <option value="approved">Aceptadas</option>
                                     <option value="pending">Pendientes</option>
                                     <option value="rejected">Rechazadas</option>
                                 </select>

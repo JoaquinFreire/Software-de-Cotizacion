@@ -37,7 +37,7 @@ namespace Application.DTOs.TimeLineBudgetReportDTOs.CustomerList
                     dni = g.First().Customer?.dni ?? "",
                     mail = g.First().Customer?.mail ?? "",
                     TotalQuotations = g.Count(),
-                    AcceptedQuotations = g.Count(q => q.Status.ToLower() == "accepted"),
+                    AcceptedQuotations = g.Count(q => q.Status.ToLower() == "approved"),
                     PendingQuotations = g.Count(q => q.Status.ToLower() == "pending"),
                     RejectedQuotations = g.Count(q => q.Status.ToLower() == "rejected"),
                     TotalAmount = g.Sum(q => q.TotalPrice),
