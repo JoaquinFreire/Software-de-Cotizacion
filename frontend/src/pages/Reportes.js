@@ -44,14 +44,6 @@ const reportCards = [
         color: "#f59e0b"
     },
     {
-        title: "Reporte de Material Usado en Cotización",
-        description: "Uso de materiales en cotizaciones",
-        icon: <Layers size={32} />,
-        className: "reporte-material-usado",
-        route: "/reportes/material-usado",
-        color: "#10b981"
-    },
-    {
         title: "Reporte de Tendencias de Cotización por Mes",
         description: "Tendencias mensuales de cotizaciones",
         icon: <TrendingUp size={32} />,
@@ -92,6 +84,30 @@ const reportCards = [
         color: "#ec4899"
     },
     {
+        title: "Reporte de Consumo de Complementos",
+        description: "Uso de complementos en proyectos",
+        icon: <UserCheck size={32} />,  
+        className: "reporte-consumo-complementos",
+        route: "/reportes/consumo-complementos",
+        color: "#0ea5e9"
+    },
+    {
+        title: "Trazabilidad de cotizaciones",
+        description: "Duración y etapas de proyectos",
+        icon: <Layers size={32} />,
+        className: "reporte-ciclo-vida",
+        route: "/reportes/LineaDeTiempoCotizaciones",
+        color: "#14b8a6"
+    },
+    {
+        title: "Reporte de Material Usado en Cotización",
+        description: "Uso de materiales en cotizaciones",
+        icon: <Layers size={32} />,
+        className: "reporte-material-usado",
+        route: "/reportes/material-usado",
+        color: "#10b981"
+    },
+    {
         title: "Reporte de Simulación de Cambios de Precio",
         description: "Simulaciones de ajustes de precios",
         icon: <LineChart size={32} />,
@@ -108,14 +124,6 @@ const reportCards = [
         color: "#6366f1"
     },
     {
-        title: "Trazabilidad de cotizaciones",
-        description: "Duración y etapas de proyectos",
-        icon: <Layers size={32} />,
-        className: "reporte-ciclo-vida",
-        route: "/reportes/LineaDeTiempoCotizaciones",
-        color: "#14b8a6"
-    },
-    {
         title: "Reporte de Tiempo Ocioso de Producción",
         description: "Análisis de tiempos de inactividad",
         icon: <TrendingUp size={32} />,
@@ -130,14 +138,6 @@ const reportCards = [
         className: "reporte-promociones-descuentos",
         route: "/reportes/promociones-descuentos",
         color: "#d946ef"
-    },
-    {
-        title: "Reporte de Consumo de Complementos",
-        description: "Uso de complementos en proyectos",
-        icon: <UserCheck size={32} />,  
-        className: "reporte-consumo-complementos",
-        route: "/reportes/consumo-complementos",
-        color: "#0ea5e9"
     }
 ];
 
