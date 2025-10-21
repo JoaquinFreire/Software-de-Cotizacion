@@ -17,4 +17,5 @@ public interface IUserRepository
     Task DeleteAsync(int id); // Eliminar un usuario por ID
     Task<User?> GetByEmailAsync(string email);
     Task<User?> GetByDniAsync(string dni);
+    Task<int> GetActiveQuotersCountAsync();
 }

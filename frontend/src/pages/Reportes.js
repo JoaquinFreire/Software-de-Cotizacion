@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 const reportCards = [
-    {
+    { // Reporte 1
         title: "Reporte de Estado de Cotizaciones",
         description: "Estado y seguimiento de cotizaciones",
         icon: <FileText size={32} />,
@@ -27,7 +27,7 @@ const reportCards = [
         route: "/reportes/estado-cotizaciones",
         color: "#3b82f6"
     },
-    {
+    { // Reporte 2
         title: "Análisis de Proyectos por Ubicación Geográfica",
         description: "Distribución geográfica de proyectos",
         icon: <MapPin size={32} />,
@@ -35,7 +35,7 @@ const reportCards = [
         route: "/reportes/ubicacion-geografica",
         color: "#ef4444"
     },
-    {
+    { // Reporte 3
         title: "Análisis de Satisfacción del Cliente",
         description: "Métricas de satisfacción clientes",
         icon: <Smile size={32} />,
@@ -43,7 +43,7 @@ const reportCards = [
         route: "/reportes/analisis-satisfaccion-cliente",
         color: "#f59e0b"
     },
-    {
+    { // Reporte 4
         title: "Reporte de Tendencias de Cotización por Mes",
         description: "Tendencias mensuales de cotizaciones",
         icon: <TrendingUp size={32} />,
@@ -51,7 +51,7 @@ const reportCards = [
         route: "/reportes/tendencias-mensuales",
         color: "#8b5cf6"
     },
-    {
+    { // Reporte 5
         title: "Reporte de Productividad por Cotizador",
         description: "Rendimiento por cotizador",
         icon: <UserCheck size={32} />,
@@ -59,7 +59,7 @@ const reportCards = [
         route: "/reportes/productividad-cotizador",
         color: "#06b6d4"
     },
-    {
+    { // Reporte 6
         title: "Reporte de Oportunidades Perdidas",
         description: "Análisis de oportunidades no concretadas",
         icon: <Clock3 size={32} />,
@@ -67,15 +67,15 @@ const reportCards = [
         route: "/reportes/Oportunidades-Perdidas",
         color: "#64748b"
     },
-    {
-        title: "Carga de trabajo del equipo de cotización",
-        description: "Análisis de cotizaciónes pendientes",
+    { // Reporte 7
+        title: "Carga de Trabajo del Equipo de Cotización",
+        description: "Desempeño del equipo de trabajo",
         icon: <User size={32} />,
         className: "reporte-productividad-vendedor",
         route: "/operational-dashboard",
         color: "#f97316"
     },
-    {
+    { // Reporte 8
         title: "Beneficio en Cotizaciones por Tipo de Línea",
         description: "Rentabilidad por línea de producto",
         icon: <PieChart size={32} />,
@@ -83,15 +83,15 @@ const reportCards = [
         route: "/reportes/beneficio-proyecto",
         color: "#ec4899"
     },
-    {
+    { // Reporte 9
         title: "Reporte de Consumo de Complementos",
         description: "Uso de complementos en proyectos",
-        icon: <UserCheck size={32} />,  
+        icon: <UserCheck size={32} />,
         className: "reporte-consumo-complementos",
         route: "/reportes/consumo-complementos",
         color: "#0ea5e9"
     },
-    {
+    { // Reporte 10
         title: "Trazabilidad de cotizaciones",
         description: "Duración y etapas de proyectos",
         icon: <Layers size={32} />,
@@ -99,7 +99,7 @@ const reportCards = [
         route: "/reportes/LineaDeTiempoCotizaciones",
         color: "#14b8a6"
     },
-    {
+    { // Reporte 11
         title: "Reporte de Material Usado en Cotización",
         description: "Uso de materiales en cotizaciones",
         icon: <Layers size={32} />,
@@ -107,15 +107,15 @@ const reportCards = [
         route: "/reportes/material-usado",
         color: "#10b981"
     },
-    {
-        title: "Reporte de Simulación de Cambios de Precio",
-        description: "Simulaciones de ajustes de precios",
+    { // Reporte 12
+        title: "Reporte de Desempeño Personal",
+        description: "Analisis de metricas del rendimiento personal",
         icon: <LineChart size={32} />,
-        className: "reporte-tendencias-anuales",
-        route: "/reportes/tendencias-anuales",
+        className: "reporte-metrica-personal",
+        route: "/reportes/metrica-personal",
         color: "#84cc16"
     },
-    {
+    { // Reporte 13
         title: "Reporte de Clientes con Mayor Volumen",
         description: "Clientes principales por volumen",
         icon: <Users size={32} />,
@@ -123,7 +123,7 @@ const reportCards = [
         route: "/reportes/clientes-mayor-volumen",
         color: "#6366f1"
     },
-    {
+    { // Reporte 14
         title: "Reporte de Tiempo Ocioso de Producción",
         description: "Análisis de tiempos de inactividad",
         icon: <TrendingUp size={32} />,
@@ -131,7 +131,7 @@ const reportCards = [
         route: "/reportes/tendencias-industria",
         color: "#f43f5e"
     },
-    {
+    { // Reporte 15
         title: "Reporte de Promociones y Descuentos",
         description: "Efectividad de promociones",
         icon: <Percent size={32} />,
