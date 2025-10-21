@@ -15,7 +15,6 @@ namespace Domain.Repositories
         Task<List<Budget>> GetBudgetsByCustomerDniAsync(string customerDni);
         Task<List<Budget>> GetBudgetsByCustomerAsync(Customer Customer);
         Task ChangeBudgetStatus(string budgetId, BudgetStatus newStatus, string? rejectionComment = null);
-
     }
 }
 

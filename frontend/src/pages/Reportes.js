@@ -76,7 +76,7 @@ const reportCards = [
         color: "#64748b"
     },
     {
-        title: "Carga de trabajo del equipo de cotización",
+        title: "Carga de Trabajo del Equipo de Cotización",
         description: "Análisis de cotizaciónes pendientes",
         icon: <User size={32} />,
         className: "reporte-productividad-vendedor",
@@ -92,11 +92,11 @@ const reportCards = [
         color: "#ec4899"
     },
     {
-        title: "Reporte de Simulación de Cambios de Precio",
-        description: "Simulaciones de ajustes de precios",
+        title: "Reporte de Desempeño Personal",
+        description: "Analisis de metricas del rendimiento personal",
         icon: <LineChart size={32} />,
-        className: "reporte-tendencias-anuales",
-        route: "/reportes/tendencias-anuales",
+        className: "reporte-metrica-personal",
+        route: "/reportes/metrica-personal",
         color: "#84cc16"
     },
     {
@@ -108,8 +108,8 @@ const reportCards = [
         color: "#6366f1"
     },
     {
-        title: "Trazabilidad de cotizaciones",
-        description: "Duración y etapas de proyectos",
+        title: "Trazabilidad de Cotizaciones",
+        description: "Reporte del tiempo de vida de las cotizaciones",
         icon: <Layers size={32} />,
         className: "reporte-ciclo-vida",
         route: "/reportes/LineaDeTiempoCotizaciones",
