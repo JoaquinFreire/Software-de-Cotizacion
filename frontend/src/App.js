@@ -19,6 +19,7 @@ import BeneficioEnCotizaciocionesPorTipoDeLinea from './pages/reportes/Beneficio
 import ReporteDeProductividadPorCotizador from './pages/reportes/ReporteDeProductividadPorCotizador';
 import DashboardMetricasPersonales from './pages/reportes/DashboardMetricasPersonales';
 import ReporteConsumoComplementos from './pages/reportes/ReporteConsumoComplementos';
+import ReporteDeTendenciasDeCotizacionPorMes from './pages/reportes/ReporteDeTendenciasDeCotizacionPorMes';
 import BudgetDetail from './pages/BudgetDetail';
 import CreatePassword from './pages/CreatePassword';
 import SessionModal from './components/SessionModal';
@@ -207,6 +208,7 @@ function App() {
                         <Route path="/reportes/productividad-cotizador" element={<PrivateRoute element={<ReporteDeProductividadPorCotizador />} />} />
                         <Route path="/reportes/metrica-personal" element={<PrivateRoute element={<DashboardMetricasPersonales />} />} />
                         <Route path="/reportes/consumo-complementos" element={<PrivateRoute element={<ReporteConsumoComplementos />} />} />
+                        <Route path="/reportes/tendencias-mensuales" element={<PrivateRoute element={<ReporteDeTendenciasDeCotizacionPorMes />} />} />
                         <Route path="/operational-dashboard" element={<PrivateRoute element={<DashboardEficienciaOperativa />} />} />
                         <Route path="/quotation" element={<PrivateRoute element={<Quotation />} />} />
                         <Route path="/quotation/:id" element={<PrivateRoute element={<BudgetDetail />} />} />

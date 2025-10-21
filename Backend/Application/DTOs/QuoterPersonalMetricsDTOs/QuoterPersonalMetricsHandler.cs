@@ -30,10 +30,16 @@ namespace Application.DTOs.QuoterPersonalMetricsDTOs
 
         public async Task<QuoterPersonalMetricsDTO> Handle(QuoterPersonalMetricsQuery request, CancellationToken cancellationToken)
         {
-
             try
             {
                 _logger.LogInformation($"Iniciando métricas para usuario {request.QuoterId}, desde {request.FromDate} hasta {request.ToDate}");
+
+                // Determinar fechas por defecto si no se especifican
+                var defaultToDate = DateTime.UtcNow;
+                var defaultFromDate = defaultToDate.AddMonths(-3); // Últimos 3 meses por defecto
+
+                var fromDate = request.FromDate ?? defaultFromDate;
+                var toDate = request.ToDate ?? defaultToDate;
 
                 // Obtener datos del cotizador
                 var quoter = await _userRepository.GetByIdAsync(request.QuoterId);
@@ -43,14 +49,13 @@ namespace Application.DTOs.QuoterPersonalMetricsDTOs
                 // Obtener cotizaciones del período desde SQL
                 var quotations = await _quotationRepository.GetByQuoterAndPeriodAsync(
                     request.QuoterId,
-                    request.FromDate,
-                    request.ToDate);
+                    fromDate,
+                    toDate);
 
-                _logger.LogInformation($"Encontradas {quotations.Count()} cotizaciones en SQL");
+                _logger.LogInformation($"Encontradas {quotations.Count()} cotizaciones en SQL desde {fromDate} hasta {toDate}");
 
                 // Obtener los BudgetIds de las cotizaciones de SQL
                 var budgetIds = quotations.Select(q => q.Id.ToString()).ToList();
-                _logger.LogInformation($"BudgetIds a buscar en MongoDB: {string.Join(", ", budgetIds)}");
 
                 // Obtener budgets de MongoDB usando los BudgetIds
                 var budgets = new List<Budget>();
@@ -63,43 +68,38 @@ namespace Application.DTOs.QuoterPersonalMetricsDTOs
                     }
                 }
 
-                _logger.LogInformation($"Encontrados {budgets.Count} documentos en MongoDB");
+                // Para tendencias mensuales - último año por defecto
+                var trendsFromDate = request.TrendsFromDate ?? DateTime.UtcNow.AddMonths(-12);
+                var trendsToDate = request.TrendsToDate ?? DateTime.UtcNow;
 
+                // Para eficiencia por producto - mismo periodo que tendencias
+                var productsFromDate = request.ProductsFromDate ?? trendsFromDate;
+                var productsToDate = request.ProductsToDate ?? trendsToDate;
 
-                // Obtener datos del cotizador
-                quoter = await _userRepository.GetByIdAsync(request.QuoterId);
-                if (quoter == null)
-                    throw new ArgumentException($"Cotizador con ID {request.QuoterId} no encontrado");
+                // Obtener datos adicionales para tendencias y productos con sus propios periodos
+                var trendsQuotations = await _quotationRepository.GetByQuoterAndPeriodAsync(
+                    request.QuoterId, trendsFromDate, trendsToDate);
 
-                // Obtener cotizaciones del período desde SQL (esto SÍ funciona)
-                quotations = await _quotationRepository.GetByQuoterAndPeriodAsync(
-                    request.QuoterId,
-                    request.FromDate,
-                    request.ToDate);
+                var productsQuotations = await _quotationRepository.GetByQuoterAndPeriodAsync(
+                    request.QuoterId, productsFromDate, productsToDate);
 
-                // Obtener los BudgetIds de las cotizaciones de SQL
-                budgetIds = quotations.Select(q => q.Id.ToString()).ToList();
-
-                // Obtener budgets de MongoDB usando los BudgetIds
-                budgets = new List<Budget>();
-                foreach (var budgetId in budgetIds)
+                var productsBudgetIds = productsQuotations.Select(q => q.Id.ToString()).ToList();
+                var productsBudgets = new List<Budget>();
+                foreach (var budgetId in productsBudgetIds)
                 {
                     var budget = await _budgetRepository.GetByBudgetIdAsync(budgetId);
-                    if (budget != null)
-                    {
-                        budgets.Add(budget);
-                    }
+                    if (budget != null) productsBudgets.Add(budget);
                 }
 
                 // Construir el DTO
                 return new QuoterPersonalMetricsDTO
                 {
-                    PerformanceSummary = await BuildPerformanceSummary(quoter, quotations, budgets, request.QuoterId),
+                    PerformanceSummary = await BuildPerformanceSummary(quoter, quotations, budgets, request.QuoterId, fromDate, toDate),
                     KeyMetrics = CalculateKeyMetrics(quotations, budgets),
-                    MonthlyTrends = CalculateMonthlyTrends(quotations, request.FromDate, request.ToDate),
-                    ProductEfficiency = CalculateProductEfficiency(budgets),
-                    ClientHighlights = CalculateClientHighlights(quotations, request.FromDate),
-                    ImmediateActions = GenerateImmediateActions(quotations)
+                    MonthlyTrends = CalculateMonthlyTrends(trendsQuotations, trendsFromDate, trendsToDate),
+                    ProductEfficiency = CalculateProductEfficiency(productsBudgets),
+                    ClientHighlights = CalculateClientHighlights(quotations, fromDate),
+                    ImmediateActions = GenerateImmediateActions(quotations) // Usa el mismo periodo que métricas clave
                 };
             }
             catch (Exception ex)
@@ -113,8 +113,10 @@ namespace Application.DTOs.QuoterPersonalMetricsDTOs
             User quoter,
             IEnumerable<Quotation> quotations,
             IEnumerable<Budget> budgets,
-            int quoterId)
-        {
+            int quoterId,
+            DateTime fromDate,
+            DateTime toDate)
+            {
             var totalQuotations = quotations.Count();
             var acceptedQuotations = quotations.Count(q => q.Status.ToLower() == "approved");
             var conversionRate = totalQuotations > 0 ? (decimal)acceptedQuotations / totalQuotations : 0;
@@ -124,10 +126,11 @@ namespace Application.DTOs.QuoterPersonalMetricsDTOs
                 QuoterName = $"{quoter.name} {quoter.lastName}",
                 PerformanceTier = GetPerformanceTier(conversionRate),
                 OverallScore = CalculateOverallScore(quotations, budgets),
-                Strengths = IdentifyStrengths(budgets, quotations), // ✅ Actualizado
+                Strengths = IdentifyStrengths(budgets, quotations),
                 AreasForImprovement = IdentifyImprovementAreas(quotations, budgets),
-                CurrentRank = await CalculateCurrentRank(quoterId, quotations), // ✅ Actualizado
-                TotalQuoters = await _userRepository.GetActiveQuotersCountAsync()
+                CurrentRank = await CalculateCurrentRank(quoterId, quotations),
+                TotalQuoters = await _userRepository.GetActiveQuotersCountAsync(),
+                Period = $"{fromDate:MM/yyyy} - {toDate:MM/yyyy}" // Nuevo campo para mostrar el periodo
             };
         }
 

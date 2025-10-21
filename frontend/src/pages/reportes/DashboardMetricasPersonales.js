@@ -1,11 +1,7 @@
 ﻿import React, { useState, useEffect } from 'react';
 import {
     TrendingUp,
-    Filter,
-    Download,
     RefreshCw,
-    ChevronDown,
-    ChevronUp,
     Users,
     Clock,
     DollarSign,
@@ -13,8 +9,8 @@ import {
     XCircle,
     AlertTriangle,
     BarChart3,
-    Target,
-    Activity
+    Activity,
+    Calendar
 } from 'lucide-react';
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
@@ -22,15 +18,43 @@ import '../../styles/DashboardMetricasPersonales.css';
 
 const DashboardMetricasPersonales = () => {
     const [metricsData, setMetricsData] = useState({});
-    const [loading, setLoading] = useState(true);
-    const [filters, setFilters] = useState({
-        fromDate: '',
-        toDate: '',
-        metricType: 'general'
+    const [loading, setLoading] = useState({
+        overall: true,
+        metrics: false,
+        trends: false,
+        products: false
     });
-    const [filtersVisible, setFiltersVisible] = useState(false);
+
+    // Estado para filtros individuales
+    const [metricsPeriod, setMetricsPeriod] = useState({
+        fromDate: getDefaultFromDate(),
+        toDate: new Date().toISOString().split('T')[0]
+    });
+
+    const [trendsPeriod, setTrendsPeriod] = useState({
+        fromDate: getOneYearAgo(),
+        toDate: new Date().toISOString().split('T')[0]
+    });
+
+    const [productsPeriod, setProductsPeriod] = useState({
+        fromDate: getOneYearAgo(),
+        toDate: new Date().toISOString().split('T')[0]
+    });
 
     const API_URL = process.env.REACT_APP_API_URL;
+
+    // Helper functions para fechas por defecto
+    function getDefaultFromDate() {
+        const date = new Date();
+        date.setMonth(date.getMonth() - 3); // Últimos 3 meses
+        return date.toISOString().split('T')[0];
+    }
+
+    function getOneYearAgo() {
+        const date = new Date();
+        date.setFullYear(date.getFullYear() - 1);
+        return date.toISOString().split('T')[0];
+    }
 
     // Función para obtener el userId del usuario logueado
     const getCurrentUserId = async () => {
@@ -40,8 +64,6 @@ const DashboardMetricasPersonales = () => {
                 console.error('❌ No hay token en localStorage');
                 return null;
             }
-
-            console.log('🔑 Token encontrado, llamando a /api/auth/me...');
 
             const response = await fetch(`${API_URL}/api/auth/me`, {
                 headers: {
@@ -56,9 +78,6 @@ const DashboardMetricasPersonales = () => {
             }
 
             const userData = await response.json();
-            console.log('✅ Datos de usuario obtenidos:', userData);
-
-            // El endpoint devuelve { user: {...}, userId: X }
             return userData.userId || userData.user?.id;
 
         } catch (error) {
@@ -67,30 +86,30 @@ const DashboardMetricasPersonales = () => {
         }
     };
 
-    // Función para cargar las métricas
-    const fetchMetricsData = async () => {
+    // Función para cargar todas las métricas inicialmente
+    const fetchAllMetricsData = async () => {
         try {
-            setLoading(true);
-            console.log('🔄 Iniciando carga de métricas...');
+            setLoading(prev => ({ ...prev, overall: true }));
+            console.log('🔄 Iniciando carga completa de métricas...');
 
             const userId = await getCurrentUserId();
-            console.log('👤 UserId obtenido:', userId);
-
             if (!userId) {
                 console.error('❌ No se pudo obtener el ID del usuario');
                 setMetricsData({});
+                setLoading(prev => ({ ...prev, overall: false }));
                 return;
             }
 
             const token = localStorage.getItem('token');
             const queryParams = new URLSearchParams({
                 quoterId: userId,
-                ...(filters.fromDate && { fromDate: filters.fromDate }),
-                ...(filters.toDate && { toDate: filters.toDate }),
-                ...(filters.metricType && { metricType: filters.metricType })
+                fromDate: metricsPeriod.fromDate,
+                toDate: metricsPeriod.toDate,
+                trendsFromDate: trendsPeriod.fromDate,
+                trendsToDate: trendsPeriod.toDate,
+                productsFromDate: productsPeriod.fromDate,
+                productsToDate: productsPeriod.toDate
             });
-
-            console.log('🌐 URL de la request:', `/api/QuoterPersonalMetrics/metrics?${queryParams}`);
 
             const response = await fetch(`${API_URL}/api/QuoterPersonalMetrics/metrics?${queryParams}`, {
                 headers: {
@@ -99,15 +118,12 @@ const DashboardMetricasPersonales = () => {
                 }
             });
 
-            console.log('📡 Status de respuesta:', response.status);
-
             if (response.ok) {
                 const data = await response.json();
-                console.log('✅ Métricas cargadas exitosamente:', data);
+                console.log('✅ Métricas completas cargadas exitosamente');
                 setMetricsData(data);
             } else {
-                const errorText = await response.text();
-                console.error('❌ Error en la respuesta:', response.status, errorText);
+                console.error('❌ Error en la respuesta:', response.status);
                 setMetricsData({});
             }
 
@@ -115,21 +131,141 @@ const DashboardMetricasPersonales = () => {
             console.error('❌ Error general:', error);
             setMetricsData({});
         } finally {
-            setLoading(false);
+            setLoading(prev => ({ ...prev, overall: false }));
         }
     };
 
-    // Efecto para cargar datos iniciales
+    // Función para cargar solo métricas clave
+    const fetchKeyMetrics = async () => {
+        try {
+            setLoading(prev => ({ ...prev, metrics: true }));
+
+            const userId = await getCurrentUserId();
+            if (!userId) return;
+
+            const token = localStorage.getItem('token');
+            const queryParams = new URLSearchParams({
+                quoterId: userId,
+                fromDate: metricsPeriod.fromDate,
+                toDate: metricsPeriod.toDate
+            });
+
+            const response = await fetch(`${API_URL}/api/QuoterPersonalMetrics/metrics/key-metrics?${queryParams}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setMetricsData(prev => ({
+                    ...prev,
+                    KeyMetrics: data
+                }));
+            }
+        } catch (error) {
+            console.error('❌ Error cargando métricas clave:', error);
+        } finally {
+            setLoading(prev => ({ ...prev, metrics: false }));
+        }
+    };
+
+    // Función para cargar solo tendencias mensuales
+    const fetchMonthlyTrends = async () => {
+        try {
+            setLoading(prev => ({ ...prev, trends: true }));
+
+            const userId = await getCurrentUserId();
+            if (!userId) return;
+
+            const token = localStorage.getItem('token');
+            const queryParams = new URLSearchParams({
+                quoterId: userId,
+                fromDate: trendsPeriod.fromDate,
+                toDate: trendsPeriod.toDate
+            });
+
+            const response = await fetch(`${API_URL}/api/QuoterPersonalMetrics/metrics/monthly-trends?${queryParams}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setMetricsData(prev => ({
+                    ...prev,
+                    MonthlyTrends: data
+                }));
+            }
+        } catch (error) {
+            console.error('❌ Error cargando tendencias:', error);
+        } finally {
+            setLoading(prev => ({ ...prev, trends: false }));
+        }
+    };
+
+    // Función para cargar solo eficiencia por producto
+    const fetchProductEfficiency = async () => {
+        try {
+            setLoading(prev => ({ ...prev, products: true }));
+
+            const userId = await getCurrentUserId();
+            if (!userId) return;
+
+            const token = localStorage.getItem('token');
+            const queryParams = new URLSearchParams({
+                quoterId: userId,
+                fromDate: productsPeriod.fromDate,
+                toDate: productsPeriod.toDate
+            });
+
+            const response = await fetch(`${API_URL}/api/QuoterPersonalMetrics/metrics/product-efficiency?${queryParams}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setMetricsData(prev => ({
+                    ...prev,
+                    ProductEfficiency: data
+                }));
+            }
+        } catch (error) {
+            console.error('❌ Error cargando eficiencia por producto:', error);
+        } finally {
+            setLoading(prev => ({ ...prev, products: false }));
+        }
+    };
+
+    // Efecto para carga inicial completa
     useEffect(() => {
-        fetchMetricsData();
+        fetchAllMetricsData();
     }, []);
 
-    // Efecto para recargar cuando cambian los filtros
+    // Efectos para actualizaciones individuales
     useEffect(() => {
-        if (!loading) {
-            fetchMetricsData();
+        if (!loading.overall) {
+            fetchKeyMetrics();
         }
-    }, [filters.fromDate, filters.toDate, filters.metricType]);
+    }, [metricsPeriod.fromDate, metricsPeriod.toDate]);
+
+    useEffect(() => {
+        if (!loading.overwell) {
+            fetchMonthlyTrends();
+        }
+    }, [trendsPeriod.fromDate, trendsPeriod.toDate]);
+
+    useEffect(() => {
+        if (!loading.overall) {
+            fetchProductEfficiency();
+        }
+    }, [productsPeriod.fromDate, productsPeriod.toDate]);
 
     // Función para formatear precio
     const formatPrice = (price) => {
@@ -166,26 +302,47 @@ const DashboardMetricasPersonales = () => {
     };
 
     const handleRefresh = () => {
-        fetchMetricsData();
+        fetchAllMetricsData();
     };
 
-    const handleExport = () => {
-        // Implementar exportación a PDF/Excel
-        console.log('Exportando métricas...');
-    };
+    // Componente Skeleton para loading
+    const SkeletonCard = ({ className = "" }) => (
+        <div className={`skeleton-card ${className}`}>
+            <div className="skeleton-line short"></div>
+            <div className="skeleton-line long"></div>
+            <div className="skeleton-line medium"></div>
+        </div>
+    );
 
-    if (loading) {
-        return (
-            <div className="metrics-dashboard-container">
-                <Navigation />
-                <div className="metrics-dashboard-loading">
-                    <div className="metrics-loading-spinner"></div>
-                    <p>Cargando métricas personales...</p>
-                </div>
-                <Footer />
+    const SkeletonKPI = () => (
+        <div className="metrics-kpi-card skeleton">
+            <div className="metrics-kpi-icon skeleton"></div>
+            <div className="metrics-kpi-content">
+                <div className="skeleton-line large"></div>
+                <div className="skeleton-line medium"></div>
+                <div className="skeleton-line short"></div>
             </div>
-        );
-    }
+        </div>
+    );
+
+    const SkeletonTable = ({ rows = 5 }) => (
+        <div className="skeleton-table">
+            <div className="skeleton-table-header">
+                {[...Array(6)].map((_, i) => (
+                    <div key={i} className="skeleton-line short"></div>
+                ))}
+            </div>
+            <div className="skeleton-table-body">
+                {[...Array(rows)].map((_, i) => (
+                    <div key={i} className="skeleton-table-row">
+                        {[...Array(6)].map((_, j) => (
+                            <div key={j} className="skeleton-line medium"></div>
+                        ))}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
 
     return (
         <div className="metrics-dashboard-container">
@@ -207,65 +364,11 @@ const DashboardMetricasPersonales = () => {
                                 </div>
                             </div>
                             <div className="metrics-header-actions">
-                                <button className="metrics-btn metrics-btn-secondary" onClick={handleExport}>
-                                    <Download size={18} />
-                                    Exportar
-                                </button>
                                 <button className="metrics-btn metrics-btn-primary" onClick={handleRefresh}>
                                     <RefreshCw size={18} />
-                                    Actualizar
+                                    Actualizar Todo
                                 </button>
                             </div>
-                        </div>
-
-                        {/* FILTROS */}
-                        <div className="metrics-filters-accordion">
-                            <div className="metrics-filters-header-toggle" onClick={() => setFiltersVisible(!filtersVisible)}>
-                                <div className="metrics-filters-toggle-left">
-                                    <Filter size={20} />
-                                    <span>Filtros del Reporte</span>
-                                </div>
-                                <div className="metrics-filters-toggle-right">
-                                    {filtersVisible ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                                </div>
-                            </div>
-
-                            {filtersVisible && (
-                                <div className="metrics-filters-content-expanded">
-                                    <div className="metrics-filters-grid">
-                                        <div className="metrics-filter-group">
-                                            <label>Fecha desde:</label>
-                                            <input
-                                                type="date"
-                                                value={filters.fromDate}
-                                                onChange={(e) => setFilters({ ...filters, fromDate: e.target.value })}
-                                                className="metrics-filter-input"
-                                            />
-                                        </div>
-                                        <div className="metrics-filter-group">
-                                            <label>Fecha hasta:</label>
-                                            <input
-                                                type="date"
-                                                value={filters.toDate}
-                                                onChange={(e) => setFilters({ ...filters, toDate: e.target.value })}
-                                                className="metrics-filter-input"
-                                            />
-                                        </div>
-                                        <div className="metrics-filter-group">
-                                            <label>Tipo de métrica:</label>
-                                            <select
-                                                value={filters.metricType}
-                                                onChange={(e) => setFilters({ ...filters, metricType: e.target.value })}
-                                                className="metrics-filter-select"
-                                            >
-                                                <option value="general">General</option>
-                                                <option value="mensual">Mensual</option>
-                                                <option value="por-producto">Por Producto</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
                         </div>
 
                         {/* CONTENIDO PRINCIPAL CON NUEVO LAYOUT */}
@@ -274,8 +377,25 @@ const DashboardMetricasPersonales = () => {
                             {/* COLUMNA PRINCIPAL */}
                             <div className="metrics-main-content">
 
-                                {/* RESUMEN EJECUTIVO */}
-                                {metricsData.PerformanceSummary && (
+                                {/* RESUMEN EJECUTIVO SIMPLIFICADO */}
+                                {loading.overall ? (
+                                    <div className="metrics-executive-summary-panel skeleton">
+                                        <div className="metrics-summary-grid">
+                                            <div className="metrics-summary-item">
+                                                <div className="skeleton-line short"></div>
+                                                <div className="skeleton-line medium"></div>
+                                            </div>
+                                            <div className="metrics-summary-item">
+                                                <div className="skeleton-line short"></div>
+                                                <div className="skeleton-line large"></div>
+                                            </div>
+                                            <div className="metrics-summary-item">
+                                                <div className="skeleton-line short"></div>
+                                                <div className="skeleton-line medium"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : metricsData.PerformanceSummary && (
                                     <div className="metrics-executive-summary-panel">
                                         <div className="metrics-summary-grid">
                                             <div className="metrics-summary-item">
@@ -286,14 +406,6 @@ const DashboardMetricasPersonales = () => {
                                                 <div className="metrics-summary-label">Score General</div>
                                                 <div className="metrics-summary-value score">{Math.round(metricsData.PerformanceSummary.OverallScore)}/100</div>
                                             </div>
-                                            <div className="metrics-summary-item">
-                                                <div className="metrics-summary-label">Ranking</div>
-                                                <div className="metrics-summary-value ranking">#{metricsData.PerformanceSummary.CurrentRank} de {metricsData.PerformanceSummary.TotalQuoters}</div>
-                                            </div>
-                                            <div className="metrics-summary-item metrics-strengths">
-                                                <div className="metrics-summary-label">Fortalezas</div>
-                                                <div className="metrics-summary-value">{metricsData.PerformanceSummary.Strengths}</div>
-                                            </div>
                                             <div className="metrics-summary-item metrics-improvements">
                                                 <div className="metrics-summary-label">Áreas de Mejora</div>
                                                 <div className="metrics-summary-value">{metricsData.PerformanceSummary.AreasForImprovement}</div>
@@ -302,97 +414,172 @@ const DashboardMetricasPersonales = () => {
                                     </div>
                                 )}
 
-                                {/* MÉTRICAS CLAVE */}
-                                {metricsData.KeyMetrics && (
-                                    <div className="metrics-kpi-section">
-                                        <div className="metrics-section-header">
+                                {/* MÉTRICAS CLAVE CON PERIODO */}
+                                <div className="metrics-kpi-section">
+                                    <div className="metrics-section-header">
+                                        <div className="metrics-section-title">
                                             <Activity size={24} />
                                             <h2>Métricas Clave</h2>
+                                            <span className="metrics-period-badge">
+                                                <Calendar size={14} />
+                                                {metricsPeriod.fromDate} a {metricsPeriod.toDate}
+                                            </span>
                                         </div>
-                                        <div className="metrics-kpi-grid">
-                                            <div className="metrics-kpi-card">
-                                                <div className="metrics-kpi-icon" style={{ background: '#2196f3' }}>
-                                                    <BarChart3 size={24} />
-                                                </div>
-                                                <div className="metrics-kpi-content">
-                                                    <div className="metrics-kpi-value">{metricsData.KeyMetrics.TotalQuotations || 0}</div>
-                                                    <div className="metrics-kpi-label">Total Cotizaciones</div>
-                                                </div>
+                                        <div className="metrics-period-selector">
+                                            <div className="metrics-filter-group small">
+                                                <label>Desde:</label>
+                                                <input
+                                                    type="date"
+                                                    value={metricsPeriod.fromDate}
+                                                    onChange={(e) => setMetricsPeriod({ ...metricsPeriod, fromDate: e.target.value })}
+                                                    className="metrics-filter-input small"
+                                                    disabled={loading.metrics}
+                                                />
                                             </div>
-
-                                            <div className="metrics-kpi-card">
-                                                <div className="metrics-kpi-icon" style={{ background: '#4caf50' }}>
-                                                    <CheckCircle size={24} />
-                                                </div>
-                                                <div className="metrics-kpi-content">
-                                                    <div className="metrics-kpi-value">{metricsData.KeyMetrics.AcceptedQuotations || 0}</div>
-                                                    <div className="metrics-kpi-label">Aceptadas</div>
-                                                    <div className="metrics-kpi-subtext">
-                                                        {formatPercentage(metricsData.KeyMetrics.ConversionRate)}
-                                                    </div>
-                                                </div>
+                                            <div className="metrics-filter-group small">
+                                                <label>Hasta:</label>
+                                                <input
+                                                    type="date"
+                                                    value={metricsPeriod.toDate}
+                                                    onChange={(e) => setMetricsPeriod({ ...metricsPeriod, toDate: e.target.value })}
+                                                    className="metrics-filter-input small"
+                                                    disabled={loading.metrics}
+                                                />
                                             </div>
-
-                                            <div className="metrics-kpi-card">
-                                                <div className="metrics-kpi-icon" style={{ background: '#ff9800' }}>
-                                                    <Clock size={24} />
-                                                </div>
-                                                <div className="metrics-kpi-content">
-                                                    <div className="metrics-kpi-value">{metricsData.KeyMetrics.PendingQuotations || 0}</div>
-                                                    <div className="metrics-kpi-label">Pendientes</div>
-                                                </div>
-                                            </div>
-
-                                            <div className="metrics-kpi-card">
-                                                <div className="metrics-kpi-icon" style={{ background: '#f44336' }}>
-                                                    <XCircle size={24} />
-                                                </div>
-                                                <div className="metrics-kpi-content">
-                                                    <div className="metrics-kpi-value">{metricsData.KeyMetrics.RejectedQuotations || 0}</div>
-                                                    <div className="metrics-kpi-label">Rechazadas</div>
-                                                </div>
-                                            </div>
-
-                                            <div className="metrics-kpi-card">
-                                                <div className="metrics-kpi-icon" style={{ background: '#9c27b0' }}>
-                                                    <DollarSign size={24} />
-                                                </div>
-                                                <div className="metrics-kpi-content">
-                                                    <div className="metrics-kpi-value">{formatPrice(metricsData.KeyMetrics.TotalRevenue)}</div>
-                                                    <div className="metrics-kpi-label">Ingreso Total</div>
-                                                    <div className="metrics-kpi-subtext">
-                                                        Promedio: {formatPrice(metricsData.KeyMetrics.AverageQuotationValue)}
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="metrics-kpi-card">
-                                                <div className="metrics-kpi-icon" style={{ background: '#607d8b' }}>
-                                                    <Users size={24} />
-                                                </div>
-                                                <div className="metrics-kpi-content">
-                                                    <div className="metrics-kpi-value">{metricsData.KeyMetrics.ActiveClients || 0}</div>
-                                                    <div className="metrics-kpi-label">Clientes Activos</div>
-                                                    <div className="metrics-kpi-subtext">
-                                                        Tiempo respuesta: {Math.round(metricsData.KeyMetrics.AverageResponseTimeHours)}h
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            {loading.metrics && (
+                                                <div className="loading-indicator small"></div>
+                                            )}
                                         </div>
                                     </div>
-                                )}
+                                    <div className="metrics-kpi-grid">
+                                        {loading.metrics ? (
+                                            <>
+                                                <SkeletonKPI />
+                                                <SkeletonKPI />
+                                                <SkeletonKPI />
+                                                <SkeletonKPI />
+                                                <SkeletonKPI />
+                                                <SkeletonKPI />
+                                            </>
+                                        ) : metricsData.KeyMetrics ? (
+                                            <>
+                                                <div className="metrics-kpi-card">
+                                                    <div className="metrics-kpi-icon" style={{ background: '#2196f3' }}>
+                                                        <BarChart3 size={24} />
+                                                    </div>
+                                                    <div className="metrics-kpi-content">
+                                                        <div className="metrics-kpi-value">{metricsData.KeyMetrics.TotalQuotations || 0}</div>
+                                                        <div className="metrics-kpi-label">Total Cotizaciones</div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="metrics-kpi-card">
+                                                    <div className="metrics-kpi-icon" style={{ background: '#4caf50' }}>
+                                                        <CheckCircle size={24} />
+                                                    </div>
+                                                    <div className="metrics-kpi-content">
+                                                        <div className="metrics-kpi-value">{metricsData.KeyMetrics.AcceptedQuotations || 0}</div>
+                                                        <div className="metrics-kpi-label">Aceptadas</div>
+                                                        <div className="metrics-kpi-subtext">
+                                                            {formatPercentage(metricsData.KeyMetrics.ConversionRate)}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="metrics-kpi-card">
+                                                    <div className="metrics-kpi-icon" style={{ background: '#ff9800' }}>
+                                                        <Clock size={24} />
+                                                    </div>
+                                                    <div className="metrics-kpi-content">
+                                                        <div className="metrics-kpi-value">{metricsData.KeyMetrics.PendingQuotations || 0}</div>
+                                                        <div className="metrics-kpi-label">Pendientes</div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="metrics-kpi-card">
+                                                    <div className="metrics-kpi-icon" style={{ background: '#f44336' }}>
+                                                        <XCircle size={24} />
+                                                    </div>
+                                                    <div className="metrics-kpi-content">
+                                                        <div className="metrics-kpi-value">{metricsData.KeyMetrics.RejectedQuotations || 0}</div>
+                                                        <div className="metrics-kpi-label">Rechazadas</div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="metrics-kpi-card">
+                                                    <div className="metrics-kpi-icon" style={{ background: '#9c27b0' }}>
+                                                        <DollarSign size={24} />
+                                                    </div>
+                                                    <div className="metrics-kpi-content">
+                                                        <div className="metrics-kpi-value">{formatPrice(metricsData.KeyMetrics.TotalRevenue)}</div>
+                                                        <div className="metrics-kpi-label">Ingreso Total</div>
+                                                        <div className="metrics-kpi-subtext">
+                                                            Promedio: {formatPrice(metricsData.KeyMetrics.AverageQuotationValue)}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="metrics-kpi-card">
+                                                    <div className="metrics-kpi-icon" style={{ background: '#607d8b' }}>
+                                                        <Users size={24} />
+                                                    </div>
+                                                    <div className="metrics-kpi-content">
+                                                        <div className="metrics-kpi-value">{metricsData.KeyMetrics.ActiveClients || 0}</div>
+                                                        <div className="metrics-kpi-label">Clientes Activos</div>
+                                                        <div className="metrics-kpi-subtext">
+                                                            Tiempo respuesta: {Math.round(metricsData.KeyMetrics.AverageResponseTimeHours)}h
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div className="metrics-no-data">
+                                                No hay datos disponibles para el periodo seleccionado
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
 
                                 {/* TABLAS */}
                                 <div className="metrics-tables-grid">
 
-                                    {/* Tendencias Mensuales */}
-                                    {metricsData.MonthlyTrends && metricsData.MonthlyTrends.$values && metricsData.MonthlyTrends.$values.length > 0 && (
-                                        <div className="metrics-panel trends-panel">
-                                            <div className="metrics-panel-header">
+                                    {/* TENDENCIAS MENSUALES CON FILTROS */}
+                                    <div className="metrics-panel trends-panel">
+                                        <div className="metrics-panel-header">
+                                            <div className="metrics-panel-title">
                                                 <TrendingUp size={20} />
                                                 <h3>Tendencias Mensuales</h3>
                                             </div>
-                                            <div className="metrics-panel-content">
+                                            <div className="metrics-panel-filters">
+                                                <div className="metrics-filter-group small">
+                                                    <label>Desde:</label>
+                                                    <input
+                                                        type="date"
+                                                        value={trendsPeriod.fromDate}
+                                                        onChange={(e) => setTrendsPeriod({ ...trendsPeriod, fromDate: e.target.value })}
+                                                        className="metrics-filter-input small"
+                                                        disabled={loading.trends}
+                                                    />
+                                                </div>
+                                                <div className="metrics-filter-group small">
+                                                    <label>Hasta:</label>
+                                                    <input
+                                                        type="date"
+                                                        value={trendsPeriod.toDate}
+                                                        onChange={(e) => setTrendsPeriod({ ...trendsPeriod, toDate: e.target.value })}
+                                                        className="metrics-filter-input small"
+                                                        disabled={loading.trends}
+                                                    />
+                                                </div>
+                                                {loading.trends && (
+                                                    <div className="loading-indicator small"></div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="metrics-panel-content">
+                                            {loading.trends ? (
+                                                <SkeletonTable rows={3} />
+                                            ) : metricsData.MonthlyTrends && metricsData.MonthlyTrends.$values && metricsData.MonthlyTrends.$values.length > 0 ? (
                                                 <div className="metrics-trends-table-container">
                                                     <table className="metrics-trends-table">
                                                         <thead>
@@ -425,18 +612,51 @@ const DashboardMetricasPersonales = () => {
                                                         </tbody>
                                                     </table>
                                                 </div>
-                                            </div>
+                                            ) : (
+                                                <div className="metrics-no-data">
+                                                    No hay datos de tendencias para el periodo seleccionado
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
+                                    </div>
 
-                                    {/* Eficiencia por Producto */}
-                                    {metricsData.ProductEfficiency && metricsData.ProductEfficiency.$values && metricsData.ProductEfficiency.$values.length > 0 && (
-                                        <div className="metrics-panel products-panel">
-                                            <div className="metrics-panel-header">
+                                    {/* EFICIENCIA POR PRODUCTO CON FILTROS */}
+                                    <div className="metrics-panel products-panel">
+                                        <div className="metrics-panel-header">
+                                            <div className="metrics-panel-title">
                                                 <BarChart3 size={20} />
                                                 <h3>Eficiencia por Producto</h3>
                                             </div>
-                                            <div className="metrics-panel-content">
+                                            <div className="metrics-panel-filters">
+                                                <div className="metrics-filter-group small">
+                                                    <label>Desde:</label>
+                                                    <input
+                                                        type="date"
+                                                        value={productsPeriod.fromDate}
+                                                        onChange={(e) => setProductsPeriod({ ...productsPeriod, fromDate: e.target.value })}
+                                                        className="metrics-filter-input small"
+                                                        disabled={loading.products}
+                                                    />
+                                                </div>
+                                                <div className="metrics-filter-group small">
+                                                    <label>Hasta:</label>
+                                                    <input
+                                                        type="date"
+                                                        value={productsPeriod.toDate}
+                                                        onChange={(e) => setProductsPeriod({ ...productsPeriod, toDate: e.target.value })}
+                                                        className="metrics-filter-input small"
+                                                        disabled={loading.products}
+                                                    />
+                                                </div>
+                                                {loading.products && (
+                                                    <div className="loading-indicator small"></div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="metrics-panel-content">
+                                            {loading.products ? (
+                                                <SkeletonTable rows={3} />
+                                            ) : metricsData.ProductEfficiency && metricsData.ProductEfficiency.$values && metricsData.ProductEfficiency.$values.length > 0 ? (
                                                 <div className="metrics-products-table-container">
                                                     <table className="metrics-products-table">
                                                         <thead>
@@ -469,17 +689,36 @@ const DashboardMetricasPersonales = () => {
                                                         </tbody>
                                                     </table>
                                                 </div>
-                                            </div>
+                                            ) : (
+                                                <div className="metrics-no-data">
+                                                    No hay datos de productos para el periodo seleccionado
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
                             </div>
 
                             {/* SIDEBAR */}
                             <div className="metrics-sidebar">
 
-                                {/* Clientes Destacados */}
-                                {metricsData.ClientHighlights && (
+                                {/* CLIENTES DESTACADOS */}
+                                {loading.overall ? (
+                                    <div className="metrics-panel clients-panel skeleton">
+                                        <div className="metrics-panel-header">
+                                            <div className="skeleton-line medium"></div>
+                                        </div>
+                                        <div className="metrics-panel-content">
+                                            <div className="metrics-clients-stats">
+                                                <SkeletonCard className="small" />
+                                                <SkeletonCard className="small" />
+                                                <SkeletonCard className="small" />
+                                                <SkeletonCard className="small" />
+                                            </div>
+                                            <SkeletonCard />
+                                        </div>
+                                    </div>
+                                ) : metricsData.ClientHighlights && (
                                     <div className="metrics-panel clients-panel">
                                         <div className="metrics-panel-header">
                                             <Users size={20} />
@@ -515,12 +754,27 @@ const DashboardMetricasPersonales = () => {
                                     </div>
                                 )}
 
-                                {/* Acciones Inmediatas */}
-                                {metricsData.ImmediateActions && metricsData.ImmediateActions.$values && metricsData.ImmediateActions.$values.length > 0 && (
+                                {/* ACCIONES INMEDIATAS - MISMO PERIODO QUE MÉTRICAS CLAVE */}
+                                {loading.overall ? (
+                                    <div className="metrics-panel actions-panel skeleton">
+                                        <div className="metrics-panel-header">
+                                            <div className="skeleton-line medium"></div>
+                                        </div>
+                                        <div className="metrics-panel-content">
+                                            <div className="metrics-actions-list">
+                                                <SkeletonCard />
+                                                <SkeletonCard />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : metricsData.ImmediateActions && metricsData.ImmediateActions.$values && metricsData.ImmediateActions.$values.length > 0 ? (
                                     <div className="metrics-panel actions-panel">
                                         <div className="metrics-panel-header">
                                             <AlertTriangle size={20} />
                                             <h3>Acciones Inmediatas</h3>
+                                            <span className="metrics-period-badge small">
+                                                {metricsPeriod.fromDate} a {metricsPeriod.toDate}
+                                            </span>
                                             <span className="metrics-actions-badge">{metricsData.ImmediateActions.$values.length}</span>
                                         </div>
                                         <div className="metrics-panel-content">
@@ -539,6 +793,18 @@ const DashboardMetricasPersonales = () => {
                                                         </div>
                                                     </div>
                                                 ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="metrics-panel actions-panel">
+                                        <div className="metrics-panel-header">
+                                            <AlertTriangle size={20} />
+                                            <h3>Acciones Inmediatas</h3>
+                                        </div>
+                                        <div className="metrics-panel-content">
+                                            <div className="metrics-no-data">
+                                                No hay acciones pendientes
                                             </div>
                                         </div>
                                     </div>
