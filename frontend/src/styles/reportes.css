@@ -236,7 +236,69 @@ body.light-mode .card-icon-wrapper {
     break-inside: avoid;
     page-break-inside: avoid;
 }
+/* Estilos para las tarjetas de estadísticas */
+.stat-card {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-left: 4px solid #1976d2;
+}
 
+.stat-number {
+  font-size: 24px;
+  font-weight: bold;
+  color: #1976d2;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 3px;
+}
+
+.stat-percentage {
+  font-size: 12px;
+  color: #4caf50;
+  font-weight: bold;
+}
+
+/* Mejoras para tablas responsivas */
+.tabla-cotizaciones-responsive {
+  overflow-x: auto;
+  margin: 10px 0;
+}
+
+.reporte-cotizaciones-tabla {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reporte-cotizaciones-tabla th {
+  background: #f5f5f5;
+  padding: 10px;
+  text-align: left;
+  font-weight: bold;
+  border-bottom: 2px solid #ddd;
+}
+
+.reporte-cotizaciones-tabla td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.reporte-cotizaciones-tabla tr:hover {
+  background: #f8f9fa;
+}
+
+
+
+/* Mejoras para gráficos */
+.chart-container {
+  position: relative;
+  margin: 20px 0;
+}
 .tabla-ajustada {
     font-size: 13px;
     word-break: break-word;
@@ -310,4 +372,33 @@ body.light-mode .card-icon-wrapper {
 
 a {
     text-decoration: none;
+}
+.btn-primary {
+    background: #1976d2;
+    font-size: 1rem;
+    width: 18rem;
+    margin: 1px auto;
+    height: 43px;   
+    color: #ffffff;
+}
+
+.kpi-trend {
+    color: #ffffff;
+}
+.panel-badge {
+    color: #ffffff;
+}
+.top-complement-name{
+    color: #ffffff;
+}
+
+.alerts-panel-complements {
+    background-color: #1e353b;
+}
+
+.stat-label {
+    color: #ffffff;
+}
+.stat-value {
+    color: #ffffff;
 }
