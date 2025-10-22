@@ -179,7 +179,14 @@
     width: 8rem;
     margin: 1px auto
 }
-
+.reporte-cotizaciones-btn-pdf-Complement{
+     background: #882c1c;  
+    font-size: 1rem;
+    width: 8rem;
+    margin: 1px auto;
+    height: 43px;   
+    color: #000000;
+}
 .reporte-cotizaciones-btn-email {
     background: #19416e;
 }
@@ -250,7 +257,7 @@
 .reporte-cotizaciones-tabla td:last-child {
 
     text-align: right;
-    min-width: 10px;
+    
 }
 
 /* Contenedor para tablas largas: permite scroll horizontal en pantallas pequeñas */
@@ -616,7 +623,7 @@
 .botton-Report {
     width: 8rem;
     max-width: 8rem;
-    padding: 10px 12px;
+    padding: 2px 12px;
     text-align: center;
 }
 
