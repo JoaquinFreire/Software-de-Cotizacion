@@ -17,6 +17,8 @@ import { validateCustomer } from "../validation/customerValidation";
 import { validateWorkPlace } from "../validation/workPlaceValidation";
 import { validateOpenings } from "../validation/openingValidation";
 import { safeArray } from '../utils/safeArray';
+import { toast } from 'react-toastify';
+import { ToastContainer, Slide } from 'react-toastify';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -991,7 +993,7 @@ const Quotation = () => {
     };
     const goToSlide = (index) => {
         if (!canNavigateToStep(index)) {
-            alert("Debe agregar el cliente al resumen antes de continuar");
+            toast.error("Debe agregar el cliente al resumen antes de continuar");
             return;
         }
         
@@ -1148,11 +1150,14 @@ useEffect(() => {
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
+
             <div className="materials-header">
+
                 <h2 className="materials-title">Nueva Cotización</h2>
                 <p className="materials-subtitle">Complete los datos en cada sección y valindando los mismos en el resumen antes de crear la cotización.</p>
 
             </div>
+            <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
             <div className="quotation-layout">
                 <aside className="quotation-indice">
                 <h3>Índice</h3>
