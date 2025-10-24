@@ -42,7 +42,7 @@ import TypeLine from './pages/openings/TypeLine';
 import Complement from './pages/openings/Complement';
 import AnalisisSatisfaccionCliente from './pages/reportes/AnalisisSatisfaccionCliente';
 import ConfigCliente from './components/ConfigCliente';
-
+import ClienteConMayorVolumen from './pages/reportes/ClienteConMayorVolumen';
 // nuevos imports: páginas separadas de admin/materiales
 import AdminTreatment from "./pages/admin/materiales/AdminTreatment";
 import AdminCoating from "./pages/admin/materiales/AdminCoating";
@@ -211,6 +211,7 @@ function App() {
                         <Route path="/reportes/sostenibilidad" element={<PrivateRoute element={<DashboardSostenibilidad />} />} />
                         <Route path="/reportes/consumo-complementos" element={<PrivateRoute element={<ReporteConsumoComplementos />} />} />
                         <Route path="/reportes/tendencias-mensuales" element={<PrivateRoute element={<ReporteDeTendenciasDeCotizacionPorMes />} />} />
+                        <Route path="/reportes/cliente-mayor-volumen"element={<PrivateRoute element={<ClienteConMayorVolumen />} />}/>
                         <Route path="/operational-dashboard" element={<PrivateRoute element={<DashboardEficienciaOperativa />} />} />
                         <Route path="/quotation" element={<PrivateRoute element={<Quotation />} />} />
                         <Route path="/quotation/:id" element={<PrivateRoute element={<BudgetDetail />} />} />

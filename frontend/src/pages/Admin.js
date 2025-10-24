@@ -31,10 +31,10 @@ const Admin = () => {
             color: "#10b981"
         },
         {
-            path: "/admin/descuentos",
+            path: "/admin/prices",
             className: "AdminDescuent",
             icon: <Clock3 size={32} />,
-            title: "Administrar Descuentos",
+            title: "Administrar Precios",
             description: "Gestión de promociones",
             color: "#f59e0b"
         },
