@@ -39,6 +39,9 @@ namespace Domain.Repositories
         Task<IEnumerable<Quotation>> GetByQuoterAndPeriodAsync(int quoterId, DateTime? fromDate, DateTime? toDate);
         Task<int> CalculateCurrentRank(int quoterId, IEnumerable<Quotation> allQuotations);
         Task<decimal> CalculateRetentionRate(int quoterId, DateTime? fromDate);
+
+        Task<IEnumerable<Quotation>> GetPendingQuotationsAsync();
+        Task<IEnumerable<Quotation>> GetApprovedQuotationsInPeriodAsync(DateTime fromDate, DateTime toDate);
     }
 
 

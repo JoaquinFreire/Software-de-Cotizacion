@@ -132,11 +132,11 @@ const reportCards = [
         color: "#f43f5e"
     },
     { // Reporte 15
-        title: "Reporte de Promociones y Descuentos",
-        description: "Efectividad de promociones",
+        title: "Reporte de sostenibilidad económica",
+        description: "Análisis de crecimiento monetario",
         icon: <Percent size={32} />,
-        className: "reporte-promociones-descuentos",
-        route: "/reportes/promociones-descuentos",
+        className: "reporte-sostenibilidad",
+        route: "/reportes/sostenibilidad",
         color: "#d946ef"
     }
 ];

@@ -453,6 +453,15 @@ public class QuotationController : ControllerBase
             return NotFound(new { message = "No se encontró la cotización o ocurrió un error" });
         }
     }
+
+    [HttpGet("pending-quotations")]
+    public async Task<IActionResult> GetPendingQuotationsCount()
+    {
+        var count = await _quotationRepository.Query()
+            .Where(q => q.Status.ToLower() == "pending")
+            .CountAsync();
+        return Ok(new { pendingQuotations = count });
+    }
 }
 
 // DTOs internos

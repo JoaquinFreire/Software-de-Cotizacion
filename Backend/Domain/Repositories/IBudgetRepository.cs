@@ -15,6 +15,20 @@ namespace Domain.Repositories
         Task<List<Budget>> GetBudgetsByCustomerDniAsync(string customerDni);
         Task<List<Budget>> GetBudgetsByCustomerAsync(Customer Customer);
         Task ChangeBudgetStatus(string budgetId, BudgetStatus newStatus, string? rejectionComment = null);
+
+        Task<List<Budget>> GetApprovedBudgetsInPeriodAsync(DateTime fromDate, DateTime toDate);
+        Task<List<Budget>> GetAllBudgetsInPeriodAsync(DateTime fromDate, DateTime toDate);
+        Task<decimal> GetTotalRevenueInPeriodAsync(DateTime fromDate, DateTime toDate);
+        Task<List<MonthlyRevenue>> GetMonthlyRevenueAsync(DateTime fromDate, DateTime toDate);
+        Task<List<Budget>> GetCustomerBudgetHistoryAsync(string customerDni);
+        Task<int> GetTotalActiveClientsAsync(DateTime fromDate, DateTime toDate);
+
+        public class MonthlyRevenue
+        {
+            public int Year { get; set; }
+            public int Month { get; set; }
+            public decimal Revenue { get; set; }
+        }
     }
 }
 

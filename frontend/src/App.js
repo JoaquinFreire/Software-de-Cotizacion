@@ -18,6 +18,7 @@ import ReporteDeOportunidadesPerdidas from './pages/reportes/ReporteOportunidade
 import BeneficioEnCotizaciocionesPorTipoDeLinea from './pages/reportes/BeneficioEnCotizaciocionesPorTipoDeLinea';
 import ReporteDeProductividadPorCotizador from './pages/reportes/ReporteDeProductividadPorCotizador';
 import DashboardMetricasPersonales from './pages/reportes/DashboardMetricasPersonales';
+import DashboardSostenibilidad from './pages/reportes/DashboardSostenibilidad';
 import ReporteConsumoComplementos from './pages/reportes/ReporteConsumoComplementos';
 import ReporteDeTendenciasDeCotizacionPorMes from './pages/reportes/ReporteDeTendenciasDeCotizacionPorMes';
 import BudgetDetail from './pages/BudgetDetail';
@@ -207,6 +208,7 @@ function App() {
                         <Route path="/reportes/beneficio-proyecto" element={<PrivateRoute element={<BeneficioEnCotizaciocionesPorTipoDeLinea />} />} />
                         <Route path="/reportes/productividad-cotizador" element={<PrivateRoute element={<ReporteDeProductividadPorCotizador />} />} />
                         <Route path="/reportes/metrica-personal" element={<PrivateRoute element={<DashboardMetricasPersonales />} />} />
+                        <Route path="/reportes/sostenibilidad" element={<PrivateRoute element={<DashboardSostenibilidad />} />} />
                         <Route path="/reportes/consumo-complementos" element={<PrivateRoute element={<ReporteConsumoComplementos />} />} />
                         <Route path="/reportes/tendencias-mensuales" element={<PrivateRoute element={<ReporteDeTendenciasDeCotizacionPorMes />} />} />
                         <Route path="/operational-dashboard" element={<PrivateRoute element={<DashboardEficienciaOperativa />} />} />
