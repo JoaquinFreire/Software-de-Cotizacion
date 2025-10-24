@@ -246,4 +246,26 @@ public class QuotationRepository : IQuotationRepository
         return retentionRate;
     }
 
+    public async Task<IEnumerable<Quotation>> GetPendingQuotationsAsync()
+    {
+        return await _context.Quotations
+            .Include(q => q.Customer)
+            .Include(q => q.User)
+            .Include(q => q.WorkPlace)
+            .Where(q => q.Status.ToLower() == "pending")
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Quotation>> GetApprovedQuotationsInPeriodAsync(DateTime fromDate, DateTime toDate)
+    {
+        return await _context.Quotations
+            .Include(q => q.Customer)
+            .Include(q => q.User)
+            .Include(q => q.WorkPlace)
+            .Where(q => q.Status.ToLower() == "approved" &&
+                       q.CreationDate >= fromDate &&
+                       q.CreationDate <= toDate)
+            .ToListAsync();
+    }
+
 }
