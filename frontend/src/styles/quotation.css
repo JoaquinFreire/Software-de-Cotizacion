@@ -189,7 +189,20 @@
 .form-group textarea {
     width: 450px;
 }
+.searching-message {
+    background-color: #949596;
+    border: 1px solid #21f3d0;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: center;
+}
 
+.searching-message p {
+    margin: 0;
+    color: #19d2c9;
+    font-weight: 500;
+}
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {

@@ -17,8 +17,8 @@
 }
 
 .config-subtitle {
-	font-size: 16px;
-	color: #5f6368;
+	font-size: 18px;
+	color: #88898a;
 	margin: 0;
 }
 
@@ -190,7 +190,7 @@
 
 /* Secciones del Formulario */
 .config-section {
-	background: white;
+	background: rgba(95, 95, 95, 0.856);
 	border: 1px solid #dadce0;
 	border-radius: 8px;
 	padding: 24px;
@@ -198,9 +198,9 @@
 }
 
 .section-title {
-	font-size: 18px;
+	font-size: 23px;
 	font-weight: 500;
-	color: #202124;
+	color: #ffffff;
 	margin: 0 0 24px 0;
 	padding-bottom: 16px;
 	border-bottom: 1px solid #e8eaed;
@@ -235,16 +235,11 @@
 	background: white;
 }
 
-.form-input:focus,
-.form-select:focus {
-	outline: none;
-	border-color: #1ae1e8;
-	box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
-}
+
 
 .form-input.readonly {
-	background: #f8f9fa;
-	color: #5f6368;
+	background: #3f4144;
+	color: #ffffff;
 	cursor: not-allowed;
 }
 
