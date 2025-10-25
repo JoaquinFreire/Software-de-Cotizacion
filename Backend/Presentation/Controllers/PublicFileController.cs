@@ -33,10 +33,18 @@ public class PublicFileController : ControllerBase
         _mailService = mailService;
     }
 
+    // Nuevo endpoint de health para verificar que el controller es accesible en producción
+    [HttpGet("health")]
+    public IActionResult Health()
+    {
+        return Ok(new { status = "ok", time = DateTime.UtcNow });
+    }
+
     // Nuevo: subir y devolver link público (NO requiere SMTP)
     [HttpPost("upload")]
     public async Task<IActionResult> Upload([FromForm] IFormFile? file, [FromForm] string? budgetId, [FromForm] int expiresHours = 168)
     {
+        _logger.LogInformation("Upload endpoint called. File present: {hasFile}, budgetId: {budgetId}", file != null, budgetId);
         if (file == null) return BadRequest(new { error = "No file provided" });
 
         var token = Guid.NewGuid().ToString("N");
@@ -67,6 +75,7 @@ public class PublicFileController : ControllerBase
     [DisableRequestSizeLimit]
     public async Task<IActionResult> SendAndStore([FromForm] IFormFile? file, [FromForm] string? to, [FromForm] string? budgetId)
     {
+        _logger.LogInformation("Send endpoint called. File present: {hasFile}, to: {to}, budgetId: {budgetId}", file != null, to, budgetId);
         if (file == null) return BadRequest(new { error = "No file provided" });
 
         // Guardar archivo

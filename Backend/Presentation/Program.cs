@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Http.Features; // <-- agregado
 Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
 
 Console.WriteLine("Arrancando backend...");
@@ -187,7 +188,31 @@ builder.Services.AddCors(options =>
         });
 });
 
+// Antes de builder.Build() configurar límites de multipart y Kestrel
+builder.Services.Configure<FormOptions>(options =>
+{
+    // Aumenta el límite de subida multipart/form-data (ej: 200 MB)
+    options.MultipartBodyLengthLimit = 200 * 1024 * 1024; // 200 MB
+});
+
+// Configurar Kestrel para aceptar bodies grandes (opcional pero útil en deploys)
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 200 * 1024 * 1024; // 200 MB
+});
+
 var app = builder.Build();
+
+// Middleware para loguear todas las requests entrantes (útil en producción para debug 404)
+app.Use(async (context, next) =>
+{
+    var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("RequestLogger");
+    logger.LogInformation("Incoming request: {Method} {Path}", context.Request.Method, context.Request.Path);
+    await next();
+});
+
+// Habilitar servir archivos estáticos desde wwwroot (útil para comprobar archivos en /public)
+app.UseStaticFiles();
 
 // Configuración de middleware
 if (app.Environment.IsDevelopment())
