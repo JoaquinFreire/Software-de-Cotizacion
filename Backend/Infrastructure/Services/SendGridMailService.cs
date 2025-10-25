@@ -76,7 +76,7 @@ namespace Infrastructure.Services
             var apiKey = _config["API_KEY"];
             var fromMail = _config["MAIL"];
             var client = new SendGridClient(apiKey);
-            var from = new EmailAddress(fromMail, "Mi App");
+            var from = new EmailAddress(fromMail, "Bienvenido a Anodal");
             var to = new EmailAddress(toEmail);
 
             var msg = MailHelper.CreateSingleEmail(from, to, subject, plainText, html);

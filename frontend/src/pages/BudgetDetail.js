@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+// import emailjs from 'emailjs-com'; // ✅ Importar EmailJS
 import logoAnodal from '../images/logo_secundario.webp';
 import miniLogo from '../images/logo_secundario.webp';
 import ReactLoading from 'react-loading';
@@ -11,6 +12,7 @@ import Qrcode from '../images/qr-code.png';
 // Reemplazar import de react-pdf por pdfmake
 import pdfMake from 'pdfmake/build/pdfmake';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
+import { ToastContainer, toast, Slide } from 'react-toastify';
 // Asignación robusta de vfs para distintas formas de exportación del paquete
 pdfMake.vfs = (
   (pdfFonts && (pdfFonts.pdfMake && pdfFonts.pdfMake.vfs)) ||
@@ -18,6 +20,13 @@ pdfMake.vfs = (
   (pdfFonts && pdfFonts.default && pdfFonts.default.vfs) ||
   pdfMake.vfs
 );
+
+// ✅ Configuración de EmailJS con tus credenciales
+// const EMAILJS_CONFIG = {
+//   serviceId: 'service_ngu8koc',
+//   templateId: 'template_39aty7d',
+//   userId: 'QxYqfCz3uNXncaqvW'
+// };
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5187";
 
@@ -106,11 +115,8 @@ const BudgetDetail = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        console.log('📊 Datos originales:', res.data);
-
         // Sanitizar inmediatamente
         const cleaned = deepSanitize(res.data);
-        console.log('🧹 Datos sanitizados:', cleaned);
 
         setBudget(res.data);
         setSanitizedBudget(cleaned);
@@ -164,6 +170,16 @@ const BudgetDetail = () => {
     // normalizar >2 saltos a exactamente 2 (evita acumulaciones)
     out = out.replace(/\n{3,}/g, '\n\n');
     return out;
+  };
+
+  // ✅ Helper para convertir blob a base64 (necesario para EmailJS)
+  const blobToBase64 = (blob) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   };
 
   // Nuevo: convertir imagen URL -> dataURL (base64) opcional (si quieres incluir logos)
@@ -226,6 +242,9 @@ const BudgetDetail = () => {
   const buildDocDefinition = async (bgt) => {
     const logoData = await urlToDataUrl(logoAnodal).catch(() => null);
     const qrData = await urlToDataUrl(Qrcode).catch(() => null);
+    // ✅ REDUCIR calidad de imágenes
+    const optimizedLogoData = logoData ? await compressImage(logoData, 0.5) : null;
+    const optimizedQrData = qrData ? await compressImage(qrData, 0.3) : null;
 
     const productsTableBody = [
       [
@@ -253,6 +272,8 @@ const BudgetDetail = () => {
 
     const docDefinition = {
       pageSize: 'A4',
+      pageMargins: [40, 80, 40, 60], // ✅ Reducir márgenes
+      compress: true, // ✅ Comprimir PDF
       pageMargins: [40, 100, 40, 60], // Aumenté el margen superior para el header
       header: function (currentPage, pageCount) {
         return {
@@ -645,6 +666,22 @@ const BudgetDetail = () => {
 
     return docDefinition;
   };
+  // ✅ Función para comprimir imágenes
+  const compressImage = (dataUrl, quality = 0.7) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = dataUrl;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * quality;
+        canvas.height = img.height * quality;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.7)); // ✅ Usar JPEG en lugar de PNG
+      };
+      img.onerror = () => resolve(dataUrl); // Fallback
+    });
+  };
 
   // Obtener Blob desde docDefinition (pdfMake usa callback)
   const getPdfBlob = async (bgt) => {
@@ -704,56 +741,192 @@ const BudgetDetail = () => {
     setPdfLoading(false);
   };
 
-  const handleEnviarEmail = async () => {
+  // Enviar email: intenta varios endpoints y devuelve diagnóstico útil si falla
+  const handleEnviarEmailJS = async () => {
     if (!sanitizedBudget) return;
     setMailLoading(true);
+
+    // Generar PDF blob primero
+    let pdfBlob = null;
     try {
-      const blob = await getPdfBlob(sanitizedBudget);
-      if (!blob) {
-        alert("No se pudo generar el PDF para enviar");
+      pdfBlob = await getPdfBlob(sanitizedBudget);
+      if (!pdfBlob) {
+        alert("No se pudo generar el PDF");
         setMailLoading(false);
         return;
       }
-      const formData = new FormData();
-      formData.append("file", blob, `cotizacion_${sanitizedBudget.budgetId}.pdf`);
-      formData.append("to", sanitizedBudget.customer?.mail || "cliente@ejemplo.com");
-
-      await axios.post(`${API_URL}/api/SendMail`, formData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-      });
-      alert("Correo enviado correctamente ✅");
     } catch (err) {
-      console.error(err);
-      alert("Error enviando el correo ❌");
+      console.error('Error generando PDF para envío:', err);
+      alert("No se pudo generar el PDF");
+      setMailLoading(false);
+      return;
     }
+
+    // Intentar enviar desde el servidor
+    try {
+      const formData = new FormData();
+      formData.append("file", pdfBlob, `cotizacion_${sanitizedBudget.budgetId}.pdf`);
+      formData.append("to", sanitizedBudget.customer?.mail || "");
+      formData.append("budgetId", sanitizedBudget.budgetId || "");
+
+      const token = localStorage.getItem("token");
+      const res = await axios.post(`${API_URL.replace(/\/$/, '')}/api/public/send`, formData, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
+        validateStatus: () => true
+      });
+
+      if (res.status >= 200 && res.status < 300 && res.data && res.data.sent) {
+        toast.success("Correo enviado correctamente.");
+        setMailLoading(false);
+        return;
+      }
+
+      // Si el servidor dice que SMTP no está configurado, usar fallback: subir y devolver link
+      const serverError = res.data && (res.data.error || res.data.detail) ? (res.data.error || res.data.detail) : null;
+      if (serverError && String(serverError).toLowerCase().includes("smtp not configured")) {
+        try {
+          // subir para obtener link público
+          const uploadForm = new FormData();
+          uploadForm.append("file", pdfBlob, `cotizacion_${sanitizedBudget.budgetId}.pdf`);
+          uploadForm.append("budgetId", sanitizedBudget.budgetId || "");
+          const upRes = await axios.post(`${API_URL.replace(/\/$/, '')}/api/public/upload`, uploadForm, {
+            headers: {
+              Authorization: token ? `Bearer ${token}` : undefined,
+            },
+            validateStatus: () => true
+          });
+          if (upRes.status >= 200 && upRes.data && upRes.data.url) {
+            const url = upRes.data.url;
+            // copiar al portapapeles si está disponible
+            try {
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(url);
+              }
+            } catch (clipErr) {
+              console.warn("No se pudo copiar al portapapeles", clipErr);
+            }
+            alert(`El servidor no tiene SMTP configurado. Se subió la cotización y se copió el link al portapapeles:\n\n${url}\n\nPegalo en tu cliente de correo para enviar al cliente.`);
+            setMailLoading(false);
+            return;
+          } else {
+            console.warn("Upload fallback failed", upRes.status, upRes.data);
+            alert("El servidor no pudo enviar el correo y no se pudo generar el link público. Contactá al administrador.");
+          }
+        } catch (upErr) {
+          console.error("Error en upload fallback:", upErr);
+          alert("El servidor no pudo enviar el correo y falló el intento de generar link público.");
+        }
+      } else {
+        const msg = serverError || 'No se pudo enviar la cotización desde el servidor.';
+        alert(`Error al enviar: ${msg}`);
+      }
+    } catch (err) {
+      console.error('Error uploading/sending to server', err);
+      alert('Ocurrió un error al comunicarse con el servidor para enviar el correo.');
+    }
+
     setMailLoading(false);
   };
 
   const handleEnviarWhatsApp = async () => {
     setWhatsAppLoading(true);
-    const pdfLink = `${API_URL}/files/cotizacion_${budget?.budgetId}.pdf`;
-    const phone = budget?.customer?.tel || "5493510000000";
-    const mensaje = `Hola ${budget?.customer?.name || ''}, aquí tienes tu cotización:\n${pdfLink}`;
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`, "_blank");
-    setWhatsAppLoading(false);
+    try {
+      if (!sanitizedBudget) {
+        alert("No hay cotización para enviar.");
+        setWhatsAppLoading(false);
+        return;
+      }
+
+      // Generar PDF blob
+      const pdfBlob = await getPdfBlob(sanitizedBudget);
+      if (!pdfBlob) {
+        alert("No se pudo generar el PDF para enviar por WhatsApp.");
+        setWhatsAppLoading(false);
+        return;
+      }
+
+      // Intentar subir al endpoint público para obtener link único
+      let publicUrl = null;
+      try {
+        const formData = new FormData();
+        formData.append("file", pdfBlob, `cotizacion_${sanitizedBudget.budgetId}.pdf`);
+        formData.append("budgetId", sanitizedBudget.budgetId || "");
+        const token = localStorage.getItem("token");
+        const upRes = await axios.post(`${API_URL.replace(/\/$/, '')}/api/public/upload`, formData, {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
+          validateStatus: () => true
+        });
+        if (upRes.status >= 200 && upRes.data && upRes.data.url) {
+          publicUrl = upRes.data.url;
+        }
+      } catch (uerr) {
+        console.warn("Upload to public failed, will fallback to blob URL", uerr);
+      }
+
+      // Fallback: crear URL temporal desde Blob si no hay publicUrl
+      let tempBlobUrl = null;
+      if (!publicUrl) {
+        tempBlobUrl = URL.createObjectURL(pdfBlob);
+        publicUrl = tempBlobUrl;
+      }
+
+      // Normalizar teléfono: eliminar no-dígitos y anteponer '549' si parece local
+      let phoneRaw = (budget?.customer?.tel || "").toString();
+      let phone = phoneRaw.replace(/\D/g, "");
+      if (!phone) phone = "5493510000000"; // fallback si no hay teléfono
+      // Si la longitud es <=10 (número local sin código), anteponer 549
+      if (phone.length <= 10) phone = "549" + phone;
+
+      const message = `Hola ${sanitizedBudget.customer?.name || ''},\nTe comparto tu cotización: ${publicUrl}`;
+      // Usar WhatsApp Web para escritorio; wa.me abre app/web según dispositivo
+      const waUrl = `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+      window.open(waUrl, "_blank");
+
+      // Si usamos blob temporal, no revocar inmediatamente (el usuario lo abrirá). Programamos revocación ligera.
+      if (tempBlobUrl) {
+        setTimeout(() => URL.revokeObjectURL(tempBlobUrl), 5 * 60 * 1000); // revocar en 5 minutos
+      }
+    } catch (err) {
+      console.error("Error preparando WhatsApp:", err);
+      alert("Ocurrió un error al preparar el mensaje de WhatsApp.");
+    } finally {
+      setWhatsAppLoading(false);
+    }
   };
 
   return (
     <>
       <Navbar />
       <div className="content-bottom">
+        <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
         <div className="only-screen">
-          <button className="reporte-cotizaciones-btn-pdf" onClick={handleDescargarPDF} disabled={pdfLoading || !budget}>
+          <button
+            className="reporte-cotizaciones-btn-pdf btn-with-spinner"
+            onClick={handleDescargarPDF}
+            disabled={pdfLoading || !budget}
+          >
             {pdfLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Descargar PDF"}
           </button>
         </div>
         <div className="only-screen">
-          <button className="reporte-cotizaciones-btn-email" onClick={handleEnviarEmail} disabled={mailLoading || !budget}>
+          <button
+            className="reporte-cotizaciones-btn-email btn-with-spinner"
+            onClick={handleEnviarEmailJS}
+            disabled={mailLoading || !budget}
+          >
             {mailLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Enviar por Email"}
           </button>
         </div>
         <div className="only-screen">
-          <button className="reporte-cotizaciones-btn-whatsapp" onClick={handleEnviarWhatsApp} disabled={whatsAppLoading || !budget}>
+          <button
+            className="reporte-cotizaciones-btn-whatsapp btn-with-spinner"
+            onClick={handleEnviarWhatsApp}
+            disabled={whatsAppLoading || !budget}
+          >
             {whatsAppLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Enviar por WhatsApp"}
           </button>
         </div>
