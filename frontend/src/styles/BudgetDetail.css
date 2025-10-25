@@ -1,21 +1,29 @@
 .content-bottom {
   display: flex;
   justify-content: center;
+  background-color: #ccc;
 }
 
 .only-screen {
   margin: 24px 20px;
 }
+.only-screen button {
+  font-size: 16px;
+    width: 15rem;
+    max-width: 22rem;
+    padding: 1rem 4rem;
+    text-align: center;
+    font-weight: bold;
+}
 
 .pdf-background {
   background-color: #ccc;
-  padding: 40px;
   display: flex;
   justify-content: center;
 }
 
 .pdf-container {
-  width: 794px;
+  width: 1000px;
   height: auto; /* permitir que crezca */
   background: #fff;
   padding: 30px;
@@ -204,4 +212,9 @@
   margin-top: 18px;
 
 
+}
+.btn-with-spinner {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
 }
