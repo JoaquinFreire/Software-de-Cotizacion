@@ -38,8 +38,8 @@ public class PublicFileController : ControllerBase
         _tempFolder = Path.Combine(Path.GetTempPath(), "anodal_public");
         Directory.CreateDirectory(_tempFolder);
 
-        // metadata pequeña en wwwroot (archivo JSON con tokens -> rutas relativas/absolutas)
-        _metaFilePath = Path.Combine(webRoot, "public-links.json");
+        // metadata pequeña en carpeta TEMP (no en el repo) para evitar commits accidentales
+        _metaFilePath = Path.Combine(_tempFolder, "public-links.json");
 
         _mailService = mailService;
     }
@@ -414,5 +414,37 @@ public class PublicFileController : ControllerBase
 </html>
 ";
         return Content(html, "text/html");
+    }
+
+    // Nuevo: endpoint de diagnóstico /debug para producción
+    [HttpGet("debug")]
+    public IActionResult Debug()
+    {
+        try
+        {
+            var metaExists = System.IO.File.Exists(_metaFilePath);
+            var metaContents = metaExists ? System.IO.File.ReadAllText(_metaFilePath) : null;
+            var publicFiles = Directory.Exists(_publicFolder) ? Directory.GetFiles(_publicFolder).Select(Path.GetFileName).ToArray() : Array.Empty<string>();
+            var tempFiles = Directory.Exists(_tempFolder) ? Directory.GetFiles(_tempFolder).Select(Path.GetFileName).ToArray() : Array.Empty<string>();
+            var env = new {
+                SENDGRID = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("API_KEY") ?? Environment.GetEnvironmentVariable("SENDGRID_API_KEY")),
+                SMTP_HOST = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SMTP_HOST")),
+                EMAIL_FROM = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("EMAIL_FROM") ?? Environment.GetEnvironmentVariable("MAIL"))
+            };
+            return Ok(new {
+                status = "ok",
+                metaFilePath = _metaFilePath,
+                metaExists,
+                metaSample = metaContents != null ? (metaContents.Length > 200 ? metaContents.Substring(0,200) + "..." : metaContents) : null,
+                publicFiles,
+                tempFiles,
+                env
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Debug endpoint error");
+            return StatusCode(500, new { error = ex.Message });
+        }
     }
 }

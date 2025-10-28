@@ -177,14 +177,23 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddCors(options =>
 {
+    // Allow FRONTEND_URL from env (set this in Railway to your deployed frontend) plus common dev URLs
+    var frontendUrlFromEnv = Environment.GetEnvironmentVariable("FRONTEND_URL");
+    var allowedOrigins = new List<string> {
+        "http://localhost:3000",
+        "https://joaquinfreire.github.io",
+        "https://joaquinfreire.github.io/Software-de-Cotizacion",
+        "https://software-de-cotizacion-1.onrender.com"
+    };
+    if (!string.IsNullOrEmpty(frontendUrlFromEnv)) allowedOrigins.Add(frontendUrlFromEnv.TrimEnd('/'));
+    
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000", "https://joaquinfreire.github.io",
-            "https://joaquinfreire.github.io/Software-de-Cotizacion", "https://software-de-cotizacion-1.onrender.com")
-                  // Permitir el frontend
-                  .AllowAnyMethod()  // Permitir cualquier método HTTP (GET, POST, etc.)
-                  .AllowAnyHeader(); // Permitir cualquier encabezado
+            policy.WithOrigins(allowedOrigins.ToArray())
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
         });
 });
 
@@ -238,3 +247,7 @@ catch (Exception ex)
     Console.WriteLine("ERROR FATAL: " + ex.ToString());
     throw;
 }
+
+// Log allowed origins at startup for debug
+var logger = builder.Logging.Services.BuildServiceProvider().GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
+logger.LogInformation("CORS allowed origins: {origins}", Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "default list");
