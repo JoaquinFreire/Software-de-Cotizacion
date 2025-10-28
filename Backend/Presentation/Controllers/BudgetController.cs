@@ -110,9 +110,18 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("GetAllBudgetsWithComplements")]
-        public async Task<IActionResult> GetAllBudgetsWithComplements()
+        public async Task<IActionResult> GetAllBudgetsWithComplements([FromQuery] DateTime from, [FromQuery] DateTime to)
         {
-            var query = new GetAllBudgetByComplementQuery();
+            // Validar parámetros
+            if (from == default || to == default) return BadRequest("Debe proporcionar desde (from) y hasta (to).");
+            if (from > to) return BadRequest("El parámetro 'from' no puede ser posterior a 'to'.");
+
+            var query = new GetAllBudgetByComplementQuery
+            {
+                FromDate = from,
+                ToDate = to
+            };
+
             var result = await _mediator.Send(query);
             return Ok(result);
         }

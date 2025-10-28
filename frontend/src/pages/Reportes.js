@@ -104,7 +104,7 @@ const reportCards = [
         description: "Clientes principales por volumen",
         icon: <Users size={32} />,
         className: "reporte-clientes-mayor-volumen",
-        route: "/reportes/clientes-mayor-volumen",
+        route: "/reportes/cliente-mayor-volumen",
         color: "#6366f1"
     },
     {

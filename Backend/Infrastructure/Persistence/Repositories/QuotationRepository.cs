@@ -205,5 +205,45 @@ public class QuotationRepository : IQuotationRepository
             .Where(q => q.CustomerId == customerId)
             .ToListAsync(cancellationToken);
     }
-    
+
+    public async Task<IEnumerable<Quotation>> GetByQuoterAndPeriodAsync(int quoterId, DateTime? fromDate, DateTime? toDate)
+    {
+        var query = _context.Quotations
+            .Include(q => q.Customer)
+            .Include(q => q.User)
+            .Include(q => q.WorkPlace)
+            .Where(q => q.UserId == quoterId)
+            .AsQueryable();
+        if (fromDate.HasValue)
+            query = query.Where(q => q.CreationDate >= fromDate.Value);
+        if (toDate.HasValue)
+            query = query.Where(q => q.CreationDate <= toDate.Value);
+        return await query.ToListAsync();
+    }
+
+    public async Task<int> CalculateCurrentRank(int quoterId, IEnumerable<Quotation> allQuotations)
+    {
+        var quoterQuotations = allQuotations.Where(q => q.UserId == quoterId).ToList();
+        var totalQuotations = allQuotations.Count();
+        if (totalQuotations == 0) return 0;
+        var successfulQuotations = quoterQuotations.Count(q => q.Status == "accepted");
+        var rank = (int)((successfulQuotations / (double)totalQuotations) * 100);
+        return rank;
+    }
+
+    public async Task<decimal> CalculateRetentionRate(int quoterId, DateTime? fromDate)
+    {
+        var query = _context.Quotations
+            .Where(q => q.UserId == quoterId);
+        if (fromDate.HasValue)
+        {
+            query = query.Where(q => q.CreationDate >= fromDate.Value);
+        }
+        var totalQuotations = await query.CountAsync();
+        if (totalQuotations == 0) return 0;
+        var retainedQuotations = await query.CountAsync(q => q.Status == "accepted");
+        var retentionRate = (retainedQuotations / (decimal)totalQuotations) * 100;
+        return retentionRate;
+    }
+
 }

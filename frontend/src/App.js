@@ -17,7 +17,9 @@ import DashboardEficienciaOperativa from './pages/reportes/DashboardEficienciaOp
 import ReporteDeOportunidadesPerdidas from './pages/reportes/ReporteOportunidadesPerdidas';
 import BeneficioEnCotizaciocionesPorTipoDeLinea from './pages/reportes/BeneficioEnCotizaciocionesPorTipoDeLinea';
 import ReporteDeProductividadPorCotizador from './pages/reportes/ReporteDeProductividadPorCotizador';
+import DashboardMetricasPersonales from './pages/reportes/DashboardMetricasPersonales';
 import ReporteConsumoComplementos from './pages/reportes/ReporteConsumoComplementos';
+import ReporteDeTendenciasDeCotizacionPorMes from './pages/reportes/ReporteDeTendenciasDeCotizacionPorMes';
 import BudgetDetail from './pages/BudgetDetail';
 import CreatePassword from './pages/CreatePassword';
 import SessionModal from './components/SessionModal';
@@ -39,7 +41,7 @@ import TypeLine from './pages/openings/TypeLine';
 import Complement from './pages/openings/Complement';
 import AnalisisSatisfaccionCliente from './pages/reportes/AnalisisSatisfaccionCliente';
 import ConfigCliente from './components/ConfigCliente';
-
+import ClienteConMayorVolumen from './pages/reportes/ClienteConMayorVolumen';
 // nuevos imports: páginas separadas de admin/materiales
 import AdminTreatment from "./pages/admin/materiales/AdminTreatment";
 import AdminCoating from "./pages/admin/materiales/AdminCoating";
@@ -204,7 +206,10 @@ function App() {
                         <Route path="/reportes/Oportunidades-Perdidas" element={<PrivateRoute element={<ReporteDeOportunidadesPerdidas />} />} />
                         <Route path="/reportes/beneficio-proyecto" element={<PrivateRoute element={<BeneficioEnCotizaciocionesPorTipoDeLinea />} />} />
                         <Route path="/reportes/productividad-cotizador" element={<PrivateRoute element={<ReporteDeProductividadPorCotizador />} />} />
+                        <Route path="/reportes/metrica-personal" element={<PrivateRoute element={<DashboardMetricasPersonales />} />} />
                         <Route path="/reportes/consumo-complementos" element={<PrivateRoute element={<ReporteConsumoComplementos />} />} />
+                        <Route path="/reportes/tendencias-mensuales" element={<PrivateRoute element={<ReporteDeTendenciasDeCotizacionPorMes />} />} />
+                        <Route path="/reportes/cliente-mayor-volumen"element={<PrivateRoute element={<ClienteConMayorVolumen />} />}/>
                         <Route path="/operational-dashboard" element={<PrivateRoute element={<DashboardEficienciaOperativa />} />} />
                         <Route path="/quotation" element={<PrivateRoute element={<Quotation />} />} />
                         <Route path="/quotation/:id" element={<PrivateRoute element={<BudgetDetail />} />} />

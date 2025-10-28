@@ -94,4 +94,12 @@ public class UserRepository : IUserRepository
     {
         return await _context.Users.FirstOrDefaultAsync(u => u.legajo == dni);
     }
+
+    public async Task<int> GetActiveQuotersCountAsync()
+    {
+        return await _context.Users
+            .Where(u => u.status == 1 && u.role_id == 1) // Ajusta el ID del rol
+            .CountAsync();
+    }
+
 }

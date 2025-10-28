@@ -78,15 +78,15 @@
 
 .reporte-cotizaciones-filtros {
     display: flex;
-    gap: 24px;
+    gap: 16px;
     align-items: center;
     background: #fff;
-    padding: 10px 32px 10px 32px;
+    padding: 10px 20px;
     border-radius: 6px;
     box-shadow: 0 2px 8px rgba(30,40,90,0.07);
-    margin-bottom: 0;
     width: 100%;
     text-align: black;
+    flex-wrap: wrap; /* <--- permite que los controles bajen en pantallas pequeñas */
 }
 
 .reporte-cotizaciones-filtros label {
@@ -94,13 +94,22 @@
     flex-direction: column;
     font-weight: 500;
     color: #333;
-    font-size: 1.08rem;
-
-
-
+    font-size: 1.02rem;
+    min-width: 160px; /* evita que los inputs se encojan demasiado */
 }
 
 .reporte-cotizaciones-filtros input[type="date"] {
+    margin-top: 4px;
+    padding: 6px 10px;
+    border: 1px solid #bdbdbd;
+    border-radius: 2px;
+    font-size: 1rem;
+    background: #f8f9fa;
+    color: black;
+}
+
+/* Nuevo: aplicar mismo estilo a month inputs */
+.reporte-cotizaciones-filtros input[type="month"] {
     margin-top: 4px;
     padding: 6px 10px;
     border: 1px solid #bdbdbd;
@@ -157,6 +166,7 @@
     display: block;
     width: 8rem;
     font-size: 1rem;
+    max-width: 7.2rem;
 }
 .botton-Save:hover {
     background: #537c7e;
@@ -407,6 +417,41 @@
     gap: 8px;
 }
 
+/* Reglas aplicadas solamente durante exportación a PDF */
+.pdf-exporting .reporte-cotizaciones-a4 {
+    width: 210mm !important;      /* A4 ancho real                */
+    min-height: 297mm !important; /* A4 alto real                 */
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+}
+
+/* Ajuste del contenedor interior para dejar márgenes en mm */
+.pdf-exporting .reporte-cotizaciones-pdf {
+    width: 190mm !important;
+    box-sizing: border-box;
+    padding: 12mm !important;
+}
+
+/* Evitar que la tabla se "pegue" en una sola página o que se recorte filas */
+/* Permitir romper la tabla en varias páginas de forma amigable */
+.reporte-cotizaciones-tabla {
+    page-break-inside: auto;
+    -webkit-column-break-inside: avoid;
+    -webkit-page-break-inside: avoid;
+}
+
+/* Evitar que las filas se partan entre páginas */
+.reporte-cotizaciones-tabla tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+}
+
+/* Evitar que celdas con tablas o listas internas se quiebren mal */
+.reporte-cotizaciones-tabla td, .reporte-cotizaciones-tabla th {
+    break-inside: avoid;
+}
+
 /* Ajustes para impresión/pdf: evitar página en blanco inicial */
 @media print {
     body {
@@ -435,6 +480,9 @@
         display: none;
     }
     .reporte-cotizaciones-filtros input[type="date"] {
+        pointer-events: none;
+    }
+    .reporte-cotizaciones-filtros input[type="month"] {
         pointer-events: none;
     }
     .reporte-cotizaciones-footer,
@@ -528,6 +576,59 @@
     box-sizing: border-box;
 }
 
+/* Hacer que los controles en la barra puedan hacer wrap y no salgan del contenedor */
+.reporte-cotizaciones-filtros {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    background: #fff;
+    padding: 10px 20px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(30,40,90,0.07);
+    width: 100%;
+    text-align: black;
+    flex-wrap: wrap; /* <--- permite que los controles bajen en pantallas pequeñas */
+}
+
+/* Asegurar que cada label tenga un ancho mínimo razonable para mantener formato */
+.reporte-cotizaciones-filtros label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 500;
+    color: #333;
+    font-size: 1.02rem;
+    min-width: 160px; /* evita que los inputs se encojan demasiado */
+}
+
+/* Contenedor para acciones (botones) */
+.report-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: 0;         /* alineados a la izquierda dentro del toolbar */
+    justify-content: flex-start; /* evita que queden flotando hacia la derecha */
+    flex-wrap: wrap;
+}
+
+/* Asegurar que los botones compartan tamaños coherentes */
+.reporte-cotizaciones-btn-pdf,
+.reporte-cotizaciones-btn-print,
+.botton-Report {
+    width: 8rem;
+    max-width: 8rem;
+    padding: 10px 12px;
+    text-align: center;
+}
+
+/* Si prefieres centrar los botones en la barra, cambia justify-content a center */
+/* .report-actions { justify-content: center; } */
+
+/* Asegurar inputs month no se estiren demasiado en móviles */
+.reporte-cotizaciones-filtros input[type="month"],
+.compare-panel input[type="month"] {
+    max-width: 220px;
+}
+
 /* Filas clicables: cursor y efecto hover para indicar que se puede hacer click */
 .reporte-cotizaciones-tabla tbody tr.clickable-row {
     cursor: pointer;
@@ -542,4 +643,40 @@
 .reporte-cotizaciones-tabla tbody tr.clickable-row:focus {
     outline: 2px solid rgba(25,118,210,0.35);
     background-color: #eef6ff;
+}
+
+/* Botón imprimir (similar a PDF pero distinto color) */
+.reporte-cotizaciones-btn-print {
+    padding: 20px 16px;
+    background: #555;
+    color: #fff;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.reporte-cotizaciones-btn-print:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Botón comparar */
+.reporte-cotizaciones-btn-compare {
+    padding: 10px 12px;
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.reporte-cotizaciones-btn-compare:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Pequeños ajustes del panel de comparación para impresión/PDF */
+.pdf-exporting .reporte-cotizaciones-filtros .reporte-cotizaciones-btn-compare,
+.pdf-exporting .reporte-cotizaciones-filtros .reporte-cotizaciones-btn-print {
+    display: none !important;
 }

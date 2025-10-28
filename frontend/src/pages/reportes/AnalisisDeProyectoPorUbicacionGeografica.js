@@ -150,7 +150,7 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
   return (
     <div className="dashboard-container">
       <Navigation />
-      <h2 className="title">Reporte de Estado de Cotizaciones</h2>
+      <h2 className="title">Analisis de proyecto por ubicación geográfica</h2>
       <div className="reporte-cotizaciones-root">
         <div className="reporte-cotizaciones-toolbar">
           <div className="reporte-cotizaciones-filtros">

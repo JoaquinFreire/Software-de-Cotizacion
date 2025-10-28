@@ -18,8 +18,8 @@ namespace Application.DTOs.BudgetDTOs.GetAllBudgetByComplement
         {
             var allBudgets = await _budgetRepository.GetAllAsync();
             var budgetsWithComplements = allBudgets.Where(b => b.Complement != null && b.Complement.Count > 0).ToList();
+            var filteredBudgets = budgetsWithComplements.Where(b => b.creationDate >= request.FromDate && b.creationDate <= request.ToDate).ToList();        
             return _mapper.Map<List<GetBudgetByIdBudgetDTO>>(budgetsWithComplements);
         }
-
     }
-}
+} 

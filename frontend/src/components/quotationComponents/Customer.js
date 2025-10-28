@@ -3,7 +3,7 @@ import axios from 'axios';
 import "../../styles/quotation.css";
 
 const API_URL = process.env.REACT_APP_API_URL;
-const Customer = ({ newCustomer, setNewCustomer, errors = {}, isCustomerFound, setIsCustomerFound, onAddClientToSummary }) => {
+const Customer = ({ newCustomer, setNewCustomer, errors = {}, isCustomerFound, setIsCustomerFound, onAddClientToSummary,isCustomerAdded, setIsCustomerAdded }) => {
     const [loading, setLoading] = useState(false);
     const debounceTimeout = useRef(null);
 
@@ -36,7 +36,18 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {}, isCustomerFound, s
             setLoading(false);
         }
     };
+    const handleAddClient = () => {
+        if (onAddClientToSummary) {
+            onAddClientToSummary();
+        }
+        setIsCustomerAdded(true); // Marcar como agregado
+    };
 
+    const handleSearchOtherDni = () => {
+        setIsCustomerFound(false);
+        setIsCustomerAdded(false); // Resetear estado de agregado
+        setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', dni: '' });
+    };
     const handleDniChange = (e) => {
         const enteredDni = e.target.value;
         setNewCustomer((prev) => ({ ...prev, dni: enteredDni }));
@@ -118,7 +129,7 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {}, isCustomerFound, s
                 )}
             </div>
             {loading ? (
-                <p>Buscando cliente...</p>
+                <p className='embla__button'>Buscando cliente...</p>
             ) : (
                 <div>
                     <h4>{isCustomerFound ? "Cliente Encontrado" : "Crear Nuevo Cliente"}</h4>
@@ -190,11 +201,21 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {}, isCustomerFound, s
                         />
                         {errors.address && <span className="error-message">{errors.address}</span>}
                     </div>
+                    <div className="form-group">
+                    <button
+                            type="button"
+                            className="botton-DNI"
+                            onClick={() => onAddClientToSummary && onAddClientToSummary()}
+                            title="Agregar cliente al resumen"
+                        >
+                            Agregar este cliente
+                    </button>
+                    </div>
                 </div>
+                
             )}
         </div>
     );
 };
 
 export default Customer;
-

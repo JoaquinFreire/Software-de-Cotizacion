@@ -34,5 +34,12 @@ namespace Domain.Repositories
         Task<IEnumerable<Quotation>> GetByCustomerIdAsync(
             int customerId,
             CancellationToken cancellationToken = default);
+    
+
+        Task<IEnumerable<Quotation>> GetByQuoterAndPeriodAsync(int quoterId, DateTime? fromDate, DateTime? toDate);
+        Task<int> CalculateCurrentRank(int quoterId, IEnumerable<Quotation> allQuotations);
+        Task<decimal> CalculateRetentionRate(int quoterId, DateTime? fromDate);
     }
+
+
 }
