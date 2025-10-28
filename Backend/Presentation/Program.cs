@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Http.Features; // <-- agregado
+using Microsoft.AspNetCore.HttpOverrides; // <-- agregado
 Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
 
 Console.WriteLine("Arrancando backend...");
@@ -222,6 +223,16 @@ app.Use(async (context, next) =>
 
 // Habilitar servir archivos estáticos desde wwwroot (útil para comprobar archivos en /public)
 app.UseStaticFiles();
+
+// <-- Agregar Forwarded Headers (antes de UseHttpsRedirection / UseRouting) -->
+var forwardedOptions = new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost
+};
+// Limpia KnownNetworks/Proxies para aceptar cabeceras desde el proxy (útil en plataformas como Railway/Render)
+forwardedOptions.KnownNetworks.Clear();
+forwardedOptions.KnownProxies.Clear();
+app.UseForwardedHeaders(forwardedOptions);
 
 // Configuración de middleware
 if (app.Environment.IsDevelopment())

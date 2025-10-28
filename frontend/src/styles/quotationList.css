@@ -10,6 +10,7 @@
     align-items: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     transition: transform 0.2s;
+    min-width: 900px;
 }
 body.light-mode .quote-card {
     background: #f9f9f9;

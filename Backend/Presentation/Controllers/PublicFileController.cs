@@ -124,7 +124,7 @@ public class PublicFileController : ControllerBase
         });
         SaveMeta(meta);
 
-        var publicViewUrl = $"{Request.Scheme}://{Request.Host}/public/view/{token}";
+        var publicViewUrl = $"{GetBaseUrl()}/public/view/{token}";
         return Ok(new { url = publicViewUrl, token });
     }
 
@@ -169,9 +169,30 @@ public class PublicFileController : ControllerBase
         });
         SaveMeta(meta);
 
-        var publicViewUrl = $"{Request.Scheme}://{Request.Host}/public/view/{token}";
+        var publicViewUrl = $"{GetBaseUrl()}/public/view/{token}";
         var subject = $"Cotización {budgetId ?? ""}".Trim();
-        var bodyHtml = $"Hola,<br/><br/>Podés ver y descargar tu cotización desde el siguiente link:<br/><a href=\"{publicViewUrl}\">{publicViewUrl}</a><br/><br/>Saludos.";
+        // Texto plano (fallback)
+        var plainText = $"Hola,\n\nPodés ver y descargar tu cotización desde el siguiente link:\n{publicViewUrl}\n\nSaludos,\nANODAL S.A. - Av. Japón 1292 · Córdoba";
+
+        // HTML estilizado para correo
+        var bodyHtml = $@"
+          <div style='font-family: Arial, Helvetica, sans-serif;max-width:680px;margin:0 auto;color:#2c3e50;'>
+            <div style='background:#0d6efd;padding:16px 20px;color:#fff;border-radius:6px 6px 0 0;'>
+              <h1 style='margin:0;font-size:20px;'>ANODAL S.A.</h1>
+              <div style='font-size:12px;opacity:0.95;'>Cotización</div>
+            </div>
+            <div style='padding:18px;background:#fff;border:1px solid #e9eef6;border-top:none;border-radius:0 0 6px 6px;'>
+              <p style='margin:0 0 12px 0;'>Hola,</p>
+              <p style='margin:0 0 18px 0;color:#444;'>Hemos generado tu cotización. Podés verla y descargarla desde el siguiente enlace seguro.</p>
+              <div style='text-align:center;margin:18px 0;'>
+                <a href='{publicViewUrl}' style='background:#28a745;color:#fff;padding:12px 20px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block;'>Ver y descargar la cotización</a>
+              </div>
+              <p style='font-size:13px;color:#7f8c8d;word-break:break-all;margin:10px 0 0 0;'>{publicViewUrl}</p>
+              <hr style='border:none;border-top:1px solid #eef2f5;margin:20px 0;'/>
+              <div style='font-size:12px;color:#6c757d'>Si el enlace no funciona, copiá y pegalo en tu navegador. Este enlace expira en 7 días.</div>
+              <div style='margin-top:14px;font-size:12px;color:#6c757d'>ANODAL S.A. · Av. Japón 1292 · Córdoba · info@anodal.com.ar</div>
+            </div>
+          </div>";
 
         // Intento IMailServices / SendGrid / SMTP (igual que antes)
         try
@@ -268,7 +289,11 @@ public class PublicFileController : ControllerBase
                             }
                         },
                         from = new { email = fromEmail },
-                        content = new[] { new { type = "text/html", value = bodyHtml } },
+                        // Enviar texto plano + HTML
+                        content = new[] {
+                            new { type = "text/plain", value = plainText },
+                            new { type = "text/html", value = bodyHtml }
+                        },
                         attachments = new[]
                         {
                             new {
@@ -321,8 +346,20 @@ public class PublicFileController : ControllerBase
             message.From = new MailAddress(emailFrom);
             if (!string.IsNullOrEmpty(to)) message.To.Add(new MailAddress(to));
             message.Subject = subject;
-            message.IsBodyHtml = true;
-            message.Body = bodyHtml;
+            // Añadir versiones alternativas (texto plano y HTML)
+            try
+            {
+                var plainView = System.Net.Mime.MediaTypeNames.Text.Plain;
+                var htmlView = System.Net.Mime.MediaTypeNames.Text.Html;
+                message.AlternateViews.Add(System.Net.Mail.AlternateView.CreateAlternateViewFromString(plainText, null, plainView));
+                message.AlternateViews.Add(System.Net.Mail.AlternateView.CreateAlternateViewFromString(bodyHtml, null, htmlView));
+            }
+            catch
+            {
+                // Fallback: usar HTML en Body si AlternateViews no es soportado
+                message.IsBodyHtml = true;
+                message.Body = bodyHtml;
+            }
             message.Attachments.Add(new Attachment(filePath));
 
             using var client = new SmtpClient(smtpHost, smtpPort);
@@ -387,9 +424,9 @@ public class PublicFileController : ControllerBase
         if (meta == null) return NotFound("Link no encontrado");
         if (meta.ExpiresAt < DateTime.UtcNow) return StatusCode(410, "Link expirado");
 
-        // construir URLs para file + download (respectando token)
-        var fileUrl = $"{Request.Scheme}://{Request.Host}/api/public/file/{token}";
-        var downloadUrl = $"{Request.Scheme}://{Request.Host}/api/public/download/{token}";
+        var baseUrl = GetBaseUrl();
+        var fileUrl = $"{baseUrl}/api/public/file/{token}";
+        var downloadUrl = $"{baseUrl}/api/public/download/{token}";
 
         var html = $@"
 <!doctype html>
@@ -446,5 +483,31 @@ public class PublicFileController : ControllerBase
             _logger.LogError(ex, "Debug endpoint error");
             return StatusCode(500, new { error = ex.Message });
         }
+    }
+
+    // Helper: obtiene esquema prefiriendo X-Forwarded-Proto (útil detrás de proxy)
+    private string GetRequestScheme()
+    {
+        var forwardedProto = Request.Headers["X-Forwarded-Proto"].FirstOrDefault();
+        if (!string.IsNullOrEmpty(forwardedProto))
+            return forwardedProto.Split(',')[0].Trim();
+        return Request.Scheme ?? "http";
+    }
+
+    // Helper: obtiene host prefiriendo X-Forwarded-Host
+    private string GetRequestHost()
+    {
+        var forwardedHost = Request.Headers["X-Forwarded-Host"].FirstOrDefault();
+        if (!string.IsNullOrEmpty(forwardedHost))
+            return forwardedHost.Split(',')[0].Trim();
+        return Request.Host.HasValue ? Request.Host.Value : (Request.Headers["Host"].FirstOrDefault() ?? "localhost");
+    }
+
+    // Helper: base URL construida de forma segura
+    private string GetBaseUrl()
+    {
+        var scheme = GetRequestScheme();
+        var host = GetRequestHost();
+        return $"{scheme}://{host}";
     }
 }
