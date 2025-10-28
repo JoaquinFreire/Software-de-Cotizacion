@@ -81,8 +81,8 @@ const Dashboard = () => {
         key: null,
         direction: 'asc'
     });
-       const [orderField, setOrderField] = useState('');
-        const [orderDirection, setOrderDirection] = useState('desc');
+    const [orderField, setOrderField] = useState('');
+    const [orderDirection, setOrderDirection] = useState('desc');
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -219,14 +219,46 @@ const Dashboard = () => {
         }
     };
 
-    const handleDeleteSuccess = () => {};
+    const handleDeleteSuccess = () => { };
 
-    const handleStatusChange = async (id, newStatus) => {
+    const handleStatusChange = async (id, newStatus, comment = null) => {
         const token = localStorage.getItem("token");
         try {
+            // Mapear los estados lowercase del frontend a los nombres del enum en backend
+
+
+
+            const mapStatus = {
+
+
+                pending: "Pending",
+
+
+                approved: "Approved",
+
+
+                rejected: "Rejected",
+
+
+                finished: "Finished"
+
+
+            };
+
+
+            const payload = {
+
+
+                Status: mapStatus[newStatus] ?? newStatus,
+
+
+                Comment: comment
+
+
+            };
             await axios.put(
                 `${API_URL}/api/quotations/${id}/status`,
-                { status: newStatus },
+                payload,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -339,14 +371,14 @@ const Dashboard = () => {
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
-            
+
             <div className="materials-header">
                 <h2 className="materials-title">Cotizaciones Pendientes</h2>
                 <p className="materials-subtitle"> Explore las cotizaciones pendientes que tiene como cotizador, gestionando cada una de las mismas </p>
             </div>
 
             <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
-            
+
             {/* Filtros avanzados mejorados */}
             <div className="advanced-filters-container">
                 <div className="filters-header">
@@ -358,15 +390,15 @@ const Dashboard = () => {
                         <Filter size={18} />
                         <span>Filtros Avanzados</span>
                         <div className={`toggle-arrow ${showFilters ? 'open' : ''}`}>▼</div>
-                        
+
                     </button>
                     <span className="stat-badge">
-            {isFiltering ? filterTotal : total} cotizaciones pendientes
-        </span>
+                        {isFiltering ? filterTotal : total} cotizaciones pendientes
+                    </span>
                     {isFiltering && (
                         <div className="active-filters-indicator">
                             <span>Filtros activos</span>
-                            <button 
+                            <button
                                 onClick={handleClearFilters}
                                 className="clear-filters-btn"
                             >
@@ -466,15 +498,15 @@ const Dashboard = () => {
                                 />
                             </div>
                         </div>
-                        <div className="order-fields" style={{marginTop: 20, marginBottom: 10}}>
+                        <div className="order-fields" style={{ marginTop: 20, marginBottom: 10 }}>
                             <label style={{ marginBottom: 16, display: 'flex', color: '#a49b9b' }}>Ordenar por:</label>
                             <select
                                 value={orderField}
                                 onChange={e => setOrderField(e.target.value)}
                                 className="filter-select"
-                                style={{marginRight: 10}}
-                            >   
-                                
+                                style={{ marginRight: 10 }}
+                            >
+
                                 <option value="">Sin orden</option>
                                 <option value="date">Fecha</option>
                                 <option value="price">Precio</option>
@@ -494,8 +526,8 @@ const Dashboard = () => {
                                 <Search size={16} />
                                 Aplicar Filtros
                             </button>
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 onClick={handleClearFilters}
                                 className="btn-secondary"
                             >
@@ -539,9 +571,9 @@ const Dashboard = () => {
                             setQuotationToDelete={setQuotationToDelete}
                             onDeleteSuccess={handleDeleteSuccess}
                         />
-                        
+
                         <div className="pagination-container">
-                            
+
                             <div className="pagination-nav">
                                 <button
                                     onClick={() => {
@@ -553,11 +585,11 @@ const Dashboard = () => {
                                 >
                                     Anterior
                                 </button>
-                                
+
                                 <span className="pagination-page">
                                     Página {isFiltering ? filterPage : page} de {Math.ceil((isFiltering ? filterTotal : total) / pageSize)}
                                 </span>
-                                
+
                                 <button
                                     onClick={() => {
                                         if (isFiltering) fetchFilteredQuotations(filterPage + 1);
