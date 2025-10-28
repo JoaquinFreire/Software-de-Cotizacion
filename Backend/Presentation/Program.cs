@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Http.Features; // <-- agregado
 Env.Load("../.env"); // Carga las variables de entorno desde el archivo .env
 
 Console.WriteLine("Arrancando backend...");
@@ -176,18 +177,51 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddCors(options =>
 {
+    // Allow FRONTEND_URL from env (set this in Railway to your deployed frontend) plus common dev URLs
+    var frontendUrlFromEnv = Environment.GetEnvironmentVariable("FRONTEND_URL");
+    var allowedOrigins = new List<string> {
+        "http://localhost:3000",
+        "https://joaquinfreire.github.io",
+        "https://joaquinfreire.github.io/Software-de-Cotizacion",
+        "https://software-de-cotizacion-1.onrender.com"
+    };
+    if (!string.IsNullOrEmpty(frontendUrlFromEnv)) allowedOrigins.Add(frontendUrlFromEnv.TrimEnd('/'));
+    
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000", "https://joaquinfreire.github.io",
-            "https://joaquinfreire.github.io/Software-de-Cotizacion", "https://software-de-cotizacion-1.onrender.com")
-                  // Permitir el frontend
-                  .AllowAnyMethod()  // Permitir cualquier método HTTP (GET, POST, etc.)
-                  .AllowAnyHeader(); // Permitir cualquier encabezado
+            policy.WithOrigins(allowedOrigins.ToArray())
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
         });
 });
 
+// Antes de builder.Build() configurar límites de multipart y Kestrel
+builder.Services.Configure<FormOptions>(options =>
+{
+    // Aumenta el límite de subida multipart/form-data (ej: 200 MB)
+    options.MultipartBodyLengthLimit = 200 * 1024 * 1024; // 200 MB
+});
+
+// Configurar Kestrel para aceptar bodies grandes (opcional pero útil en deploys)
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 200 * 1024 * 1024; // 200 MB
+});
+
 var app = builder.Build();
+
+// Middleware para loguear todas las requests entrantes (útil en producción para debug 404)
+app.Use(async (context, next) =>
+{
+    var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("RequestLogger");
+    logger.LogInformation("Incoming request: {Method} {Path}", context.Request.Method, context.Request.Path);
+    await next();
+});
+
+// Habilitar servir archivos estáticos desde wwwroot (útil para comprobar archivos en /public)
+app.UseStaticFiles();
 
 // Configuración de middleware
 if (app.Environment.IsDevelopment())
@@ -213,3 +247,7 @@ catch (Exception ex)
     Console.WriteLine("ERROR FATAL: " + ex.ToString());
     throw;
 }
+
+// Log allowed origins at startup for debug
+var logger = builder.Logging.Services.BuildServiceProvider().GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
+logger.LogInformation("CORS allowed origins: {origins}", Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "default list");
