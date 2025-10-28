@@ -152,7 +152,7 @@ namespace Infrastructure.Persistence.Repositories
             var filter = Builders<Budget>.Filter.And(
                 Builders<Budget>.Filter.Gte(b => b.creationDate, fromDate),
                 Builders<Budget>.Filter.Lte(b => b.creationDate, toDate),
-                Builders<Budget>.Filter.Eq(b => b.status, BudgetStatus.Approved)
+                Builders<Budget>.Filter.Eq(b => b.status, BudgetStatus.Accepted)
             );
 
             return await _collection.Find(filter).ToListAsync();

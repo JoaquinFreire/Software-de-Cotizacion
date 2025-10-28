@@ -229,7 +229,7 @@ namespace Application.DTOs.SustainabilityReportDTOs
 
             // Considerar tanto "approved" como "finished" como conversiones exitosas
             var successfulBudgets = customerBudgets.Count(b =>
-                b.status == BudgetStatus.Approved ||
+                b.status == BudgetStatus.Accepted ||
                 b.status.ToString().ToLower() == "finished");
 
             // Penalidad más suave por versiones rechazadas

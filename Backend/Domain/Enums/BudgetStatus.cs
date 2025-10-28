@@ -4,7 +4,7 @@ public enum BudgetStatus
 {
         Pending,
         Rejected,
-        Approved,
+        Accepted,
         Finished
 }
 

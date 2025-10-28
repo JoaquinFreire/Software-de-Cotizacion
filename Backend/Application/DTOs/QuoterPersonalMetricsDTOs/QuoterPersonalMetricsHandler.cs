@@ -200,13 +200,13 @@ namespace Application.DTOs.QuoterPersonalMetricsDTOs
                 {
                     OpeningType = g.Key,
                     TotalQuotations = g.Count(),
-                    Accepted = g.Count(x => x.Budget.status == BudgetStatus.Approved),
+                    Accepted = g.Count(x => x.Budget.status == BudgetStatus.Accepted),
                     ConversionRate = g.Count() > 0 ?
-                        (decimal)g.Count(x => x.Budget.status == BudgetStatus.Approved) / g.Count() : 0,
+                        (decimal)g.Count(x => x.Budget.status == BudgetStatus.Accepted) / g.Count() : 0,
                     AverageValue = g.Where(x => x.Product.price.HasValue).Any() ?
                         g.Where(x => x.Product.price.HasValue).Average(x => x.Product.price.Value) : 0,
                     Performance = GetPerformanceLevel(
-                        g.Count(x => x.Budget.status == BudgetStatus.Approved),
+                        g.Count(x => x.Budget.status == BudgetStatus.Accepted),
                         g.Count())
                 })
                 .Where(p => p.TotalQuotations > 0)

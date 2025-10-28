@@ -64,8 +64,6 @@ builder.Services.AddScoped<DashboardDataService>(); // Registrar el servicio de 
 builder.Services.AddAutoMapper(typeof(CreateBudgetProfile));//Mapeo de cotizaciones
 builder.Services.AddAutoMapper(typeof(CreateCustomerProfile));//Mapeo de clientes
 
-//REGISTRO DE SERVICIOS DE CACHE
-builder.Services.AddMemoryCache();
 
 //REGISTRO DE VALIDACIONES
 
