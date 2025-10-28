@@ -237,6 +237,11 @@ app.UseAuthentication(); // 🔹
 app.UseAuthorization(); // Habilita la autorización en la API
 // Mapea los controladores definidos en la aplicación
 app.MapControllers();
+
+// LOG DE ARRANQUE: mostrar FRONTEND_URL / CORS para debugging (esto se ejecuta)
+var startupLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
+startupLogger.LogInformation("FRONTEND_URL env: {frontend}", Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "not-set");
+
 Console.WriteLine("Backend listo para recibir solicitudes.");
 try
 {

@@ -10,7 +10,7 @@ import ReactLoading from 'react-loading'; // <--- agregar import
 import { ToastContainer, toast, Slide } from 'react-toastify';
 import logo_busqueda from "../../images/logo_busqueda.webp";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_API_URL_PROD || "http://localhost:5187";
 
 const AdminUsuarios = () => {
     const [users, setUsers] = useState([]);

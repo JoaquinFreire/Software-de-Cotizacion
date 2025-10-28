@@ -28,7 +28,7 @@ pdfMake.vfs = (
 //   userId: 'QxYqfCz3uNXncaqvW'
 // };
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5187";
+const API_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_API_URL_PROD || "http://localhost:5187";
 
 const BudgetDetail = () => {
   const { id } = useParams();
