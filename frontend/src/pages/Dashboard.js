@@ -225,36 +225,15 @@ const Dashboard = () => {
         const token = localStorage.getItem("token");
         try {
             // Mapear los estados lowercase del frontend a los nombres del enum en backend
-
-
-
             const mapStatus = {
-
-
                 pending: "Pending",
-
-
                 approved: "Approved",
-
-
                 rejected: "Rejected",
-
-
                 finished: "Finished"
-
-
             };
-
-
             const payload = {
-
-
                 Status: mapStatus[newStatus] ?? newStatus,
-
-
                 Comment: comment
-
-
             };
             await axios.put(
                 `${API_URL}/api/quotations/${id}/status`,

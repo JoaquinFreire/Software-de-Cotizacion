@@ -13,7 +13,7 @@ import ReactLoading from 'react-loading';
 import { safeArray } from '../../utils/safeArray';
 import Navigation from '../../components/Navigation';
 import Footer from '../../components/Footer';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // <-- agregado
 Chart.register(ChartDataLabels);
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -63,6 +63,7 @@ const ReporteDeOportunidadesPerdidas = () => {
   const [cotizaciones, setCotizaciones] = useState([]);
   const pdfRef = useRef();
   const navigate = useNavigate(); // <-- agregado
+
   // nuevo estado para ordenamiento por precio
   const [priceSortDirection, setPriceSortDirection] = useState(null); // 'asc' | 'desc' | null
 
@@ -75,6 +76,7 @@ const ReporteDeOportunidadesPerdidas = () => {
         `${API_URL}/api/Mongo/GetAllBudgets`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
       // Normalizar la fuente de datos: soporta varias formas de respuesta
       let raw = res.data;
       let data = [];
@@ -93,14 +95,16 @@ const ReporteDeOportunidadesPerdidas = () => {
         const fechaObj = new Date(typeof fechaRaw === 'string' ? fechaRaw : fechaRaw);
         if (isNaN(fechaObj.getTime())) return false;
         // compare by date portion
-        const f = new Date(fechaObj.toISOString().slice(0, 10));
+        const f = new Date(fechaObj.toISOString().slice(0,10));
         return f >= fromDate && f <= toDate;
       });
-      // Solo rechazadas (case-insensitive) 
+
+      // Solo rechazadas (case-insensitive)
       data = data.filter(q => {
         const status = (q.status ?? q.Status ?? q.StatusName ?? '').toString().toLowerCase();
         return status === 'rejected' || status === 'rechazado';
       });
+
       setCotizaciones(data);
     } catch (err) {
       setCotizaciones([]);
@@ -217,11 +221,13 @@ const ReporteDeOportunidadesPerdidas = () => {
     // juntar hasta 3 líneas para no perder contexto
     return lines.slice(0, 3).join(' ').trim() || 'Sin especificar';
   };
+
   const parseTotalNumeric = (q) => {
     const val = q.total ?? q.Total ?? q.TotalPrice ?? q.monto ?? q.amount ?? 0;
     const n = Number(String(val).replace(/[^0-9.-]+/g, ''));
     return Number.isFinite(n) ? n : 0;
   };
+
   const togglePriceSort = () => {
     setPriceSortDirection(prev => {
       if (prev === 'asc') return 'desc';
@@ -229,6 +235,7 @@ const ReporteDeOportunidadesPerdidas = () => {
       return 'asc';
     });
   };
+
   // crear array ordenado según priceSortDirection
   const cotizacionesToRender = (() => {
     if (!Array.isArray(cotizaciones)) return [];
@@ -292,7 +299,7 @@ const ReporteDeOportunidadesPerdidas = () => {
                 justifyContent: 'center',
                 minHeight: 500
               }}>
-                <ReactLoading type="spin" color="#26b7cd" height={60} width={60} />
+                 <ReactLoading type="spin" color="#26b7cd" height={60} width={60}/>
                 <div style={{ marginTop: 24, fontSize: 18, color: '#1dc8ceff' }}>Cargando reporte...</div>
               </div>
             ) : !generar ? (
@@ -329,7 +336,7 @@ const ReporteDeOportunidadesPerdidas = () => {
                       options={{
                         plugins: {
                           legend: { display: false },
-                          title: { display: true },
+                          title: { display: true},
                           datalabels: {
                             color: '#222',
                             font: { weight: 'bold', size: 16 },
@@ -371,7 +378,8 @@ const ReporteDeOportunidadesPerdidas = () => {
                             <button
                               onClick={togglePriceSort}
                               style={{ marginLeft: 8, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 14 }}
-                              title="Ordenar por precio"                            >
+                              title="Ordenar por precio"
+                            >
                               {priceSortDirection === 'asc' ? '↑' : priceSortDirection === 'desc' ? '↓' : '↕'}
                             </button>
                           </th>
@@ -386,14 +394,16 @@ const ReporteDeOportunidadesPerdidas = () => {
                         ) : cotizacionesToRender.map(q => {
                           const qId = q.budgetId || q.Id || q.id || q.BudgetId || null;
                           return (
-                            <tr key={qId || Math.random()}
+                            <tr
+                              key={qId || Math.random()}
                               className={qId ? 'clickable-row' : ''}
                               onClick={() => qId && navigate(`/quotation/${qId}`)}
                               tabIndex={qId ? 0 : -1}
                               onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && qId) navigate(`/quotation/${qId}`); }}
                             >
                               <td>
-                                {q.customer?.name || q.Customer?.name || ''} {' '}
+                                {q.customer?.name || q.Customer?.name || ''}
+                                {' '}
                                 {q.customer?.lastname || q.Customer?.lastname || ''}
                               </td>
                               <td>{q.customer?.tel || q.Customer?.tel || ''}</td>

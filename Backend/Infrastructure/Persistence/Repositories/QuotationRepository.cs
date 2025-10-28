@@ -226,7 +226,7 @@ public class QuotationRepository : IQuotationRepository
         var quoterQuotations = allQuotations.Where(q => q.UserId == quoterId).ToList();
         var totalQuotations = allQuotations.Count();
         if (totalQuotations == 0) return 0;
-        var successfulQuotations = quoterQuotations.Count(q => q.Status == "accepted");
+        var successfulQuotations = quoterQuotations.Count(q => q.Status == "approved");
         var rank = (int)((successfulQuotations / (double)totalQuotations) * 100);
         return rank;
     }

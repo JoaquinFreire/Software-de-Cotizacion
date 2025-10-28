@@ -738,7 +738,7 @@ const LineaDeTiempoCotizaciones = () => {
                                     onChange={(e) => setFiltros({ ...filtros, status: e.target.value })}
                                 >
                                     <option value="">Todos</option>
-                                    <option value="accepted">Aceptadas</option>
+                                    <option value="accepted">Aprobadas</option>
                                     <option value="pending">Pendientes</option>
                                     <option value="rejected">Rechazadas</option>
                                 </select>
