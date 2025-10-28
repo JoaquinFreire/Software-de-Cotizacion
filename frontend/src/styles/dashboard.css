@@ -33,6 +33,7 @@ body.light-mode .title {
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
+
 .dashboard-title {
     margin-left: 33%;
     font-size: 2.5rem;
@@ -43,6 +44,7 @@ body.light-mode .title {
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
+
 body.light-mode .dashboard-title {
     color: #0e7490;
     background: linear-gradient(135deg, #1c1e1f, #585f5d);
@@ -50,6 +52,7 @@ body.light-mode .dashboard-title {
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
+
 .dashboard-stats {
     display: flex;
     align-items: center;
@@ -73,7 +76,8 @@ body.light-mode .dashboard-title {
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    margin: 0 2rem 2rem;
+    width: 80%;
+    margin: 2rem auto;
     overflow: hidden;
 }
 
@@ -151,7 +155,7 @@ body.light-mode .dashboard-title {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
     margin-bottom: 1.5rem;
-    align-items:center;
+    align-items: center;
 }
 
 .filter-group {

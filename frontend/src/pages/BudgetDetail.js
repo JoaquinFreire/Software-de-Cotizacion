@@ -1,26 +1,111 @@
-import React, { useEffect, useState, useRef } from 'react'; 
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+// import emailjs from 'emailjs-com'; // ✅ Importar EmailJS
 import logoAnodal from '../images/logo_secundario.webp';
 import miniLogo from '../images/logo_secundario.webp';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import ReactLoading from 'react-loading';
 import Navbar from '../components/Navigation';
 import { safeArray } from '../utils/safeArray';
 import '../styles/BudgetDetail.css';
 import Qrcode from '../images/qr-code.png';
+// Reemplazar import de react-pdf por pdfmake
+import pdfMake from 'pdfmake/build/pdfmake';
+import * as pdfFonts from 'pdfmake/build/vfs_fonts';
+import { ToastContainer, toast, Slide } from 'react-toastify';
+// Asignación robusta de vfs para distintas formas de exportación del paquete
+pdfMake.vfs = (
+  (pdfFonts && (pdfFonts.pdfMake && pdfFonts.pdfMake.vfs)) ||
+  (pdfFonts && pdfFonts.vfs) ||
+  (pdfFonts && pdfFonts.default && pdfFonts.default.vfs) ||
+  pdfMake.vfs
+);
+
+// ✅ Configuración de EmailJS con tus credenciales
+// const EMAILJS_CONFIG = {
+//   serviceId: 'service_ngu8koc',
+//   templateId: 'template_39aty7d',
+//   userId: 'QxYqfCz3uNXncaqvW'
+// };
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5187";
 
 const BudgetDetail = () => {
   const { id } = useParams();
   const [budget, setBudget] = useState(null);
+  const [sanitizedBudget, setSanitizedBudget] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [mailLoading, setMailLoading] = useState(false);
   const [whatsAppLoading, setWhatsAppLoading] = useState(false);
-  const pdfRef = useRef();
+
+  // deepSanitize: extrae solo los campos necesarios y usa safeArray para Products (no elimina $values)
+  const deepSanitize = (obj) => {
+    if (!obj || typeof obj !== 'object') return null;
+    try {
+      // helper to safely read nested values with fallback names
+      const read = (o, keys = []) => {
+        for (const k of keys) {
+          if (!o) break;
+          if (o[k] !== undefined) return o[k];
+        }
+        return undefined;
+      };
+
+      const products = safeArray(obj.Products).map(p => ({
+        OpeningType: p?.OpeningType ? { name: p.OpeningType.name } : null,
+        Quantity: p?.Quantity ?? p?.quantity ?? 0,
+        width: p?.width ?? p?.Width ?? '-',
+        height: p?.height ?? p?.Height ?? '-',
+        GlassType: p?.GlassType ? { name: p.GlassType.name } : null,
+        AlumTreatment: p?.AlumTreatment ? { name: p.AlumTreatment.name } : null,
+        price: p?.price ?? p?.Price ?? null
+      }));
+
+      return {
+        budgetId: read(obj, ['budgetId', 'BudgetId']),
+        version: read(obj, ['version']),
+        creationDate: read(obj, ['creationDate']),
+        status: read(obj, ['status']),
+        ExpirationDate: read(obj, ['ExpirationDate', 'EndDate']),
+        DollarReference: read(obj, ['DollarReference']),
+        LabourReference: read(obj, ['LabourReference']),
+        Total: read(obj, ['Total']),
+        Comment: read(obj, ['Comment']) || '',
+        user: obj.user ? {
+          name: obj.user.name,
+          lastName: obj.user.lastName ?? obj.user.lastname,
+          mail: obj.user.mail ?? obj.user.email
+        } : null,
+        customer: obj.customer ? {
+          name: obj.customer.name,
+          lastname: obj.customer.lastname,
+          mail: obj.customer.mail,
+          tel: obj.customer.tel,
+          address: obj.customer.address
+        } : null,
+        agent: obj.agent ? {
+          name: obj.agent.name,
+          mail: obj.agent.mail
+        } : null,
+        workPlace: obj.workPlace ? {
+          name: obj.workPlace.name,
+          address: obj.workPlace.address ?? obj.workPlace.location
+        } : null,
+        Products: products
+      };
+    } catch (err) {
+      console.error('deepSanitize fallback error:', err);
+      return {
+        budgetId: obj?.budgetId,
+        creationDate: obj?.creationDate,
+        status: obj?.status,
+        Total: obj?.Total,
+        Comment: obj?.Comment || '',
+        Products: []
+      };
+    }
+  };
 
   useEffect(() => {
     const fetchBudget = async () => {
@@ -29,10 +114,17 @@ const BudgetDetail = () => {
         const res = await axios.get(`${API_URL}/api/Mongo/GetBudgetByBudgetId/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log(res.data);
+
+        // Sanitizar inmediatamente
+        const cleaned = deepSanitize(res.data);
+
         setBudget(res.data);
-      } catch {
+        setSanitizedBudget(cleaned);
+
+      } catch (error) {
+        console.error('Error fetching budget:', error);
         setBudget(null);
+        setSanitizedBudget(null);
       }
       setLoading(false);
     };
@@ -40,72 +132,6 @@ const BudgetDetail = () => {
   }, [id]);
 
   const show = (val) => val !== undefined && val !== null && val !== "" ? val : "No especificado";
-
-  const generatePDF = async () => {
-    if (!pdfRef.current) return null;
-    const input = pdfRef.current;
-    const canvas = await html2canvas(input, { scale: 3, useCORS: true });
-    const imgData = canvas.toDataURL('image/jpeg', 1.0);
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfHeight = (imgProps.height * pageWidth) / imgProps.width;
-
-    let position = 0;
-    let heightLeft = pdfHeight;
-    let pageNumber = 1;
-
-    while (heightLeft > 0) {
-      pdf.addImage(imgData, 'JPEG', 0, position, pageWidth, pdfHeight);
-      pdf.setFontSize(10);
-      pdf.text(`Página ${pageNumber}`, pageWidth - 60, pageHeight - 10);
-      pdf.addImage(miniLogo, 'PNG', 20, pageHeight - 30, 20, 20);
-      heightLeft -= pageHeight;
-      position -= pageHeight;
-      if (heightLeft > 0) pdf.addPage();
-      pageNumber++;
-    }
-
-    return pdf;
-  };
-
-  const handleDescargarPDF = async () => {
-    setPdfLoading(true);
-    const pdf = await generatePDF();
-    if (pdf) pdf.save(`detalle_cotizacion_${show(budget.budgetId)}.pdf`);
-    setPdfLoading(false);
-  };
-
-  const handleEnviarEmail = async () => {
-    setMailLoading(true);
-    const pdf = await generatePDF();
-    if (!pdf) return;
-    const pdfBlob = pdf.output('blob');
-    const formData = new FormData();
-    formData.append("file", pdfBlob, `cotizacion_${budget.budgetId}.pdf`);
-    formData.append("to", budget.customer?.mail || "cliente@ejemplo.com");
-
-    try {
-      await axios.post(`${API_URL}/api/SendMail`, formData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-      });
-      alert("Correo enviado correctamente ✅");
-    } catch (err) {
-      console.error(err);
-      alert("Error enviando el correo ❌");
-    }
-    setMailLoading(false);
-  };
-
-  const handleEnviarWhatsApp = async () => {
-    setWhatsAppLoading(true);
-    const pdfLink = `${API_URL}/files/cotizacion_${budget.budgetId}.pdf`;
-    const phone = budget.customer?.tel || "5493510000000"; 
-    const mensaje = `Hola ${budget.customer?.name}, aquí tienes tu cotización:\n${pdfLink}`;
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`, "_blank");
-    setWhatsAppLoading(false);
-  };
 
   // Helper: asegura párrafo (double newline) antes de frases clave
   const insertParagraphsBefore = (text) => {
@@ -146,22 +172,761 @@ const BudgetDetail = () => {
     return out;
   };
 
+  // ✅ Helper para convertir blob a base64 (necesario para EmailJS)
+  const blobToBase64 = (blob) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  // Nuevo: convertir imagen URL -> dataURL (base64) opcional (si quieres incluir logos)
+  const urlToDataUrl = async (url) => {
+    if (!url) return null;
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const mime = blob.type;
+
+      // Si es webp, pdfMake suele rechazarlo: convertir a PNG usando createImageBitmap/canvas
+      if (mime === 'image/webp') {
+        try {
+          // preferir createImageBitmap si está disponible
+          if (window.createImageBitmap) {
+            const bitmap = await createImageBitmap(blob);
+            const canvas = document.createElement('canvas');
+            canvas.width = bitmap.width;
+            canvas.height = bitmap.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(bitmap, 0, 0);
+            return canvas.toDataURL('image/png');
+          } else {
+            // fallback clásico: Image + canvas
+            const objectUrl = URL.createObjectURL(blob);
+            const img = new Image();
+            img.src = objectUrl;
+            await new Promise((resolve, reject) => {
+              img.onload = () => resolve();
+              img.onerror = reject;
+            });
+            const canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth || img.width;
+            canvas.height = img.naturalHeight || img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            URL.revokeObjectURL(objectUrl);
+            return canvas.toDataURL('image/png');
+          }
+        } catch (convErr) {
+          console.warn('No se pudo convertir webp a png', convErr);
+          return null;
+        }
+      }
+
+      // Otros formatos: devolver dataURL directo
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (e) {
+      console.warn('No se pudo convertir imagen a dataURL', url, e);
+      return null;
+    }
+  };
+
+  // Construye la definición de pdfmake a partir de la cotización saneada
+  const buildDocDefinition = async (bgt) => {
+    const logoData = await urlToDataUrl(logoAnodal).catch(() => null);
+    const qrData = await urlToDataUrl(Qrcode).catch(() => null);
+    // ✅ REDUCIR calidad de imágenes
+    const optimizedLogoData = logoData ? await compressImage(logoData, 0.5) : null;
+    const optimizedQrData = qrData ? await compressImage(qrData, 0.3) : null;
+
+    const productsTableBody = [
+      [
+        { text: 'PRODUCTO', style: 'tableHeader', fillColor: '#2c3e50' },
+        { text: 'CANT.', style: 'tableHeader', fillColor: '#2c3e50' },
+        { text: 'DIMENSIONES', style: 'tableHeader', fillColor: '#2c3e50' },
+        { text: 'VIDRIO', style: 'tableHeader', fillColor: '#2c3e50' },
+        { text: 'TRATAMIENTO', style: 'tableHeader', fillColor: '#2c3e50' },
+        { text: 'PRECIO/U', style: 'tableHeader', fillColor: '#2c3e50' }
+      ]
+    ];
+
+    (bgt.Products || []).forEach(p => {
+      productsTableBody.push([
+        { text: p?.OpeningType?.name || '-', style: 'tableText' },
+        { text: String(p?.Quantity ?? '-'), style: 'tableText', alignment: 'center' },
+        { text: (p?.width ?? '-') + 'x' + (p?.height ?? '-') + ' cm', style: 'tableText', alignment: 'center' },
+        { text: p?.GlassType?.name || '-', style: 'tableText' },
+        { text: p?.AlumTreatment?.name || '-', style: 'tableText' },
+        { text: p?.price ? `$${p.price}` : '-', style: 'tableText', alignment: 'right' }
+      ]);
+    });
+
+    const commentText = (bgt.Comment || '').toString();
+
+    const docDefinition = {
+      pageSize: 'A4',
+      pageMargins: [40, 80, 40, 60], // ✅ Reducir márgenes
+      compress: true, // ✅ Comprimir PDF
+      pageMargins: [40, 100, 40, 60], // Aumenté el margen superior para el header
+      header: function (currentPage, pageCount) {
+        return {
+          table: {
+            widths: ['*'],
+            body: [
+              [
+                {
+                  stack: [
+                    // Primera fila: Logo + Título + Info empresa
+                    {
+                      columns: [
+                        // Logo más pequeño y mejor posicionado
+                        (logoData && typeof logoData === 'string' && logoData.startsWith('data:')) ?
+                          {
+                            image: logoData,
+                            width: 60,
+                            margin: [0, 0, 0, 0],
+                            alignment: 'left'
+                          } :
+                          { text: '', width: 60 },
+                        // Título centrado
+                        {
+                          stack: [
+                            { text: 'COTIZACIÓN', style: 'documentTitle', alignment: 'center' },
+                            { text: `Página ${currentPage} de ${pageCount}`, style: 'pageNumber', alignment: 'center' }
+                          ],
+                          alignment: 'center',
+                          width: '*'
+                        },
+                        // Información de la empresa más compacta
+                        {
+                          stack: [
+                            { text: 'ANODAL S.A.', style: 'companyName', alignment: 'right' },
+                            { text: 'Av. Japón 1292 Córdoba', style: 'companyInfo', alignment: 'right' },
+                            { text: 'info@anodal.com.ar', style: 'companyInfo', alignment: 'right' },
+                            { text: '0351 4995870', style: 'companyInfo', alignment: 'right' }
+                          ],
+                          width: 120,
+                          alignment: 'right'
+                        }
+                      ],
+                      margin: [0, 0, 0, 5]
+                    },
+                    // Línea separadora
+                    {
+                      canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1, lineColor: '#3498db' }],
+                      margin: [0, 5, 0, 0]
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          layout: 'noBorders',
+          margin: [40, 20, 40, 10] // Reducir margen del header
+        };
+      },
+      footer: function (currentPage, pageCount) {
+        return {
+          table: {
+            widths: ['*'],
+            body: [
+              [
+                {
+                  canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1, lineColor: '#bdc3c7' }],
+                  margin: [0, 0, 0, 5]
+                }
+              ],
+              [
+                {
+                  columns: [
+                    (logoData && typeof logoData === 'string' && logoData.startsWith('data:')) ?
+                      { image: logoData, width: 25, margin: [0, 5, 0, 0] } :
+                      { text: '' },
+                    {
+                      text: 'Avenida Japón 1292 / Córdoba / Argentina - Solo para uso interno de la empresa Anodal S.A.',
+                      style: 'footerText',
+                      alignment: 'center',
+                      margin: [10, 5, 0, 0]
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          layout: 'noBorders',
+          margin: [40, 10, 40, 20]
+        };
+      },
+      content: [
+        // Número de cotización y fechas - AHORA ESTE CONTENIDO ESTÁ DEBAJO DEL HEADER
+        {
+          table: {
+            widths: ['*'],
+            body: [
+              [
+                {
+                  columns: [
+                    {
+                      text: `COTIZACIÓN N°: ${bgt.budgetId || '-'}`,
+                      style: 'budgetNumber'
+                    },
+                    {
+                      stack: [
+                        { text: `Fecha: ${bgt.creationDate ? new Date(bgt.creationDate).toLocaleDateString() : '-'}`, style: 'dateText', alignment: 'right' },
+                        { text: `Válido hasta: ${bgt.ExpirationDate ? new Date(bgt.ExpirationDate).toLocaleDateString() : '-'}`, style: 'dateText', alignment: 'right' }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          layout: 'noBorders',
+          margin: [0, 10, 0, 15] // Reducir margen superior aquí también
+        },
+
+        // Información de contacto en tarjetas - MÁS COMPACTA
+        {
+          columns: [
+            {
+              stack: [
+                { text: 'CLIENTE', style: 'sectionTitle' },
+                {
+                  table: {
+                    widths: ['*'],
+                    body: [
+                      [{ text: `Nombre: ${bgt.customer?.name || '-'} ${bgt.customer?.lastname || ''}`, style: 'infoText' }],
+                      [{ text: `Correo: ${bgt.customer?.mail || '-'}`, style: 'infoText' }],
+                      [{ text: `Tel: ${bgt.customer?.tel || '-'}`, style: 'infoText' }],
+                      [{ text: `Dirección: ${bgt.customer?.address || '-'}`, style: 'infoText' }]
+                    ]
+                  },
+                  layout: {
+                    defaultBorder: false,
+                    fillColor: '#ecf0f1'
+                  },
+                  margin: [0, 2, 0, 0] // Reducir margen
+                }
+              ],
+              width: '33%'
+            },
+            {
+              stack: [
+                { text: 'LUGAR DE TRABAJO', style: 'sectionTitle' },
+                {
+                  table: {
+                    widths: ['*'],
+                    body: [
+                      [{ text: `Nombre: ${bgt.workPlace?.name || '-'}`, style: 'infoText' }],
+                      [{ text: `Dirección: ${bgt.workPlace?.address || '-'}`, style: 'infoText' }]
+                    ]
+                  },
+                  layout: {
+                    defaultBorder: false,
+                    fillColor: '#ecf0f1'
+                  },
+                  margin: [0, 2, 0, 0]
+                }
+              ],
+              width: '33%'
+            },
+            {
+              stack: [
+                { text: 'VENDEDOR', style: 'sectionTitle' },
+                {
+                  table: {
+                    widths: ['*'],
+                    body: [
+                      [{ text: `Nombre: ${bgt.user?.name || '-'} ${bgt.user?.lastName || ''}`, style: 'infoText' }],
+                      [{ text: `Mail: ${bgt.user?.mail || '-'}`, style: 'infoText' }]
+                    ]
+                  },
+                  layout: {
+                    defaultBorder: false,
+                    fillColor: '#ecf0f1'
+                  },
+                  margin: [0, 2, 0, 0]
+                }
+              ],
+              width: '33%'
+            }
+          ],
+          columnGap: 8, // Reducir espacio entre columnas
+          margin: [0, 0, 0, 15] // Reducir margen inferior
+        },
+
+        // Resto del contenido se mantiene igual...
+        { text: 'ABERTURAS', style: 'sectionTitle', margin: [0, 0, 0, 8] },
+        {
+          table: {
+            headerRows: 1,
+            widths: ['*', 40, 80, 80, 80, 60],
+            body: productsTableBody
+          },
+          layout: {
+            fillColor: function (rowIndex) {
+              return (rowIndex % 2 === 0) ? '#f8f9fa' : null;
+            }
+          }
+        },
+
+        // Totales
+        {
+          table: {
+            widths: ['*', 200],
+            body: [
+              [
+                { text: '', border: [false, false, false, false] },
+                {
+                  stack: [
+                    {
+                      table: {
+                        widths: ['*'],
+                        body: [
+                          [{ text: `Dólar Referencia: $${bgt.DollarReference ?? '-'}`, style: 'referenceText', border: [false, false, false, false] }],
+                          [{ text: `Mano de Obra: $${bgt.LabourReference ?? '-'}`, style: 'referenceText', border: [false, false, false, false] }],
+                          [{ canvas: [{ type: 'line', x1: 0, y1: 0, x2: 180, y2: 0, lineWidth: 1, lineColor: '#7f8c8d' }], border: [false, false, false, false] }],
+                          [{ text: `TOTAL: $${bgt.Total ?? '-'}`, style: 'totalText', border: [false, false, false, false] }]
+                        ]
+                      },
+                      layout: 'noBorders',
+                      margin: [0, 5, 0, 0]
+                    }
+                  ],
+                  alignment: 'right'
+                }
+              ]
+            ]
+          },
+          layout: 'noBorders',
+          margin: [0, 10, 0, 15]
+        },
+
+        // Observaciones
+        {
+          stack: [
+            { text: 'OBSERVACIONES', style: 'sectionTitle', margin: [0, 0, 0, 5] },
+            {
+              table: {
+                widths: ['*'],
+                body: [
+                  [
+                    {
+                      text: commentText || 'Sin observaciones',
+                      style: 'commentText',
+                      fillColor: '#f8f9fa'
+                    }
+                  ]
+                ]
+              },
+              layout: {
+                defaultBorder: false
+              }
+            }
+          ]
+        },
+
+        // Encuesta de satisfacción
+        {
+          stack: [
+            { text: '\n' },
+            {
+              table: {
+                widths: ['*'],
+                body: [
+                  [
+                    {
+                      stack: [
+                        { text: 'ENCUESTA DE SATISFACCIÓN', style: 'surveyTitle' },
+                        { text: 'Tu opinión es muy importante para nosotros. Escanea el código QR para acceder a la encuesta y contarnos tu experiencia.', style: 'surveyText', margin: [0, 5, 0, 8] },
+                        (qrData && typeof qrData === 'string' && qrData.startsWith('data:')) ?
+                          { image: qrData, width: 70, alignment: 'center', margin: [0, 0, 0, 5] } :
+                          { text: '' },
+                        { text: '¡Gracias por elegirnos!', style: 'surveyThanks', alignment: 'center' }
+                      ],
+                      alignment: 'center',
+                      fillColor: '#ecf0f1'
+                    }
+                  ]
+                ]
+              },
+              layout: {
+                defaultBorder: false
+              }
+            }
+          ]
+        }
+      ],
+      styles: {
+        documentTitle: {
+          fontSize: 18, // Reducido
+          bold: true,
+          color: '#2c3e50',
+          margin: [0, 2, 0, 0] // Menos margen
+        },
+        companyName: {
+          fontSize: 9, // Reducido
+          bold: true,
+          color: '#2c3e50',
+          margin: [0, 0, 0, 0]
+        },
+        companyInfo: {
+          fontSize: 7, // Reducido
+          color: '#7f8c8d',
+          margin: [0, 0, 0, 0]
+        },
+        pageNumber: {
+          fontSize: 8,
+          color: '#7f8c8d',
+          margin: [0, 2, 0, 0]
+        },
+        budgetNumber: {
+          fontSize: 12, // Reducido
+          bold: true,
+          color: '#2c3e50'
+        },
+        dateText: {
+          fontSize: 9, // Reducido
+          color: '#7f8c8d'
+        },
+        sectionTitle: {
+          fontSize: 10, // Reducido
+          bold: true,
+          color: '#ffffff',
+          background: '#3498db',
+          padding: [4, 8], // Reducido
+          margin: [0, 0, 0, 2]
+        },
+        tableHeader: {
+          fontSize: 8, // Reducido
+          bold: true,
+          color: '#ffffff',
+          alignment: 'center'
+        },
+        tableText: {
+          fontSize: 8, // Reducido
+          color: '#2c3e50'
+        },
+        infoText: {
+          fontSize: 8, // Reducido
+          color: '#2c3e50',
+          padding: [4, 4] // Reducido
+        },
+        referenceText: {
+          fontSize: 9,
+          color: '#7f8c8d',
+          alignment: 'right'
+        },
+        totalText: {
+          fontSize: 12, // Reducido ligeramente
+          bold: true,
+          color: '#2c3e50',
+          alignment: 'right',
+          margin: [0, 3, 0, 0]
+        },
+        commentText: {
+          fontSize: 9,
+          color: '#2c3e50',
+          padding: [8, 8]
+        },
+        surveyTitle: {
+          fontSize: 12, // Reducido
+          bold: true,
+          color: '#2c3e50',
+          alignment: 'center'
+        },
+        surveyText: {
+          fontSize: 9,
+          color: '#2c3e50',
+          alignment: 'center'
+        },
+        surveyThanks: {
+          fontSize: 9,
+          bold: true,
+          color: '#27ae60',
+          margin: [0, 3, 0, 0]
+        },
+        footerText: {
+          fontSize: 7, // Reducido
+          color: '#7f8c8d'
+        }
+      },
+      defaultStyle: {
+        fontSize: 9, // Reducido globalmente
+        color: '#2c3e50'
+      }
+    };
+
+    return docDefinition;
+  };
+  // ✅ Función para comprimir imágenes
+  const compressImage = (dataUrl, quality = 0.7) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = dataUrl;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * quality;
+        canvas.height = img.height * quality;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.7)); // ✅ Usar JPEG en lugar de PNG
+      };
+      img.onerror = () => resolve(dataUrl); // Fallback
+    });
+  };
+
+  // Obtener Blob desde docDefinition (pdfMake usa callback)
+  const getPdfBlob = async (bgt) => {
+    try {
+      const docDef = await buildDocDefinition(bgt);
+      return await new Promise((resolve, reject) => {
+        const pdfDocGenerator = pdfMake.createPdf(docDef);
+        pdfDocGenerator.getBlob((blob) => {
+          resolve(blob);
+        }, (err) => reject(err));
+      });
+    } catch (err) {
+      console.error('Error generando blob pdfmake', err);
+      return null;
+    }
+  };
+
+  // Preview automático: crear URL del blob cuando llega sanitizedBudget
+  const [previewUrl, setPreviewUrl] = useState(null);
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      if (!sanitizedBudget) return;
+      try {
+        const blob = await getPdfBlob(sanitizedBudget);
+        if (!mounted) return;
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          setPreviewUrl(url);
+        }
+      } catch (e) {
+        console.error('Error generando preview', e);
+      }
+    })();
+    return () => {
+      mounted = false;
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sanitizedBudget]);
+
+  // Actualizar handler de descarga para usar pdfmake (descarga directa o con blob)
+  const handleDescargarPDF = async () => {
+    if (!sanitizedBudget) return;
+    setPdfLoading(true);
+    try {
+      const docDef = await buildDocDefinition(sanitizedBudget);
+      // descarga directa con pdfMake
+      pdfMake.createPdf(docDef).download(`detalle_cotizacion_${show(sanitizedBudget.budgetId)}.pdf`);
+    } catch (err) {
+      console.error('Error al descargar PDF', err);
+      alert('No se pudo generar el PDF');
+    }
+    setPdfLoading(false);
+  };
+
+  // Enviar email: intenta varios endpoints y devuelve diagnóstico útil si falla
+  const handleEnviarEmailJS = async () => {
+    if (!sanitizedBudget) return;
+    setMailLoading(true);
+
+    // Generar PDF blob primero
+    let pdfBlob = null;
+    try {
+      pdfBlob = await getPdfBlob(sanitizedBudget);
+      if (!pdfBlob) {
+        alert("No se pudo generar el PDF");
+        setMailLoading(false);
+        return;
+      }
+    } catch (err) {
+      console.error('Error generando PDF para envío:', err);
+      alert("No se pudo generar el PDF");
+      setMailLoading(false);
+      return;
+    }
+
+    // Intentar enviar desde el servidor
+    try {
+      const formData = new FormData();
+      formData.append("file", pdfBlob, `cotizacion_${sanitizedBudget.budgetId}.pdf`);
+      formData.append("to", sanitizedBudget.customer?.mail || "");
+      formData.append("budgetId", sanitizedBudget.budgetId || "");
+
+      const token = localStorage.getItem("token");
+      const res = await axios.post(`${API_URL.replace(/\/$/, '')}/api/public/send`, formData, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
+        validateStatus: () => true
+      });
+
+      if (res.status >= 200 && res.status < 300 && res.data && res.data.sent) {
+        toast.success("Correo enviado correctamente.");
+        setMailLoading(false);
+        return;
+      }
+
+      // Si el servidor dice que SMTP no está configurado, usar fallback: subir y devolver link
+      const serverError = res.data && (res.data.error || res.data.detail) ? (res.data.error || res.data.detail) : null;
+      if (serverError && String(serverError).toLowerCase().includes("smtp not configured")) {
+        try {
+          // subir para obtener link público
+          const uploadForm = new FormData();
+          uploadForm.append("file", pdfBlob, `cotizacion_${sanitizedBudget.budgetId}.pdf`);
+          uploadForm.append("budgetId", sanitizedBudget.budgetId || "");
+          const upRes = await axios.post(`${API_URL.replace(/\/$/, '')}/api/public/upload`, uploadForm, {
+            headers: {
+              Authorization: token ? `Bearer ${token}` : undefined,
+            },
+            validateStatus: () => true
+          });
+          if (upRes.status >= 200 && upRes.data && upRes.data.url) {
+            const url = upRes.data.url;
+            // copiar al portapapeles si está disponible
+            try {
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(url);
+              }
+            } catch (clipErr) {
+              console.warn("No se pudo copiar al portapapeles", clipErr);
+            }
+            alert(`El servidor no tiene SMTP configurado. Se subió la cotización y se copió el link al portapapeles:\n\n${url}\n\nPegalo en tu cliente de correo para enviar al cliente.`);
+            setMailLoading(false);
+            return;
+          } else {
+            console.warn("Upload fallback failed", upRes.status, upRes.data);
+            alert("El servidor no pudo enviar el correo y no se pudo generar el link público. Contactá al administrador.");
+          }
+        } catch (upErr) {
+          console.error("Error en upload fallback:", upErr);
+          alert("El servidor no pudo enviar el correo y falló el intento de generar link público.");
+        }
+      } else {
+        const msg = serverError || 'No se pudo enviar la cotización desde el servidor.';
+        alert(`Error al enviar: ${msg}`);
+      }
+    } catch (err) {
+      console.error('Error uploading/sending to server', err);
+      alert('Ocurrió un error al comunicarse con el servidor para enviar el correo.');
+    }
+
+    setMailLoading(false);
+  };
+
+  const handleEnviarWhatsApp = async () => {
+    setWhatsAppLoading(true);
+    try {
+      if (!sanitizedBudget) {
+        alert("No hay cotización para enviar.");
+        setWhatsAppLoading(false);
+        return;
+      }
+
+      // Generar PDF blob
+      const pdfBlob = await getPdfBlob(sanitizedBudget);
+      if (!pdfBlob) {
+        alert("No se pudo generar el PDF para enviar por WhatsApp.");
+        setWhatsAppLoading(false);
+        return;
+      }
+
+      // Intentar subir al endpoint público para obtener link único
+      let publicUrl = null;
+      try {
+        const formData = new FormData();
+        formData.append("file", pdfBlob, `cotizacion_${sanitizedBudget.budgetId}.pdf`);
+        formData.append("budgetId", sanitizedBudget.budgetId || "");
+        const token = localStorage.getItem("token");
+        const upRes = await axios.post(`${API_URL.replace(/\/$/, '')}/api/public/upload`, formData, {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
+          validateStatus: () => true
+        });
+        if (upRes.status >= 200 && upRes.data && upRes.data.url) {
+          publicUrl = upRes.data.url;
+        }
+      } catch (uerr) {
+        console.warn("Upload to public failed, will fallback to blob URL", uerr);
+      }
+
+      // Fallback: crear URL temporal desde Blob si no hay publicUrl
+      let tempBlobUrl = null;
+      if (!publicUrl) {
+        tempBlobUrl = URL.createObjectURL(pdfBlob);
+        publicUrl = tempBlobUrl;
+      }
+
+      // Normalizar teléfono: eliminar no-dígitos y anteponer '549' si parece local
+      let phoneRaw = (budget?.customer?.tel || "").toString();
+      let phone = phoneRaw.replace(/\D/g, "");
+      if (!phone) phone = "5493510000000"; // fallback si no hay teléfono
+      // Si la longitud es <=10 (número local sin código), anteponer 549
+      if (phone.length <= 10) phone = "549" + phone;
+
+      const message = `Hola ${sanitizedBudget.customer?.name || ''},\nTe comparto tu cotización: ${publicUrl}`;
+      // Usar WhatsApp Web para escritorio; wa.me abre app/web según dispositivo
+      const waUrl = `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+      window.open(waUrl, "_blank");
+
+      // Si usamos blob temporal, no revocar inmediatamente (el usuario lo abrirá). Programamos revocación ligera.
+      if (tempBlobUrl) {
+        setTimeout(() => URL.revokeObjectURL(tempBlobUrl), 5 * 60 * 1000); // revocar en 5 minutos
+      }
+    } catch (err) {
+      console.error("Error preparando WhatsApp:", err);
+      alert("Ocurrió un error al preparar el mensaje de WhatsApp.");
+    } finally {
+      setWhatsAppLoading(false);
+    }
+  };
+
   return (
     <>
       <Navbar />
       <div className="content-bottom">
+        <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
         <div className="only-screen">
-          <button className="reporte-cotizaciones-btn-pdf" onClick={handleDescargarPDF} disabled={pdfLoading}>
+          <button
+            className="reporte-cotizaciones-btn-pdf btn-with-spinner"
+            onClick={handleDescargarPDF}
+            disabled={pdfLoading || !budget}
+          >
             {pdfLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Descargar PDF"}
           </button>
         </div>
         <div className="only-screen">
-          <button className="reporte-cotizaciones-btn-email" onClick={handleEnviarEmail} disabled={mailLoading}>
+          <button
+            className="reporte-cotizaciones-btn-email btn-with-spinner"
+            onClick={handleEnviarEmailJS}
+            disabled={mailLoading || !budget}
+          >
             {mailLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Enviar por Email"}
           </button>
         </div>
         <div className="only-screen">
-          <button className="reporte-cotizaciones-btn-whatsapp" onClick={handleEnviarWhatsApp} disabled={whatsAppLoading}>
+          <button
+            className="reporte-cotizaciones-btn-whatsapp btn-with-spinner"
+            onClick={handleEnviarWhatsApp}
+            disabled={whatsAppLoading || !budget}
+          >
             {whatsAppLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Enviar por WhatsApp"}
           </button>
         </div>
@@ -171,232 +936,13 @@ const BudgetDetail = () => {
         {loading ? (
           <ReactLoading type="spin" color="#1976d2" height={80} width={80} />
         ) : budget ? (
-          <div ref={pdfRef} className="pdf-container">
-            {/* Header */}
-            <div>
-              <div className="pdf-header">
-                <img src={logoAnodal} alt="Logo" className="pdf-logo" />
-                <h1 className="pdf-title">Cotización</h1>
-                <div className="pdf-company-info">
-                  <div>Anodal S.A.</div>
-                  <div>Av. Japón 1292 Córdoba</div>
-                  <div>info@anodal.com.ar</div>
-                  <div>0351 4995870</div>
-                </div>
-              </div>
-              <hr className="pdf-separator" />
-
-              {/* Datos principales */}
-              <div className="pdf-main-data">
-                <div className="pdf-budget-id">Cotización N°: {show(budget.budgetId)}</div>
-                <div className="pdf-date-info">
-                  <div><u>Fecha:</u> {new Date(budget.creationDate).toLocaleDateString()}</div>
-                  <div><u>Válido hasta:</u> {new Date(budget.ExpirationDate).toLocaleDateString()}</div>
-                </div>
-              </div>
-              <hr className="pdf-separator" />
-
-              {/* Cliente, lugar y vendedor */}
-              <div className="pdf-sections">
-                <div className="pdf-section">
-                  <h4><strong>Cliente</strong><br /></h4>
-                  <u>Nombre:</u> {show(budget.customer?.name)} {show(budget.customer?.lastname)}<br />
-                  <u>Correo:</u> {show(budget.customer?.mail)}<br />
-                  <u>Tel:</u> {show(budget.customer?.tel)}<br />
-                  <u>Dirección:</u> {show(budget.customer?.address)}
-                </div>
-                <div className="pdf-section">
-                  <h4><strong>Lugar de Trabajo</strong><br /></h4>
-                  <u>Nombre:</u> {show(budget.workPlace?.name)}<br />
-                  <u>Dirección:</u> {show(budget.workPlace?.address)}
-                </div>
-                <div className="pdf-section">
-                  <h4><strong>Vendedor</strong><br /></h4>
-                  <u>Nombre:</u> {show(budget.user?.name)} {show(budget.user?.lastName)}<br />
-                  <u>Mail:</u> {show(budget.user?.mail)}
-                </div>
-              </div>
-              <hr className="pdf-separator" />
-
-              {/* Productos */}
-              <h3 className="pdf-subtitle">Abertura</h3>
-              <table className="pdf-table">
-                <thead>
-                  <tr className="pdf-Date">
-                    <th>Producto</th>
-                    <th>Cant.</th>
-                    <th>Dimensiones</th>
-                    <th>Vidrio</th>
-                    <th>Tratamiento</th>
-                    <th>Precio/u</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {safeArray(budget.Products).map((p, i) => (
-                    <tr key={i}>
-                      <td>{p.OpeningType?.name || '-'}</td>
-                      <td>{p.Quantity}</td>
-                      <td>{p.width}x{p.height} cm</td>
-                      <td>{p.GlassType?.name || '-'}</td>
-                      <td>{p.AlumTreatment?.name || '-'}</td>
-                      <td>{p.price ? `$${p.price}` : '-'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              {/* Complementos Puerta */}
-              {safeArray(budget.Complement?.$values).some(c => safeArray(c.ComplementDoor?.$values).length > 0) && (
-                <>
-                  <h3 className="pdf-subtitle">Complemento Puerta</h3>
-                  <table className="pdf-table">
-                    <thead>
-                      <tr className="pdf-Date">
-                        <th>Tipo</th>
-                        <th>Dimensiones</th>
-                        <th>Cantidad</th>
-                        <th>Revestimiento</th>
-                        <th>Precio/u</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {safeArray(budget.Complement?.$values).map((c, i) => (
-                        safeArray(c.ComplementDoor?.$values).length > 0 ? (
-                          safeArray(c.ComplementDoor.$values).map((door, idx) => (
-                            <tr key={idx}>
-                              <td>{door?.Name || '-'}</td>
-                              <td>{door?.Width}x{door?.Weight} cm</td>
-                              <td>{door?.Quantity || '-'}</td>
-                              <td>{door?.Coating?.name || '-'}</td>
-                              <td>${door?.Price || '-'}</td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr key={i}>
-                            <td colSpan={5} className="pdf-empty">Sin complementos</td>
-                          </tr>
-                        )
-                      ))}
-                    </tbody>
-                  </table>
-                </>
-              )}
-
-              {/* Complementos Baranda */}
-              {safeArray(budget.Complement?.$values).some(c => safeArray(c.ComplementRailing?.$values).length > 0) && (
-                <>
-                  <h3 className="pdf-subtitle">Complemento Baranda</h3>
-                  <table className="pdf-table">
-                    <thead>
-                      <tr className="pdf-Date">
-                        <th>Tipo</th>
-                        <th>Cantidad</th>
-                        <th>Tratamiento</th>
-                        <th>Precio/u</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {safeArray(budget.Complement?.$values).map((c, i) => (
-                        safeArray(c.ComplementRailing?.$values).length > 0 ? (
-                          safeArray(c.ComplementRailing.$values).map((railing, idx) => (
-                            <tr key={idx}>
-                              <td>{railing?.Name || '-'}</td>
-                              <td>{railing?.Quantity || '-'}</td>
-                              <td>{railing?.AlumTreatment?.name || '-'}</td>
-                              <td>${railing?.Price || '-'}</td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr key={i}>
-                            <td colSpan={5} className="pdf-empty">Sin complementos</td>
-                          </tr>
-                        )
-                      ))}
-                    </tbody>
-                  </table>
-                </>
-              )}
-
-              {/* Complementos Tabique */}
-              {safeArray(budget.Complement?.$values).some(c => safeArray(c.ComplementPartition?.$values).length > 0) && (
-                <>
-                  <h3 className="pdf-subtitle">Complemento Tabique</h3>
-                  <table className="pdf-table">
-                    <thead>
-                      <tr className="pdf-Date">
-                        <th>Tipo</th>
-                        <th>Alto</th>
-                        <th>Cantidad</th>
-                        <th>Espesor</th>
-                        <th>Simple</th>
-                        <th>Precio/u</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {safeArray(budget.Complement?.$values).map((c, i) => (
-                        safeArray(c.ComplementPartition?.$values).length > 0 ? (
-                          safeArray(c.ComplementPartition.$values).map((partition, idx) => (
-                            <tr key={idx}>
-                              <td>{partition?.Name || '-'}</td>
-                              <td>{partition?.Height} cm</td>
-                              <td>{partition?.Quantity || '-'}</td>
-                              <td>{partition?.GlassMilimeters || '-'}</td>
-                              <td>{partition?.Simple || 'No'}</td>
-                              <td>${partition?.Price || '-'}</td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr key={i}>
-                            <td colSpan={5} className="pdf-empty">Sin complementos</td>
-                          </tr>
-                        )
-                      ))}
-                    </tbody>
-                  </table>
-                </>
-              )}
-
-              {/* Totales */}
-              <div className="pdf-totals">
-                <div><b>Dólar Ref:</b>   ${show(budget.DollarReference)}</div>
-                <div><b>Mano de Obra:</b>   ${show(budget.LabourReference)}</div>
-                <h2 className="pdf-total" ><b>Total:  $</b>{show(budget.Total)}</h2>
-              </div>
-              <hr className="pdf-separator" />
-              {/* Observaciones */}
-              <div className="pdf-comments">
-                <b>Observaciones:</b>
-                {(() => {
-                  const raw = budget?.Comment ?? "";
-                  const formatted = insertParagraphsBefore(raw);
-                  // dividir en párrafos por doble salto de línea
-                  const paragraphs = formatted.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
-                  if (paragraphs.length === 0) return <div>{show(raw)}</div>;
-                  return paragraphs.map((p, i) => (
-                    <p key={i} style={{ margin: '6px 0' }} dangerouslySetInnerHTML={{ __html: p.replace(/\n/g, '<br/>') }} />
-                  ));
-                })()}
-              </div>
-            </div>
-
-            {/* Encuesta */}
-            
-            {/* Footer */}
-            <div className="pdf-footer">
-              <div className="pdf-survey">
-              <h3>Encuesta de Satisfacción</h3>
-              <div>
-                Nos gustaría conocer tu opinión sobre nuestro servicio.<br />
-                Por favor, completa la siguiente encuesta:
-              </div>
-              <img src={Qrcode} alt="QR Code" className="pdf-qr-code" />
-              <div className="pdf-qr-instruction">Escanea el código QR para acceder a la encuesta</div>
-            </div>
-
-              <img src={miniLogo} alt="Mini Logo" /><br />
-              Avenida Japón 1292 / Córdoba / Argentina<br />
-              Solo para uso interno de la empresa Anodal S.A.
-            </div>
+          <div className="pdf-container">
+            {/* Preview via iframe generado por pdfmake blob */}
+            {previewUrl ? (
+              <iframe title="preview-pdf" src={previewUrl} style={{ width: '100%', height: '100%', border: 'none' }} />
+            ) : (
+              <div>Generando vista previa...</div>
+            )}
           </div>
         ) : (
           <div>No se encontró la cotización.</div>

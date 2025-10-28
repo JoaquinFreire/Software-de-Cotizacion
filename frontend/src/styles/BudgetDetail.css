@@ -1,22 +1,30 @@
 .content-bottom {
   display: flex;
   justify-content: center;
+  background-color: #ccc;
 }
 
 .only-screen {
   margin: 24px 20px;
 }
+.only-screen button {
+  font-size: 16px;
+    width: 15rem;
+    max-width: 22rem;
+    padding: 1rem 4rem;
+    text-align: center;
+    font-weight: bold;
+}
 
 .pdf-background {
   background-color: #ccc;
-  padding: 40px;
   display: flex;
   justify-content: center;
 }
 
 .pdf-container {
-  width: 794px;
-  height: 100%;
+  width: 1000px;
+  height: auto; /* permitir que crezca */
   background: #fff;
   padding: 30px;
   font-family: Arial, sans-serif;
@@ -25,11 +33,19 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  max-width: 800px;
-  min-width: 800px;
-  min-height: 1123px;
+  justify-content: flex-start; /* evitar espacio extra */
+  max-width: 100%; /* permitir responsividad */
+  min-width: 600px;
+  min-height: 1400px; /* aumentar altura visible para evitar scroll pequeño */
   /* A4: 297mm * 3.78 */
+}
+
+/* Asegurar que el iframe de preview ocupe el área y tenga suficiente altura */
+.pdf-container iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 1123px; /* páginas A4 */
+  border: none;
 }
 
 .pdf-header {
@@ -196,4 +212,9 @@
   margin-top: 18px;
 
 
+}
+.btn-with-spinner {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
 }
