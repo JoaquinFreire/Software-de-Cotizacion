@@ -3,6 +3,22 @@
   "WorkspaceRootPath": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\QuotationVersion.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\pages\\QuotationVersion.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\Quotation.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\pages\\Quotation.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\styles\\quotation.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\styles\\quotation.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\App.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\App.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\DashboardSostenibilidad.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\pages\\reportes\\DashboardSostenibilidad.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
@@ -13,10 +29,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\Reportes.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\pages\\Reportes.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\App.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\App.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,7 +38,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 16,
+          "SelectedChildIndex": 13,
           "Children": [
             {
               "$type": "Bookmark",
@@ -82,19 +94,56 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "QuotationVersion.js",
+              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\QuotationVersion.js",
+              "RelativeDocumentMoniker": "src\\pages\\QuotationVersion.js",
+              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\QuotationVersion.js",
+              "RelativeToolTip": "src\\pages\\QuotationVersion.js",
+              "ViewState": "AgIAAAICAAAAAAAAAAASwBkCAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-10-27T23:09:54.743Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Quotation.js",
+              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\Quotation.js",
+              "RelativeDocumentMoniker": "src\\pages\\Quotation.js",
+              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\Quotation.js",
+              "RelativeToolTip": "src\\pages\\Quotation.js",
+              "ViewState": "AgIAAHEEAAAAAAAAAAASwIMEAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-10-27T02:47:39.189Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "quotation.css",
+              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\styles\\quotation.css",
+              "RelativeDocumentMoniker": "src\\styles\\quotation.css",
+              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\styles\\quotation.css",
+              "RelativeToolTip": "src\\styles\\quotation.css",
+              "ViewState": "AgIAALUEAAAAAAAAAAAnwNQEAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-10-27T22:19:23.414Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 3,
               "Title": "App.js",
               "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\App.js",
               "RelativeDocumentMoniker": "src\\App.js",
               "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\App.js",
               "RelativeToolTip": "src\\App.js",
-              "ViewState": "AgIAAL8AAAAAAAAAAAAQwNIAAACCAAAAAAAAAA==",
+              "ViewState": "AgIAALMAAAAAAAAAAAAQwL4AAABBAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
               "WhenOpened": "2025-10-23T00:15:42.623Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 6,
               "Title": "Reportes.js",
               "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\Reportes.js",
               "RelativeDocumentMoniker": "src\\pages\\Reportes.js",
@@ -106,7 +155,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 5,
               "Title": "DashboardSostenibilidad.css",
               "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\styles\\DashboardSostenibilidad.css",
               "RelativeDocumentMoniker": "src\\styles\\DashboardSostenibilidad.css",
@@ -114,21 +163,19 @@
               "RelativeToolTip": "src\\styles\\DashboardSostenibilidad.css",
               "ViewState": "AgIAABgFAAAAAAAAAAAAADgFAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2025-10-23T00:14:48.498Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-23T00:14:48.498Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 4,
               "Title": "DashboardSostenibilidad.js",
               "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\DashboardSostenibilidad.js",
               "RelativeDocumentMoniker": "src\\pages\\reportes\\DashboardSostenibilidad.js",
               "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\DashboardSostenibilidad.js",
               "RelativeToolTip": "src\\pages\\reportes\\DashboardSostenibilidad.js",
-              "ViewState": "AgIAAIUEAAAAAAAAAAAiwKkEAAAnAAAAAAAAAA==",
+              "ViewState": "AgIAAIUEAAAAAAAAAAAiwJcEAAA+AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-10-23T00:11:41.885Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-23T00:11:41.885Z"
             }
           ]
         }

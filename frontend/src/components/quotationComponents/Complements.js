@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { safeArray } from '../../utils/safeArray'; // agrega este import si no existe
+import { safeArray } from '../../utils/safeArray';
 
 const COMPLEMENT_TYPES = [
     { key: 'door', label: 'Complemento de puerta' },
@@ -15,9 +15,9 @@ const Complements = ({
     complementPartitions = [],
     complementRailings = [],
     selectedComplements,
-    setSelectedComplements
+    setSelectedComplements,
+    isVersion = false
 }) => {
-    // inicializar siempre con una fila vacía (no sync automático con selectedComplements)
     const [rows, setRows] = useState([{ ...initialRow }]);
     const [errors, setErrors] = useState([]);
     const [coatings, setCoatings] = useState([]);
@@ -59,7 +59,6 @@ const Complements = ({
         );
     };
 
-    // cuando se selecciona un accesorio (lista global), guardamos también su precio
     const handleAccChange = (rowIdx, accIdx, field, value) => {
         setRows(rows =>
             rows.map((row, i) =>
@@ -71,7 +70,6 @@ const Complements = ({
                             accesories: (row.custom.accesories || []).map((acc, j) => {
                                 if (j !== accIdx) return acc;
                                 const newAcc = { ...acc, [field]: value };
-                                // si cambió el nombre buscamos precio en el listado global
                                 if (field === 'name') {
                                     const found = safeArray(accesories).find(a => a.name === value || String(a.id) === String(value));
                                     newAcc.price = found ? Number(found.price || found.Price || 0) : '';
@@ -95,12 +93,10 @@ const Complements = ({
         setTouchedRows(touched => touched.filter((_, i) => i !== idx));
     };
 
-    // Cuando el usuario intenta agregar un complemento, marca la fila como "touched"
     const handleTryAddComplement = (idx) => {
         setTouchedRows(touched => touched.map((t, i) => i === idx ? true : t));
     };
 
-    // Accesorios para doors
     const handleAddAcc = (rowIdx) => {
         setRows(rows =>
             rows.map((row, i) =>
@@ -110,6 +106,7 @@ const Complements = ({
             )
         );
     };
+
     const handleRemoveAcc = (rowIdx, accIdx) => {
         setRows(rows =>
             rows.map((row, i) =>
@@ -143,7 +140,6 @@ const Complements = ({
         setErrors(rows.map(validateRow));
     }, [rows]);
 
-    // Traer revestimientos desde la API
     useEffect(() => {
         const fetchCoatings = async () => {
             try {
@@ -160,7 +156,6 @@ const Complements = ({
         fetchCoatings();
     }, []);
 
-    // Traer tratamientos de aluminio desde la API
     useEffect(() => {
         const fetchAlumTreatments = async () => {
             try {
@@ -193,18 +188,15 @@ const Complements = ({
         fetchAccesories();
     }, []);
 
-    // Helpers de cálculo (añadimos cálculo para tabique)
     const computeDoorUnitPrice = (row, complement) => {
-        // complement.price = precio base por defecto (p.ej. para 90x210)
         const basePrice = Number(complement?.price || complement?.Price || 0);
         const baseWidth = 90;
         const baseHeight = 210;
-        const areaBase = baseWidth * baseHeight; // cm2
+        const areaBase = baseWidth * baseHeight;
         const width = Number(row.custom.width || baseWidth);
         const height = Number(row.custom.height || baseHeight);
         const area = Math.max(1, width * height);
         const unitPriceByArea = basePrice * (area / areaBase);
-        // aplicar revestimiento si existe (coating.price es porcentaje)
         const coatingObj = safeArray(coatings).find(c => String(c.id) === String(row.custom.coating));
         const coatingMultiplier = coatingObj ? (1 + (Number(coatingObj.price || 0) / 100)) : 1;
         const priceWithoutAccessories = unitPriceByArea * coatingMultiplier;
@@ -220,12 +212,11 @@ const Complements = ({
         }, 0);
     };
 
-    // NUEVO: breakdown detallado para puerta (evita error no-undef y se usa en la UI)
     const computeDoorBreakdown = (row, complement) => {
         const basePrice = Number(complement?.price || complement?.Price || 0);
         const baseWidth = 90;
         const baseHeight = 210;
-        const areaBase = baseWidth * baseHeight; // cm²
+        const areaBase = baseWidth * baseHeight;
 
         const width = Number(row.custom?.width || baseWidth);
         const height = Number(row.custom?.height || baseHeight);
@@ -259,14 +250,13 @@ const Complements = ({
         };
     };
 
-    // NUEVO: calcular precio unitario para partition (tabique) — coincide con BudgetCalculator
     const computePartitionUnitPrice = (row, complement) => {
-        const basePrice = Number(complement?.price || complement?.Price || 0); // precio por 100 cm
+        const basePrice = Number(complement?.price || complement?.Price || 0);
         const heightCm = Number(row.custom?.height || 100);
-        let unit = basePrice * (heightCm / 100); // proporcional por altura
-        const isSimple = !!row.custom?.simple; // true = simple, false = doble (según tu backend)
+        let unit = basePrice * (heightCm / 100);
+        const isSimple = !!row.custom?.simple;
         if (!isSimple) {
-            unit = unit * 1.15; // porcentaje agregado
+            unit = unit * 1.15;
         }
         const glassMm = row.custom?.glassMilimeters;
         if (glassMm) {
@@ -277,7 +267,6 @@ const Complements = ({
         return unit;
     };
 
-    // NUEVO: breakdown para partition (para mostrar en UI)
     const computePartitionBreakdown = (row, complement) => {
         const basePrice = Number(complement?.price || complement?.Price || 0);
         const height = Number(row.custom?.height || 100);
@@ -300,35 +289,29 @@ const Complements = ({
         return { basePrice, height, factor, priceByHeight, simpleLabel, glassMm, glassPct, unit, qty, total };
     };
 
-    // NUEVO: calcular precio unitario para railing (baranda) siguiendo la lógica del backend
     const computeRailingUnitPrice = (row, complement) => {
-        const basePrice = Number(complement?.price || complement?.Price || 0); // precio base por unidad
+        const basePrice = Number(complement?.price || complement?.Price || 0);
         let unit = basePrice;
         const name = (complement?.name || '').toLowerCase();
 
-        // aplicar multipliers por tipo y reforzado (coincidir con backend)
         if (row.custom?.reinforced) {
             if (name.includes('city')) {
-                unit = unit * 1.05; // City reforzada
+                unit = unit * 1.05;
             } else if (name.includes('imperia')) {
-                unit = unit * 1.15; // Imperia reforzada
+                unit = unit * 1.15;
             } else {
-                // fallback: aplicar 1.05 por reforzado si no se reconoce
                 unit = unit * 1.05;
             }
         }
 
-        // aplicar tratamiento de aluminio (porcentaje)
         const treatmentObj = safeArray(alumTreatments).find(t => String(t.id) === String(row.custom?.treatment));
         const treatmentPct = treatmentObj ? Number(treatmentObj.pricePercentage || treatmentObj.price || 0) : 0;
         const treatmentCost = unit * (treatmentPct / 100);
 
-        // unit final (sin impuestos ni scrap frontend)
         const finalUnit = unit + treatmentCost;
         return Number(finalUnit);
     };
 
-    // NUEVO: breakdown para railing (para mostrar en UI)
     const computeRailingBreakdown = (row, complement) => {
         const basePrice = Number(complement?.price || complement?.Price || 0);
         const name = (complement?.name || '');
@@ -358,7 +341,6 @@ const Complements = ({
         };
     };
 
-    // Crear complemento: validar, calcular y agregar a selectedComplements; luego limpiar fila (o eliminar)
     const handleCreateComplement = (idx) => {
         const row = rows[idx];
         const err = validateRow(row);
@@ -366,63 +348,117 @@ const Complements = ({
             setTouchedRows(t => t.map((val, i) => i === idx ? true : val));
             return;
         }
-        if (row.type === 'door') {
-            const complement = getComplementById('door', row.complementId);
-            const unitPrice = computeDoorUnitPrice(row, complement);
-            const accessoriesTotal = computeAccesoriesTotal(row);
-            const totalPrice = (unitPrice * Number(row.quantity || 1)) + accessoriesTotal;
-            const newComp = {
-                type: 'door',
-                complementId: row.complementId,
-                quantity: Number(row.quantity || 1),
-                custom: { ...row.custom },
-                unitPrice: Number(unitPrice.toFixed(2)), // por unidad sin accesorios
-                totalPrice: Number(totalPrice.toFixed(2)), // incluye accesorios
-                name: complement ? (complement.name || '') : ''
-            };
-            setSelectedComplements(prev => [...prev, newComp]);
-            // remover fila creada
-            handleRemoveRow(idx);
-            return;
-        }
-        // NUEVO: branch para partition (tabique)
-        if (row.type === 'partition') {
-            const complement = getComplementById('partition', row.complementId);
-            const unitPrice = computePartitionUnitPrice(row, complement);
-            const totalPrice = unitPrice * Number(row.quantity || 1);
-            const newComp = {
-                type: 'partition',
-                complementId: row.complementId,
-                quantity: Number(row.quantity || 1),
-                custom: { ...row.custom },
-                unitPrice: Number(unitPrice.toFixed(2)),
-                totalPrice: Number(totalPrice.toFixed(2)),
-                name: complement ? (complement.name || '') : ''
-            };
-            setSelectedComplements(prev => [...prev, newComp]);
-            handleRemoveRow(idx);
-            return;
-        }
-        // NUEVO: branch para railing (baranda)
-        if (row.type === 'railing') {
-            const complement = getComplementById('railing', row.complementId);
-            const unitPrice = computeRailingUnitPrice(row, complement);
-            const totalPrice = unitPrice * Number(row.quantity || 1);
-            const newComp = {
-                type: 'railing',
-                complementId: row.complementId,
-                quantity: Number(row.quantity || 1),
-                custom: { ...row.custom },
-                unitPrice: Number(unitPrice.toFixed(2)),
-                totalPrice: Number(totalPrice.toFixed(2)),
-                name: complement ? (complement.name || '') : ''
-            };
-            setSelectedComplements(prev => [...prev, newComp]);
-            handleRemoveRow(idx);
-            return;
+
+        if (isVersion) {
+            // En modo versión, no verificar duplicados
+            if (row.type === 'door') {
+                const complement = getComplementById('door', row.complementId);
+                const unitPrice = computeDoorUnitPrice(row, complement);
+                const accessoriesTotal = computeAccesoriesTotal(row);
+                const totalPrice = (unitPrice * Number(row.quantity || 1)) + accessoriesTotal;
+                const newComp = {
+                    type: 'door',
+                    complementId: row.complementId,
+                    quantity: Number(row.quantity || 1),
+                    custom: { ...row.custom },
+                    unitPrice: Number(unitPrice.toFixed(2)),
+                    totalPrice: Number(totalPrice.toFixed(2)),
+                    name: complement ? (complement.name || '') : ''
+                };
+                setSelectedComplements(prev => [...prev, newComp]);
+                handleRemoveRow(idx);
+                return;
+            }
+            if (row.type === 'partition') {
+                const complement = getComplementById('partition', row.complementId);
+                const unitPrice = computePartitionUnitPrice(row, complement);
+                const totalPrice = unitPrice * Number(row.quantity || 1);
+                const newComp = {
+                    type: 'partition',
+                    complementId: row.complementId,
+                    quantity: Number(row.quantity || 1),
+                    custom: { ...row.custom },
+                    unitPrice: Number(unitPrice.toFixed(2)),
+                    totalPrice: Number(totalPrice.toFixed(2)),
+                    name: complement ? (complement.name || '') : ''
+                };
+                setSelectedComplements(prev => [...prev, newComp]);
+                handleRemoveRow(idx);
+                return;
+            }
+            if (row.type === 'railing') {
+                const complement = getComplementById('railing', row.complementId);
+                const unitPrice = computeRailingUnitPrice(row, complement);
+                const totalPrice = unitPrice * Number(row.quantity || 1);
+                const newComp = {
+                    type: 'railing',
+                    complementId: row.complementId,
+                    quantity: Number(row.quantity || 1),
+                    custom: { ...row.custom },
+                    unitPrice: Number(unitPrice.toFixed(2)),
+                    totalPrice: Number(totalPrice.toFixed(2)),
+                    name: complement ? (complement.name || '') : ''
+                };
+                setSelectedComplements(prev => [...prev, newComp]);
+                handleRemoveRow(idx);
+                return;
+            }
+        } else {
+            // Comportamiento original con verificación de duplicados
+            if (row.type === 'door') {
+                const complement = getComplementById('door', row.complementId);
+                const unitPrice = computeDoorUnitPrice(row, complement);
+                const accessoriesTotal = computeAccesoriesTotal(row);
+                const totalPrice = (unitPrice * Number(row.quantity || 1)) + accessoriesTotal;
+                const newComp = {
+                    type: 'door',
+                    complementId: row.complementId,
+                    quantity: Number(row.quantity || 1),
+                    custom: { ...row.custom },
+                    unitPrice: Number(unitPrice.toFixed(2)),
+                    totalPrice: Number(totalPrice.toFixed(2)),
+                    name: complement ? (complement.name || '') : ''
+                };
+                setSelectedComplements(prev => [...prev, newComp]);
+                handleRemoveRow(idx);
+                return;
+            }
+            if (row.type === 'partition') {
+                const complement = getComplementById('partition', row.complementId);
+                const unitPrice = computePartitionUnitPrice(row, complement);
+                const totalPrice = unitPrice * Number(row.quantity || 1);
+                const newComp = {
+                    type: 'partition',
+                    complementId: row.complementId,
+                    quantity: Number(row.quantity || 1),
+                    custom: { ...row.custom },
+                    unitPrice: Number(unitPrice.toFixed(2)),
+                    totalPrice: Number(totalPrice.toFixed(2)),
+                    name: complement ? (complement.name || '') : ''
+                };
+                setSelectedComplements(prev => [...prev, newComp]);
+                handleRemoveRow(idx);
+                return;
+            }
+            if (row.type === 'railing') {
+                const complement = getComplementById('railing', row.complementId);
+                const unitPrice = computeRailingUnitPrice(row, complement);
+                const totalPrice = unitPrice * Number(row.quantity || 1);
+                const newComp = {
+                    type: 'railing',
+                    complementId: row.complementId,
+                    quantity: Number(row.quantity || 1),
+                    custom: { ...row.custom },
+                    unitPrice: Number(unitPrice.toFixed(2)),
+                    totalPrice: Number(totalPrice.toFixed(2)),
+                    name: complement ? (complement.name || '') : ''
+                };
+                setSelectedComplements(prev => [...prev, newComp]);
+                handleRemoveRow(idx);
+                return;
+            }
         }
 
-        // Para otros tipos dejamos comportamiento simple (se puede extender)
         const newCompOther = {
             type: row.type,
             complementId: row.complementId,
@@ -436,7 +472,6 @@ const Complements = ({
         handleRemoveRow(idx);
     };
 
-    // Al seleccionar complemento, precargar valores por defecto para puerta y tabique
     const handleComplementSelect = (idx, type, complementId) => {
         handleRowChange(idx, 'complementId', complementId);
         if (type === 'door') {
@@ -447,7 +482,6 @@ const Complements = ({
                 coating: '',
                 accesories: []
             };
-            // si hay un precio base, podríamos mostrarlo en custom.basePrice (opcional)
             setRows(rows =>
                 rows.map((row, i) =>
                     i === idx ? { ...row, quantity: 1, custom: { ...defaults, basePrice: comp ? Number(comp.price || 0) : 0 } } : row
@@ -457,9 +491,9 @@ const Complements = ({
         if (type === 'partition') {
             const comp = getComplementById('partition', complementId);
             const defaults = {
-                height: 100,          // por defecto 100 cm (1 metro)
-                simple: false,        // por defecto NO seleccionado -> "Doble"
-                glassMilimeters: ''   // sin espesor por defecto
+                height: 100,
+                simple: false,
+                glassMilimeters: ''
             };
             setRows(rows =>
                 rows.map((row, i) =>
@@ -469,7 +503,6 @@ const Complements = ({
         }
     };
 
-    // Permite recargar manualmente los datos que usa este componente (revestimientos, tratamientos, accesorios)
     const handleLoadComplements = async () => {
         try {
             const token = localStorage.getItem('token');
@@ -478,7 +511,6 @@ const Complements = ({
                 console.warn('No token o API_URL para cargar complementos.');
                 return;
             }
-            // Reusar endpoints que ya usamos en los useEffect de este componente
             const [coatingsRes, alumRes, accRes] = await Promise.all([
                 axios.get(`${API_URL}/api/coating`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get(`${API_URL}/api/alum-treatments`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -495,335 +527,315 @@ const Complements = ({
 
     return (
         <div className="App">
-        <div className="complements-container">
-            <h3>Complementos</h3>
-            <div>
-                {rows.map((row, idx) => {
-                    const complement = getComplementById(row.type, row.complementId);
-                    return (
-                        <div key={idx} className="complement-row" style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 18, border: '0.2px solid #26b7cd', padding: 8, borderRadius: 6 }}>
-                            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                                {/* Tipo de complemento */}
-                                <select
-                                    value={row.type}
-                                    onChange={e => {
-                                        // reset complementId y custom al cambiar tipo
-                                        handleRowChange(idx, 'type', e.target.value);
-                                        handleRowChange(idx, 'complementId', '');
-                                        handleRowChange(idx, 'custom', {});
-                                    }}
-                                >
-                                    <option value="">Tipo</option>
-                                    {COMPLEMENT_TYPES.map(opt => (
-                                        <option key={opt.key} value={opt.key}>{opt.label}</option>
-                                    ))}
-                                </select>
-                                {/* Complemento */}
-                                <select
-                                    value={row.complementId}
-                                    onChange={e => handleComplementSelect(idx, row.type, e.target.value)}
-                                    disabled={!row.type}
-                                >
-                                    <option value="">Complemento</option>
-                                    {getComplementsByType(row.type).map(c => (
-                                        <option
-                                            key={c.id ?? c.Id}
-                                            value={c.id ?? c.Id}
-                                        >
-                                            {c.name} - ${c.price}{row.type === 'door' && c.Material ? ` - ${c.Material}` : ''}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Campos personalizados por tipo */}
-                            {row.type === 'door' && complement && (
-                                <div>
-                                    <div style={{ display: 'flex', gap: 36, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', marginTop: 12 }}>
-                                        <h5> Cantidad </h5>
-                                        <h5> Ancho(cm) </h5>
-                                        <h5> Alto(cm) </h5>
-                                    </div>
-                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
-
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            step="1"
-                                            placeholder="Cantidad"
-                                            value={row.quantity}
-                                            onChange={e => handleRowChange(idx, 'quantity', e.target.value)}
-                                            style={{ width: 80 }}
-                                        />
-
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            step="1"
-                                            placeholder="Ancho (cm)"
-                                            value={row.custom.width || ''}
-                                            onChange={e => handleCustomChange(idx, 'width', e.target.value)}
-                                            style={{ width: 100 }}
-                                        />
-
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            step="1"
-                                            placeholder="Alto (cm)"
-                                            value={row.custom.height || ''}
-                                            onChange={e => handleCustomChange(idx, 'height', e.target.value)}
-                                            style={{ width: 100 }}
-                                        />
-                                        <select
-                                            value={row.custom.coating || ''}
-                                            onChange={e => handleCustomChange(idx, 'coating', e.target.value)}
-                                        >
-                                            <option value="">Revestimiento</option>
-                                            {safeArray(coatings).map(c => (
-                                                <option key={c.id} value={c.id}>{c.name} - {c.price}%</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <button type="button" onClick={() => handleAddAcc(idx)} className='BottonAccesories'>+ Accesorio</button>
-                                        {row.custom.accesories && row.custom.accesories.length > 0 && (
-                                            <>
-                                                {row.custom.accesories.map((acc, accIdx) => (
-                                                    <div key={accIdx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                                                        <select
-                                                            value={acc.name || ''}
-                                                            onChange={e => handleAccChange(idx, accIdx, 'name', e.target.value)}
-                                                            style={{ width: 180 }}
-                                                        >
-                                                            <option value="">Seleccione accesorio</option>
-                                                            {safeArray(accesories).map(a => (
-                                                                <option key={a.id} value={a.name}>{a.name} - ${a.price}</option>
-                                                            ))}
-                                                        </select>
-                                                        <input
-                                                            type="number"
-                                                            placeholder="Cantidad"
-                                                            min="1"
-                                                            step="1"
-                                                            value={acc.quantity}
-                                                            onChange={e => handleAccChange(idx, accIdx, 'quantity', e.target.value)}
-                                                            style={{ width: 80 }}
-                                                        />
-                                                        <button type="button" onClick={() => handleRemoveAcc(idx, accIdx)} className='BottonDelete'>🗑️</button>
-
-                                                    </div>
-                                                ))}
-                                            </>
-                                        )}
-                                    </div>
-
-                                    {/* Mostrar cálculo preliminar de precios */}
-                                    <div style={{ marginTop: 8, padding: 8, borderRadius: 6 }}>
-                                        {(() => {
-                                            const d = computeDoorBreakdown(row, complement);
-                                            return (
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                                                    <div><strong>Base (90×210):</strong> ${d.basePrice.toFixed(2)}</div>
-                                                    <div><strong>Tamaño:</strong> {d.width}×{d.height} cm — factor área: {d.areaFactor.toFixed(3)}</div>
-                                                    <div><strong>Precio por tamaño (base * factor):</strong> ${d.areaPrice.toFixed(2)}</div>
-                                                    <div><strong>Revestimiento:</strong> {d.coatingPct}% → ${d.coatingPrice.toFixed(2)}</div>
-                                                    <div><strong>Accesorios (total):</strong> ${d.accessoriesTotal.toFixed(2)}</div>
-                                                    <div style={{ borderTop: '1px dashed #cfeef2', paddingTop: 6 }}>
-                                                        <strong>Precio unidad (sin accesorios):</strong> ${d.unitWithoutAccessories.toFixed(2)}
-                                                    </div>
-                                                    <div><strong>Cantidad:</strong> {d.quantity} → <strong>Total (unidad * qty + accesorios):</strong> ${d.totalPrice.toFixed(2)}</div>
-                                                </div>
-                                            );
-                                        })()}
-                                    </div>
-
-                                    {/* Botón Crear complemento (solo si la fila es válida) */}
-                                    <div style={{ marginTop: 8 }}>
-                                        <button
-                                            type="button"
-                                            className="botton-carusel"
-                                            onClick={() => handleCreateComplement(idx)}
-                                            disabled={!!validateRow(row)}
-                                        >
-                                            Crear complemento
-                                        </button>
-                                        {touchedRows[idx] && errors[idx] && (
-                                            <span className="error-message" style={{ marginLeft: 12 }}>{errors[idx]}</span>
-                                        )}
-                                    </div>
+            <div className="complements-container">
+                <h3>Complementos</h3>
+                <div>
+                    {rows.map((row, idx) => {
+                        const complement = getComplementById(row.type, row.complementId);
+                        return (
+                            <div key={idx} className="complement-row" style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 18, border: '0.2px solid #26b7cd', padding: 8, borderRadius: 6 }}>
+                                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                                    <select
+                                        value={row.type}
+                                        onChange={e => {
+                                            handleRowChange(idx, 'type', e.target.value);
+                                            handleRowChange(idx, 'complementId', '');
+                                            handleRowChange(idx, 'custom', {});
+                                        }}
+                                    >
+                                        <option value="">Tipo</option>
+                                        {COMPLEMENT_TYPES.map(opt => (
+                                            <option key={opt.key} value={opt.key}>{opt.label}</option>
+                                        ))}
+                                    </select>
+                                    <select
+                                        value={row.complementId}
+                                        onChange={e => handleComplementSelect(idx, row.type, e.target.value)}
+                                        disabled={!row.type}
+                                    >
+                                        <option value="">Complemento</option>
+                                        {getComplementsByType(row.type).map(c => (
+                                            <option
+                                                key={c.id ?? c.Id}
+                                                value={c.id ?? c.Id}
+                                            >
+                                                {c.name} - ${c.price}{row.type === 'door' && c.Material ? ` - ${c.Material}` : ''}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
-                            )}
-                            {row.type === 'partition' && complement && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
-                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            step="1"
-                                            placeholder="Alto (cm)"
-                                            value={row.custom.height || ''}
-                                            onChange={e => handleCustomChange(idx, 'height', e.target.value)}
-                                            style={{ width: 100 }}
-                                        />
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            step="1"
-                                            placeholder="Cantidad"
-                                            value={row.quantity}
-                                            onChange={e => handleRowChange(idx, 'quantity', e.target.value)}
-                                            style={{ width: 80 }}
-                                        />
-                                        {/* Radios Simple / Doble (por defecto Doble) */}
+
+                                {row.type === 'door' && complement && (
+                                    <div>
+                                        <div style={{ display: 'flex', gap: 36, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', marginTop: 12 }}>
+                                            <h5> Cantidad </h5>
+                                            <h5> Ancho(cm) </h5>
+                                            <h5> Alto(cm) </h5>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                step="1"
+                                                placeholder="Cantidad"
+                                                value={row.quantity}
+                                                onChange={e => handleRowChange(idx, 'quantity', e.target.value)}
+                                                style={{ width: 80 }}
+                                            />
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                step="1"
+                                                placeholder="Ancho (cm)"
+                                                value={row.custom.width || ''}
+                                                onChange={e => handleCustomChange(idx, 'width', e.target.value)}
+                                                style={{ width: 100 }}
+                                            />
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                step="1"
+                                                placeholder="Alto (cm)"
+                                                value={row.custom.height || ''}
+                                                onChange={e => handleCustomChange(idx, 'height', e.target.value)}
+                                                style={{ width: 100 }}
+                                            />
+                                            <select
+                                                value={row.custom.coating || ''}
+                                                onChange={e => handleCustomChange(idx, 'coating', e.target.value)}
+                                            >
+                                                <option value="">Revestimiento</option>
+                                                {safeArray(coatings).map(c => (
+                                                    <option key={c.id} value={c.id}>{c.name} - {c.price}%</option>
+                                                ))}
+                                            </select>
+                                        </div>
                                         <div>
-                                            <label style={{ marginRight: 8 }}>
-                                                <input
-                                                    type="radio"
-                                                    name={`simple-${idx}`}
-                                                    checked={row.custom.simple === true}
-                                                    onChange={() => handleCustomChange(idx, 'simple', true)}
-                                                /> Simple
-                                            </label>
+                                            <button type="button" onClick={() => handleAddAcc(idx)} className='BottonAccesories'>+ Accesorio</button>
+                                            {row.custom.accesories && row.custom.accesories.length > 0 && (
+                                                <>
+                                                    {row.custom.accesories.map((acc, accIdx) => (
+                                                        <div key={accIdx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                                                            <select
+                                                                value={acc.name || ''}
+                                                                onChange={e => handleAccChange(idx, accIdx, 'name', e.target.value)}
+                                                                style={{ width: 180 }}
+                                                            >
+                                                                <option value="">Seleccione accesorio</option>
+                                                                {safeArray(accesories).map(a => (
+                                                                    <option key={a.id} value={a.name}>{a.name} - ${a.price}</option>
+                                                                ))}
+                                                            </select>
+                                                            <input
+                                                                type="number"
+                                                                placeholder="Cantidad"
+                                                                min="1"
+                                                                step="1"
+                                                                value={acc.quantity}
+                                                                onChange={e => handleAccChange(idx, accIdx, 'quantity', e.target.value)}
+                                                                style={{ width: 80 }}
+                                                            />
+                                                            <button type="button" onClick={() => handleRemoveAcc(idx, accIdx)} className='BottonDelete'>🗑️</button>
+                                                        </div>
+                                                    ))}
+                                                </>
+                                            )}
+                                        </div>
+
+                                        <div style={{ marginTop: 8, padding: 8, borderRadius: 6 }}>
+                                            {(() => {
+                                                const d = computeDoorBreakdown(row, complement);
+                                                return (
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                                        <div><strong>Base (90×210):</strong> ${d.basePrice.toFixed(2)}</div>
+                                                        <div><strong>Tamaño:</strong> {d.width}×{d.height} cm — factor área: {d.areaFactor.toFixed(3)}</div>
+                                                        <div><strong>Precio por tamaño (base * factor):</strong> ${d.areaPrice.toFixed(2)}</div>
+                                                        <div><strong>Revestimiento:</strong> {d.coatingPct}% → ${d.coatingPrice.toFixed(2)}</div>
+                                                        <div><strong>Accesorios (total):</strong> ${d.accessoriesTotal.toFixed(2)}</div>
+                                                        <div style={{ borderTop: '1px dashed #cfeef2', paddingTop: 6 }}>
+                                                            <strong>Precio unidad (sin accesorios):</strong> ${d.unitWithoutAccessories.toFixed(2)}
+                                                        </div>
+                                                        <div><strong>Cantidad:</strong> {d.quantity} → <strong>Total (unidad * qty + accesorios):</strong> ${d.totalPrice.toFixed(2)}</div>
+                                                    </div>
+                                                );
+                                            })()}
+                                        </div>
+
+                                        <div style={{ marginTop: 8 }}>
+                                            <button
+                                                type="button"
+                                                className="botton-carusel"
+                                                onClick={() => handleCreateComplement(idx)}
+                                                disabled={!!validateRow(row)}
+                                            >
+                                                Crear complemento
+                                            </button>
+                                            {touchedRows[idx] && errors[idx] && (
+                                                <span className="error-message" style={{ marginLeft: 12 }}>{errors[idx]}</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                                {row.type === 'partition' && complement && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
+                                        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                step="1"
+                                                placeholder="Alto (cm)"
+                                                value={row.custom.height || ''}
+                                                onChange={e => handleCustomChange(idx, 'height', e.target.value)}
+                                                style={{ width: 100 }}
+                                            />
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                step="1"
+                                                placeholder="Cantidad"
+                                                value={row.quantity}
+                                                onChange={e => handleRowChange(idx, 'quantity', e.target.value)}
+                                                style={{ width: 80 }}
+                                            />
+                                            <div>
+                                                <label style={{ marginRight: 8 }}>
+                                                    <input
+                                                        type="radio"
+                                                        name={`simple-${idx}`}
+                                                        checked={row.custom.simple === true}
+                                                        onChange={() => handleCustomChange(idx, 'simple', true)}
+                                                    /> Simple
+                                                </label>
+                                                <label>
+                                                    <input
+                                                        type="radio"
+                                                        name={`simple-${idx}`}
+                                                        checked={row.custom.simple === false}
+                                                        onChange={() => handleCustomChange(idx, 'simple', false)}
+                                                    /> Doble
+                                                </label>
+                                            </div>
+                                            <select
+                                                value={row.custom.glassMilimeters || ''}
+                                                onChange={e => handleCustomChange(idx, 'glassMilimeters', e.target.value)}
+                                                style={{ width: 120 }}
+                                            >
+                                                <option value="">Espesor vidrio (mm)</option>
+                                                <option value="6">6 mm</option>
+                                                <option value="8">8 mm</option>
+                                                <option value="10">10 mm</option>
+                                            </select>
+                                        </div>
+
+                                        <div style={{ marginTop: 6, padding: 8, borderRadius: 6 }}>
+                                            {(() => {
+                                                const b = computePartitionBreakdown(row, complement);
+                                                return (
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                                        <div><strong>Base (por 100 cm):</strong> ${b.basePrice.toFixed(2)}</div>
+                                                        <div><strong>Alto:</strong> {b.height} cm — factor: {b.factor.toFixed(3)}</div>
+                                                        <div><strong>Precio por altura:</strong> ${b.priceByHeight.toFixed(2)}</div>
+                                                        <div><strong>Tipo:</strong> {b.simpleLabel}</div>
+                                                        <div><strong>Recargo vidrio:</strong> {b.glassPct}%</div>
+                                                        <div style={{ borderTop: '1px dashed #cfeef2', paddingTop: 6 }}>
+                                                            <strong>Precio unidad:</strong> ${b.unit.toFixed(2)}
+                                                        </div>
+                                                        <div><strong>Cantidad:</strong> {b.qty} → <strong>Total:</strong> ${b.total.toFixed(2)}</div>
+                                                    </div>
+                                                );
+                                            })()}
+                                        </div>
+
+                                        <div style={{ marginTop: 8 }}>
+                                            <button
+                                                type="button"
+                                                className="botton-carusel"
+                                                onClick={() => handleCreateComplement(idx)}
+                                                disabled={!!validateRow(row)}
+                                            >
+                                                Crear complemento
+                                            </button>
+                                            {touchedRows[idx] && errors[idx] && (
+                                                <span className="error-message" style={{ marginLeft: 12 }}>{errors[idx]}</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                                {row.type === 'railing' && complement && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
+                                        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                step="1"
+                                                placeholder="Cantidad"
+                                                value={row.quantity}
+                                                onChange={e => handleRowChange(idx, 'quantity', e.target.value)}
+                                                style={{ width: 80 }}
+                                            />
+                                            <select
+                                                value={row.custom.treatment || ''}
+                                                onChange={e => handleCustomChange(idx, 'treatment', e.target.value)}
+                                            >
+                                                <option value="">Tratamiento</option>
+                                                {safeArray(alumTreatments).map(t => (
+                                                    <option key={t.id} value={t.id}>{t.name}</option>
+                                                ))}
+                                            </select>
                                             <label>
                                                 <input
-                                                    type="radio"
-                                                    name={`simple-${idx}`}
-                                                    checked={row.custom.simple === false}
-                                                    onChange={() => handleCustomChange(idx, 'simple', false)}
-                                                /> Doble
+                                                    type="checkbox"
+                                                    checked={!!row.custom.reinforced}
+                                                    onChange={e => handleCustomChange(idx, 'reinforced', e.target.checked)}
+                                                />
+                                                Reforzado
                                             </label>
                                         </div>
-                                        <select
-                                            value={row.custom.glassMilimeters || ''}
-                                            onChange={e => handleCustomChange(idx, 'glassMilimeters', e.target.value)}
-                                            style={{ width: 120 }}
-                                        >
-                                            <option value="">Espesor vidrio (mm)</option>
-                                            <option value="6">6 mm</option>
-                                            <option value="8">8 mm</option>
-                                            <option value="10">10 mm</option>
-                                        </select>
-                                    </div>
 
-                                    {/* Desglose dinámico de precio para tabique */}
-                                    <div style={{ marginTop: 6, padding: 8, borderRadius: 6 }}>
-                                        {(() => {
-                                            const b = computePartitionBreakdown(row, complement);
-                                            return (
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                                                    <div><strong>Base (por 100 cm):</strong> ${b.basePrice.toFixed(2)}</div>
-                                                    <div><strong>Alto:</strong> {b.height} cm — factor: {b.factor.toFixed(3)}</div>
-                                                    <div><strong>Precio por altura:</strong> ${b.priceByHeight.toFixed(2)}</div>
-                                                    <div><strong>Tipo:</strong> {b.simpleLabel}</div>
-                                                    <div><strong>Recargo vidrio:</strong> {b.glassPct}%</div>
-                                                    <div style={{ borderTop: '1px dashed #cfeef2', paddingTop: 6 }}>
-                                                        <strong>Precio unidad:</strong> ${b.unit.toFixed(2)}
+                                        <div style={{ marginTop: 6, padding: 8, borderRadius: 6 }}>
+                                            {(() => {
+                                                const r = computeRailingBreakdown(row, complement);
+                                                return (
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                                        <div><strong>Base unit:</strong> ${r.basePrice.toFixed(2)} ({complement?.name || ''})</div>
+                                                        <div><strong>Reforzado:</strong> {row.custom.reinforced ? `${r.reinforcePct}% → ${r.afterReinforce.toFixed(2)}` : 'No'}</div>
+                                                        <div><strong>Tratamiento alum.:</strong> {r.treatmentPct}% → ${r.treatmentCost.toFixed(2)}</div>
+                                                        <div style={{ borderTop: '1px dashed #cfeef2', paddingTop: 6 }}>
+                                                            <strong>Precio unidad:</strong> ${r.unit.toFixed(2)}
+                                                        </div>
+                                                        <div><strong>Cantidad:</strong> {r.qty} → <strong>Total:</strong> ${r.total.toFixed(2)}</div>
                                                     </div>
-                                                    <div><strong>Cantidad:</strong> {b.qty} → <strong>Total:</strong> ${b.total.toFixed(2)}</div>
-                                                </div>
-                                            );
-                                        })()}
-                                    </div>
+                                                );
+                                            })()}
+                                        </div>
 
-                                    {/* Botón Crear complemento para partition (solo si la fila es válida) */}
-                                    <div style={{ marginTop: 8 }}>
-                                        <button
-                                            type="button"
-                                            className="botton-carusel"
-                                            onClick={() => handleCreateComplement(idx)}
-                                            disabled={!!validateRow(row)}
-                                        >
-                                            Crear complemento
-                                        </button>
-                                        {touchedRows[idx] && errors[idx] && (
-                                            <span className="error-message" style={{ marginLeft: 12 }}>{errors[idx]}</span>
-                                        )}
+                                        <div style={{ marginTop: 8 }}>
+                                            <button
+                                                type="button"
+                                                className="botton-carusel"
+                                                onClick={() => handleCreateComplement(idx)}
+                                                disabled={!!validateRow(row)}
+                                            >
+                                                Crear complemento
+                                            </button>
+                                            {touchedRows[idx] && errors[idx] && (
+                                                <span className="error-message" style={{ marginLeft: 12 }}>{errors[idx]}</span>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            )}
-                            {row.type === 'railing' && complement && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
-                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            step="1"
-                                            placeholder="Cantidad"
-                                            value={row.quantity}
-                                            onChange={e => handleRowChange(idx, 'quantity', e.target.value)}
-                                            style={{ width: 80 }}
-                                        />
-                                        <select
-                                            value={row.custom.treatment || ''}
-                                            onChange={e => handleCustomChange(idx, 'treatment', e.target.value)}
-                                        >
-                                            <option value="">Tratamiento</option>
-                                            {safeArray(alumTreatments).map(t => (
-                                                <option key={t.id} value={t.id}>{t.name}</option>
-                                            ))}
-                                        </select>
-                                        <label>
-                                            <input
-                                                type="checkbox"
-                                                checked={!!row.custom.reinforced}
-                                                onChange={e => handleCustomChange(idx, 'reinforced', e.target.checked)}
-                                            />
-                                            Reforzado
-                                        </label>
-                                    </div>
-
-                                    {/* Desglose dinámico de precio para baranda */}
-                                    <div style={{ marginTop: 6, padding: 8, borderRadius: 6 }}>
-                                        {(() => {
-                                            const r = computeRailingBreakdown(row, complement);
-                                            return (
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                                                    <div><strong>Base unit:</strong> ${r.basePrice.toFixed(2)} ({complement?.name || ''})</div>
-                                                    <div><strong>Reforzado:</strong> {row.custom.reinforced ? `${r.reinforcePct}% → ${r.afterReinforce.toFixed(2)}` : 'No'}</div>
-                                                    <div><strong>Tratamiento alum.:</strong> {r.treatmentPct}% → ${r.treatmentCost.toFixed(2)}</div>
-                                                    <div style={{ borderTop: '1px dashed #cfeef2', paddingTop: 6 }}>
-                                                        <strong>Precio unidad:</strong> ${r.unit.toFixed(2)}
-                                                    </div>
-                                                    <div><strong>Cantidad:</strong> {r.qty} → <strong>Total:</strong> ${r.total.toFixed(2)}</div>
-                                                </div>
-                                            );
-                                        })()}
-                                    </div>
-
-                                    {/* Botón Crear complemento para railing (solo si la fila es válida) */}
-                                    <div style={{ marginTop: 8 }}>
-                                        <button
-                                            type="button"
-                                            className="botton-carusel"
-                                            onClick={() => handleCreateComplement(idx)}
-                                            disabled={!!validateRow(row)}
-                                        >
-                                            Crear complemento
-                                        </button>
-                                        {touchedRows[idx] && errors[idx] && (
-                                            <span className="error-message" style={{ marginLeft: 12 }}>{errors[idx]}</span>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-                            {/* Error debajo de la fila, solo si la fila fue "touched" */}
-                            {touchedRows[idx] && errors[idx] && (
-                                <span className="error-message">{errors[idx]}</span>
-                            )}
-                            {/* Botón para validar y marcar como touched si hay error */}
-                        </div>
-                    );
-                })}
-                <button type="button" className="botton-carusel" onClick={handleAddRow}>
-                    Agregar complemento
-                </button>
+                                )}
+                                {touchedRows[idx] && errors[idx] && (
+                                    <span className="error-message">{errors[idx]}</span>
+                                )}
+                            </div>
+                        );
+                    })}
+                    <button type="button" className="botton-carusel" onClick={handleAddRow}>
+                        Agregar complemento
+                    </button>
+                </div>
             </div>
-               
-        </div>        
-         </div>
-     
-        
+        </div>
     );
 };
 

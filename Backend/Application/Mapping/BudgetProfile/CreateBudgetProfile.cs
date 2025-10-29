@@ -61,6 +61,5 @@ public class CreateBudgetProfile : Profile
 
         // Mapea Budget_AccesoryDTO → BudgetAccesory
         CreateMap<CreateBudgetAccesoryDTO, BudgetAccesory>();
-
     }
 }

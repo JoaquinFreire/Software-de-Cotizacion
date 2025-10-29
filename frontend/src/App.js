@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Historial from './pages/Historial';
 import Admin from './pages/Admin';
 import Quotation from './pages/Quotation';
+import QuotationVersion from './pages/QuotationVersion'
 import UpdateQuotation from './pages/UpdateQuotation';
 import AdminUsuarios from './pages/admin/AdminUsuarios';
 import Reportes from './pages/Reportes';
@@ -187,6 +188,7 @@ function App() {
                         <Route path="/cotizaciones" element={<PrivateRoute element={<Dashboard />}/>} />
                         <Route path="/historial" element={<PrivateRoute element={<Historial />} />} />
                         <Route path="/new-quotation" element={<PrivateRoute element={<Quotation />} />} />
+                        <Route path="/quotation/version/:budgetId" element={<QuotationVersion />} />
                         <Route path="/update-quotation/:id" element={<PrivateRoute element={<UpdateQuotation />} />} />
                         <Route path="/admin" element={<PrivateRoute element={<Admin />} />} />
                         <Route path="/admin/usuarios" element={<PrivateRoute element={<AdminUsuarios />} />} />

@@ -49,12 +49,41 @@ namespace Domain.Services
         // CAMBIO: ahora devuelve una tupla con (precioTotalPorUnidadIncluyendoImpuestos, desgloseTextual, subtotalSinImpuestosPorUnidad)
         private async Task<(decimal totalPrice, string breakdown, decimal subtotal)> CalculateOpeningPrice(Budget_Product budget_Product, bool excludeBackendTaxes = false, decimal? labourRateOverride = null) {
 
+            // AGREGAR VALIDACIÓN AL INICIO
+            if (budget_Product?.OpeningType == null)
+            {
+                throw new ArgumentNullException(nameof(budget_Product.OpeningType), "OpeningType no puede ser nulo.");
+            }
+
+            if (string.IsNullOrEmpty(budget_Product.OpeningType.name))
+            {
+                throw new ArgumentException("El nombre del OpeningType no puede estar vacío.");
+            }
+
             // (todo el cálculo previo se mantiene igual hasta que se obtiene subtotal y totalPrice)
             // 1. CALCULAR ALUMINIO 
             // Obtener el peso por metro del tipo de abertura
+            Console.WriteLine($"Buscando OpeningType: '{budget_Product.OpeningType.name}'");
             var openingType = await _openingRepository.GetByNameAsync(budget_Product.OpeningType.name);
-            double weightPerMeter = openingType.weight;
-        
+            if (openingType == null)
+            {
+                throw new KeyNotFoundException($"No se encontró el tipo de abertura en la base de datos: '{budget_Product.OpeningType.name}'. Verifica que exista en la tabla opening_type.");
+            }
+
+            Console.WriteLine($"OpeningType encontrado - ID: {openingType.id}, Peso: {openingType.weight}");
+
+            double weightPerMeter;
+            try
+            {
+                weightPerMeter = Convert.ToDouble(openingType.weight);
+                Console.WriteLine($"Peso convertido a double: {weightPerMeter} kg/m");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error convirtiendo peso: {ex.Message}");
+                throw new FormatException($"No se pudo convertir el peso '{openingType.weight}' a número. Tipo: {openingType.weight.GetType()}");
+            }
+
             // Determinar consumo de aluminio
             int totalPanels = budget_Product.HeightPanelQuantity * budget_Product.WidthPanelQuantity; // número total de paneles
      

@@ -78,6 +78,9 @@ builder.Services.AddTransient<IBudgetValidator, BudgetValidator>();
 //Capa de aplicación
 builder.Services.AddTransient<IApplicationBudgetValidator, ApplicationBudgetValidator>();
 
+builder.Services.AddScoped<ApplicationBudgetVersionValidator>();
+
+
 // -Clientes-
 //Capa de logica de negocio
 builder.Services.AddTransient<ICustomerValidator, CustomerValidator>();

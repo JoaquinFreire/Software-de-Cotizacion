@@ -1,26 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import ciudadesBarriosRaw from '../../json/ciudadesBarriosCordoba.json';
 
-// Accede correctamente a la propiedad ciudades
 const ciudadesBarrios = ciudadesBarriosRaw?.default || ciudadesBarriosRaw;
 const ciudades = Array.isArray(ciudadesBarrios?.Cordoba?.ciudades) ? ciudadesBarrios.Cordoba.ciudades : [];
 
-const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
+const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {}, readOnlyFields = [] }) => {
     const [selectedCiudad, setSelectedCiudad] = useState('');
     const [selectedBarrio, setSelectedBarrio] = useState('');
     const [calle, setCalle] = useState('');
     const [numero, setNumero] = useState('');
 
+    const isFieldReadOnly = (fieldName) => readOnlyFields.includes(fieldName);
+
     useEffect(() => {
-        // Actualiza la dirección combinando calle y número
+        if (isFieldReadOnly('address')) return;
         setWorkPlace(prev => ({
             ...prev,
             address: calle && numero ? `${calle} ${numero}` : ''
         }));
-    }, [calle, numero, setWorkPlace]);
+    }, [calle, numero, setWorkPlace, isFieldReadOnly]);
 
-    // Nuevo: Actualiza location cuando cambia ciudad o barrio
     useEffect(() => {
+        if (isFieldReadOnly('location')) return;
         if (selectedCiudad && selectedBarrio) {
             setWorkPlace(prev => ({
                 ...prev,
@@ -32,9 +33,10 @@ const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
                 location: ''
             }));
         }
-    }, [selectedCiudad, selectedBarrio, setWorkPlace]);
+    }, [selectedCiudad, selectedBarrio, setWorkPlace, isFieldReadOnly]);
 
     const handleInputChange = (field, value) => {
+        if (isFieldReadOnly(field)) return;
         setWorkPlace({ ...workPlace, [field]: value });
         if (errors[field]) {
             errors[field] = undefined;
@@ -53,8 +55,9 @@ const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
                 <input
                     type="text"
                     value={workPlace.name}
-                    onChange={e => setWorkPlace(prev => ({ ...prev, name: e.target.value }))}
-                    className={errors.name ? "input-error" : ""}
+                    onChange={e => !isFieldReadOnly('name') && setWorkPlace(prev => ({ ...prev, name: e.target.value }))}
+                    disabled={isFieldReadOnly('name')}
+                    className={`${errors.name ? "input-error" : ""} ${isFieldReadOnly('name') ? 'read-only-field' : ''}`}
                     placeholder="Ej: Obra Barrio Centro, Casa Sra. Pérez"
                     required
                 />
@@ -65,12 +68,13 @@ const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
                 <select
                     value={selectedCiudad}
                     onChange={e => {
+                        if (isFieldReadOnly('location')) return;
                         setSelectedCiudad(e.target.value);
                         setSelectedBarrio('');
-                        // Limpiar location si cambia ciudad
                         setWorkPlace(prev => ({ ...prev, location: '' }));
                     }}
-                    className={errors.ciudad ? "input-error" : ""}
+                    disabled={isFieldReadOnly('location')}
+                    className={`${errors.ciudad ? "input-error" : ""} ${isFieldReadOnly('location') ? 'read-only-field' : ''}`}
                     required
                 >
                     <option value="">Seleccione ciudad</option>
@@ -87,8 +91,9 @@ const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
                     <label>Barrio:</label>
                     <select
                         value={selectedBarrio}
-                        onChange={e => setSelectedBarrio(e.target.value)}
-                        className={errors.barrio ? "input-error" : ""}
+                        onChange={e => !isFieldReadOnly('location') && setSelectedBarrio(e.target.value)}
+                        disabled={isFieldReadOnly('location')}
+                        className={`${errors.barrio ? "input-error" : ""} ${isFieldReadOnly('location') ? 'read-only-field' : ''}`}
                         required
                     >
                         <option value="">Seleccione barrio</option>
@@ -106,8 +111,9 @@ const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
                 <input
                     type="text"
                     value={calle}
-                    onChange={e => setCalle(e.target.value)}
-                    className={errors.address ? "input-error" : ""}
+                    onChange={e => !isFieldReadOnly('address') && setCalle(e.target.value)}
+                    disabled={isFieldReadOnly('address')}
+                    className={`${errors.address ? "input-error" : ""} ${isFieldReadOnly('address') ? 'read-only-field' : ''}`}
                     placeholder="Ingrese la calle"
                     required
                 />
@@ -117,8 +123,9 @@ const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
                 <input
                     type="text"
                     value={numero}
-                    onChange={e => setNumero(e.target.value)}
-                    className={errors.address ? "input-error" : ""}
+                    onChange={e => !isFieldReadOnly('address') && setNumero(e.target.value)}
+                    disabled={isFieldReadOnly('address')}
+                    className={`${errors.address ? "input-error" : ""} ${isFieldReadOnly('address') ? 'read-only-field' : ''}`}
                     placeholder="Ingrese el número"
                     required
                 />
@@ -127,8 +134,9 @@ const WorkPlace = ({ workPlace, setWorkPlace, workTypes, errors = {} }) => {
                 <label>Tipo de Trabajo:</label>
                 <select
                     value={workPlace.workTypeId}
-                    onChange={e => handleInputChange("workTypeId", e.target.value)}
-                    className={errors.workTypeId ? "input-error" : ""}
+                    onChange={e => !isFieldReadOnly('workTypeId') && handleInputChange("workTypeId", e.target.value)}
+                    disabled={isFieldReadOnly('workTypeId')}
+                    className={`${errors.workTypeId ? "input-error" : ""} ${isFieldReadOnly('workTypeId') ? 'read-only-field' : ''}`}
                     required
                 >
                     <option value="">Seleccionar tipo de trabajo</option>

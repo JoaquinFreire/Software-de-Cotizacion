@@ -1215,3 +1215,23 @@ body.light-mode .remove-complement-button:hover {
 .swiper-slide {
     width: 100%;
 }
+
+.read-only-field {
+    background-color: #f0f0f0 !important;
+    color: #666 !important;
+    cursor: not-allowed !important;
+    border: 1px solid #ccc !important;
+}
+
+body.light-mode .read-only-field {
+    background-color: #e9ecef !important;
+    color: #495057 !important;
+}
+
+/* Para inputs y selects */
+input.read-only-field,
+select.read-only-field,
+textarea.read-only-field {
+    pointer-events: none;
+    user-select: none;
+}

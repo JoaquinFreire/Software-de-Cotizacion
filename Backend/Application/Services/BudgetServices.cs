@@ -18,10 +18,21 @@ namespace Application.Services
         {
             return await _budgetRepository.GetByIdAsync(id);
         }
-        
+
+        public async Task<Budget> GetByBudgetIdAsync(string budgetId)
+        {
+            return await _budgetRepository.GetByBudgetIdAsync(budgetId);
+        }
+
         public async Task<List<Budget>> GetBudgetsByCustomerDniAsync(string customerDni)
         {
             return await _budgetRepository.GetBudgetsByCustomerDniAsync(customerDni);
+        }
+
+        public async Task<Budget> GetLatestVersionByBudgetIdAsync(string budgetId)
+        {
+            var budgets = await _budgetRepository.GetBudgetsByBudgetIdAsync(budgetId);
+            return budgets?.OrderByDescending(b => b.version).FirstOrDefault();
         }
 
         public async Task<IEnumerable<Budget>> GetAllBudgetsAsync()

@@ -14,7 +14,7 @@ namespace Application.DTOs.BudgetDTOs.CreateBudget
         public required string budgetId { get; set; }
         public required CreateBudgetUserDTO user { get; set; }
         public required CreateBudgetCustomerDTO customer { get; set; }
-        public CreateBudgetCustomerAgentDTO? agent { get; set; } // <-- ahora opcional
+        public CreateBudgetCustomerAgentDTO? agent { get; set; }
         public required CreateBudgetWorkPlaceDTO workPlace { get; set; }
         public required List<CreateBudgetProductDTO> Products { get; set; } = new List<CreateBudgetProductDTO>(); // Lista de productos
         public List<CreateBudgetComplementDTO>? complement { get; set; } = new List<CreateBudgetComplementDTO>(); // Lista de complementos
