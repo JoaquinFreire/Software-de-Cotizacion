@@ -5,6 +5,7 @@ using DotNetEnv;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using ZstdSharp.Unsafe;
+using static Domain.Repositories.IBudgetRepository;
 
 namespace Infrastructure.Persistence.Repositories
 {
@@ -145,5 +146,67 @@ namespace Infrastructure.Persistence.Repositories
                 return new { Error = ex.Message, ConnectionStatus = "FAILED" };
             }
         }
+
+        public async Task<List<Budget>> GetApprovedBudgetsInPeriodAsync(DateTime fromDate, DateTime toDate)
+        {
+            var filter = Builders<Budget>.Filter.And(
+                Builders<Budget>.Filter.Gte(b => b.creationDate, fromDate),
+                Builders<Budget>.Filter.Lte(b => b.creationDate, toDate),
+                Builders<Budget>.Filter.Eq(b => b.status, BudgetStatus.Approved)
+            );
+
+            return await _collection.Find(filter).ToListAsync();
+        }
+
+        public async Task<List<Budget>> GetAllBudgetsInPeriodAsync(DateTime fromDate, DateTime toDate)
+        {
+            var filter = Builders<Budget>.Filter.And(
+                Builders<Budget>.Filter.Gte(b => b.creationDate, fromDate),
+                Builders<Budget>.Filter.Lte(b => b.creationDate, toDate)
+            );
+
+            return await _collection.Find(filter).ToListAsync();
+        }
+
+        public async Task<decimal> GetTotalRevenueInPeriodAsync(DateTime fromDate, DateTime toDate)
+        {
+            var approvedBudgets = await GetApprovedBudgetsInPeriodAsync(fromDate, toDate);
+            return approvedBudgets.Sum(b => b.Total);
+        }
+
+        public async Task<List<MonthlyRevenue>> GetMonthlyRevenueAsync(DateTime fromDate, DateTime toDate)
+        {
+            var approvedBudgets = await GetApprovedBudgetsInPeriodAsync(fromDate, toDate);
+
+            return approvedBudgets
+                .GroupBy(b => new { b.creationDate.Year, b.creationDate.Month })
+                .Select(g => new MonthlyRevenue
+                {
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    Revenue = g.Sum(b => b.Total)
+                })
+                .OrderBy(r => r.Year)
+                .ThenBy(r => r.Month)
+                .ToList();
+        }
+
+        public async Task<List<Budget>> GetCustomerBudgetHistoryAsync(string customerDni)
+        {
+            var filter = Builders<Budget>.Filter.Eq("customer.dni", customerDni);
+            return await _collection.Find(filter)
+                .SortByDescending(b => b.creationDate)
+                .ToListAsync();
+        }
+
+        public async Task<int> GetTotalActiveClientsAsync(DateTime fromDate, DateTime toDate)
+        {
+            var approvedBudgets = await GetApprovedBudgetsInPeriodAsync(fromDate, toDate);
+            return approvedBudgets
+                .Select(b => b.customer.dni)
+                .Distinct()
+                .Count();
+        }
+
     }
 }

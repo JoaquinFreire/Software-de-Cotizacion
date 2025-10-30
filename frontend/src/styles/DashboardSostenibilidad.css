@@ -1,0 +1,1337 @@
+/* DashboardSostenibilidad.css - CORRECCIONES COMPLETAS */
+
+:root {
+    --sustainability-primary: #26b7cd;
+    --sustainability-primary-dark: #1fa5b9;
+    --sustainability-success: #10b981;
+    --sustainability-warning: #f59e0b;
+    --sustainability-error: #ef4444;
+    --sustainability-info: #3b82f6;
+    --sustainability-bg-primary: #1e1e1e;
+    --sustainability-bg-secondary: #2d2d2d;
+    --sustainability-bg-tertiary: #3a3a3a;
+    --sustainability-border: #444;
+    --sustainability-border-light: #555;
+    --sustainability-text-primary: #ffffff;
+    --sustainability-text-secondary: #b0b0b0;
+    --sustainability-text-muted: #888;
+}
+
+/* CONTENEDOR PRINCIPAL CON MÁRGENES AMPLIADOS */
+.sustainability-dashboard-container {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+    min-height: 100vh;
+    padding: 0;
+}
+
+.sustainability-dashboard-main-wrapper {
+    background: transparent;
+    min-height: calc(100vh - 120px);
+    padding: 0;
+}
+
+.sustainability-dashboard-content-container {
+    max-width: 1600px; /* Ampliado de 1400px */
+    margin: 0 auto;
+    padding: 20px;
+    background: transparent;
+}
+
+/* CONTENEDOR PRINCIPAL EXPANDIDO */
+.sustainability-main-container.expanded {
+    background: var(--sustainability-bg-primary);
+    border-radius: 20px;
+    border: 1px solid var(--sustainability-border);
+    padding: 40px; /* Aumentado padding */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    margin: 0 auto;
+}
+
+/* HEADER PRINCIPAL */
+.sustainability-dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--sustainability-border);
+}
+
+.sustainability-header-title {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+    .sustainability-header-title h1 {
+        margin: 0;
+        font-size: 2.2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #26b7cd, #2dd4bf);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .sustainability-header-title p {
+        margin: 0;
+        color: var(--sustainability-text-secondary);
+        font-size: 14px;
+    }
+
+.sustainability-header-controls {
+    display: flex;
+    align-items: center;
+    gap: 24px; /* Aumentado gap */
+}
+
+/* FILTROS DE FECHA PERSONALIZADOS */
+.sustainability-date-filters {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.date-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+    .date-filter-group label {
+        font-size: 12px;
+        color: var(--sustainability-text-secondary);
+        font-weight: 600;
+    }
+
+.date-filter-input {
+    padding: 10px 12px;
+    border: 1px solid var(--sustainability-border);
+    border-radius: 8px;
+    background: var(--sustainability-bg-secondary);
+    color: var(--sustainability-text-primary);
+    font-size: 14px;
+    min-width: 150px;
+}
+
+    .date-filter-input:focus {
+        outline: none;
+        border-color: var(--sustainability-primary);
+        box-shadow: 0 0 0 2px rgba(38, 183, 205, 0.1);
+    }
+
+.sustainability-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.sustainability-btn-primary {
+    background: linear-gradient(135deg, #26b7cd, #2dd4bf);
+    color: white;
+}
+
+    .sustainability-btn-primary:hover:not(:disabled) {
+        background: linear-gradient(135deg, #1fa5b9, #26c4ab);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(38, 183, 205, 0.3);
+    }
+
+    .sustainability-btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+/* LAYOUT PRINCIPAL CON SIDEBAR */
+.sustainability-main-layout {
+    display: grid;
+    grid-template-columns: 1fr 420px; /* Aumentado ancho del sidebar */
+    gap: 30px; /* Aumentado gap */
+    align-items: start;
+}
+
+.sustainability-main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px; /* Aumentado gap */
+}
+
+.sustainability-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 30px; /* Aumentado gap */
+}
+
+/* KPIs PRINCIPALES */
+.sustainability-main-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px; /* Aumentado gap */
+    margin-bottom: 24px;
+}
+
+.sustainability-kpi-card {
+    background: var(--sustainability-bg-secondary);
+    border-radius: 16px;
+    border: 1px solid var(--sustainability-border);
+    padding: 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+    .sustainability-kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--sustainability-primary), var(--sustainability-success));
+    }
+
+    .sustainability-kpi-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        border-color: var(--sustainability-primary);
+    }
+
+.sustainability-kpi-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    background: rgba(38, 183, 205, 0.1);
+}
+
+.sustainability-kpi-content {
+    text-align: left;
+}
+
+.sustainability-kpi-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--sustainability-text-primary);
+    margin-bottom: 4px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sustainability-kpi-label {
+    font-size: 14px;
+    color: var(--sustainability-text-primary);
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.sustainability-kpi-subtext {
+    font-size: 12px;
+    color: var(--sustainability-text-secondary);
+    font-weight: 500;
+}
+
+/* SECCIONES CON MÁS ESPACIO INTERNO */
+.sustainability-section {
+    background: var(--sustainability-bg-secondary);
+    border-radius: 16px;
+    border: 1px solid var(--sustainability-border);
+    overflow: hidden;
+}
+
+.sustainability-section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 28px; /* Aumentado padding */
+    background: var(--sustainability-bg-secondary);
+    border-bottom: 1px solid var(--sustainability-border);
+}
+
+    .sustainability-section-header h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--sustainability-text-primary);
+        flex: 1;
+    }
+
+    .sustainability-section-header h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--sustainability-text-primary);
+        flex: 1;
+    }
+
+.sustainability-expand-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--sustainability-primary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 14px; /* Aumentado padding */
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+    .sustainability-expand-btn:hover:not(:disabled) {
+        background: rgba(38, 183, 205, 0.1);
+    }
+
+    .sustainability-expand-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+.sustainability-section-content {
+    padding: 28px; /* Aumentado padding */
+}
+
+/* CONTENEDOR DEL GRÁFICO CHART.JS */
+.sustainability-chart-container {
+    background: var(--sustainability-bg-primary);
+    border-radius: 12px;
+    border: 1px solid var(--sustainability-border);
+    padding: 20px;
+    margin-bottom: 16px;
+    height: 400px;
+    position: relative;
+}
+
+/* TARJETAS DE PRONÓSTICO */
+.sustainability-forecast-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px; /* Aumentado gap */
+    margin-bottom: 20px;
+}
+
+.sustainability-forecast-card {
+    background: var(--sustainability-bg-primary);
+    border-radius: 12px;
+    border: 1px solid var(--sustainability-border);
+    padding: 24px; /* Aumentado padding */
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+    .sustainability-forecast-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .sustainability-forecast-card.high-probability {
+        border-color: var(--sustainability-success);
+        background: rgba(16, 185, 129, 0.05);
+    }
+
+    .sustainability-forecast-card.medium-probability {
+        border-color: var(--sustainability-warning);
+        background: rgba(245, 158, 11, 0.05);
+    }
+
+    .sustainability-forecast-card.total {
+        border-color: var(--sustainability-primary);
+        background: rgba(38, 183, 205, 0.05);
+    }
+
+.forecast-card-header {
+    margin-bottom: 16px; /* Aumentado margin */
+}
+
+.probability-badge {
+    padding: 8px 16px; /* Aumentado padding */
+    border-radius: 20px;
+    font-size: 12px; /* Aumentado tamaño */
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: white;
+}
+
+    .probability-badge.high {
+        background: var(--sustainability-success);
+    }
+
+    .probability-badge.medium {
+        background: var(--sustainability-warning);
+    }
+
+    .probability-badge.total {
+        background: var(--sustainability-primary);
+    }
+
+.forecast-card-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--sustainability-text-primary);
+    margin-bottom: 12px; /* Aumentado margin */
+}
+
+.forecast-card-details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--sustainability-text-primary);
+}
+
+/* TABLA DE PRONÓSTICOS EXPANDIDA MEJORADA */
+.sustainability-forecast-table {
+    margin-top: 24px; /* Aumentado margin */
+    background: var(--sustainability-bg-primary);
+    border-radius: 12px;
+    border: 1px solid var(--sustainability-border);
+    overflow: hidden;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px; /* Aumentado padding */
+    background: rgba(0, 0, 0, 0.3); /* Fondo más oscuro */
+    border-bottom: 1px solid var(--sustainability-border);
+}
+
+    .table-header h4 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--sustainability-text-primary);
+    }
+
+.table-container-wrapper {
+    max-height: 500px;
+    overflow: hidden;
+    position: relative;
+}
+
+.table-container {
+    overflow-x: auto;
+    max-height: 450px;
+    overflow-y: auto;
+}
+
+.sustainability-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--sustainability-bg-primary);
+    min-width: 1200px; /* Ancho mínimo para evitar compresión */
+}
+
+    .sustainability-detail-table th {
+        text-align: left;
+        padding: 18px 20px; /* Aumentado padding */
+        background: rgba(0, 0, 0, 0.4); /* Fondo más oscuro para headers */
+        font-weight: 700;
+        color: var(--sustainability-text-primary);
+        border-bottom: 2px solid var(--sustainability-border);
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .sustainability-detail-table td {
+        padding: 16px 20px; /* Aumentado padding */
+        border-bottom: 1px solid var(--sustainability-border);
+        color: var(--sustainability-text-primary);
+        font-size: 14px;
+        white-space: nowrap;
+        background: var(--sustainability-bg-primary); /* Fondo sólido para celdas */
+    }
+
+    .sustainability-detail-table tr:hover {
+        background: rgba(255, 255, 255, 0.08); /* Hover más suave */
+    }
+
+/* CELDAS ESPECIALES DE TABLA */
+.client-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.client-status {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+    .client-status.alta {
+        background: var(--sustainability-success);
+    }
+
+    .client-status.media {
+        background: var(--sustainability-warning);
+    }
+
+    .client-status.baja {
+        background: var(--sustainability-error);
+    }
+
+.project-cell {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.date-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.date-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+    .date-indicator.recent {
+        background: var(--sustainability-success);
+    }
+
+    .date-indicator.medium {
+        background: var(--sustainability-warning);
+    }
+
+    .date-indicator.old {
+        background: var(--sustainability-error);
+    }
+
+.probability-cell {
+    min-width: 80px;
+}
+
+.probability-bar {
+    height: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+    .probability-bar span {
+        position: relative;
+        z-index: 2;
+    }
+
+.amount-cell {
+    font-weight: 700;
+    color: var(--sustainability-success);
+}
+
+.priority-cell {
+    text-align: center;
+}
+
+.priority-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+    .priority-badge.alta {
+        background: rgba(239, 68, 68, 0.2);
+        color: var(--sustainability-error);
+        border: 1px solid var(--sustainability-error);
+    }
+
+    .priority-badge.media {
+        background: rgba(245, 158, 11, 0.2);
+        color: var(--sustainability-warning);
+        border: 1px solid var(--sustainability-warning);
+    }
+
+    .priority-badge.baja {
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--sustainability-success);
+        border: 1px solid var(--sustainability-success);
+    }
+
+/* COMPOSICIÓN Y CONCENTRACIÓN */
+.sustainability-composition,
+.sustainability-concentration {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.composition-item,
+.concentration-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+}
+
+.composition-label,
+.concentration-label {
+    display: flex;
+    justify-content: space-between;
+    width: 200px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sustainability-text-primary);
+}
+
+.composition-bar-container,
+.concentration-bar-container {
+    flex: 1;
+    height: 20px;
+    background: var(--sustainability-bg-tertiary);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.composition-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sustainability-primary), #2dd4bf);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+.concentration-bar {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+.composition-value,
+.concentration-value {
+    width: 100px;
+    text-align: right;
+    font-weight: 700;
+    color: var(--sustainability-success);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.risk-icon {
+    flex-shrink: 0;
+}
+
+/* MÉTRICAS DE SALUD CON MÁS ESPACIO */
+.sustainability-health-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Aumentado gap */
+}
+
+.health-metric-card {
+    background: var(--sustainability-bg-primary);
+    border-radius: 12px;
+    border: 1px solid var(--sustainability-border);
+    padding: 24px; /* Aumentado padding */
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Aumentado gap */
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+    .health-metric-card:hover {
+        border-color: var(--sustainability-primary);
+        transform: translateY(-2px);
+    }
+
+.health-metric-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px; /* Aumentado tamaño */
+    height: 52px;
+    border-radius: 12px; /* Aumentado borderRadius */
+    background: rgba(38, 183, 205, 0.1);
+    flex-shrink: 0;
+}
+
+.health-metric-content {
+    flex: 1;
+}
+
+.health-metric-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--sustainability-text-primary);
+    margin-bottom: 6px; /* Aumentado margin */
+}
+
+.health-metric-label {
+    font-size: 14px;
+    color: var(--sustainability-text-primary);
+    font-weight: 600;
+    margin-bottom: 6px; /* Aumentado margin */
+}
+
+.health-metric-subtext {
+    font-size: 12px;
+    color: var(--sustainability-text-secondary);
+    margin-bottom: 0; /* Eliminado margin-bottom extra */
+}
+
+.health-details-expanded {
+    margin-top: 16px;
+    padding: 20px; /* Aumentado padding */
+    background: var(--sustainability-bg-primary);
+    border-radius: 8px;
+    border: 1px solid var(--sustainability-border);
+}
+
+.health-detail-item h4 {
+    color: var(--sustainability-text-primary);
+    margin-bottom: 12px;
+}
+
+.health-detail-item p {
+    color: var(--sustainability-text-primary);
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.health-explanation {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px; /* Aumentado padding */
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--sustainability-text-primary);
+    border-left: 3px solid var(--sustainability-primary);
+}
+
+.sustainability-health-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.health-summary-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sustainability-text-primary);
+}
+
+    .health-summary-item.positive {
+        background: rgba(16, 185, 129, 0.1);
+        border-left: 4px solid var(--sustainability-success);
+    }
+
+    .health-summary-item.warning {
+        background: rgba(245, 158, 11, 0.1);
+        border-left: 4px solid var(--sustainability-warning);
+    }
+
+    .health-summary-item.opportunity {
+        background: rgba(59, 130, 246, 0.1);
+        border-left: 4px solid var(--sustainability-info);
+    }
+
+/* ALERTAS CON MÁS ESPACIO */
+.sustainability-alerts {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Aumentado gap */
+}
+
+.sustainability-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px; /* Aumentado gap */
+    padding: 24px; /* Aumentado padding */
+    border-radius: 12px;
+    border-left: 4px solid transparent;
+}
+
+    .sustainability-alert.high {
+        background: rgba(239, 68, 68, 0.1);
+        border-left-color: var(--sustainability-error);
+    }
+
+    .sustainability-alert.medium {
+        background: rgba(245, 158, 11, 0.1);
+        border-left-color: var(--sustainability-warning);
+    }
+
+    .sustainability-alert.warning {
+        background: rgba(245, 158, 11, 0.1);
+        border-left-color: var(--sustainability-warning);
+    }
+
+.alert-content {
+    flex: 1;
+}
+
+.alert-title {
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    color: var(--sustainability-text-primary);
+}
+
+.sustainability-alert.high .alert-title {
+    color: var(--sustainability-error);
+}
+
+.sustainability-alert.medium .alert-title {
+    color: var(--sustainability-warning);
+}
+
+.alert-description {
+    font-size: 14px;
+    color: var(--sustainability-text-primary);
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.alert-action {
+    font-size: 13px;
+    color: var(--sustainability-text-primary);
+    font-weight: 600;
+}
+
+/* SKELETON LOADING */
+.skeleton {
+    background: linear-gradient(90deg, #2d2d2d 25%, #3a3a3a 50%, #2d2d2d 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.skeleton-line {
+    background: linear-gradient(90deg, #2d2d2d 25%, #3a3a3a 50%, #2d2d2d 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+    .skeleton-line:last-child {
+        margin-bottom: 0;
+    }
+
+    .skeleton-line.short {
+        height: 12px;
+        width: 60%;
+    }
+
+    .skeleton-line.medium {
+        height: 16px;
+        width: 80%;
+    }
+
+    .skeleton-line.long {
+        height: 20px;
+        width: 100%;
+    }
+
+    .skeleton-line.large {
+        height: 28px;
+        width: 70%;
+    }
+
+    .skeleton-line.x-short {
+        height: 10px;
+        width: 40px;
+    }
+
+.sustainability-kpi-card.skeleton .sustainability-kpi-icon {
+    background: #2d2d2d !important;
+}
+
+.sustainability-forecast-card.skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.skeleton-table {
+    width: 100%;
+    padding: 20px;
+}
+
+.skeleton-table-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    gap: 16px;
+    padding: 16px 0;
+    margin-bottom: 16px;
+}
+
+.skeleton-table-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.skeleton-table-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    gap: 16px;
+    padding: 14px 0;
+}
+
+.skeleton-chart {
+    display: flex;
+    height: 300px;
+    gap: 20px;
+}
+
+.skeleton-chart-y-axis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-right: 10px;
+    border-right: 1px solid var(--sustainability-border);
+    min-width: 80px;
+}
+
+.skeleton-chart-bars {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 8px;
+    flex: 1;
+    padding-bottom: 30px;
+}
+
+.skeleton-bar {
+    background: linear-gradient(90deg, #2d2d2d 25%, #3a3a3a 50%, #2d2d2d 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 4px 4px 0 0;
+    width: 100%;
+    max-width: 40px;
+    min-height: 20px;
+}
+
+.skeleton-chart-x-axis {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+}
+
+.skeleton-composition,
+.skeleton-concentration {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.skeleton-composition-item,
+.skeleton-concentration-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+}
+
+.skeleton-bar-container {
+    flex: 1;
+    height: 20px;
+    background: var(--sustainability-bg-tertiary);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* SKELETON LOADING PARA NUEVOS COMPONENTES */
+.health-metric-card.skeleton {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.health-summary-item.skeleton {
+    background: transparent !important;
+    border-left: 4px solid transparent !important;
+}
+
+.sustainability-alert.skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sustainability-no-data {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--sustainability-text-secondary);
+    font-style: italic;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px dashed var(--sustainability-border);
+}
+
+/* RESPONSIVE MEJORADO */
+@media (max-width: 1400px) {
+    .sustainability-dashboard-content-container {
+        max-width: 95%;
+        padding: 15px;
+    }
+
+    .sustainability-main-container.expanded {
+        padding: 30px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .sustainability-main-layout {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .sustainability-main-kpis {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .sustainability-forecast-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .sustainability-header-controls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .sustainability-date-filters {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 768px) {
+    .sustainability-dashboard-content-container {
+        padding: 10px;
+    }
+
+    .sustainability-main-container.expanded {
+        padding: 20px;
+    }
+
+    .sustainability-dashboard-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .sustainability-main-kpis {
+        grid-template-columns: 1fr;
+    }
+
+    .sustainability-chart-container {
+        height: 300px;
+        padding: 15px;
+    }
+
+    .sustainability-date-filters {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .date-filter-group {
+        width: 100%;
+    }
+
+    .date-filter-input {
+        width: 100%;
+    }
+
+    .sustainability-section-header {
+        padding: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .sustainability-section-content {
+        padding: 20px;
+    }
+
+    .sustainability-forecast-table {
+        margin-top: 16px;
+    }
+
+    .table-header {
+        padding: 16px 20px;
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .sustainability-detail-table th,
+    .sustainability-detail-table td {
+        padding: 12px 8px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sustainability-header-title h1 {
+        font-size: 1.8rem;
+    }
+
+    .sustainability-kpi-value {
+        font-size: 24px;
+    }
+
+    .composition-item,
+    .concentration-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .composition-label,
+    .concentration-label {
+        width: 100%;
+    }
+
+    .composition-bar-container,
+    .concentration-bar-container {
+        width: 100%;
+    }
+
+    .health-metric-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+    }
+
+    .health-metric-icon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .sustainability-alert {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+    }
+}
+/* DashboardSostenibilidad.css - CORRECCIONES AMPLIADAS */
+
+/* CONTENEDOR PRINCIPAL CON MÁRGENES AMPLIADOS */
+.sustainability-dashboard-content-container {
+    max-width: 1800px; /* Ampliado de 1600px */
+    margin: 0 auto;
+    padding: 20px;
+    background: transparent;
+}
+
+/* CONTENEDOR PRINCIPAL EXPANDIDO */
+.sustainability-main-container.expanded {
+    background: var(--sustainability-bg-primary);
+    border-radius: 20px;
+    border: 1px solid var(--sustainability-border);
+    padding: 50px; /* Aumentado de 40px */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    margin: 0 auto;
+    min-width: 0; /* Previene desbordamiento */
+    overflow: hidden; /* Contiene elementos hijos */
+}
+
+/* HEADER PRINCIPAL CON MÁS ESPACIO */
+.sustainability-dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px; /* Aumentado */
+    padding-bottom: 25px; /* Aumentado */
+    border-bottom: 1px solid var(--sustainability-border);
+    flex-wrap: wrap; /* Permite wrap en pantallas pequeñas */
+    gap: 20px;
+}
+
+/* FILTROS DE FECHA - AHORA CON INPUT TYPE MONTH */
+.date-filter-input {
+    padding: 10px 12px;
+    border: 1px solid var(--sustainability-border);
+    border-radius: 8px;
+    background: var(--sustainability-bg-secondary);
+    color: var(--sustainability-text-primary);
+    font-size: 14px;
+    min-width: 160px; /* Un poco más ancho para mes/año */
+}
+
+/* LAYOUT PRINCIPAL CON SIDEBAR MÁS AMPLIO */
+.sustainability-main-layout {
+    display: grid;
+    grid-template-columns: 1fr 450px; /* Aumentado ancho del sidebar */
+    gap: 35px; /* Aumentado gap */
+    align-items: start;
+    min-width: 0; /* Previene desbordamiento */
+}
+
+.sustainability-main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 35px; /* Aumentado gap */
+    min-width: 0; /* Previene desbordamiento */
+}
+
+/* KPIs PRINCIPALES - AHORA 3 COLUMNAS */
+.sustainability-main-kpis {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Cambiado de 4 a 3 columnas */
+    gap: 25px; /* Aumentado gap */
+    margin-bottom: 30px;
+}
+
+/* TABLA CON MÁS ESPACIO Y SIN DESBORDAMIENTO */
+.table-container-wrapper {
+    max-height: 500px;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+.table-container {
+    overflow-x: auto;
+    max-height: 450px;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.sustainability-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--sustainability-bg-primary);
+    min-width: 1300px; /* Aumentado ancho mínimo */
+}
+
+/* CELDA PARA CUANDO NO HAY DATOS */
+.no-data-cell {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--sustainability-text-secondary);
+    font-style: italic;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* RESPONSIVE MEJORADO PARA PANTALLAS GRANDES */
+@media (min-width: 1600px) {
+    .sustainability-dashboard-content-container {
+        max-width: 95vw; /* Usa casi todo el ancho de la pantalla */
+    }
+
+    .sustainability-main-container.expanded {
+        padding: 60px; /* Aún más padding en pantallas grandes */
+    }
+}
+
+@media (max-width: 1400px) {
+    .sustainability-dashboard-content-container {
+        max-width: 98%;
+        padding: 15px;
+    }
+
+    .sustainability-main-container.expanded {
+        padding: 40px;
+    }
+
+    .sustainability-main-layout {
+        grid-template-columns: 1fr 400px;
+        gap: 30px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .sustainability-main-layout {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .sustainability-main-kpis {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .sustainability-main-kpis {
+        grid-template-columns: 1fr;
+    }
+
+    .sustainability-dashboard-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sustainability-header-controls {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .sustainability-date-filters {
+        justify-content: space-between;
+        width: 100%;
+    }
+}
+
+/* Agregar al CSS existente */
+
+.chart-info-note,
+.forecast-info-note {
+    text-align: center;
+    margin-top: 10px;
+    color: var(--sustainability-text-secondary);
+    font-size: 12px;
+}
+
+/* Mejorar el manejo de fechas en los inputs */
+.date-filter-input:focus {
+    outline: none;
+    border-color: var(--sustainability-primary);
+    box-shadow: 0 0 0 2px rgba(38, 183, 205, 0.1);
+}

@@ -226,7 +226,7 @@ public class QuotationRepository : IQuotationRepository
         var quoterQuotations = allQuotations.Where(q => q.UserId == quoterId).ToList();
         var totalQuotations = allQuotations.Count();
         if (totalQuotations == 0) return 0;
-        var successfulQuotations = quoterQuotations.Count(q => q.Status == "approved");
+        var successfulQuotations = quoterQuotations.Count(q => q.Status == "accepted");
         var rank = (int)((successfulQuotations / (double)totalQuotations) * 100);
         return rank;
     }
@@ -244,6 +244,28 @@ public class QuotationRepository : IQuotationRepository
         var retainedQuotations = await query.CountAsync(q => q.Status == "accepted");
         var retentionRate = (retainedQuotations / (decimal)totalQuotations) * 100;
         return retentionRate;
+    }
+
+    public async Task<IEnumerable<Quotation>> GetPendingQuotationsAsync()
+    {
+        return await _context.Quotations
+            .Include(q => q.Customer)
+            .Include(q => q.User)
+            .Include(q => q.WorkPlace)
+            .Where(q => q.Status.ToLower() == "pending")
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Quotation>> GetApprovedQuotationsInPeriodAsync(DateTime fromDate, DateTime toDate)
+    {
+        return await _context.Quotations
+            .Include(q => q.Customer)
+            .Include(q => q.User)
+            .Include(q => q.WorkPlace)
+            .Where(q => q.Status.ToLower() == "approved" &&
+                       q.CreationDate >= fromDate &&
+                       q.CreationDate <= toDate)
+            .ToListAsync();
     }
 
 }
