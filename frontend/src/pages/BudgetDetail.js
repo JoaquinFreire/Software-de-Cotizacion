@@ -923,6 +923,19 @@ const BudgetDetail = () => {
     }
   };
 
+  // Nuevo helper: traduce estados en inglés a español para el dropdown
+  const translateStatus = (s) => {
+    if (!s) return '';
+    const key = String(s).toLowerCase();
+    switch (key) {
+      case 'pending': return 'Pendiente';
+      case 'rejected': return 'Rechazado';
+      case 'finished': return 'Finalizado';
+      case 'approved': return 'Aprobado';
+      default: return s; // deja el original si no se mapea
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -968,7 +981,8 @@ const BudgetDetail = () => {
               {versions.map((v, idx) => {
                 const ver = v?.version ?? v?.Version ?? `#${idx + 1}`;
                 const cd = v?.creationDate ?? v?.CreationDate ?? v?.file_date ?? null;
-                const status = v?.status ?? v?.Status ?? '';
+                const rawStatus = v?.status ?? v?.Status ?? '';
+                const status = translateStatus(rawStatus);
                 const labelDate = cd ? ` - ${new Date(cd).toLocaleDateString()}` : '';
                 return <option key={idx} value={idx}>{`v${ver || '?'} ${status ? `(${status})` : ''}${labelDate}`}</option>;
               })}
