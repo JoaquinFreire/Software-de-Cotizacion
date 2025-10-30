@@ -18,6 +18,8 @@ import 'primereact/resources/primereact.min.css';         // PrimeReact core css
 import 'primeicons/primeicons.css';                       // PrimeIcons
 import { safeArray } from '../utils/safeArray'; // agrega este import
 import { Filter, X, Search, RotateCcw, ArrowUpDown, Calendar as CalendarIcon, DollarSign, User } from 'lucide-react';
+import ReactLoading from 'react-loading';
+
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -69,6 +71,10 @@ const Historial = () => {
     // Estados para ordenamiento (ahora solo para el filtro)
     const [orderField, setOrderField] = useState('');
     const [orderDirection, setOrderDirection] = useState('desc');
+    const [isApplyingFilters, setIsApplyingFilters] = useState(false); // ⬅️ Spinner para "Aplicar Filtros"
+    // Spinner para cuando se cambia el estado de una cotización
+    const [isChangingStatus, setIsChangingStatus] = useState(false);
+
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -222,6 +228,7 @@ const Historial = () => {
     };  
     const handleStatusChange = async (id, newStatus, comment = null) => {
         const token = localStorage.getItem("token");
+        setIsChangingStatus(true);
         try {
             console.log(`Changing status of quotation ${id} to ${newStatus} (comment: ${comment})`);
 
@@ -245,6 +252,9 @@ const Historial = () => {
             setTimeout(() => setSuccessMessage(""), 3000);
         } catch (error) {
             console.error("Error updating quotation status:", error);
+            toast.error("Error al actualizar el estado de la cotización.");
+        } finally {
+            setIsChangingStatus(false);
         }
     };
 
@@ -259,6 +269,7 @@ const Historial = () => {
 
     const fetchFilteredQuotations = async (page = 1) => {
         setIsFiltering(true);
+        setIsApplyingFilters(true);
         const token = localStorage.getItem("token");
         let params = { ...filters, page, pageSize };
         // Remove empty values
@@ -285,7 +296,9 @@ const Historial = () => {
         } catch (err) {
             setFilterResults([]);
             setFilterTotal(0);
-        }
+        }finally {
+            setIsApplyingFilters(false);
+        } 
     };
 
     const handleFilterSubmit = (e) => {
@@ -335,6 +348,7 @@ const Historial = () => {
 
     return (
         <div className="dashboard-container">
+			
             <Navigation onLogout={handleLogout} />
             
             <div className="materials-header">
@@ -505,14 +519,22 @@ const Historial = () => {
                         </div>
 
                         <div className="filters-actions">
-                            <button type="submit" className="btn-primary">
-                                <Search size={16} />
-                                Aplicar Filtros
-                            </button>
-                            <button 
-                                type="button" 
+                            {isApplyingFilters ? (
+                                <div className="spinner-container" style={{display: 'flex', alignItems: 'center', gap: 12}}>
+                                    <ReactLoading type="spin" color="#26b7cd" height={24} width={24}/>
+                                    <div style={{fontSize: 14, color: '#26b7cd'}}>Aplicando filtros...</div>
+                                </div>
+                            ) : (
+                                <button type="submit" className="btn-primary" disabled={isApplyingFilters}>
+                                    <Search size={16} />
+                                    Aplicar Filtros
+                                </button>
+                            )}
+                            <button
+                                type="button"
                                 onClick={handleClearFilters}
                                 className="btn-secondary"
+                                disabled={isApplyingFilters}
                             >
                                 <RotateCcw size={16} />
                                 Limpiar

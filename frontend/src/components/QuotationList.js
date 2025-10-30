@@ -13,6 +13,8 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
   const [rejectReason, setRejectReason] = useState("");
   const [quotationToReject, setQuotationToReject] = useState(null);
   const [pendingStatus, setPendingStatus] = useState(null);
+  // id de cotización que está cambiando estado (muestra "Actualizando..." en el select)
+  const [changingId, setChangingId] = useState(null);
 
   const handleShowModal = (id) => {
     setQuotationToDelete(id);
@@ -29,14 +31,24 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
     onDeleteSuccess();
   };
 
-  const handleStatusChange = (id, newStatus) => {
+  const handleStatusChange = async (id, newStatus) => {
     if (newStatus === "rejected") {
       setQuotationToReject(id);
       setPendingStatus(newStatus);
       setRejectReason("");
       setShowRejectModal(true);
-    } else {
-      onStatusChange(id, newStatus);
+      return;
+    }
+
+    // mostrar indicador local en el select
+    setChangingId(id);
+    try {
+      // esperar a que el padre complete la petición
+      await onStatusChange(id, newStatus);
+    } catch (err) {
+      // el padre ya muestra toast; opcional: manejar errores locales si hace falta
+    } finally {
+      setChangingId(null);
     }
   };
 
@@ -85,16 +97,38 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
             <button className="go-button" onClick={() => navigate(`/quotation/${quotation.Id}`)}>Ver Detalles</button>
             <button className="update-button" onClick={() => navigate(`/update-quotation/${quotation.Id}`)}>Actualizar</button>
             <button className="delete-button" onClick={() => handleShowModal(quotation.Id)}>Eliminar</button>
-            <select
-              className="status-select"
-              value={quotation.Status}
-              onChange={(e) => handleStatusChange(quotation.Id, e.target.value)}
-            >
-              <option className="dropdown" value="pending">Pendientes</option>
-              <option className="dropdown" value="approved">Aprobados</option>
-              <option className="dropdown" value="rejected">Rechazado</option>
-              <option className="dropdown" value="finished">Finalizado</option>
-            </select>
+            {/* Cuando changingId === quotation.Id mostramos un único option "Actualizando..." */}
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+              <select
+                className="status-select"
+                value={changingId === quotation.Id ? "updating" : quotation.Status}
+                onChange={(e) => handleStatusChange(quotation.Id, e.target.value)}
+                disabled={changingId === quotation.Id}
+              >
+                {changingId === quotation.Id ? (
+                  <option value="updating">Actualizando...</option>
+                ) : (
+                  <>
+                    <option className="dropdown" value="pending">Pendientes</option>
+                    <option className="dropdown" value="approved">Aprobados</option>
+                    <option className="dropdown" value="rejected">Rechazado</option>
+                    <option className="dropdown" value="finished">Finalizado</option>
+                  </>
+                )}
+              </select>
+              {/* Pequeño spinner superpuesto a la derecha dentro del contenedor del select */}
+              {changingId === quotation.Id && (
+                <div style={{
+                  position: 'absolute',
+                  right: 8,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  pointerEvents: 'none',
+                }}>
+                  <ReactLoading type="spin" color="#26b7cd" height={16} width={16} />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       ))}

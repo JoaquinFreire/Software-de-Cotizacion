@@ -501,7 +501,7 @@ const Complements = ({
                 {rows.map((row, idx) => {
                     const complement = getComplementById(row.type, row.complementId);
                     return (
-                        <div key={idx} className="complement-row" style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 18, border: '0.2px solid #26b7cd', padding: 8, borderRadius: 6 }}>
+                        <div key={idx} >
                             <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                                 {/* Tipo de complemento */}
                                 <select
@@ -646,7 +646,7 @@ const Complements = ({
                                             onClick={() => handleCreateComplement(idx)}
                                             disabled={!!validateRow(row)}
                                         >
-                                            Crear complemento
+                                            Cargar complemento
                                         </button>
                                         {touchedRows[idx] && errors[idx] && (
                                             <span className="error-message" style={{ marginLeft: 12 }}>{errors[idx]}</span>
@@ -734,7 +734,7 @@ const Complements = ({
                                             onClick={() => handleCreateComplement(idx)}
                                             disabled={!!validateRow(row)}
                                         >
-                                            Crear complemento
+                                            Cargar complemento
                                         </button>
                                         {touchedRows[idx] && errors[idx] && (
                                             <span className="error-message" style={{ marginLeft: 12 }}>{errors[idx]}</span>
@@ -799,7 +799,7 @@ const Complements = ({
                                             onClick={() => handleCreateComplement(idx)}
                                             disabled={!!validateRow(row)}
                                         >
-                                            Crear complemento
+                                            Cargar complemento
                                         </button>
                                         {touchedRows[idx] && errors[idx] && (
                                             <span className="error-message" style={{ marginLeft: 12 }}>{errors[idx]}</span>
@@ -815,12 +815,13 @@ const Complements = ({
                         </div>
                     );
                 })}
-                <button type="button" className="botton-carusel" onClick={handleAddRow}>
-                    Agregar complemento
-                </button>
+                
             </div>
                
-        </div>        
+        </div>     
+        <button type="button" className="botton-carusel" onClick={handleAddRow}>
+                    Agregar complemento
+                </button>   
          </div>
      
         

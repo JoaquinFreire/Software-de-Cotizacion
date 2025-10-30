@@ -151,6 +151,9 @@ body.light-mode .opening-size {
     margin-bottom: 18px;
     font-size: 24px;
 }
+body.light-mode .modal-title{
+    color: #000;
+}
 
 .modal-label {
     display: flex;
@@ -159,7 +162,9 @@ body.light-mode .opening-size {
     font-size: 16px;
     margin-bottom: 10px;
 }
-
+body.light-mode .modal-label{
+    color: #000;
+}
 .modal-input {
     margin-top: 5px;
     padding: 7px 10px;
@@ -168,6 +173,11 @@ body.light-mode .opening-size {
     background: #111b1d;
     color: #fff;
     font-size: 15px;
+}
+body.light-mode .modal-input {
+    background: #f0f0f0;
+    color: #000;
+    border: 1px solid #1c8f97;
 }
 
 .modal-actions {
