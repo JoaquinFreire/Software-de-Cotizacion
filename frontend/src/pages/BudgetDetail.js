@@ -34,6 +34,8 @@ const BudgetDetail = () => {
   const { id } = useParams();
   const [budget, setBudget] = useState(null);
   const [sanitizedBudget, setSanitizedBudget] = useState(null);
+  const [versions, setVersions] = useState([]); // <-- lista de versiones (raw o saneadas)
+  const [selectedVersionIndex, setSelectedVersionIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [mailLoading, setMailLoading] = useState(false);
@@ -108,28 +110,51 @@ const BudgetDetail = () => {
   };
 
   useEffect(() => {
-    const fetchBudget = async () => {
+    const fetchVersions = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`${API_URL}/api/Mongo/GetBudgetByBudgetId/${id}`, {
+        const res = await axios.get(`${API_URL}/api/Mongo/GetBudgetVersions/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        // console.log('Fetched versions:', res.data);
 
-        // Sanitizar inmediatamente
-        const cleaned = deepSanitize(res.data);
+        // Soportar respuesta directa array o objeto con $values (serialización de .NET)
+        const rawList = Array.isArray(res.data)
+          ? res.data
+          : (res.data && Array.isArray(res.data.$values) ? res.data.$values : []);
 
-        setBudget(res.data);
-        setSanitizedBudget(cleaned);
+        setVersions(rawList);
 
+        // Seleccionar la primera (última versión) por defecto
+        const first = rawList[0] ?? null;
+        if (first) {
+          setBudget(first); // para funciones que usan 'budget' (ej. WhatsApp)
+          setSanitizedBudget(deepSanitize(first));
+          setSelectedVersionIndex(0);
+        } else {
+          setBudget(null);
+          setSanitizedBudget(null);
+        }
       } catch (error) {
-        console.error('Error fetching budget:', error);
+        console.error('Error fetching budget versions:', error);
         setBudget(null);
         setSanitizedBudget(null);
+        setVersions([]);
       }
       setLoading(false);
     };
-    fetchBudget();
+    fetchVersions();
   }, [id]);
+
+  // Handler cuando el usuario cambia la versión seleccionada
+  const handleVersionChange = (e) => {
+    const idx = parseInt(e.target.value, 10);
+    if (isNaN(idx) || !versions[idx]) return;
+    const selected = versions[idx];
+    setSelectedVersionIndex(idx);
+    setBudget(selected);
+    setSanitizedBudget(deepSanitize(selected));
+  };
 
   const show = (val) => val !== undefined && val !== null && val !== "" ? val : "No especificado";
 
@@ -903,32 +928,52 @@ const BudgetDetail = () => {
       <Navbar />
       <div className="content-bottom">
         <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
-        <div className="only-screen">
-          <button
-            className="reporte-cotizaciones-btn-pdf btn-with-spinner"
-            onClick={handleDescargarPDF}
-            disabled={pdfLoading || !budget}
-          >
-            {pdfLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Descargar PDF"}
-          </button>
-        </div>
-        <div className="only-screen">
-          <button
-            className="reporte-cotizaciones-btn-email btn-with-spinner"
-            onClick={handleEnviarEmailJS}
-            disabled={mailLoading || !budget}
-          >
-            {mailLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Enviar por Email"}
-          </button>
-        </div>
-        <div className="only-screen">
-          <button
-            className="reporte-cotizaciones-btn-whatsapp btn-with-spinner"
-            onClick={handleEnviarWhatsApp}
-            disabled={whatsAppLoading || !budget}
-          >
-            {whatsAppLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Enviar por WhatsApp"}
-          </button>
+
+        {/* Contenedor único que agrupa botones y select para evitar que se desplacen */}
+        <div className="controls-wrapper">
+          <div className="button-group">
+            <button
+              className="reporte-cotizaciones-btn-pdf btn-with-spinner"
+              onClick={handleDescargarPDF}
+              disabled={pdfLoading || !sanitizedBudget}
+            >
+              {pdfLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Descargar PDF"}
+            </button>
+
+            <button
+              className="reporte-cotizaciones-btn-email btn-with-spinner"
+              onClick={handleEnviarEmailJS}
+              disabled={mailLoading || !budget}
+            >
+              {mailLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Enviar por Email"}
+            </button>
+
+            <button
+              className="reporte-cotizaciones-btn-whatsapp btn-with-spinner"
+              onClick={handleEnviarWhatsApp}
+              disabled={whatsAppLoading || !budget}
+            >
+              {whatsAppLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Enviar por WhatsApp"}
+            </button>
+          </div>
+
+          <div className="version-select">
+            <label className="version-label">Versión</label>
+            <select
+              value={selectedVersionIndex}
+              onChange={handleVersionChange}
+              disabled={loading || versions.length === 0}
+              className="version-select-input"
+            >
+              {versions.map((v, idx) => {
+                const ver = v?.version ?? v?.Version ?? `#${idx + 1}`;
+                const cd = v?.creationDate ?? v?.CreationDate ?? v?.file_date ?? null;
+                const status = v?.status ?? v?.Status ?? '';
+                const labelDate = cd ? ` - ${new Date(cd).toLocaleDateString()}` : '';
+                return <option key={idx} value={idx}>{`v${ver || '?'} ${status ? `(${status})` : ''}${labelDate}`}</option>;
+              })}
+            </select>
+          </div>
         </div>
       </div>
 
