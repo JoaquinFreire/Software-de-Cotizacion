@@ -1,18 +1,4 @@
-.materials-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    background: linear-gradient(135deg, #26b7cd, #2dd4bf);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
 
-.materials-subtitle {
-    font-size: 1.1rem;
-    color: #94a3b8;
-    margin: 0 auto;
-}
 
 /* Layout principal mejorado */
 .quotation-layout {
@@ -351,7 +337,7 @@ body.light-mode .form-group textarea {
 
 body.light-mode .botton-carusel {
     background: #d6f1f8;
-    color: #706969;
+    color: #242222;
     border: 1px solid #26b7cd;
     cursor: pointer;
 }
@@ -362,19 +348,7 @@ body.light-mode .botton-carusel:hover {
     transform: scale(1.05);
 }
 
-.botton-DNI {
-    background: rgba(37, 37, 37, 0.8);
-    border: 1px solid #26b7cd;
-    padding: 10px 20px;
-    border-radius: 6px;
-    color: white;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-    text-align: center;
-    margin: 5px auto;
-    display: block;
-    width: fit-content;
-}
+
 
 .summary-section-title {
     margin-bottom: 10px;
@@ -384,6 +358,10 @@ body.light-mode .botton-carusel:hover {
     border-radius: 6px;
     padding: 8px;
     background: rgba(38, 183, 205, 0.1);
+}
+
+body.light-mode .summary-section-title {
+    color: #000000;
 }
 
 .customer-details {
@@ -486,12 +464,16 @@ input::placeholder, select::placeholder {
 }
 
 .complements-container {
-    background: #111b1d;
-    padding: 20px;
-    border-radius: 6px;
-    color: white;
-    margin-top: 15px;
+    
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    border: 0.2px solid #26b7cd;
+    padding: 8px;
+    border-Radius: 6px ;
+    margin-top: 10px;
 }
+
 
 .complements-list {
     list-style: none;
@@ -748,6 +730,11 @@ body.light-mode .quotation-summary h3 {
     border-radius: 6px;
 }
 
+body.light-mode .opening-preview-box {
+    background: #f0f8fb;
+    border: 1px solid #26b7cd;
+}
+
 .opening-preview-title {
     margin: 0 0 8px 0;
     color: #26b7cd;
@@ -760,6 +747,16 @@ body.light-mode .quotation-summary h3 {
     display: inline-block;
 }
 
+body.light-mode .opening-preview-svg-dark {
+    background: #d1d5db;
+}
+
+.opening-preview-text {
+   display: flex;
+   gap: 12;
+   align-items: center;
+   flex-direction: column;
+}
 .opening-preview-container {
     display: flex;
     gap: 12px;
@@ -788,10 +785,18 @@ body.light-mode .quotation-summary h3 {
     color: #dff6f9;
     font-size: 13px;
 }
+body.light-mode .opening-preview-size,
+body.light-mode .opening-preview-count {    
+    color: #333333;
+}
+
 
 .measure-row {
     color: #dff6f9;
     margin-bottom: 6px;
+}
+body.light-mode .measure-row {
+    color: #333333;
 }
 
 .measure-value {
@@ -837,10 +842,12 @@ body.light-mode .customer-details {
 }
 
 body.light-mode .form-group label,
-body.light-mode .workplace-container h3,
-body.light-mode .agent-container h3,
 body.light-mode .customer-details h4 {
     color: #26b7cd;
+}
+
+body.light-mode .agent-container h3,body.light-mode .workplace-container h3{
+    color: #000000;
 }
 
 body.light-mode input::placeholder,
@@ -850,9 +857,7 @@ body.light-mode select::placeholder {
 
 body.light-mode input,
 body.light-mode select {
-    background: #f8fafc;
     color: #000000;
-    border: 1px solid #e2e8f0;
 }
 
 body.light-mode .submit-button,
@@ -930,6 +935,11 @@ body.light-mode .remove-complement-button:hover {
     border-radius: 4px;
 }
 
+body.light-mode .agent-suggestion-row,
+body.light-mode .agent-selected-row {
+    background: #daeff7;
+}
+
 .remove-agent-btn {
     background: #ef4444;
     color: #fff;
@@ -989,7 +999,7 @@ body.light-mode .remove-complement-button:hover {
 .agent-found {
     margin: 12px 0;
     padding: 12px;
-    background: rgba(38, 183, 205, 0.1);
+    background: rgba(59, 83, 87, 0.1);
     border-radius: 6px;
     border: 1px solid #26b7cd;
 }
@@ -1040,16 +1050,22 @@ body.light-mode .remove-complement-button:hover {
     border-radius: 8px;
     border: 1px solid #08192b;
 }
+body.light-mode .general-total-container {
+    background: #d6f1f8;
+    border: 1px solid #26b7cd;
+}
 
 .general-total-container .summary-section-title {
-    color: #ebebeb;
+    color: #8f8e8e;
     margin-bottom: 12px;
     background: transparent;
     border: none;
     justify-content: flex-start;
     padding: 0;
 }
-
+body.light-mode .general-total-container .summary-section-title{
+    color: #000000;
+}
 .total-row {
     display: flex;
     justify-content: space-between;
@@ -1058,6 +1074,9 @@ body.light-mode .remove-complement-button:hover {
 .total-row span {
     font-size: 14px;
     color: #e4e0e0;
+}
+body.light-mode .total-row span {
+    color: #000000;
 }
 
 .subtotal-general {

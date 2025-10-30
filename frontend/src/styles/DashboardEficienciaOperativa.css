@@ -112,15 +112,7 @@ body.dark-mode {
     transition: all 0.3s ease;
 }
 
-.btn-primary {
-    background: #1a76d2;
-    color: white;
-}
 
-.btn-secondary {
-    background: #1a76d2;
-    color: white;
-}
 
 .btn-outline {
     background: transparent;
@@ -128,15 +120,8 @@ body.dark-mode {
     color: var(--text-secondary);
 }
 
-.btn-primary:hover {
-    background: var(--primary-dark);
-    transform: translateY(-2px);
-}
 
-.btn-secondary:hover {
-    background: var(--secondary-dark);
-    transform: translateY(-2px);
-}
+
 
 .btn-outline:hover {
     border-color: var(--primary-color);

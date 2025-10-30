@@ -180,10 +180,10 @@ export default function AdminPrices() {
 					<>
 						<div className="prices-table">
 							<div className="prices-header">
-								<div className="col name">Nombre</div>
-								<div className="col price">Precio</div>
-								<div className="col ref">Referencia</div>
-								<div className="col actions">Acciones</div>
+								<div className="col-name-h3">Nombre</div>
+								<div className="col-price-h3">Precio</div>
+								<div className="col-ref-h3">Referencia</div>
+								<div className="col-actions-h3">Acciones</div>
 							</div>
 
 							<div className="prices-body">

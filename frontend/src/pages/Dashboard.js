@@ -15,6 +15,7 @@ import { Calendar } from 'primereact/calendar';
 import { addLocale } from 'primereact/api';
 import { safeArray } from '../utils/safeArray';
 import { Filter, X, Search, RotateCcw } from 'lucide-react';
+import ReactLoading from 'react-loading';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -75,6 +76,10 @@ const Dashboard = () => {
     const [currentUser, setCurrentUser] = useState(null);
     const [currentRole, setCurrentRole] = useState(null);
     const [quotators, setQuotators] = useState([]);
+    const [isLoading, setIsLoading] = useState(false); // ⬅️ Login spinner
+    const [isApplyingFilters, setIsApplyingFilters] = useState(false); // ⬅️ Spinner para "Aplicar Filtros"
+    // Spinner para cuando se cambia el estado de una cotización
+    const [isChangingStatus, setIsChangingStatus] = useState(false);
 
     // Estados para ordenamiento
     const [sortConfig, setSortConfig] = useState({
@@ -223,6 +228,7 @@ const Dashboard = () => {
 
     const handleStatusChange = async (id, newStatus, comment = null) => {
         const token = localStorage.getItem("token");
+        setIsChangingStatus(true);
         try {
             // Mapear los estados lowercase del frontend a los nombres del enum en backend
             const mapStatus = {
@@ -242,11 +248,15 @@ const Dashboard = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
+            // refrescar datos en la página (mantener comportamiento actual)
             goToDashboardPage(page);
             toast.success("Estado de la cotización actualizado con éxito.");
         } catch (error) {
             console.error("Error updating quotation status:", error);
             toast.error("Error al actualizar el estado de la cotización.");
+        } finally {
+            // quitar spinner cuando termine la operación
+            setIsChangingStatus(false);
         }
     };
 
@@ -261,6 +271,7 @@ const Dashboard = () => {
 
     const fetchFilteredQuotations = async (page = 1) => {
         setIsFiltering(true);
+        setIsApplyingFilters(true);
         const token = localStorage.getItem("token");
         let params = { ...filters, page, pageSize, status: "pending" };
         Object.keys(params).forEach(k => {
@@ -285,6 +296,8 @@ const Dashboard = () => {
         } catch (err) {
             setFilterResults([]);
             setFilterTotal(0);
+        } finally {
+            setIsApplyingFilters(false);
         }
     };
 
@@ -501,14 +514,22 @@ const Dashboard = () => {
                             </select>
                         </div>
                         <div className="filters-actions">
-                            <button type="submit" className="btn-primary">
-                                <Search size={16} />
-                                Aplicar Filtros
-                            </button>
+                            {isApplyingFilters ? (
+                                <div className="spinner-container" style={{display: 'flex', alignItems: 'center', gap: 12}}>
+                                    <ReactLoading type="spin" color="#26b7cd" height={24} width={24}/>
+                                    <div style={{fontSize: 14, color: '#26b7cd'}}>Aplicando filtros...</div>
+                                </div>
+                            ) : (
+                                <button type="submit" className="btn-primary" disabled={isApplyingFilters}>
+                                    <Search size={16} />
+                                    Aplicar Filtros
+                                </button>
+                            )}
                             <button
                                 type="button"
                                 onClick={handleClearFilters}
                                 className="btn-secondary"
+                                disabled={isApplyingFilters}
                             >
                                 <RotateCcw size={16} />
                                 Limpiar

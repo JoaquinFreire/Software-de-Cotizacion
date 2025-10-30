@@ -109,7 +109,7 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {}, isCustomerFound, s
                 {isCustomerFound && (
                     <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                         <button
-                            className="botton-DNI"
+                            className="botton-carusel"
                             onClick={() => {
                                 setIsCustomerFound(false);
                                 setNewCustomer({ name: '', lastname: '', tel: '', mail: '', address: '', dni: '' });
@@ -119,7 +119,7 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {}, isCustomerFound, s
                         </button>
                         <button
                             type="button"
-                            className="botton-DNI"
+                            className="botton-carusel"
                             onClick={() => onAddClientToSummary && onAddClientToSummary()}
                             title="Agregar cliente al resumen"
                         >
@@ -204,7 +204,7 @@ const Customer = ({ newCustomer, setNewCustomer, errors = {}, isCustomerFound, s
                     <div className="form-group">
                     <button
                             type="button"
-                            className="botton-DNI"
+                            className="botton-carusel"
                             onClick={() => onAddClientToSummary && onAddClientToSummary()}
                             title="Agregar cliente al resumen"
                         >

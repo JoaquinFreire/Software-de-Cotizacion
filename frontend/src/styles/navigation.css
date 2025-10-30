@@ -435,6 +435,9 @@ body.light-mode .sidebar-admin-dropdown .sidebar-link {
 body {
   background-color: #111;;
 }
+body.light-mode {
+  background-color: #f0f0f0;
+}
 
 .sidebar-link {
     color: #fff;

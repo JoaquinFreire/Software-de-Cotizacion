@@ -5,15 +5,7 @@
     padding: 0 2rem;
 }
 
-.materials-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    background: linear-gradient(135deg, #26b7cd, #2dd4bf);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
+
 body.light-mode .materials-title {
     background: linear-gradient(135deg, #1c1e1f, #585f5d);
     -webkit-background-clip: text;
@@ -24,13 +16,6 @@ body.light-mode .materials-subtitle {
     color: #55585f;
 }
 
-.materials-subtitle {
-    font-size: 1.1rem;
-    color: #9fa5ac;
-    max-width: 600px;
-    margin: 0 auto;
-    line-height: 1.6;
-}
 
 .materials-grid {
     display: grid;
