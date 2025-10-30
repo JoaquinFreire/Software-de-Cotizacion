@@ -106,7 +106,7 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
                 disabled={changingId === quotation.Id}
               >
                 {changingId === quotation.Id ? (
-                  <option value="updating">Actualizando...</option>
+                  <option value="updating">Actualizando</option>
                 ) : (
                   <>
                     <option className="dropdown" value="pending">Pendientes</option>
@@ -116,18 +116,8 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
                   </>
                 )}
               </select>
-              {/* Pequeño spinner superpuesto a la derecha dentro del contenedor del select */}
-              {changingId === quotation.Id && (
-                <div style={{
-                  position: 'absolute',
-                  right: 8,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  pointerEvents: 'none',
-                }}>
-                  <ReactLoading type="spin" color="#26b7cd" height={16} width={16} />
-                </div>
-              )}
+              
+           
             </div>
           </div>
         </div>
