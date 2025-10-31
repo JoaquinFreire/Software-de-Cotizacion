@@ -293,3 +293,19 @@ body.light-mode  .pdf-background {
   justify-content: center !important;
   align-items: center !important;
 }
+
+.pdf-complements {
+  margin-top: 12px;
+}
+
+.pdf-complement-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.pdf-complement-table td,
+.pdf-complement-table th {
+  border-bottom: 1px solid #e6e6e6;
+  padding: 8px 6px;
+}
