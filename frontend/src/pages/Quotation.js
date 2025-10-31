@@ -750,12 +750,41 @@ const Quotation = () => {
             console.log("Payload enviado a Mongo:", JSON.stringify(mongoPayload, null, 2));
 
             // 2. POST a Mongo (usa la ruta correcta)
-            await axios.post(`${API_URL}/api/Mongo/CreateBudget`, mongoPayload, {
+            const mongoRes = await axios.post(`${API_URL}/api/Mongo/CreateBudget`, mongoPayload, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 }
             });
+
+            // Obtener Total calculado en Mongo y actualizar SQL.total_price
+            try {
+                // GET desde Mongo para recuperar la versión calculada (el controlador devuelve DTO con Total)
+                const getBudgetRes = await axios.get(`${API_URL}/api/Mongo/GetBudgetByBudgetId/${sqlId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const mongoBudget = getBudgetRes.data;
+                // propiedades esperadas: Total (decimal) — fallback por nombres alternativos por si acaso
+                const totalFromMongo = mongoBudget?.Total ?? mongoBudget?.total ?? mongoBudget?.TotalPrice ?? null;
+                if (totalFromMongo !== null && totalFromMongo !== undefined) {
+                    // Actualizar SQL para que total_price coincida con el Total calculado por backend (Mongo)
+                    try {
+                        await axios.put(`${API_URL}/api/quotations/${sqlId}/total`, { totalPrice: Number(totalFromMongo) }, {
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${token}`
+                            }
+                        });
+                        console.log(`SQL total_price actualizado con valor desde Mongo: ${totalFromMongo}`);
+                    } catch (upErr) {
+                        console.warn('No se pudo actualizar total_price en SQL:', upErr);
+                    }
+                } else {
+                    console.warn('No se obtuvo Total desde Mongo para sincronizar con SQL.');
+                }
+            } catch (errGet) {
+                console.warn('No se pudo leer la cotización desde Mongo para obtener Total:', errGet);
+            }
 
             // Actualizar cotizaciones en el contexto si quieres
             if (response && response.data) {
