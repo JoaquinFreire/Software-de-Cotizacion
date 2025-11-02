@@ -96,7 +96,7 @@ body.light-mode .create-user-button {
 }
 
 body.light-mode .users-table {
-    background: #000000;
+    background: #2c2c2c;
 }
 
 .users-table th, .users-table td {
@@ -114,7 +114,7 @@ body.light-mode .users-table {
 }
 body.light-mode .users-table th {
     background: #86d0d3;
-    color: #000000;
+    color: #0f0f0f;
 }
 
 /* Línea divisoria clara entre usuarios */
@@ -123,7 +123,7 @@ body.light-mode .users-table th {
     transition: background-color 0.2s ease-in-out;
 }
 body.light-mode .users-table tbody tr {
-    border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+    border-bottom: 2px solid rgba(41, 40, 40, 0.08);
 }
 
 /* Efecto hover en filas */
@@ -148,12 +148,12 @@ body.light-mode .users-table td {
 
 /* Estado visual */
 .status-active {
-    color: #26b7cd;
+    color: #1b95a8;
     font-weight: 600;
 }
 
 .status-inactive {
-    color: #ff6b6b;
+    color: #f85a5a;
     font-weight: 600;
 }
 
@@ -183,7 +183,7 @@ body.light-mode .users-table td {
 /* Editar mantiene su estilo, pero ajustamos tamaño si es necesario */
 .edit-button {
     background: transparent;
-    color: #0b94b6;
+    color: #014e61;
     border: 1px solid #0c85a3;
 }
 .edit-button:hover {
@@ -210,13 +210,13 @@ body.light-mode .users-table td {
 .status-button.deactivate-button {
     background: transparent;
     border: 1.5px solid #e55b5b; /* borde rojo en oscuro */
-    color: #e55b5b;
+    color: #eb2e2e;
 }
 
 
 .details-button {
     background: transparent;
-    color: #c2c95f;
+    color: #96a00a;
     border: 1px solid #c2c95f;
 }
 
@@ -228,12 +228,12 @@ body.light-mode .users-table td {
 /* Invite button: mantener estilo pero permitir spinner y estado disabled */
 .invite-button {
     background: transparent;
-    color: #52d479;
+    color: #05a034;
     border: 1px solid #52d479;
     padding: 7px 12px;
 }
 .invite-button:hover {
-    background: #198f58;
+    background: #087542;
     color: #ffffff;
 }
 

@@ -7,8 +7,9 @@ using Application.DTOs.UserDTOs.UpdateUserStatus;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;// Para AppDbContext
+using System.Security.Claims;
+using System.Text.RegularExpressions;
 
-//TODO: Eliminar referencia  a la capa de dominio
 [ApiController]
 [Route("api/users")]
 [Authorize]
@@ -60,6 +61,51 @@ public class UserController : ControllerBase
     {
         var command = await _mediator.Send(new UpdateUserCommand { Id = id, userDTO = updatedUser });
         return NoContent();
+    }
+
+    // Permite que el usuario actual actualice su propio perfil (solo campos permitidos: mail)
+    [HttpPut("me")]
+    public async Task<IActionResult> UpdateMe([FromBody] UpdateMeDTO dto, [FromServices] AppDbContext context)
+    {
+        // Obtener user id desde el token
+        var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                      ?? User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+        if (!int.TryParse(idClaim, out var userId))
+            return Forbid();
+
+        var user = await context.Users.FindAsync(userId);
+        if (user == null) return NotFound();
+
+        // Validación mínima del email (si se envía)
+        if (dto?.mail != null)
+        {
+            var email = dto.mail.Trim();
+            if (!Regex.IsMatch(email, @"^[^\s@]+@[^\s@]+\.[^\s@]+$"))
+            {
+                // Devolver estructura compatible con ProblemDetails.errors para mostrar en frontend
+                return BadRequest(new
+                {
+                    type = "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+                    title = "One or more validation errors occurred.",
+                    status = 400,
+                    errors = new { mail = new[] { "El email tiene un formato inválido." } }
+                });
+            }
+            user.mail = email;
+        }
+        else
+        {
+            return BadRequest(new { message = "No hay campos para actualizar." });
+        }
+
+        await context.SaveChangesAsync();
+        return NoContent();
+    }
+
+    // DTO del endpoint UpdateMe — debe ser público para que la firma del método público sea consistente
+    public class UpdateMeDTO
+    {
+        public string? mail { get; set; }
     }
 
     [HttpPut("{id}/status")]

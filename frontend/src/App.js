@@ -41,7 +41,7 @@ import Accesories from './pages/openings/Accesories';
 import TypeLine from './pages/openings/TypeLine';
 import Complement from './pages/openings/Complement';
 import AnalisisSatisfaccionCliente from './pages/reportes/AnalisisSatisfaccionCliente';
-import ConfigCliente from './components/ConfigCliente';
+import ConfigUser from './components/ConfigUser';
 import ClienteConMayorVolumen from './pages/reportes/ClienteConMayorVolumen';
 // nuevos imports: páginas separadas de admin/materiales
 import AdminTreatment from "./pages/admin/materiales/AdminTreatment";
@@ -225,7 +225,7 @@ function App() {
                         <Route path="/materials/coating" element={<PrivateRoute element={<Coating />} />} />
                         <Route path="/materials/aluminumTreatment" element={<PrivateRoute element={<AluminumTreatment />} />} />
                         <Route path="/materials/typeglass" element={<PrivateRoute element={<TypeGlass />} />} />
-                        <Route path="/config-cliente" element={<PrivateRoute element={<ConfigCliente />} />} />
+                        <Route path="/config-user" element={<PrivateRoute element={<ConfigUser />} />} />
 
                         {/* Ruta catch-all para redirigir a la página principal */}
                         <Route path="*" element={<Navigate to="/" />} />

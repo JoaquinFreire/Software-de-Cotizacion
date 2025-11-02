@@ -172,7 +172,7 @@ const Quotation = () => {
     }, [newCustomer.dni]);
 
     // Carousel navigation
-     const handlePrev = useCallback(() => {
+    const handlePrev = useCallback(() => {
         if (swiperRef.current && swiperRef.current.swiper) {
             swiperRef.current.swiper.slidePrev();
         }
@@ -199,8 +199,8 @@ const Quotation = () => {
     const handleNext = useCallback(() => {
         // Validar que el cliente esté agregado antes de avanzar del paso 0
         if (currentIndex === 0 && !isCustomerAdded) {
-            setStepErrors({ 
-                general: "Debe agregar el cliente al resumen antes de continuar" 
+            setStepErrors({
+                general: "Debe agregar el cliente al resumen antes de continuar"
             });
             return;
         }
@@ -225,12 +225,12 @@ const Quotation = () => {
     const canNavigateToStep = useCallback((targetStep) => {
         // Si vamos al paso 0 (cliente) siempre permitido
         if (targetStep === 0) return true;
-        
+
         // Si vamos a pasos posteriores, requerir que el cliente esté agregado
         if (targetStep > 0 && !isCustomerAdded) {
             return false;
         }
-        
+
         return true;
     }, [isCustomerAdded]);
 
@@ -325,7 +325,7 @@ const Quotation = () => {
                 // Tela mosquitera (id 7 o por nombre)
                 const mosquitoEntry = prices.find(p => p.name?.toLowerCase().includes("tela mosquitera") || String(p.id) === "7");
                 setMosquitoPrice(mosquitoEntry ? Number(mosquitoEntry.price) : 0);
-                
+
                 // extraer tasa de IVA (por nombre o por id si corresponde)
                 const ivaEntry = prices.find(p => p.name?.toLowerCase().includes("iva") || String(p.id) === "4");
                 setTaxRate(ivaEntry ? Number(ivaEntry.price) : 0);
@@ -347,36 +347,36 @@ const Quotation = () => {
 
     // Enviar cotización (solo un POST a quotations)
     const handleSubmitQuotation = async () => {
-    setSubmitting(true);
-    setSubmitError(null);
+        setSubmitting(true);
+        setSubmitError(null);
 
-    // LIMPIAR EL AGENTE: Solo considerar si tiene datos completos
-    const cleanedAgent = (newAgent.name?.trim() && 
-                         newAgent.lastname?.trim() && 
-                         newAgent.tel?.trim() && 
-                         newAgent.mail?.trim()) 
-        ? newAgent 
-        : null;
+        // LIMPIAR EL AGENTE: Solo considerar si tiene datos completos
+        const cleanedAgent = (newAgent.name?.trim() &&
+            newAgent.lastname?.trim() &&
+            newAgent.tel?.trim() &&
+            newAgent.mail?.trim())
+            ? newAgent
+            : null;
 
-    // Validar todo el formulario antes de enviar
-    const validation = validateQuotation({
-        customer: newCustomer,
-        agent: cleanedAgent, // <-- Pasar el agente limpiado
-        agents, // <-- Este array puede estar vacío, y eso está bien
-        workPlace,
-        openings: selectedOpenings,
-        complements: selectedComplements,
-        comment
-    });
-    
-    if (!validation.valid) {
-        setValidationErrors(validation.errors);
-        setSubmitError("Hay errores en el formulario. Corríjalos antes de continuar.");
-        setSubmitting(false);
-        return;
-    } else {
-        setValidationErrors({});
-    }
+        // Validar todo el formulario antes de enviar
+        const validation = validateQuotation({
+            customer: newCustomer,
+            agent: cleanedAgent, // <-- Pasar el agente limpiado
+            agents, // <-- Este array puede estar vacío, y eso está bien
+            workPlace,
+            openings: selectedOpenings,
+            complements: selectedComplements,
+            comment
+        });
+
+        if (!validation.valid) {
+            setValidationErrors(validation.errors);
+            setSubmitError("Hay errores en el formulario. Corríjalos antes de continuar.");
+            setSubmitting(false);
+            return;
+        } else {
+            setValidationErrors({});
+        }
 
         try {
             const token = localStorage.getItem('token');
@@ -1090,7 +1090,7 @@ const hasStepData = (stepIndex) => {
             toast.error("Debe agregar el cliente al resumen antes de continuar");
             return;
         }
-        
+
         if (swiperRef.current && swiperRef.current.swiper) {
             swiperRef.current.swiper.slideTo(index);
         }
@@ -1137,43 +1137,43 @@ const hasStepData = (stepIndex) => {
     };
 
     // Buscar automáticamente agente al ingresar 8 dígitos
-useEffect(() => {
-    if (agentSearchDni.length === 8 && /^\d+$/.test(agentSearchDni)) {
-        (async () => {
-            setAgentSearchError("");
+    useEffect(() => {
+        if (agentSearchDni.length === 8 && /^\d+$/.test(agentSearchDni)) {
+            (async () => {
+                setAgentSearchError("");
+                setAgentSearchResult(null);
+                setAgentSearched(true); // Mostrar "Buscando agente..."
+
+                try {
+                    const token = localStorage.getItem('token');
+
+                    // Esperar 5 segundos antes de hacer la búsqueda real
+                    await new Promise(resolve => setTimeout(resolve, 5000));
+
+                    const res = await axios.get(`${API_URL}/api/customer-agents/dni/${agentSearchDni}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+
+                    if (res.data) {
+                        setAgentSearchResult(res.data);
+                    } else {
+                        setAgentSearchResult(null);
+                    }
+                } catch (err) {
+                    if (err.response && err.response.status === 404) {
+                        setAgentSearchResult(null); // No encontrado, permite alta
+                    } else {
+                        setAgentSearchError("Error buscando agente.");
+                    }
+                } finally {
+                    setAgentSearched(false); // Ocultar "Buscando agente..." después de 5 segundos
+                }
+            })();
+        } else {
             setAgentSearchResult(null);
-            setAgentSearched(true); // Mostrar "Buscando agente..."
-            
-            try {
-                const token = localStorage.getItem('token');
-                
-                // Esperar 5 segundos antes de hacer la búsqueda real
-                await new Promise(resolve => setTimeout(resolve, 5000));
-                
-                const res = await axios.get(`${API_URL}/api/customer-agents/dni/${agentSearchDni}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                
-                if (res.data) {
-                    setAgentSearchResult(res.data);
-                } else {
-                    setAgentSearchResult(null);
-                }
-            } catch (err) {
-                if (err.response && err.response.status === 404) {
-                    setAgentSearchResult(null); // No encontrado, permite alta
-                } else {
-                    setAgentSearchError("Error buscando agente.");
-                }
-            } finally {
-                setAgentSearched(false); // Ocultar "Buscando agente..." después de 5 segundos
-            }
-        })();
-    } else {
-        setAgentSearchResult(null);
-        setAgentSearched(false);
-    }
-}, [agentSearchDni]);
+            setAgentSearched(false);
+        }
+    }, [agentSearchDni]);
 
     // Función para obtener nombre de complemento por id y tipo
     const getComplementName = (complementId, type) => {
@@ -1225,6 +1225,20 @@ useEffect(() => {
         }
     };
 
+    useEffect(() => {
+        // Si se modifica algún campo del cliente, resetear el estado de "agregado"
+        if (isCustomerAdded) {
+            const hasChanges =
+                newCustomer.name !== clients[0]?.name ||
+                newCustomer.lastname !== clients[0]?.lastname ||
+                newCustomer.dni !== clients[0]?.dni;
+
+            if (hasChanges) {
+                setIsCustomerAdded(false);
+            }
+        }
+    }, [newCustomer, clients, isCustomerAdded]);
+
     // Nueva función para agregar espacio de trabajo al resumen
     const handleAddWorkPlaceToSummary = () => {
         const validation = validateWorkPlace(workPlace, { forSummary: true });
@@ -1247,12 +1261,12 @@ useEffect(() => {
             <Navigation onLogout={handleLogout} />
 
             <div className="materials-header">
-
                 <h2 className="materials-title">Nueva Cotización</h2>
-                <p className="materials-subtitle">Complete los datos en cada sección y valindando los mismos en el resumen antes de crear la cotización.</p>
-
+                <p className="materials-subtitle">Complete los datos en cada sección y valide los mismos en el resumen antes de crear la cotización.</p>
             </div>
+
             <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
+
             <div className="quotation-layout">
     <aside className="quotation-indice">
         <h3>Índice</h3>
@@ -1341,29 +1355,30 @@ useEffect(() => {
         </p>
     </aside>
 
+                    <div className="info-section">
+                        <h4>Espacios de trabajo:</h4>
+                        {workPlaces.length === 0 && <div className="info-empty">No hay espacios agregados</div>}
+                        {workPlaces.map((wp, idx) => (
+                            <div key={idx} className="info-item">
+                                <span><b>{wp.location}</b> - {wp.address}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Formulario principal (sin cambios) */}
                 <main className="quotation-main">
                     <form className="quotation-form" onKeyDown={handleFormKeyDown}>
                         <div className="embla-buttons-container">
-                            <button
-                                type="button"
-                                className="embla__button embla__button--prev"
-                                onClick={handlePrev}
-                                disabled={currentIndex === 0}
-                            >
+                            <button type="button" className="embla__button embla__button--prev" onClick={handlePrev} disabled={currentIndex === 0}>
                                 Atrás
                             </button>
-                            <span className="page-indicator">
-                                Página {currentIndex + 1} de 6
-                            </span>
-                            <button
-                                type="button"
-                                className="embla__button embla__button--next"
-                                onClick={handleNext}
-                                disabled={currentIndex === 5}
-                            >
+                            <span className="page-indicator">Página {currentIndex + 1} de 6</span>
+                            <button type="button" className="embla__button embla__button--next" onClick={handleNext} disabled={currentIndex === 5}>
                                 Adelante
                             </button>
                         </div>
+
                         <Swiper
                             ref={swiperRef}
                             allowTouchMove={false}
@@ -1374,25 +1389,25 @@ useEffect(() => {
                         >
                             <SwiperSlide>
                                 <Customer
-                    newCustomer={newCustomer}
-                    setNewCustomer={setNewCustomer}
-                    errors={currentIndex === 0 ? stepErrors : {}}
-                    isCustomerFound={isCustomerFound}
-                    setIsCustomerFound={setIsCustomerFound}
-                    onAddClientToSummary={handleAddClientToSummary}
-                    isCustomerAdded={isCustomerAdded} // <-- Nueva prop
-                    setIsCustomerAdded={setIsCustomerAdded} // <-- Nueva prop
-                />{currentIndex === 0 && stepErrors.general && (
-                    <div className="error-message" style={{ 
-                        marginTop: '10px', 
-                        padding: '10px', 
-                        background: '#ffe6e6', 
-                        border: '1px solid #ffcccc',
-                        borderRadius: '4px'
-                    }}>
-                        {stepErrors.general}
-                    </div>
-                )}
+                                    newCustomer={newCustomer}
+                                    setNewCustomer={setNewCustomer}
+                                    errors={currentIndex === 0 ? stepErrors : {}}
+                                    isCustomerFound={isCustomerFound}
+                                    setIsCustomerFound={setIsCustomerFound}
+                                    onAddClientToSummary={handleAddClientToSummary}
+                                    isCustomerAdded={isCustomerAdded} // <-- Nueva prop
+                                    setIsCustomerAdded={setIsCustomerAdded} // <-- Nueva prop
+                                />{currentIndex === 0 && stepErrors.general && (
+                                    <div className="error-message" style={{
+                                        marginTop: '10px',
+                                        padding: '10px',
+                                        background: '#ffe6e6',
+                                        border: '1px solid #ffcccc',
+                                        borderRadius: '4px'
+                                    }}>
+                                        {stepErrors.general}
+                                    </div>
+                                )}
                             </SwiperSlide>
                             <SwiperSlide>
     {/* AGENTES */}
@@ -1607,44 +1622,13 @@ useEffect(() => {
                         </Swiper>
                     </form>
                 </main>
+
+                {/* Resumen de cálculos (más compacto) */}
                 <aside className="quotation-summary">
                     <h3>Resumen</h3>
-                    <div>
-                        <div className="agents-list">
-                            <h4 className='summary-section-title'>Clientes seleccionados:</h4>
-                            {clients.length === 0 && <div className="summary-empty">No tiene cliente.</div>}
-                            {clients.map((client, idx) => (
-                                <div key={idx} className="agent-selected-row">
-                                    <span>
-                                        {client.name} {client.lastname} - {client.dni}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                        {/* Lista de agentes agregados */}
-                        <div className="agents-list">
-                            <h4 className='summary-section-title'>Agentes seleccionados:</h4>
-                            {agents.length === 0 && <div className="summary-empty">No tiene agentes.</div>}
-                            {agents.map((agent, idx) => (
-                                <div key={idx} className="agent-selected-row">
-                                    <span>
-                                        {agent.name} {agent.lastname} - {agent.dni}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="workplace-summary">
-                            <h4 className='summary-section-title'>Espacios de trabajo:</h4>
-                            {workPlaces.length === 0 && <div className="summary-empty">No hay espacios de trabajo agregados.</div>}
-                            {workPlaces.map((wp, idx) => (
-                                <div key={idx} className="summary-item">
-                                    <span>
-                                        <b>{wp.location}</b> - {wp.address}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
 
+                    {/* Aberturas */}
+                    <div>
                         <h4 className='summary-section-title'>Aberturas agregadas:</h4>
                         {selectedOpenings.length === 0 && (
                             <div className="summary-empty">No hay aberturas agregadas.</div>
@@ -1738,6 +1722,8 @@ useEffect(() => {
                             <strong>Total aberturas: ${generalTotal.totalOpenings.toFixed(2)}</strong>
                         </div>
                     </div>
+
+                    {/* Complementos */}
                     <div className="complements-summary">
                         <h4 className='summary-section-title'>Complementos agregados:</h4>
                         {selectedComplements.length === 0 && (
@@ -1774,35 +1760,29 @@ useEffect(() => {
                         </div>
                     </div>
 
-                    {/* NUEVO: TOTAL GENERAL CON COSTOS ADICIONALES */}
+                    {/* Total General */}
                     <div className="general-total-container">
                         <h4 className='summary-section-title'>Total General</h4>
-
                         <div className="total-row">
                             <span>Subtotal aberturas:</span>
                             <span>${generalTotal.totalOpenings.toFixed(2)}</span>
                         </div>
-
                         <div className="total-row">
                             <span>Subtotal complementos:</span>
                             <span>${generalTotal.totalComplements.toFixed(2)}</span>
                         </div>
-
                         <div className="total-row subtotal-general">
                             <span><strong>Subtotal general:</strong></span>
                             <span><strong>${generalTotal.subtotalGeneral.toFixed(2)}</strong></span>
                         </div>
-
                         <div className="total-row cost-detail">
                             <span>Costo fabricación (10%):</span>
                             <span>${generalTotal.costoFabricacion.toFixed(2)}</span>
                         </div>
-
                         <div className="total-row cost-detail">
                             <span>Costo administrativo (5%):</span>
                             <span>${generalTotal.costoAdministrativo.toFixed(2)}</span>
                         </div>
-
                         <div className="total-row final-total">
                             <span>TOTAL GENERAL:</span>
                             <span>${generalTotal.totalGeneral.toFixed(2)}</span>
@@ -1810,6 +1790,7 @@ useEffect(() => {
                     </div>
                 </aside>
             </div>
+
             <Footer />
         </div>
     );

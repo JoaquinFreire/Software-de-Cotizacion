@@ -1,5 +1,6 @@
 .nav-links {
-    background-color: #080808; /* Fondo más oscuro */
+    background-color: #080808;
+    /* Fondo más oscuro */
     padding: 20px 30px;
     border-radius: 20px;
     display: flex;
@@ -13,19 +14,28 @@
 }
 
 .nav-linksF {
-    position: fixed; /* Fijo en la pantalla */
-    top: 2rem; /* Ajusta según sea necesario */
-    left: 50%; /* Centrado horizontalmente */
-    width: 35%; /* Ancho del 25% */
-    min-width: 35%; /* Ancho completo */
-    transform: translateX(-50%); /* Centrado horizontalmente */
-    background-color: rgba(0, 0, 0, 0.815); /* Fondo más oscuro */
+    position: fixed;
+    /* Fijo en la pantalla */
+    top: 2rem;
+    /* Ajusta según sea necesario */
+    left: 50%;
+    /* Centrado horizontalmente */
+    width: 35%;
+    /* Ancho del 25% */
+    min-width: 35%;
+    /* Ancho completo */
+    transform: translateX(-50%);
+    /* Centrado horizontalmente */
+    background-color: rgba(0, 0, 0, 0.815);
+    /* Fondo más oscuro */
     display: flex;
     justify-content: space-between;
     border: #26b7cd 1px solid;
 }
+
 .dashboard-header {
-    background: #f0f0f000; /* Fondo claro */
+    background: #f0f0f000;
+    /* Fondo claro */
 }
 
 .dashboard-header nav a {
@@ -35,13 +45,16 @@
 }
 
 .dashboard-header nav a.active {
-    color: #000000; /* Color celeste para la página actual */
-    border-bottom: 2px solid #26b7cd; /* Línea inferior celeste */
+    color: #000000;
+    /* Color celeste para la página actual */
+    border-bottom: 2px solid #26b7cd;
+    /* Línea inferior celeste */
 }
 
 .menu {
     position: relative;
 }
+
 /* Estilos para el círculo de iniciales en la navegación */
 .user-initials-btn {
     width: 40px;
@@ -90,20 +103,6 @@
     display: inline-block;
 }
 
-.dropdown-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    padding: 8px 0;
-    min-width: 200px;
-    z-index: 1000;
-    margin-top: 8px;
-}
-
 .user-dropdown {
     background: #2d2d2d;
     border: 1px solid #444;
@@ -144,21 +143,82 @@
 .light-mode .user-dropdown {
     background: white;
     border: 1px solid #e0e0e0;
+    color: #111; /* texto oscuro en fondo claro */
+}
+
+/* Antes aquí el .light-mode .user-text estaba en blanco; lo corregimos */
+.light-mode .user-text {
+    color: #111;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Asegurar enlaces del dropdown en modo claro sean legibles */
+.light-mode .dropdown-link {
+    color: #111;
+}
+
+.light-mode .dropdown-link:hover {
+    background: #f0f8f8;
+    color: #007a82;
+}
+
+/* Cuando el dropdown recibe la clase opcionesuser (usada en Navigation.js en theme==="light") */
+.user-dropdown.opcionesuser,
+.navigation-root .user-dropdown.opcionesuser {
+    background: #f0f0f0;
+    border: 1px solid #e0e0e0;
+    color: #111;
+}
+
+.user-dropdown.opcionesuser .dropdown-link,
+.navigation-root .user-dropdown.opcionesuser .dropdown-link {
+    color: #111;
+}
+
+.user-dropdown.opcionesuser .dropdown-link:hover,
+.navigation-root .user-dropdown.opcionesuser .dropdown-link:hover {
+    background: #e6f7f7;
+    color: #007a82;
+}
+
+/* Modo claro para el dropdown */
+.light-mode .user-dropdown {
+    background: white;
+    border: 1px solid #e0e0e0;
 }
 
 .light-mode .user-text {
-    color: #ffffff;
+    color: #111;
     border-bottom: 1px solid #e0e0e0;
 }
 
 
 .light-mode .dropdown-link {
-    color: #333;
+    color: #111;
 }
 
 .light-mode .dropdown-link:hover {
-    background: #f5f5f5;
-    color: #1ae8de;
+    background: #f0f8f8;
+    color: #007a82;
+}
+
+/* Cuando el dropdown recibe la clase opcionesuser (usada en Navigation.js en theme==="light") */
+.user-dropdown.opcionesuser,
+.navigation-root .user-dropdown.opcionesuser {
+    background: #f0f0f0;
+    border: 1px solid #e0e0e0;
+    color: #111;
+}
+
+.user-dropdown.opcionesuser .dropdown-link,
+.navigation-root .user-dropdown.opcionesuser .dropdown-link {
+    color: #111;
+}
+
+.user-dropdown.opcionesuser .dropdown-link:hover,
+.navigation-root .user-dropdown.opcionesuser .dropdown-link:hover {
+    background: #e6f7f7;
+    color: #007a82;
 }
 
 /* Estilos responsivos */
@@ -167,16 +227,17 @@
         width: 36px;
         height: 36px;
     }
-    
+
     .nav-profile-initials {
         font-size: 14px;
     }
-    
+
     .dropdown-menu {
         right: -10px;
         min-width: 180px;
     }
 }
+
 .menu-button {
     background: none;
     border: none;
@@ -189,22 +250,8 @@
     height: 40px;
 }
 
-/* Dropdown */
-.dropdown-menu {
-    position: absolute;
-    top: 50px;
-    right: 0;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    border-radius: 6px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
-    padding: 10px;
-    min-width: 160px;
-    text-align: left;
-    z-index: 100;
-}
 
-.admin-menu .dropdown-menu {
+.admin-menu .dropdown-menu, .opcionesuser{
     position: absolute;
     top: 40px;
     left: 0;
@@ -230,17 +277,20 @@
     background-color: #26b7cd;
     color: black;
 }
+
 .menu-button2 {
- margin: 0;
- padding: 0 10px 0px 0;
- background: none;
- color: white;
- font-weight: 200;
- margin: 0;
+    margin: 0;
+    padding: 0 10px 0px 0;
+    background: none;
+    color: white;
+    font-weight: 200;
+    margin: 0;
 }
+
 .menu-button2:hover {
     background: none;
-   }
+}
+
 .dropdown-menu button {
     font-family: 'Poppins', sans-serif;
 }
@@ -258,6 +308,7 @@
     justify-content: space-between;
     margin-bottom: 10px;
 }
+
 .theme-toggle-btn {
     margin: 0;
     padding: 0;
@@ -304,11 +355,11 @@
     border-radius: 50%;
 }
 
-input:checked + .slider {
+input:checked+.slider {
     background-color: #26b7cd;
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
     transform: translateX(14px);
 }
 
@@ -322,12 +373,14 @@ input:checked + .slider:before {
     box-shadow: none;
     height: 100px;
     /* El color por defecto es rojo, pero lo sobreescribimos abajo */
-    background-color: black; /* Por defecto negro */
-    transition: background-color 0.3s cubic-bezier(.4,2,.6,1);
+    background-color: black;
+    /* Por defecto negro */
+    transition: background-color 0.3s cubic-bezier(.4, 2, .6, 1);
     height: 70px;
     position: relative;
     z-index: 10;
-    padding: 11px 0px 5px 0px; /*arriba derecha abajo izquierda*/
+    padding: 11px 0px 5px 0px;
+    /*arriba derecha abajo izquierda*/
 }
 
 .header-center-logo {
@@ -363,6 +416,7 @@ input:checked + .slider:before {
     display: flex;
     align-items: center;
 }
+
 .icon-btn:hover {
     background: #26b7cd22;
 }
@@ -371,19 +425,7 @@ input:checked + .slider:before {
     position: relative;
 }
 
-.user-dropdown {
-    right: 0;
-    left: auto;
-    min-width: 180px;
-    background: rgba(0,0,0,0.95);
-    border-radius: 6px;
-    box-shadow: 0 4px 16px #26b7cd33;
-    padding: 12px 16px;
-    position: absolute;
-    top: 48px;
-    z-index: 100;
-    color: white;
-}
+
 
 .user-dropdown .dropdown-link {
     background: none;
@@ -398,6 +440,7 @@ input:checked + .slider:before {
     margin-bottom: 4px;
     transition: background 0.2s;
 }
+
 .user-dropdown .dropdown-link:hover {
     background: #26b7cd22;
     color: #fff;
@@ -406,7 +449,7 @@ input:checked + .slider:before {
 /* Sidebar vertical */
 .sidebar-nav {
     position: fixed;
-    top: 0; 
+    top: 0;
     left: 0;
     width: 210px;
     height: 100vh;
@@ -419,13 +462,13 @@ input:checked + .slider:before {
     z-index: 100;
     box-sizing: border-box;
     overflow-x: hidden;
-    transition: background-color 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s cubic-bezier(.4,2,.6,1), transform 0.3s cubic-bezier(.4,2,.6,1);
+    transition: background-color 0.3s cubic-bezier(.4, 2, .6, 1), box-shadow 0.3s cubic-bezier(.4, 2, .6, 1), transform 0.3s cubic-bezier(.4, 2, .6, 1);
     transform: translateX(0);
 }
 
 body.light-mode .sidebar-link,
 body.light-mode .sidebar-admin-btn {
-    color: #111 ;
+    color: #111;
 }
 
 body.light-mode .sidebar-admin-dropdown .sidebar-link {
@@ -433,16 +476,19 @@ body.light-mode .sidebar-admin-dropdown .sidebar-link {
 }
 
 body {
-  background-color: #111;;
+    background-color: #111;
+    ;
 }
+
 body.light-mode {
-  background-color: #f0f0f0;
+    background-color: #f0f0f0;
 }
 
 .sidebar-link {
     color: #fff;
     text-decoration: none;
-    padding: 14px 18px; /* Reducir padding horizontal para evitar overflow */
+    padding: 14px 18px;
+    /* Reducir padding horizontal para evitar overflow */
     width: 100%;
     box-sizing: border-box;
     font-size: 17px;
@@ -500,7 +546,8 @@ body.light-mode {
     position: static;
     background: none;
     box-shadow: none;
-    padding-left: 8px; /* Menos padding para evitar overflow */
+    padding-left: 8px;
+    /* Menos padding para evitar overflow */
     margin-top: 0;
     margin-bottom: 0;
     width: 100%;
@@ -519,6 +566,7 @@ body.light-mode {
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+
 .sidebar-admin-dropdown .sidebar-link.active,
 .sidebar-admin-dropdown .sidebar-link:hover {
     background: #26b7cd22;
@@ -528,15 +576,17 @@ body.light-mode {
 /* Ajuste para el contenido principal para dejar espacio al sidebar solo si está abierto */
 .dashboard-container {
     margin-left: 251px;
-    transition: margin-left 0.3s cubic-bezier(.4,2,.6,1);
+    transition: margin-left 0.3s cubic-bezier(.4, 2, .6, 1);
 }
-.sidebar-nav.closed ~ .dashboard-container,
+
+.sidebar-nav.closed~.dashboard-container,
 body .dashboard-container:not(:has(.sidebar-nav.open)) {
-    margin-left: 0 ;
+    margin-left: 0;
 }
 
 /* Elimina el espacio en blanco arriba a la izquierda */
-body, html {
+body,
+html {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -546,10 +596,10 @@ body, html {
 /* Elimina cualquier fondo para .dashboard-header en modo claro */
 body.light-mode .dashboard-header,
 body.light-mode .new-header {
-    background: transparent;
     background-color: transparent;
     box-shadow: none;
 }
+
 .sidebar-toggle-btn {
     background: none;
     border: none;
@@ -560,6 +610,7 @@ body.light-mode .new-header {
     align-self: flex-end;
     transition: background 0.2s;
 }
+
 .sidebar-toggle-btn:hover {
     background: #26b7cd22;
     border-radius: 23px 0px 0px 28px;
@@ -578,6 +629,7 @@ body.light-mode .new-header {
     box-shadow: 2px 0 16px #26b7cd33;
     transition: background 0.2s;
 }
+
 .sidebar-show-btn:hover {
     background: #d1d1d122;
 }
@@ -585,15 +637,17 @@ body.light-mode .new-header {
 
 /* Tema claro: fondo gris */
 body.light-mode .sidebar-show-btn {
-    background: #e0e0e0;
+    background: #a9aaaa;
+    border: 1px solid #29212198;
 }
 
 /* Header superior: color de fondo y transición según tema */
 .new-header {
     /* ...existing code... */
     /* El color por defecto es rojo, pero lo sobreescribimos abajo */
-    background-color: black; /* Por defecto negro */
-    transition: background-color 0.3s cubic-bezier(.4,2,.6,1);
+    background-color: black;
+    /* Por defecto negro */
+    transition: background-color 0.3s cubic-bezier(.4, 2, .6, 1);
 }
 
 
@@ -602,23 +656,28 @@ body.light-mode .sidebar-show-btn {
     /* ...existing code... */
     background-color: #121212;
     box-shadow: 2px 0 16px #00ffff33;
-    transition: background-color 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s cubic-bezier(.4,2,.6,1), transform 0.3s cubic-bezier(.4,2,.6,1);
+    transition: background-color 0.3s cubic-bezier(.4, 2, .6, 1), box-shadow 0.3s cubic-bezier(.4, 2, .6, 1), transform 0.3s cubic-bezier(.4, 2, .6, 1);
     transform: translateX(0);
-    
+
 }
+
 .sidebar-nav.sidebar-light {
     background-color: #c0d8d8;
 }
+
 .sidebar-nav.sidebar-dark {
     background-color: #121212;
 }
+
 .sidebar-nav.closed {
     transform: translateX(-100%);
     box-shadow: none;
 }
+
 .sidebar-nav.open {
     transform: translateX(0);
     box-shadow: 2px 0 16px #00ffff33;
+
 }
 
 /* Encapsula todos los estilos de navegación bajo .navigation-root para evitar conflictos */
@@ -628,14 +687,15 @@ body.light-mode .sidebar-show-btn {
     justify-content: center;
     align-items: center;
     background-color: #121212;
-    transition: background-color 0.3s cubic-bezier(.4,2,.6,1);
+    transition: background-color 0.3s cubic-bezier(.4, 2, .6, 1);
     height: 70px;
     position: relative;
     z-index: 10;
     padding: 11px 0px 5px 0px;
 }
+
 .navigation-root .new-header.light-header {
-    background-color: #fff;
+    background: linear-gradient(135deg, #26b7cd 0%, #93d3db 50%, #cce3e1 100%) !important;
 }
 
 .navigation-root .header-center-logo {
@@ -671,6 +731,7 @@ body.light-mode .sidebar-show-btn {
     display: flex;
     align-items: center;
 }
+
 .navigation-root .icon-btn:hover {
     background: #00FFFF22;
 }
@@ -683,7 +744,7 @@ body.light-mode .sidebar-show-btn {
     right: 0;
     left: auto;
     min-width: 250px;
-    background: rgba(0,0,0,0.95);
+    background: rgba(0, 0, 0, 0.95);
     border-radius: 4px;
     box-shadow: 0 4px 16px #00ffff33;
     padding: 12px 16px;
@@ -706,6 +767,7 @@ body.light-mode .sidebar-show-btn {
     margin-bottom: 4px;
     transition: background 0.2s;
 }
+
 .navigation-root .user-dropdown .dropdown-link:hover {
     background: #00FFFF22;
     color: #fff;
@@ -714,7 +776,7 @@ body.light-mode .sidebar-show-btn {
 /* Sidebar vertical */
 .navigation-root .sidebar-nav {
     position: fixed;
-    top: 0; 
+    top: 0;
     left: 0;
     width: 210px;
     height: 100vh;
@@ -727,17 +789,19 @@ body.light-mode .sidebar-show-btn {
     z-index: 100;
     box-sizing: border-box;
     overflow-x: hidden;
-    transition: background-color 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s cubic-bezier(.4,2,.6,1), transform 0.3s cubic-bezier(.4,2,.6,1);
+    transition: background-color 0.3s cubic-bezier(.4, 2, .6, 1), box-shadow 0.3s cubic-bezier(.4, 2, .6, 1), transform 0.3s cubic-bezier(.4, 2, .6, 1);
     transform: translateX(0);
 }
 
 .navigation-root .sidebar-nav.sidebar-dark {
     background-color: #121212;
 }
+
 .navigation-root .sidebar-nav.closed {
     transform: translateX(-100%);
     box-shadow: none;
 }
+
 .navigation-root .sidebar-nav.open {
     transform: translateX(0);
     box-shadow: 2px 0 16px #00ffff33;
@@ -762,8 +826,8 @@ body.light-mode .sidebar-show-btn {
     max-width: 100%;
     display: block;
 }
-body.light-mode.navigation-root .sidebar-admin-dropdown .sidebar-link
- {
+
+body.light-mode.navigation-root .sidebar-admin-dropdown .sidebar-link {
     color: #000000;
     font-size: 15px;
     padding: 10px 12px;
@@ -774,6 +838,7 @@ body.light-mode.navigation-root .sidebar-admin-dropdown .sidebar-link
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+
 body.light-mode .navigation-root .sidebar-link:hover,
 body.light-mode .navigation-root .sidebar-link.active,
 body.light-mode .navigation-root .sidebar-admin-btn:hover,
@@ -781,6 +846,13 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
     background: #00ffff78;
     color: #111;
 }
+.adminopciones .sidebar-link{
+    color: rgb(49, 53, 54);
+}
+.opcionesuser {
+    background: #f0f0f0;
+}
+
 .navigation-root .sidebar-link.active,
 .navigation-root .sidebar-link:hover {
     background: #00ffff78;
@@ -811,6 +883,7 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
     text-overflow: ellipsis;
     max-width: 100%;
 }
+
 .navigation-root .sidebar-admin-btn:hover,
 .navigation-root .sidebar-admin-btn.active {
     background: #00ffff78;
@@ -829,6 +902,7 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
     flex-direction: column;
     gap: 0;
 }
+
 .navigation-root .sidebar-admin-dropdown .sidebar-link {
     font-size: 15px;
     padding: 10px 12px;
@@ -839,6 +913,7 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+
 .navigation-root .sidebar-admin-dropdown .sidebar-link.active,
 .navigation-root .sidebar-admin-dropdown .sidebar-link:hover {
     background: #00FFFF22;
@@ -855,6 +930,7 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
     align-self: flex-end;
     transition: background 0.2s;
 }
+
 .navigation-root .sidebar-toggle-btn:hover {
     background: #00FFFF22;
 
@@ -867,7 +943,7 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
     z-index: 210;
     background: #111;
     border: none;
-    
+
     padding: 6px 8px 6px 2px;
     cursor: pointer;
     box-shadow: 2px 0 16px #00ffff33;
@@ -881,13 +957,15 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
     transform: translateX(-100%);
     box-shadow: none;
 }
+
 .sidebar-nav.sidebar-mobile.open {
     transform: translateX(0);
-    box-shadow: 0 0 0 100vw rgba(0,0,0,0.5);
+    box-shadow: 0 0 0 100vw rgba(0, 0, 0, 0.5);
 }
 
 /* Asegura que el contenido del sidebar se vea bien en móvil */
 @media (max-width: 768px) {
+
     .sidebar-nav,
     .sidebar-nav.sidebar-mobile {
         width: 100vw !important;
@@ -897,15 +975,18 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
         padding-top: 30px;
         font-size: 18px;
     }
+
     .sidebar-link,
     .sidebar-admin-btn {
         font-size: 20px;
         padding: 18px 24px;
     }
+
     .sidebar-toggle-btn {
         padding: 18px 16px 18px 10px;
         font-size: 22px;
     }
+
     .sidebar-show-btn {
         top: 18px;
         left: 0;
@@ -913,6 +994,7 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
         width: 48px;
         height: 48px;
     }
+
     .sidebar-admin-dropdown .sidebar-link {
         font-size: 18px;
         padding: 14px 20px;
@@ -942,14 +1024,17 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
     .header-mobile-actions {
         display: flex;
     }
+
     .mobile-header-margin {
         margin-left: 12px;
         margin-right: 12px;
     }
+
     .header-center-logo {
         flex-direction: column;
         align-items: center;
     }
+
     .logo-centered {
         margin-bottom: 0;
     }
@@ -965,6 +1050,7 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
         padding-top: 12px;
         padding-bottom: 8px;
     }
+
     .logo-centered {
         max-width: 160px;
         width: 80vw;
@@ -973,6 +1059,7 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
         margin-top: 0;
         display: block;
     }
+
     .header-mobile-actions {
         display: flex;
         flex-direction: row;
@@ -983,6 +1070,7 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
         margin: 0 auto 8px auto;
         flex-wrap: wrap;
     }
+
     .icon-btn {
         width: 44px;
         height: 44px;
@@ -991,11 +1079,13 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
         margin: 0 2px;
         flex: 0 0 auto;
     }
+
     .mobile-header-margin {
         margin-left: 0;
         margin-right: 0;
         width: 100%;
     }
+
     .new-header {
         min-height: 90px;
         height: auto;
@@ -1013,6 +1103,6 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
 /* Sidebar resorte efecto sólo desktop */
 @media (min-width: 769px) {
     .sidebar-nav {
-        transition: transform 0.5s cubic-bezier(.22,1.2,.36,1), box-shadow 0.3s, background-color 0.3s cubic-bezier(.4,2,.6,1);
+        transition: transform 0.5s cubic-bezier(.22, 1.2, .36, 1), box-shadow 0.3s, background-color 0.3s cubic-bezier(.4, 2, .6, 1);
     }
 }

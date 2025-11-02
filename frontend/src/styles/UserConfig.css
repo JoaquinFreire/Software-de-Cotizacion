@@ -1,7 +1,37 @@
+/* Theme variables: por defecto -> modo oscuro */
+:root {
+	--bg: #0f1720;
+	--card-bg: #011111;
+	--text: #e6eef6;
+	--muted-color: #565657;
+	--border: #192231;
+	--primary: #17d3d3;
+	--primary-strong: #12b7b7;
+	--accent: #4ea1ff;
+	--surface: #293636;
+	--danger: #ff6b6b;
+}
+
+/* Modo claro: aplicado cuando Navigation añade body.light-mode */
+body.light-mode {
+	--bg: #ffffff;
+	--card-bg: #ffffff;
+	--text: #202124;
+	--muted-color: #5f6368;
+	--border: #dadce0;
+	--primary: #1ae8e8;
+	--primary-strong: #16d0d6;
+	--accent: #1a73e8;
+	--surface: #f8f9fa;
+	--danger: #d93025;
+}
+
+/* Reutiliza variables en todos los estilos (no cambiar el resto, solo que usen vars) */
 .user-config-root {
 	max-width: 1000px;
 	margin: 32px auto;
 	padding: 0 24px;
+	color: var(--text);
 }
 
 .config-header {
@@ -12,26 +42,29 @@
 .config-title {
 	font-size: 32px;
 	font-weight: 400;
-	color: #202124;
+	color: var(--text);
 	margin: 0 0 8px 0;
 }
 
 .config-subtitle {
 	font-size: 16px;
-	color: #5f6368;
+	color: var(--muted-color);
 	margin: 0;
 }
 
+/* Loading */
 .loading-container {
 	text-align: center;
 	padding: 60px 20px;
+	color: var(--muted-color);
 }
 
+/* Spinner color adaptativo */
 .loading-spinner {
 	width: 40px;
 	height: 40px;
-	border: 3px solid #f1f3f4;
-	border-top: 3px solid #1ae8d7;
+	border: 3px solid rgba(255,255,255,0.08);
+	border-top: 3px solid var(--primary);
 	border-radius: 50%;
 	animation: spin 1s linear infinite;
 	margin: 0 auto 16px;
@@ -44,7 +77,7 @@
 
 /* Sección de Imagen de Perfil */
 .profile-image-section {
-	margin-bottom: 40px;
+	margin-bottom: 24px;
 }
 
 .profile-image-container {
@@ -62,48 +95,40 @@
 	width: 120px;
 	height: 120px;
 	border-radius: 50%;
-	background: #f8f9fa;
-	border: 2px solid #e8eaed;
+	background: linear-gradient(135deg, var(--primary), #758491);
+	border: 2px solid var(--border);
 	overflow: hidden;
 	position: relative;
-	cursor: pointer;
-	transition: all 0.3s ease;
-}
-.profile-image-circle {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #1ae8e8, #758491);
-  border: 2px solid #e8eaed;
-  overflow: hidden;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 500;
-  color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 500;
+	color: white;
 }
 
 .profile-initials {
-  font-size: 32px;
-  font-weight: 600;
-  color: white;
+	font-size: 32px;
+	font-weight: 600;
+	color: white;
 }
 
+/* profile info colors adapt to theme */
 .profile-image-info h3 {
-  margin: 0 0 8px 0;
-  font-size: 18px;
-  font-weight: 500;
-  color: #202124;
+	margin: 0 0 8px 0;
+	font-size: 18px;
+	font-weight: 500;
+	color: var(--text);
 }
 
 .profile-image-info p {
-  margin: 0;
-  font-size: 14px;
-  color: #5f6368;
+	margin: 0;
+	font-size: 14px;
+	color: var(--muted-color);
 }
+
+/* Hover border accent */
 .profile-image-circle:hover {
-	border-color: #1a73e8;
+	border-color: var(--accent);
 }
 
 .profile-image {
@@ -190,20 +215,21 @@
 
 /* Secciones del Formulario */
 .config-section {
-	background: white;
-	border: 1px solid #dadce0;
+	background: var(--card-bg);
+	border: 1px solid var(--border);
 	border-radius: 8px;
 	padding: 24px;
 	margin-bottom: 24px;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .section-title {
 	font-size: 18px;
 	font-weight: 500;
-	color: #202124;
+	color: var(--text);
 	margin: 0 0 24px 0;
 	padding-bottom: 16px;
-	border-bottom: 1px solid #e8eaed;
+	border-bottom: 1px solid var(--border);
 }
 
 /* Grid del Formulario */
@@ -221,30 +247,31 @@
 .form-label {
 	font-size: 14px;
 	font-weight: 500;
-	color: #202124;
+	color: var(--text);
 	margin-bottom: 8px;
 }
 
 .form-input,
 .form-select {
 	padding: 12px;
-	border: 1px solid #dadce0;
+	border: 1px solid var(--border);
 	border-radius: 4px;
 	font-size: 14px;
-	transition: all 0.3s ease;
-	background: white;
+	transition: all 0.2s ease;
+	background: var(--card-bg);
+	color: var(--text);
 }
 
 .form-input:focus,
 .form-select:focus {
 	outline: none;
-	border-color: #1ae1e8;
-	box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+	border-color: var(--primary);
+	box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.06);
 }
 
 .form-input.readonly {
-	background: #f8f9fa;
-	color: #5f6368;
+	background: var(--surface);
+	color: var(--muted-color);
 	cursor: not-allowed;
 }
 
@@ -309,7 +336,7 @@
 	gap: 12px;
 	margin-top: 32px;
 	padding-top: 24px;
-	border-top: 1px solid #e8eaed;
+	border-top: 1px solid var(--border);
 }
 
 .primary-btn {
@@ -317,51 +344,41 @@
 	align-items: center;
 	gap: 8px;
 	padding: 12px 24px;
-	background: #1ae8e8;
+	background: var(--primary);
 	color: white;
 	border: none;
 	border-radius: 4px;
 	font-size: 14px;
 	font-weight: 500;
 	cursor: pointer;
-	transition: all 0.3s ease;
+	transition: all 0.2s ease;
 }
 
 .primary-btn:hover:not(:disabled) {
-	background: #16d0d6;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+	background: var(--primary-strong);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .primary-btn:disabled {
-	background: #1ae8c6;
 	opacity: 0.6;
 	cursor: not-allowed;
 }
 
 .secondary-btn {
 	padding: 12px 24px;
-	background: white;
-	color: #1ae8cd;
-	border: 1px solid #dadce0;
+	background: var(--card-bg);
+	color: var(--accent);
+	border: 1px solid var(--border);
 	border-radius: 4px;
 	font-size: 14px;
 	font-weight: 500;
 	cursor: pointer;
-	transition: all 0.3s ease;
+	transition: all 0.2s ease;
 }
 
 .secondary-btn:hover {
-	background: #f8f9fa;
-	border-color: #1ae8c6;
-}
-
-.button-spinner {
-	width: 16px;
-	height: 16px;
-	border: 2px solid transparent;
-	border-top: 2px solid white;
-	border-radius: 50%;
-	animation: spin 1s linear infinite;
+	background: var(--surface);
+	border-color: var(--primary);
 }
 
 /* Mensajes */
