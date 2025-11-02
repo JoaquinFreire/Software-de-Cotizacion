@@ -1073,8 +1073,6 @@ const BudgetDetail = () => {
       <Navbar />
 
       <div className="content-bottom">
-        <Navigation onLogout={handleLogout} />
-
         <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
 
         {/* Contenedor único que agrupa botones y select para evitar que se desplacen */}
