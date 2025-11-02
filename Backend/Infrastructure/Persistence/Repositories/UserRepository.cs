@@ -58,13 +58,41 @@ public class UserRepository : IUserRepository
         var existingUser = await _context.Users.FindAsync(user.id);
         if (existingUser == null) return;
 
-        // Actualiza solo los campos permitidos
-        existingUser.name = user.name;
-        existingUser.lastName = user.lastName;
-        existingUser.legajo = user.legajo;
-        existingUser.mail = user.mail;
-        existingUser.status = user.status;
-        existingUser.role_id = user.role_id;
+        // Actualiza solo los campos permitidos y solo si vienen con valor (evita sobreescribir con null/0)
+        if (!string.IsNullOrWhiteSpace(user.name))
+            existingUser.name = user.name;
+
+        if (!string.IsNullOrWhiteSpace(user.lastName))
+            existingUser.lastName = user.lastName;
+
+        if (!string.IsNullOrWhiteSpace(user.legajo))
+            existingUser.legajo = user.legajo;
+
+        if (!string.IsNullOrWhiteSpace(user.mail))
+            existingUser.mail = user.mail;
+
+        // Para status: normalmente 0 o 1; si viene un valor válido (0 o 1) lo actualizamos
+        if (user.status == 0 || user.status == 1)
+            existingUser.status = user.status;
+
+        // Solo intentar actualizar role_id si el valor es > 0 y existe en la tabla de roles
+        // (evita asignar 0 o null que rompan la FK)
+        try
+        {
+            if (user.role_id > 0)
+            {
+                var role = await _context.Set<UserRole>().FindAsync(user.role_id);
+                if (role != null)
+                {
+                    existingUser.role_id = user.role_id;
+                }
+                // si role == null, no sobrescribimos role_id para evitar FK violation
+            }
+        }
+        catch
+        {
+            // en caso de cualquier inconsistencia de tipos, no sobrescribimos role_id
+        }
 
         // Si necesitas actualizar la contraseña, hacelo explícitamente aquí
         // existingUser.password_hash = user.password_hash;
