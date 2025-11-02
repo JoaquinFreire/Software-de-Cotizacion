@@ -802,6 +802,28 @@ body.light-mode .measure-row {
     color: #ffffff;
 }
 
+
+.indice-item {
+    color: #b4b3b3; /* Color base */
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.indice-item.in-summary {
+    color: green;
+    font-weight: bold;
+}
+
+.indice-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Opcional: estilo para datos cargados pero no en resumen */
+.indice-item:not(.in-summary) {
+    color: #9e9d9d; /* Color más suave para datos cargados pero no confirmados */
+}
+
 .opening-panel-number {
     font-family: Arial, Helvetica, sans-serif;
     font-weight: 700;

@@ -23,6 +23,8 @@ import ReactLoading from 'react-loading';
 import html2pdf from 'html2pdf.js';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from "react-router-dom";
+
 
 // Importar el JSON de ubicaciones
 import ciudadesBarriosCordoba from '../../json/ciudadesBarriosCordoba.json';
@@ -102,6 +104,7 @@ const FiltrosAvanzados = ({
     loadingOpciones = false
 }) => {
     return (
+        
         <div className={`filtros-avanzados ${isOpen ? 'open' : ''}`}>
             <div className="filtros-header" onClick={onToggle}>
                 <Filter size={18} />
@@ -319,6 +322,12 @@ const LineaDeTiempoCotizaciones = () => {
     });
     const [loadingOpciones, setLoadingOpciones] = useState(false);
 
+    const navigate = useNavigate();
+                
+                    const handleLogout = () => {
+                        localStorage.removeItem("token");
+                        navigate("/");
+                    }
     // Estado inicial de los filtros (para reset)
     const filtrosIniciales = {
         search: '',
@@ -670,7 +679,7 @@ const LineaDeTiempoCotizaciones = () => {
 
     return (
         <div className="dashboard-container">
-            <Navigation />
+            <Navigation onLogout={handleLogout} />
             <ToastContainer position="bottom-right" autoClose={3000} />
 
             <div className="timeline-report-container">

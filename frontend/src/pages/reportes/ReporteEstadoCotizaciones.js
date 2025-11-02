@@ -102,7 +102,10 @@ const ReporteEstadoCotizaciones = () => {
   // nuevos estados para lista de usuarios / selección (coordinator/manager)
   const [selectedUserId, setSelectedUserId] = useState(''); // '' = Todos
 
-  const navigate = useNavigate(); // <-- agregado
+  const navigate = useNavigate();
+        const handleLogout = () => {
+          localStorage.removeItem("token");
+          navigate("/");}
 
   // Fetch current user role on mount
   useEffect(() => {
@@ -328,7 +331,7 @@ const ReporteEstadoCotizaciones = () => {
 
   return (
     <div className="dashboard-container">
-      <Navigation />
+      <Navigation onLogout={handleLogout} />
       <h2 className="title">Reporte de Estado de Cotizaciones</h2>
       <div className="reporte-cotizaciones-root">
         {/* Filtros y acciones arriba de todo */}

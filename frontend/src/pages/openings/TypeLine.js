@@ -2,8 +2,17 @@ import React from 'react';
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
 import { Settings, Zap, Shield, Thermometer, Star, Award, Crown } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 const Aberturas = () => {
+
+    const navigate = useNavigate();
+        
+            const handleLogout = () => {
+                localStorage.removeItem("token");
+                navigate("/");
+            }
+
     const lines = [
         {
             icon: <Settings size={32} />,
@@ -134,7 +143,7 @@ const Aberturas = () => {
 
     return (
         <div className="dashboard-container">
-            <Navigation />
+            <Navigation onLogout={handleLogout} />
             
             <div className="materials-header">
                 <h2 className="materials-title">Tipos de Líneas</h2>

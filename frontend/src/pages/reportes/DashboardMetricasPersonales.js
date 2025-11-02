@@ -15,6 +15,7 @@ import {
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
 import '../../styles/DashboardMetricasPersonales.css';
+import { useNavigate } from "react-router-dom";
 
 const DashboardMetricasPersonales = () => {
     const [metricsData, setMetricsData] = useState({});
@@ -25,6 +26,12 @@ const DashboardMetricasPersonales = () => {
         products: false
     });
 
+    const navigate = useNavigate();
+            
+                const handleLogout = () => {
+                    localStorage.removeItem("token");
+                    navigate("/");
+                }
     // Estado para filtros individuales
     const [metricsPeriod, setMetricsPeriod] = useState({
         fromDate: getDefaultFromDate(),
@@ -346,7 +353,7 @@ const DashboardMetricasPersonales = () => {
 
     return (
         <div className="metrics-dashboard-container">
-            <Navigation />
+            <Navigation onLogout={handleLogout} />
 
             <div className="metrics-dashboard-main-wrapper">
                 <div className="metrics-dashboard-content-container">
