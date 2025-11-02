@@ -13,7 +13,7 @@ body.light-mode .materials-title {
     background-clip: text;
 }
 body.light-mode .materials-subtitle {
-    color: #55585f;
+    color: #091116;
 }
 
 
@@ -156,7 +156,7 @@ body.light-mode .materials-subtitle {
 
 /* Modo Claro */
 body.light-mode .material-card {
-    background: linear-gradient(145deg, #8f9797, #76787a);
+    background: linear-gradient(145deg, #5ee9e9, #f6f6f7);
     border: 1px solid #0fcec4;
 }
 
@@ -172,7 +172,7 @@ body.light-mode .card-content {
 }
 
 body.light-mode .material-card:hover .card-content {
-    background: linear-gradient(transparent, rgba(255, 255, 255, 0.95));
+    background: linear-gradient(transparent, rgba(80, 197, 243, 0.95));
 }
 
 body.light-mode .card-title {
