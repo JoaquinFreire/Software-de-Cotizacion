@@ -6,6 +6,7 @@ import html2pdf from 'html2pdf.js';
 import ReactLoading from 'react-loading';
 import '../../styles/reporteindividual.css';
 import Navigation from '../../components/Navigation';
+import { useNavigate } from "react-router-dom";
 import { safeArray } from '../../utils/safeArray'; // agrega este import
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -29,6 +30,13 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
   const [mostrarBarrio, setMostrarBarrio] = useState({});
   const [mostrarTodos, setMostrarTodos] = useState(false);
   const pdfRef = useRef();
+
+  const navigate = useNavigate();
+        
+            const handleLogout = () => {
+                localStorage.removeItem("token");
+                navigate("/");
+            }
 
   // Obtiene lista de ciudades del JSON
   const ciudades = ciudadesBarrios.Cordoba.ciudades.map(c => c.nombre);
@@ -149,7 +157,7 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
   const totalProyectos = resultados.reduce((acc, r) => acc + r.count, 0);
   return (
     <div className="dashboard-container">
-      <Navigation />
+      <Navigation onLogout={handleLogout} />
       <h2 className="title">Analisis de proyecto por ubicación geográfica</h2>
       <div className="reporte-cotizaciones-root">
         <div className="reporte-cotizaciones-toolbar">

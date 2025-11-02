@@ -18,6 +18,12 @@ import {
     ArrowRight
 } from 'lucide-react';
 
+import { useNavigate } from "react-router-dom";
+
+
+
+
+
 const reportCards = [
     { // Reporte 1
         title: "Reporte de Estado de Cotizaciones",
@@ -142,9 +148,15 @@ const reportCards = [
 ];
 
 const Reportes = () => {
+const navigate = useNavigate();
+const handleLogout = () => {
+        localStorage.removeItem("token");
+        navigate("/");
+    };
+
     return (
         <div className="dashboard-container">
-            <Navigation />
+            <Navigation onLogout={handleLogout} />
             
             <div className="reportes-header">
                 <h2 className="reportes-title">Reportes Analíticos</h2>

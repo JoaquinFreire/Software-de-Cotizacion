@@ -106,7 +106,10 @@ const ReporteConsumoComplementos = () => {
 	const [fechaHasta, setFechaHasta] = useState(defaultDates.hasta);
 
 	const pdfRef = useRef();
-	const navigate = useNavigate(); // <-- agregado
+	const navigate = useNavigate();
+				const handleLogout = () => {
+					localStorage.removeItem("token");
+					navigate("/");}
 	// nuevo: fila seleccionada (id compuesto)
 	const [selectedBudgetKey, setSelectedBudgetKey] = useState(null);
 
@@ -254,7 +257,7 @@ const ReporteConsumoComplementos = () => {
 
 	return (
 		<div className="dashboard-container">
-			<Navigation />
+      <Navigation onLogout={handleLogout} />
 			<h2 className="title">Reporte de Consumo de Complementos</h2>
 			<div className="reporte-cotizaciones-root">
 				<div className="reporte-cotizaciones-toolbar">

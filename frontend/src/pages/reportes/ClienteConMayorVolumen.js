@@ -3,6 +3,7 @@ import Navigation from '../../components/Navigation';
 import Footer from '../../components/Footer';
 import { TrendingUp, Filter, ChevronDown, ChevronUp, Download, RefreshCw } from 'lucide-react';
 import '../../styles/DashboardEficienciaOperativa.css';
+import { useNavigate } from "react-router-dom";
 
 const API_BASE = process.env.REACT_APP_API_URL || '';
 const FALLBACK_ENDPOINT = `${API_BASE}/api/reportes/cliente-mayor-volumen`;
@@ -126,6 +127,13 @@ export default function ClienteConMayorVolumen() {
   const [loading, setLoading] = useState(false);
   const [filtersVisible, setFiltersVisible] = useState(false);
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
+          
+              const handleLogout = () => {
+                  localStorage.removeItem("token");
+                  navigate("/");
+              }
 
   useEffect(() => {
     fetchQuoters();
@@ -341,7 +349,7 @@ export default function ClienteConMayorVolumen() {
 
   return (
     <div className="dashboard-container">
-      <Navigation />
+      <Navigation onLogout={handleLogout} />
       <div className="dashboard-main-wrapper">
         <div className="dashboard-content-container">
           <div className="dashboard-header">

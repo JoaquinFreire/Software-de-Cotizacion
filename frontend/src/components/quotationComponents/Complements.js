@@ -120,24 +120,39 @@ const Complements = ({
         );
     };
 
-    const validateRow = (row) => {
-        if (!row.type) return 'Seleccione el tipo de complemento';
-        if (!row.complementId) return 'Seleccione el complemento';
-        if (!row.quantity || Number(row.quantity) <= 0) return 'Ingrese una cantidad/medida válida';
-        if (row.type === 'door' && !Number.isInteger(Number(row.quantity))) return 'La cantidad debe ser un número entero';
-        if (row.type === 'door') {
-            if (!row.custom.width || !row.custom.height) return 'Ingrese ancho y alto';
-            if (!row.custom.coating) return 'Seleccione un revestimiento';
+   const validateRow = (row) => {
+    const errors = [];
+    
+    if (!row.type) errors.push('Seleccione el tipo de complemento');
+    if (!row.complementId) errors.push('Seleccione el complemento');
+    if (!row.quantity || Number(row.quantity) <= 0) errors.push('Ingrese una cantidad válida');
+    if (row.type === 'door' && !Number.isInteger(Number(row.quantity))) errors.push('La cantidad debe ser un número entero');
+    
+    if (row.type === 'door') {
+        if (!row.custom.width) errors.push('Ancho requerido');
+        if (!row.custom.height) errors.push('Alto requerido');
+        if (!row.custom.coating) errors.push('Revestimiento requerido');
+        
+        // Validar accesorios individualmente
+        if (row.custom.accesories && row.custom.accesories.length > 0) {
+            row.custom.accesories.forEach((acc, accIdx) => {
+                if (!acc.name) errors.push(`Accesorio ${accIdx + 1}: nombre requerido`);
+                if (!acc.quantity || Number(acc.quantity) <= 0) errors.push(`Accesorio ${accIdx + 1}: cantidad requerida`);
+            });
         }
-        if (row.type === 'partition') {
-            if (!row.custom.height) return 'Ingrese alto';
-            if (!row.custom.glassMilimeters) return 'Ingrese espesor de vidrio';
-        }
-        if (row.type === 'railing') {
-            if (!row.custom.treatment) return 'Seleccione tratamiento';
-        }
-        return '';
-    };
+    }
+    
+    if (row.type === 'partition') {
+        if (!row.custom.height) errors.push('Alto requerido');
+        if (!row.custom.glassMilimeters) errors.push('Espesor de vidrio requerido');
+    }
+    
+    if (row.type === 'railing') {
+        if (!row.custom.treatment) errors.push('Tratamiento requerido');
+    }
+    
+    return errors.length > 0 ? errors.join(', ') : '';
+};
 
     useEffect(() => {
         setErrors(rows.map(validateRow));
@@ -537,86 +552,128 @@ const Complements = ({
                             </div>
 
                             {/* Campos personalizados por tipo */}
-                            {row.type === 'door' && complement && (
+                           {row.type === 'door' && complement && (
+    <div>
+        <div style={{ display: 'flex', gap: 36, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', marginTop: 12 }}>
+            <h5> Cantidad </h5>
+            <h5> Ancho(cm) </h5>
+            <h5> Alto(cm) </h5>
+        </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
+
+            <div>
+                <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="Cantidad"
+                    value={row.quantity}
+                    onChange={e => handleRowChange(idx, 'quantity', e.target.value)}
+                    style={{ width: 80 }}
+                    className={touchedRows[idx] && (!row.quantity || Number(row.quantity) <= 0) ? "input-error" : ""}
+                />
+                {touchedRows[idx] && (!row.quantity || Number(row.quantity) <= 0) && (
+                    <span className="error-message">Cantidad requerida</span>
+                )}
+            </div>
+
+            <div>
+                <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="Ancho (cm)"
+                    value={row.custom.width || ''}
+                    onChange={e => handleCustomChange(idx, 'width', e.target.value)}
+                    style={{ width: 100 }}
+                    className={touchedRows[idx] && !row.custom.width ? "input-error" : ""}
+                />
+                {touchedRows[idx] && !row.custom.width && (
+                    <span className="error-message">Ancho requerido</span>
+                )}
+            </div>
+
+            <div>
+                <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="Alto (cm)"
+                    value={row.custom.height || ''}
+                    onChange={e => handleCustomChange(idx, 'height', e.target.value)}
+                    style={{ width: 100 }}
+                    className={touchedRows[idx] && !row.custom.height ? "input-error" : ""}
+                />
+                {touchedRows[idx] && !row.custom.height && (
+                    <span className="error-message">Alto requerido</span>
+                )}
+            </div>
+            
+            <div>
+                <select
+                    value={row.custom.coating || ''}
+                    onChange={e => handleCustomChange(idx, 'coating', e.target.value)}
+                    className={touchedRows[idx] && !row.custom.coating ? "input-error" : ""}
+                >
+                    <option value="">Revestimiento</option>
+                    {safeArray(coatings).map(c => (
+                        <option key={c.id} value={c.id}>{c.name} - {c.price}%</option>
+                    ))}
+                </select>
+                {touchedRows[idx] && !row.custom.coating && (
+                    <span className="error-message">Revestimiento requerido</span>
+                )}
+            </div>
+        </div>
+        
+        <div>
+            <button type="button" onClick={() => handleAddAcc(idx)} className='BottonAccesories'>+ Accesorio</button>
+            {row.custom.accesories && row.custom.accesories.length > 0 && (
+                <>
+                    {row.custom.accesories.map((acc, accIdx) => {
+                        const hasAccError = touchedRows[idx] && (!acc.name || !acc.quantity || Number(acc.quantity) <= 0);
+                        return (
+                            <div key={accIdx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
                                 <div>
-                                    <div style={{ display: 'flex', gap: 36, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', marginTop: 12 }}>
-                                        <h5> Cantidad </h5>
-                                        <h5> Ancho(cm) </h5>
-                                        <h5> Alto(cm) </h5>
-                                    </div>
-                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
-
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            step="1"
-                                            placeholder="Cantidad"
-                                            value={row.quantity}
-                                            onChange={e => handleRowChange(idx, 'quantity', e.target.value)}
-                                            style={{ width: 80 }}
-                                        />
-
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            step="1"
-                                            placeholder="Ancho (cm)"
-                                            value={row.custom.width || ''}
-                                            onChange={e => handleCustomChange(idx, 'width', e.target.value)}
-                                            style={{ width: 100 }}
-                                        />
-
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            step="1"
-                                            placeholder="Alto (cm)"
-                                            value={row.custom.height || ''}
-                                            onChange={e => handleCustomChange(idx, 'height', e.target.value)}
-                                            style={{ width: 100 }}
-                                        />
-                                        <select
-                                            value={row.custom.coating || ''}
-                                            onChange={e => handleCustomChange(idx, 'coating', e.target.value)}
-                                        >
-                                            <option value="">Revestimiento</option>
-                                            {safeArray(coatings).map(c => (
-                                                <option key={c.id} value={c.id}>{c.name} - {c.price}%</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <button type="button" onClick={() => handleAddAcc(idx)} className='BottonAccesories'>+ Accesorio</button>
-                                        {row.custom.accesories && row.custom.accesories.length > 0 && (
-                                            <>
-                                                {row.custom.accesories.map((acc, accIdx) => (
-                                                    <div key={accIdx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                                                        <select
-                                                            value={acc.name || ''}
-                                                            onChange={e => handleAccChange(idx, accIdx, 'name', e.target.value)}
-                                                            style={{ width: 180 }}
-                                                        >
-                                                            <option value="">Seleccione accesorio</option>
-                                                            {safeArray(accesories).map(a => (
-                                                                <option key={a.id} value={a.name}>{a.name} - ${a.price}</option>
-                                                            ))}
-                                                        </select>
-                                                        <input
-                                                            type="number"
-                                                            placeholder="Cantidad"
-                                                            min="1"
-                                                            step="1"
-                                                            value={acc.quantity}
-                                                            onChange={e => handleAccChange(idx, accIdx, 'quantity', e.target.value)}
-                                                            style={{ width: 80 }}
-                                                        />
-                                                        <button type="button" onClick={() => handleRemoveAcc(idx, accIdx)} className='BottonDelete'>🗑️</button>
-
-                                                    </div>
-                                                ))}
-                                            </>
-                                        )}
-                                    </div>
+                                    <select
+                                        value={acc.name || ''}
+                                        onChange={e => handleAccChange(idx, accIdx, 'name', e.target.value)}
+                                        style={{ width: 180 }}
+                                        className={hasAccError ? "input-error" : ""}
+                                    >
+                                        <option value="">Seleccione accesorio</option>
+                                        {safeArray(accesories).map(a => (
+                                            <option key={a.id} value={a.name}>{a.name} - ${a.price}</option>
+                                        ))}
+                                    </select>
+                                    {hasAccError && !acc.name && (
+                                        <span className="error-message">Accesorio requerido</span>
+                                    )}
+                                </div>
+                                <div>
+                                    <input
+                                        type="number"
+                                        placeholder="Cantidad"
+                                        min="1"
+                                        step="1"
+                                        value={acc.quantity}
+                                        onChange={e => handleAccChange(idx, accIdx, 'quantity', e.target.value)}
+                                        style={{ width: 80 }}
+                                        className={hasAccError ? "input-error" : ""}
+                                    />
+                                    {hasAccError && (!acc.quantity || Number(acc.quantity) <= 0) && (
+                                        <span className="error-message">Cantidad requerida</span>
+                                    )}
+                                </div>
+                                <button type="button" onClick={() => handleRemoveAcc(idx, accIdx)} className='BottonDelete'>🗑️</button>
+                            </div>
+                        );
+                    })}
+                </>
+            )}
+        </div>
+        
+       
 
                                     {/* Mostrar cálculo preliminar de precios */}
                                     <div style={{ marginTop: 8, padding: 8, borderRadius: 6 }}>
@@ -655,56 +712,60 @@ const Complements = ({
                                 </div>
                             )}
                             {row.type === 'partition' && complement && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
-                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            step="1"
-                                            placeholder="Alto (cm)"
-                                            value={row.custom.height || ''}
-                                            onChange={e => handleCustomChange(idx, 'height', e.target.value)}
-                                            style={{ width: 100 }}
-                                        />
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            step="1"
-                                            placeholder="Cantidad"
-                                            value={row.quantity}
-                                            onChange={e => handleRowChange(idx, 'quantity', e.target.value)}
-                                            style={{ width: 80 }}
-                                        />
-                                        {/* Radios Simple / Doble (por defecto Doble) */}
-                                        <div>
-                                            <label style={{ marginRight: 8 }}>
-                                                <input
-                                                    type="radio"
-                                                    name={`simple-${idx}`}
-                                                    checked={row.custom.simple === true}
-                                                    onChange={() => handleCustomChange(idx, 'simple', true)}
-                                                /> Simple
-                                            </label>
-                                            <label>
-                                                <input
-                                                    type="radio"
-                                                    name={`simple-${idx}`}
-                                                    checked={row.custom.simple === false}
-                                                    onChange={() => handleCustomChange(idx, 'simple', false)}
-                                                /> Doble
-                                            </label>
-                                        </div>
-                                        <select
-                                            value={row.custom.glassMilimeters || ''}
-                                            onChange={e => handleCustomChange(idx, 'glassMilimeters', e.target.value)}
-                                            style={{ width: 120 }}
-                                        >
-                                            <option value="">Espesor vidrio (mm)</option>
-                                            <option value="6">6 mm</option>
-                                            <option value="8">8 mm</option>
-                                            <option value="10">10 mm</option>
-                                        </select>
-                                    </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <input
+                type="number"
+                min="1"
+                step="1"
+                placeholder="Alto (cm)"
+                value={row.custom.height || ''}
+                onChange={e => handleCustomChange(idx, 'height', e.target.value)}
+                style={{ width: 100 }}
+                className={touchedRows[idx] && !row.custom.height ? "input-error" : ""}
+            />
+            <input
+                type="number"
+                min="1"
+                step="1"
+                placeholder="Cantidad"
+                value={row.quantity}
+                onChange={e => handleRowChange(idx, 'quantity', e.target.value)}
+                style={{ width: 80 }}
+                className={touchedRows[idx] && (!row.quantity || Number(row.quantity) <= 0) ? "input-error" : ""}
+            />
+            {/* Radios Simple / Doble (por defecto Doble) */}
+            <div>
+                <label style={{ marginRight: 8 }}>
+                    <input
+                        type="radio"
+                        name={`simple-${idx}`}
+                        checked={row.custom.simple === true}
+                        onChange={() => handleCustomChange(idx, 'simple', true)}
+                    /> Simple
+                </label>
+                <label>
+                    <input
+                        type="radio"
+                        name={`simple-${idx}`}
+                        checked={row.custom.simple === false}
+                        onChange={() => handleCustomChange(idx, 'simple', false)}
+                    /> Doble
+                </label>
+            </div>
+            <select
+                value={row.custom.glassMilimeters || ''}
+                onChange={e => handleCustomChange(idx, 'glassMilimeters', e.target.value)}
+                style={{ width: 120 }}
+                className={touchedRows[idx] && !row.custom.glassMilimeters ? "input-error" : ""}
+            >
+                <option value="">Espesor vidrio (mm)</option>
+                <option value="6">6 mm</option>
+                <option value="8">8 mm</option>
+                <option value="10">10 mm</option>
+            </select>
+        </div>
+
 
                                     {/* Desglose dinámico de precio para tabique */}
                                     <div style={{ marginTop: 6, padding: 8, borderRadius: 6 }}>
@@ -743,35 +804,37 @@ const Complements = ({
                                 </div>
                             )}
                             {row.type === 'railing' && complement && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
-                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            step="1"
-                                            placeholder="Cantidad"
-                                            value={row.quantity}
-                                            onChange={e => handleRowChange(idx, 'quantity', e.target.value)}
-                                            style={{ width: 80 }}
-                                        />
-                                        <select
-                                            value={row.custom.treatment || ''}
-                                            onChange={e => handleCustomChange(idx, 'treatment', e.target.value)}
-                                        >
-                                            <option value="">Tratamiento</option>
-                                            {safeArray(alumTreatments).map(t => (
-                                                <option key={t.id} value={t.id}>{t.name}</option>
-                                            ))}
-                                        </select>
-                                        <label>
-                                            <input
-                                                type="checkbox"
-                                                checked={!!row.custom.reinforced}
-                                                onChange={e => handleCustomChange(idx, 'reinforced', e.target.checked)}
-                                            />
-                                            Reforzado
-                                        </label>
-                                    </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <input
+                type="number"
+                min="1"
+                step="1"
+                placeholder="Cantidad"
+                value={row.quantity}
+                onChange={e => handleRowChange(idx, 'quantity', e.target.value)}
+                style={{ width: 80 }}
+                className={touchedRows[idx] && (!row.quantity || Number(row.quantity) <= 0) ? "input-error" : ""}
+            />
+            <select
+                value={row.custom.treatment || ''}
+                onChange={e => handleCustomChange(idx, 'treatment', e.target.value)}
+                className={touchedRows[idx] && !row.custom.treatment ? "input-error" : ""}
+            >
+                <option value="">Tratamiento</option>
+                {safeArray(alumTreatments).map(t => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+            </select>
+            <label>
+                <input
+                    type="checkbox"
+                    checked={!!row.custom.reinforced}
+                    onChange={e => handleCustomChange(idx, 'reinforced', e.target.checked)}
+                />
+                Reforzado
+            </label>
+        </div>
 
                                     {/* Desglose dinámico de precio para baranda */}
                                     <div style={{ marginTop: 6, padding: 8, borderRadius: 6 }}>

@@ -2,8 +2,17 @@ import React from 'react';
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
 import { DoorOpen, Grid3X3, Ruler, Building } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+
 
 const Aberturas = () => {
+    const navigate = useNavigate();
+        
+            const handleLogout = () => {
+                localStorage.removeItem("token");
+                navigate("/");
+            };
+    
     const complements = [
         {
             icon: <DoorOpen size={32} />,
@@ -58,7 +67,7 @@ const Aberturas = () => {
 
     return (
         <div className="dashboard-container">
-            <Navigation />
+            <Navigation onLogout={handleLogout} />
             
             <div className="materials-header">
                 <h2 className="materials-title">Tipos de Complementos</h2>

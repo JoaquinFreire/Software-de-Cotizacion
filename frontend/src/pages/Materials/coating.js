@@ -2,8 +2,16 @@ import React from 'react';
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
 import { Palette, TreePine, Layers, Brush, Sticker } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+
 
 const Materiales = () => {
+
+      const navigate = useNavigate();
+            const handleLogout = () => {
+                    localStorage.removeItem("token");
+                    navigate("/");
+            }
     const coatings = [
         {
             icon: <Palette size={32} />,
@@ -39,7 +47,7 @@ const Materiales = () => {
 
     return (
         <div className="dashboard-container">
-            <Navigation />
+            <Navigation onLogout={handleLogout} />
             
             <div className="materials-header">
                 <h2 className="materials-title">Revestimientos</h2>

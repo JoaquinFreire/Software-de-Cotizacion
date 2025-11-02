@@ -8,6 +8,7 @@ import '../../styles/reporteindividual.css';
 import html2pdf from 'html2pdf.js';
 import { safeArray } from '../../utils/safeArray';
 import ReactLoading from 'react-loading'; // <--- spinner
+import { useNavigate } from "react-router-dom";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -78,7 +79,10 @@ const ReporteDeProductividadPorCotizador = () => {
   const [loading, setLoading] = useState(false);
   const [quotations, setQuotations] = useState([]);
   const pdfRef = useRef();
-
+  	const navigate = useNavigate();
+				const handleLogout = () => {
+					localStorage.removeItem("token");
+					navigate("/");}
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -140,7 +144,7 @@ const ReporteDeProductividadPorCotizador = () => {
 
   return (
     <div className="dashboard-container productividad-report">
-      <Navigation />
+      <Navigation onLogout={handleLogout} />
       <h2 className="title">Reporte de Productividad por Cotizador</h2>
 
       <div className="reporte-cotizaciones-root">

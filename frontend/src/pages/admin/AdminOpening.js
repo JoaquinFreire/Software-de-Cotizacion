@@ -6,6 +6,7 @@ import "../../styles/adminOpeninig.css";
 import axios from "axios";
 import ReactLoading from 'react-loading';
 import ConfirmationModal from "../../components/ConfirmationModal";
+
  
 
 import { safeArray } from "../../utils/safeArray";
@@ -13,13 +14,18 @@ import { safeArray } from "../../utils/safeArray";
 const API_URL = process.env.REACT_APP_API_URL;
 
 const AdminOpening = () => {
-    const navigate = useNavigate();
+
     const [openings, setOpenings] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [deletingId, setDeletingId] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
+    const navigate = useNavigate();
+        const handleLogout = () => {
+                localStorage.removeItem("token");
+                navigate("/");
+        }
     // Modal and form state
     const [showModal, setShowModal] = useState(false);
     const [editingOpening, setEditingOpening] = useState(null);
@@ -146,7 +152,7 @@ const AdminOpening = () => {
 
     return (
         <div className="dashboard-container">
-            <Navigation />
+            <Navigation onLogout={handleLogout} />
             <div className="admin-opening">
                 <div className="admin-opening-header">
                 <h2 className="materials-title">Administrar Aberturas</h2>

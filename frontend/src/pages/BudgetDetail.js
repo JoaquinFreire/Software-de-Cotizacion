@@ -6,6 +6,7 @@ import logoAnodal from '../images/logo_secundario.webp';
 import miniLogo from '../images/logo_secundario.webp';
 import ReactLoading from 'react-loading';
 import Navbar from '../components/Navigation';
+import Navigation from '../components/Navigation';
 import { safeArray } from '../utils/safeArray';
 import '../styles/BudgetDetail.css';
 import Qrcode from '../images/qr-code.png';
@@ -13,6 +14,9 @@ import Qrcode from '../images/qr-code.png';
 import pdfMake from 'pdfmake/build/pdfmake';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import { ToastContainer, toast, Slide } from 'react-toastify';
+import { useNavigate } from 'react-router-dom'; // <-- agregado
+
+
 // Asignación robusta de vfs para distintas formas de exportación del paquete
 pdfMake.vfs = (
   (pdfFonts && (pdfFonts.pdfMake && pdfFonts.pdfMake.vfs)) ||
@@ -40,6 +44,11 @@ const BudgetDetail = () => {
   const [pdfLoading, setPdfLoading] = useState(false);
   const [mailLoading, setMailLoading] = useState(false);
   const [whatsAppLoading, setWhatsAppLoading] = useState(false);
+
+  	const navigate = useNavigate();
+				const handleLogout = () => {
+					localStorage.removeItem("token");
+					navigate("/");}
 
   // Helper: parsea/normaliza números que pueden venir como string con comas/puntos/extraneous chars
   const safeNumber = (v) => {
@@ -1058,9 +1067,14 @@ const BudgetDetail = () => {
   };
 
   return (
+    
     <>
+    
       <Navbar />
+
       <div className="content-bottom">
+        <Navigation onLogout={handleLogout} />
+
         <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
 
         {/* Contenedor único que agrupa botones y select para evitar que se desplacen */}
@@ -1128,8 +1142,7 @@ const BudgetDetail = () => {
           <div>No se encontró la cotización.</div>
         )}
       </div>
-    </>
-  );
+    </>  );
 };
 
 export default BudgetDetail;

@@ -32,6 +32,8 @@ import { Bar } from 'react-chartjs-2';
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
 import '../../styles/DashboardSostenibilidad.css';
+import { useNavigate } from "react-router-dom";
+
 
 // Registrar componentes de Chart.js
 ChartJS.register(
@@ -63,6 +65,12 @@ const DashboardSostenibilidad = () => {
         healthDetails: false
     });
 
+    const navigate = useNavigate();
+            
+                const handleLogout = () => {
+                    localStorage.removeItem("token");
+                    navigate("/");
+                }
     const chartRef = useRef(null);
     const API_URL = process.env.REACT_APP_API_URL;
 
@@ -536,7 +544,7 @@ const DashboardSostenibilidad = () => {
 
     return (
         <div className="sustainability-dashboard-container">
-            <Navigation />
+            <Navigation onLogout={handleLogout} />
 
             <div className="sustainability-dashboard-main-wrapper">
                 <div className="sustainability-dashboard-content-container">
