@@ -213,7 +213,7 @@ const Navigation = ({ onLogout }) => {
                                 <div className="user-text">Rol: <span>{user?.role || "Sin rol"}</span></div>
 
                                 {/* Botones simplificados sin encabezados anidados */}
-                                <button className="dropdown-link" onClick={() => { setUserMenuOpen(false); navigate('/config-cliente'); }}>Configuración</button>
+                                <button className="dropdown-link" onClick={() => { setUserMenuOpen(false); navigate('/config-user'); }}>Configuración</button>
                                 <button className="dropdown-link" onClick={onLogout}>Cerrar Sesión</button>
                             </>
                         )}
