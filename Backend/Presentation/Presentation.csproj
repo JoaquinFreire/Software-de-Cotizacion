@@ -4,21 +4,13 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<!-- Agrega estas propiedades -->
 		<StaticWebAssetBasePath>/</StaticWebAssetBasePath>
+		<StaticWebAssetsEnableCompression>false</StaticWebAssetsEnableCompression>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<Content Include="img\anodalLogo.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
-
-	<!-- AGREGA ESTE ITEM GROUP PARA EL ARCHIVO PROBLEMÁTICO -->
-	<ItemGroup>
-		<Content Update="wwwroot\public-links.json">
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 		</Content>
 	</ItemGroup>
 
@@ -41,6 +33,10 @@
 		<ProjectReference Include="..\Application\Application.csproj" />
 		<ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
 		<ProjectReference Include="..\Shared\Shared.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="wwwroot\" />
 	</ItemGroup>
 
 </Project>
