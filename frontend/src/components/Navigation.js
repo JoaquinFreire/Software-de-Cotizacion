@@ -202,17 +202,19 @@ const Navigation = ({ onLogout }) => {
                     </div>
                 </button>
                 {userMenuOpen && (
-                    <div className="dropdown-menu user-dropdown">
+                    /* <-- CORRECCIÓN: agregar espacio antes de la clase opcionesuser cuando theme === "light" */
+                    <div className={`dropdown-menu user-dropdown ${theme === "light" ? "opcionesuser" : ""}`}>
                         {loading ? (
-                            <p className="user-text">Cargando...</p>
+                            <div className="user-text">Cargando...</div>
                         ) : (
                             <>
-                                <p className="user-text">
-                                    <h2><strong>{firstName} {lastName}</strong></h2>
-                                </p>
-                                <p className="user-text"><h2>Rol: <span>{user?.role || "Sin rol"}</span></h2></p>
-                                <button className="dropdown-link" onClick={() => { setUserMenuOpen(false); navigate('/config-cliente'); }}><h3>Configuración</h3></button>
-                                <button className="dropdown-link" onClick={onLogout}><h3>Cerrar Sesión</h3></button>
+                                {/* Evitar p>h2; usar elementos válidos y simples para que el CSS funcione bien */}
+                                <div className="user-text"><strong>{firstName} {lastName}</strong></div>
+                                <div className="user-text">Rol: <span>{user?.role || "Sin rol"}</span></div>
+
+                                {/* Botones simplificados sin encabezados anidados */}
+                                <button className="dropdown-link" onClick={() => { setUserMenuOpen(false); navigate('/config-user'); }}>Configuración</button>
+                                <button className="dropdown-link" onClick={onLogout}>Cerrar Sesión</button>
                             </>
                         )}
                     </div>
@@ -343,7 +345,9 @@ const Navigation = ({ onLogout }) => {
                 className={`sidebar-nav${sidebarOpen ? " open" : " closed"}`}
                 style={{
                     width: sidebarOpen ? "250px" : "0px",
-                    backgroundColor: theme === "light" ? "#ffffffff" : "#121212",
+                    background: theme === "light"
+                        ? "linear-gradient(135deg, #26b7cd 0%, #93d3db 50%, #cce3e1 100%)"
+                        : "#121212",
                 }}
             >
                 <button
@@ -395,8 +399,9 @@ const Navigation = ({ onLogout }) => {
                             <span style={{ marginLeft: 6, fontSize: 14 }}>{adminMenuOpen ? "▲" : "▼"}</span>
                         </button>
                         {adminMenuOpen && (
-                            <div className="sidebar-admin-dropdown">
-                                <NavLink to="/admin/usuarios" className="sidebar-link">Administrar Usuarios</NavLink>
+                            <div className={`sidebar-admin-dropdown${theme === "light" ? "adminopciones" : ""}`}>
+                                <NavLink
+                                 to="/admin/usuarios" className="sidebar-link">Administrar Usuarios</NavLink>
                                 <NavLink to="/admin/materiales" className="sidebar-link">Administrar Materiales</NavLink>
                                 <NavLink to="/admin/prices" className="sidebar-link">Administrar Precios</NavLink>
                                 <NavLink to="/admin/aberturas" className="sidebar-link">Administrar Aberturas</NavLink>

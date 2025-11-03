@@ -2,8 +2,15 @@ import React from 'react';
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
 import { Shield, Zap, Palette, Droplets, Waves, Brush } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+
 
 const Materiales = () => {
+    const navigate = useNavigate();
+            const handleLogout = () => {
+                    localStorage.removeItem("token");
+                    navigate("/");
+            }
     const treatments = [
         {
             icon: <Zap size={32} />,
@@ -45,7 +52,7 @@ const Materiales = () => {
 
     return (
         <div className="dashboard-container">
-            <Navigation />
+            <Navigation onLogout={handleLogout} />
             
             <div className="materials-header">
                 <h2 className="materials-title">Tratamiento de Aluminio</h2>

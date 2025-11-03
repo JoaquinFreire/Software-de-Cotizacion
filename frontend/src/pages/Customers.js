@@ -11,7 +11,12 @@ import ReactLoading from "react-loading";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+
 const Customers = () => {
+  const handleLogout = () => {
+          localStorage.removeItem("token");
+          navigate("/");
+      };
   const {
     customers, page, total, loading, PAGE_SIZE,
     goToCustomerPage, switchToCustomers,
@@ -197,10 +202,11 @@ const Customers = () => {
     const res = await fetchCustomerByDni(searchDni.trim());
     setSearchResult(res); // null = not found, object = found
   };
+  
 
   return (
     <div className="dashboard-container">
-      <Navigation />
+      <Navigation onLogout={handleLogout} />
       <ToastContainer position="bottom-right" autoClose={3000} />
       <div className="materials-header">
           <h2 className="materials-title">Gestión de Clientes</h2>

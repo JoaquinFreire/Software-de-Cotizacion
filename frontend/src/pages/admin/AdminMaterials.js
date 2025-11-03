@@ -11,7 +11,10 @@ const API_URL = process.env.REACT_APP_API_URL || "";
 
 const AdminMaterials = () => {
 	const navigate = useNavigate();
-
+		const handleLogout = () => {
+				localStorage.removeItem("token");
+				navigate("/");
+		}
 	useEffect(() => {
 		fetchCurrentUser();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -44,7 +47,7 @@ const AdminMaterials = () => {
 	return (
 		<div className="dashboard-container">
 			<ToastContainer autoClose={4000} theme="dark" position="bottom-right" />
-			<Navigation />
+            <Navigation onLogout={handleLogout} />
 			
 			<div className="admin-materials-header">
 				<h2 className="materials-title">Administrar Materiales</h2>

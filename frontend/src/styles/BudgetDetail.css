@@ -1,35 +1,110 @@
 .content-bottom {
   display: flex;
   justify-content: center;
-  background-color: #ccc;
+  background-color: #2c2c2c;
+  padding: 14px 20px; /* espacio cómodo alrededor */
+  align-items: center;
 }
 
-.only-screen {
-  margin: 24px 20px;
+/* nuevo: contenedor que agrupa botones y select, mantiene todo en una fila */
+.controls-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 950px;
+  min-width: 900px;
+  justify-content: flex-start; /* botones a la izquierda */
+  flex-wrap: wrap; /* permite que el select baje en pantallas pequeñas */
 }
-.only-screen button {
-  font-size: 16px;
-    width: 15rem;
-    max-width: 22rem;
-    padding: 1rem 4rem;
-    text-align: center;
-    font-weight: bold;
+
+/* grupo de botones pegados entre sí pero con gap */
+.button-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* mantener estilo previo de los botones (se respetan clases existentes) */
+.only-screen {
+  margin: 0; /* ya no se usa margin grande por control del wrapper */
+}
+
+/* versión: etiqueta y select integrados con botones */
+.version-select {
+  margin-left: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+/* etiqueta pequeña y sutil */
+.version-label {
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+/* select que combine con los botones: fondo oscuro, texto blanco, borde sutil */
+.version-select-input {
+  padding: 12px 10px;
+  border-radius: 2px;
+  background-color: #4dc2ae;
+  color: #3d3c3c;
+  font-weight: 600;
+  min-width: 160px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  font-size: 1rem;
+}
+
+/* ajustar tamaño de botones para que queden parejos con el select */
+.only-screen button,
+.reporte-cotizaciones-btn-pdf,
+.reporte-cotizaciones-btn-email,
+.reporte-cotizaciones-btn-whatsapp {
+  font-size: 15px;
+  padding: 0.8rem 1.2rem;
+  width: auto;
+  min-width: 10rem;
+  max-width: 18rem;
+  margin-left: 10px;
+  margin-bottom: 8px;
+}
+
+/* responsive: en pantallas chicas, apilar select debajo de botones */
+@media (max-width: 700px) {
+  .controls-wrapper {
+    justify-content: center;
+  }
+  .version-select {
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  .version-select-input {
+    min-width: 180px;
+  }
 }
 
 .pdf-background {
-  background-color: #ccc;
+  background-color: #242424;
   display: flex;
   justify-content: center;
+}
+body.light-mode  .pdf-background {
+  background-color: #f0f0f0;
 }
 
 .pdf-container {
   width: 1000px;
   height: auto; /* permitir que crezca */
-  background: #fff;
+  background: #7979792f;
   padding: 30px;
   font-family: Arial, sans-serif;
   color: #000;
-  box-shadow: 0 0 0 1px #999;
+  box-shadow: 0 0 0 1px #1a8d83;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -217,4 +292,20 @@
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
+}
+
+.pdf-complements {
+  margin-top: 12px;
+}
+
+.pdf-complement-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.pdf-complement-table td,
+.pdf-complement-table th {
+  border-bottom: 1px solid #e6e6e6;
+  padding: 8px 6px;
 }

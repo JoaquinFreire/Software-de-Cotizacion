@@ -9,12 +9,14 @@ import { ToastContainer, toast, Slide } from 'react-toastify'; // Agregar notifi
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-export default function ConfigCliente() {
+export default function ConfigUser() {
 	const { user: ctxUser, setUser: setCtxUser } = useContext(UserContext || {});
 	const navigate = useNavigate();
 
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
+	// NOTE: theme removed from here. Navigation controla body.light-mode.
+
 	const [form, setForm] = useState({
 		id: null,
 		name: "",
@@ -29,6 +31,12 @@ export default function ConfigCliente() {
 	useEffect(() => {
 		fetchCurrentUser();
 	}, []);
+
+	const canEditRoleOrStatus = () => {
+		const r = ctxUser?.role;
+		const roleName = typeof r === "string" ? r : r?.role_name;
+		return roleName === "manager" || roleName === "coordinator";
+	};
 
 	const fetchCurrentUser = async () => {
 		setLoading(true);
@@ -69,38 +77,51 @@ export default function ConfigCliente() {
 		try {
 			const token = localStorage.getItem("token");
 
-			const payload = {
-				name: form.name,
-				lastName: form.lastName,
-				legajo: form.legajo,
-				mail: form.mail,
-				status: form.status ?? 1,
-				role_id: form.role_id ?? form.role?.id,
-			};
+			// Build payload following backend UpdateUserDTO
+			const payload = {};
+			// Only send email (campo permitido para todos)
+			if (form.mail) payload.mail = form.mail;
 
-			// Usar el endpoint para el usuario actual
+			// Only include status/role_id if current user has permission
+			if (canEditRoleOrStatus()) {
+				if (form.status !== undefined && form.status !== null) payload.status = form.status;
+				if (form.role_id) payload.role_id = form.role_id;
+			}
+
+			// Use the backend endpoint for updating the current user (safer for own profile)
 			await axios.put(`${API_URL}/api/users/me`, payload, {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 
-			// Usar toast para notificaciones consistentes
-			toast.success("Email actualizado correctamente.");
+			toast.success("Datos guardados correctamente.");
 
-			// Actualizar contexto
+			// Actualizar contexto: sólo campos editables por el usuario
 			if (setCtxUser) {
-				setCtxUser({ 
-					...ctxUser, 
+				setCtxUser({
+					...ctxUser,
 					mail: form.mail,
-					name: form.name,
-					lastName: form.lastName 
+					// name/lastName intentionally not updated in context because backend may reject changes
 				});
 			}
 		} catch (err) {
 			console.error("Error al actualizar el usuario:", err.response?.data || err.message);
-			
-			// Mensajes de error más específicos
-			const errorMessage = err.response?.data?.message || "No se pudo actualizar el email.";
-			toast.error(errorMessage);
+
+			// Manejo específico para permisos
+			if (err.response?.status === 403 || err.response?.status === 401) {
+				toast.error("No tienes permisos para modificar esos campos. Contacta al administrador.");
+			} else if (err.response?.status === 400 && err.response.data?.errors) {
+				// ProblemDetails errors: combinar mensajes de cada campo
+				const errors = err.response.data.errors;
+				const messages = [];
+				for (const k in errors) {
+					if (Array.isArray(errors[k])) messages.push(...errors[k]);
+					else messages.push(String(errors[k]));
+				}
+				toast.error(messages.join(" — "));
+			} else {
+				const errorMessage = err.response?.data?.message || "No se pudo actualizar la información.";
+				toast.error(errorMessage);
+			}
 		} finally {
 			setSaving(false);
 		}
@@ -111,6 +132,13 @@ export default function ConfigCliente() {
 		navigate("/");
 	};
 
+	// Helper to get initials for avatar
+	const getInitials = (n, ln) => {
+		const a = (n || "").trim().split(" ")[0] || "";
+		const b = (ln || "").trim().split(" ")[0] || "";
+		return (a.charAt(0) + (b.charAt(0) || "")).toUpperCase();
+	};
+
 	return (
 		<div className="dashboard-container">
 			<Navigation onLogout={handleLogout} />
@@ -119,6 +147,7 @@ export default function ConfigCliente() {
 				<div className="config-header">
 					<h1 className="materials-title">Configuración de cuenta</h1>
 					<p className="config-subtitle">Puedes modificar tu información personal</p>
+					{/* El control de tema está centralizado en Navigation; no mostrar toggle aquí */}
 				</div>
 
 				{loading ? (
@@ -128,6 +157,23 @@ export default function ConfigCliente() {
 					</div>
 				) : (
 					<form className="user-config-form" onSubmit={handleSave}>
+						<section className="profile-image-section">
+							<div className="profile-image-container">
+								<div className="profile-image-wrapper">
+									<div className="profile-image-circle" title="Avatar">
+										{/* Simple initials avatar */}
+										<div className="profile-initials">
+											{getInitials(form.name, form.lastName)}
+										</div>
+									</div>
+								</div>
+								<div className="profile-image-info">
+									<h3>{form.name} {form.lastName}</h3>
+									<p>{form.mail}</p>
+								</div>
+							</div>
+						</section>
+
 						<section className="config-section">
 							<h2 className="section-title">Datos del usuario</h2>
 							<div className="form-grid">
@@ -138,6 +184,7 @@ export default function ConfigCliente() {
 										value={form.name} 
 										onChange={handleChange}
 										className="form-input" 
+										readOnly
 									/>
 								</div>
 
@@ -148,6 +195,7 @@ export default function ConfigCliente() {
 										value={form.lastName} 
 										onChange={handleChange}
 										className="form-input" 
+										readOnly
 									/>
 								</div>
 
@@ -184,6 +232,10 @@ export default function ConfigCliente() {
 									</div>
 								)}
 							</div>
+							{/* Nota sobre permisos */}
+							<p style={{ marginTop: 12, color: "var(--muted-color)" }}>
+								Solo el email puede modificarse desde aquí. Cambios de rol o estado solo están permitidos para coordinadores/administradores.
+							</p>
 						</section>
 
 						<div className="form-actions">

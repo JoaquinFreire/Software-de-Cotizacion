@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Layers, Palette, Shield, Gem } from "lucide-react";
 import "../../styles/Materials.css";
 
+
 const Materiales = () => {
     const navigate = useNavigate();
 

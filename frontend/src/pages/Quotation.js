@@ -16,6 +16,7 @@ import { validateQuotation } from "../validation/quotationValidation";
 import { validateCustomer } from "../validation/customerValidation";
 import { validateWorkPlace } from "../validation/workPlaceValidation";
 import { validateOpenings } from "../validation/openingValidation";
+import { validateAgent } from "../validation/agentValidation";
 import { safeArray } from '../utils/safeArray';
 import { toast } from 'react-toastify';
 import { ToastContainer, Slide } from 'react-toastify';
@@ -171,7 +172,7 @@ const Quotation = () => {
     }, [newCustomer.dni]);
 
     // Carousel navigation
-     const handlePrev = useCallback(() => {
+    const handlePrev = useCallback(() => {
         if (swiperRef.current && swiperRef.current.swiper) {
             swiperRef.current.swiper.slidePrev();
         }
@@ -195,21 +196,19 @@ const Quotation = () => {
         }
     }, [newCustomer, workPlace, selectedOpenings]); // <-- newAgent removido
 
-    useEffect(() => {
-    }, [currentIndex, validateStep]);
-
     const handleNext = useCallback(() => {
         // Validar que el cliente esté agregado antes de avanzar del paso 0
         if (currentIndex === 0 && !isCustomerAdded) {
-            setStepErrors({ 
-                general: "Debe agregar el cliente al resumen antes de continuar" 
+            setStepErrors({
+                general: "Debe agregar el cliente al resumen antes de continuar"
             });
             return;
         }
 
         const validation = validateStep(currentIndex);
         if (!validation.valid) {
-            setStepErrors(validation.errors);
+            // Evitamos mostrar errores al navegar; solo impedir avance y avisar.
+            toast.error("Complete los datos o agréguelos al resumen antes de continuar.");
             return;
         } else {
             setStepErrors({});
@@ -226,12 +225,12 @@ const Quotation = () => {
     const canNavigateToStep = useCallback((targetStep) => {
         // Si vamos al paso 0 (cliente) siempre permitido
         if (targetStep === 0) return true;
-        
+
         // Si vamos a pasos posteriores, requerir que el cliente esté agregado
         if (targetStep > 0 && !isCustomerAdded) {
             return false;
         }
-        
+
         return true;
     }, [isCustomerAdded]);
 
@@ -326,7 +325,7 @@ const Quotation = () => {
                 // Tela mosquitera (id 7 o por nombre)
                 const mosquitoEntry = prices.find(p => p.name?.toLowerCase().includes("tela mosquitera") || String(p.id) === "7");
                 setMosquitoPrice(mosquitoEntry ? Number(mosquitoEntry.price) : 0);
-                
+
                 // extraer tasa de IVA (por nombre o por id si corresponde)
                 const ivaEntry = prices.find(p => p.name?.toLowerCase().includes("iva") || String(p.id) === "4");
                 setTaxRate(ivaEntry ? Number(ivaEntry.price) : 0);
@@ -348,36 +347,36 @@ const Quotation = () => {
 
     // Enviar cotización (solo un POST a quotations)
     const handleSubmitQuotation = async () => {
-    setSubmitting(true);
-    setSubmitError(null);
+        setSubmitting(true);
+        setSubmitError(null);
 
-    // LIMPIAR EL AGENTE: Solo considerar si tiene datos completos
-    const cleanedAgent = (newAgent.name?.trim() && 
-                         newAgent.lastname?.trim() && 
-                         newAgent.tel?.trim() && 
-                         newAgent.mail?.trim()) 
-        ? newAgent 
-        : null;
+        // LIMPIAR EL AGENTE: Solo considerar si tiene datos completos
+        const cleanedAgent = (newAgent.name?.trim() &&
+            newAgent.lastname?.trim() &&
+            newAgent.tel?.trim() &&
+            newAgent.mail?.trim())
+            ? newAgent
+            : null;
 
-    // Validar todo el formulario antes de enviar
-    const validation = validateQuotation({
-        customer: newCustomer,
-        agent: cleanedAgent, // <-- Pasar el agente limpiado
-        agents, // <-- Este array puede estar vacío, y eso está bien
-        workPlace,
-        openings: selectedOpenings,
-        complements: selectedComplements,
-        comment
-    });
-    
-    if (!validation.valid) {
-        setValidationErrors(validation.errors);
-        setSubmitError("Hay errores en el formulario. Corríjalos antes de continuar.");
-        setSubmitting(false);
-        return;
-    } else {
-        setValidationErrors({});
-    }
+        // Validar todo el formulario antes de enviar
+        const validation = validateQuotation({
+            customer: newCustomer,
+            agent: cleanedAgent, // <-- Pasar el agente limpiado
+            agents, // <-- Este array puede estar vacío, y eso está bien
+            workPlace,
+            openings: selectedOpenings,
+            complements: selectedComplements,
+            comment
+        });
+
+        if (!validation.valid) {
+            setValidationErrors(validation.errors);
+            setSubmitError("Hay errores en el formulario. Corríjalos antes de continuar.");
+            setSubmitting(false);
+            return;
+        } else {
+            setValidationErrors({});
+        }
 
         try {
             const token = localStorage.getItem('token');
@@ -750,12 +749,41 @@ const Quotation = () => {
             console.log("Payload enviado a Mongo:", JSON.stringify(mongoPayload, null, 2));
 
             // 2. POST a Mongo (usa la ruta correcta)
-            await axios.post(`${API_URL}/api/Mongo/CreateBudget`, mongoPayload, {
+            const mongoRes = await axios.post(`${API_URL}/api/Mongo/CreateBudget`, mongoPayload, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 }
             });
+
+            // Obtener Total calculado en Mongo y actualizar SQL.total_price
+            try {
+                // GET desde Mongo para recuperar la versión calculada (el controlador devuelve DTO con Total)
+                const getBudgetRes = await axios.get(`${API_URL}/api/Mongo/GetBudgetByBudgetId/${sqlId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const mongoBudget = getBudgetRes.data;
+                // propiedades esperadas: Total (decimal) — fallback por nombres alternativos por si acaso
+                const totalFromMongo = mongoBudget?.Total ?? mongoBudget?.total ?? mongoBudget?.TotalPrice ?? null;
+                if (totalFromMongo !== null && totalFromMongo !== undefined) {
+                    // Actualizar SQL para que total_price coincida con el Total calculado por backend (Mongo)
+                    try {
+                        await axios.put(`${API_URL}/api/quotations/${sqlId}/total`, { totalPrice: Number(totalFromMongo) }, {
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${token}`
+                            }
+                        });
+                        console.log(`SQL total_price actualizado con valor desde Mongo: ${totalFromMongo}`);
+                    } catch (upErr) {
+                        console.warn('No se pudo actualizar total_price en SQL:', upErr);
+                    }
+                } else {
+                    console.warn('No se obtuvo Total desde Mongo para sincronizar con SQL.');
+                }
+            } catch (errGet) {
+                console.warn('No se pudo leer la cotización desde Mongo para obtener Total:', errGet);
+            }
 
             // Actualizar cotizaciones en el contexto si quieres
             if (response && response.data) {
@@ -979,6 +1007,72 @@ const Quotation = () => {
             )
         );
     };
+
+// Verifica si el paso ya fue enviado al resumen
+const isStepInSummary = (stepIndex) => {
+    switch (stepIndex) {
+        case 0: // Datos Cliente
+            return clients && clients.length > 0;
+        
+        case 1: // Datos Agentes
+            // Considera agentes agregados o un agente en formulario nuevo como "en resumen"
+            return (agents && agents.length > 0) || (newAgent && (newAgent.name || newAgent.mail));
+        
+        case 2: // Espacio de trabajo
+            return workPlaces && workPlaces.length > 0;
+        
+        case 3: // Carga de Aberturas
+            return selectedOpenings && selectedOpenings.length > 0;
+        
+        case 4: // Carga de Complementos
+            return selectedComplements && selectedComplements.length > 0;
+        
+        case 5: // Comentarios
+            return comment && comment.trim() !== '';
+        
+        default:
+            return false;
+    }
+};
+
+// Para pasos opcionales - verifica si hay datos cargados (pero no necesariamente en resumen)
+const hasAgentData = () => {
+    return (agents && agents.length > 0) || (newAgent && (newAgent.name || newAgent.mail));
+};
+
+const hasComplementosData = () => {
+    return selectedComplements && selectedComplements.length > 0;
+};
+
+const hasComentariosData = () => {
+    return comment && comment.trim() !== '';
+};
+
+// Comprueba si hay errores de validación para un paso: mostramos errores sólo si corresponden al paso activo
+const hasValidationErrors = (stepIndex) => {
+    return stepIndex === currentIndex && stepErrors && Object.keys(stepErrors).length > 0;
+};
+
+// Verifica si hay datos cargados para un paso (no necesariamente agregados al resumen)
+const hasStepData = (stepIndex) => {
+    switch (stepIndex) {
+        case 0:
+            return !!(newCustomer && (newCustomer.name || newCustomer.lastname || newCustomer.dni));
+        case 1:
+            return hasAgentData();
+        case 2:
+            return !!(workPlace && (workPlace.name || workPlace.address || workPlace.workTypeId));
+        case 3:
+            return selectedOpenings && selectedOpenings.length > 0;
+        case 4:
+            return hasComplementosData();
+        case 5:
+            return hasComentariosData();
+        default:
+            return false;
+    }
+};
+
     const handleRemoveComplement = (idx) => {
         setSelectedComplements(prev => prev.filter((_, i) => i !== idx));
     };
@@ -996,7 +1090,7 @@ const Quotation = () => {
             toast.error("Debe agregar el cliente al resumen antes de continuar");
             return;
         }
-        
+
         if (swiperRef.current && swiperRef.current.swiper) {
             swiperRef.current.swiper.slideTo(index);
         }
@@ -1012,6 +1106,14 @@ const Quotation = () => {
 
     // Agregar nuevo agente al array de agentes
     const handleAddNewAgent = () => {
+        // validar estrictamente para el resumen
+        const validation = validateAgent(newAgent, { forSummary: true });
+        if (!validation.valid) {
+            setStepErrors(validation.errors || {});
+            toast.error("Corrija los datos del agente antes de agregarlo");
+            return;
+        }
+        setStepErrors({});
         if (
             newAgent.dni && newAgent.name && newAgent.lastname &&
             newAgent.tel && newAgent.mail &&
@@ -1035,43 +1137,43 @@ const Quotation = () => {
     };
 
     // Buscar automáticamente agente al ingresar 8 dígitos
-useEffect(() => {
-    if (agentSearchDni.length === 8 && /^\d+$/.test(agentSearchDni)) {
-        (async () => {
-            setAgentSearchError("");
+    useEffect(() => {
+        if (agentSearchDni.length === 8 && /^\d+$/.test(agentSearchDni)) {
+            (async () => {
+                setAgentSearchError("");
+                setAgentSearchResult(null);
+                setAgentSearched(true); // Mostrar "Buscando agente..."
+
+                try {
+                    const token = localStorage.getItem('token');
+
+                    // Esperar 5 segundos antes de hacer la búsqueda real
+                    await new Promise(resolve => setTimeout(resolve, 5000));
+
+                    const res = await axios.get(`${API_URL}/api/customer-agents/dni/${agentSearchDni}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+
+                    if (res.data) {
+                        setAgentSearchResult(res.data);
+                    } else {
+                        setAgentSearchResult(null);
+                    }
+                } catch (err) {
+                    if (err.response && err.response.status === 404) {
+                        setAgentSearchResult(null); // No encontrado, permite alta
+                    } else {
+                        setAgentSearchError("Error buscando agente.");
+                    }
+                } finally {
+                    setAgentSearched(false); // Ocultar "Buscando agente..." después de 5 segundos
+                }
+            })();
+        } else {
             setAgentSearchResult(null);
-            setAgentSearched(true); // Mostrar "Buscando agente..."
-            
-            try {
-                const token = localStorage.getItem('token');
-                
-                // Esperar 5 segundos antes de hacer la búsqueda real
-                await new Promise(resolve => setTimeout(resolve, 5000));
-                
-                const res = await axios.get(`${API_URL}/api/customer-agents/dni/${agentSearchDni}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                
-                if (res.data) {
-                    setAgentSearchResult(res.data);
-                } else {
-                    setAgentSearchResult(null);
-                }
-            } catch (err) {
-                if (err.response && err.response.status === 404) {
-                    setAgentSearchResult(null); // No encontrado, permite alta
-                } else {
-                    setAgentSearchError("Error buscando agente.");
-                }
-            } finally {
-                setAgentSearched(false); // Ocultar "Buscando agente..." después de 5 segundos
-            }
-        })();
-    } else {
-        setAgentSearchResult(null);
-        setAgentSearched(false);
-    }
-}, [agentSearchDni]);
+            setAgentSearched(false);
+        }
+    }, [agentSearchDni]);
 
     // Función para obtener nombre de complemento por id y tipo
     const getComplementName = (complementId, type) => {
@@ -1108,24 +1210,29 @@ useEffect(() => {
 
     // Nueva función para agregar cliente al resumen
     const handleAddClientToSummary = () => {
-        if (
-            newCustomer.name &&
-            newCustomer.lastname &&
-            newCustomer.dni &&
-            !clients.some(c => c.dni === newCustomer.dni)
-        ) {
+        // validar estrictamente para el resumen
+        const validation = validateCustomer(newCustomer, { forSummary: true });
+        if (!validation.valid) {
+            setStepErrors(validation.errors || {});
+            toast.error("Corrija los datos del cliente antes de agregarlo al resumen");
+            return;
+        }
+        // limpiar errores previos y agregar
+        setStepErrors({});
+        if (!clients.some(c => c.dni === newCustomer.dni)) {
             setClients(prev => [...prev, { ...newCustomer }]);
-            setIsCustomerAdded(true); // Marcar como agregado
+            setIsCustomerAdded(true);
         }
     };
+
     useEffect(() => {
         // Si se modifica algún campo del cliente, resetear el estado de "agregado"
         if (isCustomerAdded) {
-            const hasChanges = 
+            const hasChanges =
                 newCustomer.name !== clients[0]?.name ||
                 newCustomer.lastname !== clients[0]?.lastname ||
                 newCustomer.dni !== clients[0]?.dni;
-            
+
             if (hasChanges) {
                 setIsCustomerAdded(false);
             }
@@ -1134,12 +1241,14 @@ useEffect(() => {
 
     // Nueva función para agregar espacio de trabajo al resumen
     const handleAddWorkPlaceToSummary = () => {
-        if (
-            workPlace.name &&
-            workPlace.address &&
-            workPlace.workTypeId &&
-            !workPlaces.some(wp => wp.name === workPlace.name && wp.address === workPlace.address)
-        ) {
+        const validation = validateWorkPlace(workPlace, { forSummary: true });
+        if (!validation.valid) {
+            setStepErrors(validation.errors || {});
+            toast.error("Corrija los datos del espacio de trabajo antes de agregarlo");
+            return;
+        }
+        setStepErrors({});
+        if (!workPlaces.some(wp => wp.name === workPlace.name && wp.address === workPlace.address)) {
             setWorkPlaces(prev => [...prev, { ...workPlace }]);
         }
     };
@@ -1148,512 +1257,566 @@ useEffect(() => {
     const generalTotal = getGeneralTotal();
 
     return (
-        <div className="dashboard-container">
-            <Navigation onLogout={handleLogout} />
+    <div className="dashboard-container">
+        <Navigation onLogout={handleLogout} />
 
-            <div className="materials-header">
+        <div className="materials-header">
+            <h2 className="materials-title">Nueva Cotización</h2>
+            <p className="materials-subtitle">Complete los datos en cada sección y valide los mismos en el resumen antes de crear la cotización.</p>
+        </div>
 
-                <h2 className="materials-title">Nueva Cotización</h2>
-                <p className="materials-subtitle">Complete los datos en cada sección y valindando los mismos en el resumen antes de crear la cotización.</p>
+        <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
 
-            </div>
-            <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
-            <div className="quotation-layout">
-                <aside className="quotation-indice">
-                <h3>Índice</h3>
-                <p 
-                    onClick={() => goToSlide(0)}
-                    style={{ cursor: 'pointer' }}
-                >
-                    <b><u>Datos Cliente</u></b>
-                </p>
-                <p 
-                    onClick={() => goToSlide(1)}
-                    style={{ 
-                        cursor: canNavigateToStep(1) ? 'pointer' : 'not-allowed',
-                        opacity: canNavigateToStep(1) ? 1 : 0.5 
-                    }}
-                    title={!canNavigateToStep(1) ? "Agregue el cliente primero" : ""}
-                >
-                    <b><u>Datos Agentes</u></b>
-                </p>
-                <p 
-                    onClick={() => goToSlide(2)}
-                    style={{ 
-                        cursor: canNavigateToStep(2) ? 'pointer' : 'not-allowed',
-                        opacity: canNavigateToStep(2) ? 1 : 0.5 
-                    }}
-                    title={!canNavigateToStep(2) ? "Agregue el cliente primero" : ""}
-                >
-                    <b><u>Espacio de trabajo</u></b>
-                </p>
-                <p 
-                    onClick={() => goToSlide(3)}
-                    style={{ 
-                        cursor: canNavigateToStep(3) ? 'pointer' : 'not-allowed',
-                        opacity: canNavigateToStep(3) ? 1 : 0.5 
-                    }}
-                    title={!canNavigateToStep(3) ? "Agregue el cliente primero" : ""}
-                >
-                    <b><u>Carga de Aberturas</u></b>
-                </p>
-                <p 
-                    onClick={() => goToSlide(4)}
-                    style={{ 
-                        cursor: canNavigateToStep(4) ? 'pointer' : 'not-allowed',
-                        opacity: canNavigateToStep(4) ? 1 : 0.5 
-                    }}
-                    title={!canNavigateToStep(4) ? "Agregue el cliente primero" : ""}
-                >
-                    <b><u>Carga de Complementos</u></b>
-                </p>
-                <p 
-                    onClick={() => goToSlide(5)}
-                    style={{ 
-                        cursor: canNavigateToStep(5) ? 'pointer' : 'not-allowed',
-                        opacity: canNavigateToStep(5) ? 1 : 0.5 
-                    }}
-                    title={!canNavigateToStep(5) ? "Agregue el cliente primero" : ""}
-                >
-                    <b><u>Comentarios</u></b>
-                </p>
-            </aside>
-
-
-                <main className="quotation-main">
-                    <form className="quotation-form" onKeyDown={handleFormKeyDown}>
-                        <div className="embla-buttons-container">
-                            <button
-                                type="button"
-                                className="embla__button embla__button--prev"
-                                onClick={handlePrev}
-                                disabled={currentIndex === 0}
-                            >
-                                Atrás
-                            </button>
-                            <span className="page-indicator">
-                                Página {currentIndex + 1} de 6
-                            </span>
-                            <button
-                                type="button"
-                                className="embla__button embla__button--next"
-                                onClick={handleNext}
-                                disabled={currentIndex === 5}
-                            >
-                                Adelante
-                            </button>
+        <div className="quotation-layout">
+            {/* NUEVO: Contenedor unificado para índice y datos informativos */}
+            <div className="quotation-info-container">
+                {/* Índice mejorado con estados visuales */}
+                <div className="quotation-indice">
+                    <h3>Índice</h3>
+                    <p 
+                        className={`indice-item ${
+                            hasValidationErrors(0) ? 'error' : 
+                            isStepInSummary(0) ? 'in-summary' : 
+                            hasStepData(0) ? 'has-data' : ''
+                        }`}
+                        onClick={() => goToSlide(0)}
+                    >
+                        <b><u>Datos Cliente</u></b>
+                        {hasValidationErrors(0) ? ' ❌' : 
+                         isStepInSummary(0) ? ' ✓' : 
+                         hasStepData(0) ? ' ○' : ''}
+                    </p>
+                    <p 
+                        className={`indice-item ${
+                            hasValidationErrors(1) ? 'error' : 
+                            isStepInSummary(1) ? 'in-summary' : 
+                            hasStepData(1) ? 'has-data' : ''
+                        } ${!canNavigateToStep(1) ? 'disabled' : ''}`}
+                        onClick={() => canNavigateToStep(1) && goToSlide(1)}
+                        title={!canNavigateToStep(1) ? "Agregue el cliente primero" : ""}
+                    >
+                        <b><u>Datos Agentes</u></b>
+                        {hasValidationErrors(1) ? ' ❌' : 
+                         isStepInSummary(1) ? ' ✓' : 
+                         hasStepData(1) ? ' ○' : ''}
+                    </p>
+                    <p 
+                        className={`indice-item ${
+                            hasValidationErrors(2) ? 'error' : 
+                            isStepInSummary(2) ? 'in-summary' : 
+                            hasStepData(2) ? 'has-data' : ''
+                        } ${!canNavigateToStep(2) ? 'disabled' : ''}`}
+                        onClick={() => canNavigateToStep(2) && goToSlide(2)}
+                        title={!canNavigateToStep(2) ? "Agregue el cliente primero" : ""}
+                    >
+                        <b><u>Espacio de trabajo</u></b>
+                        {hasValidationErrors(2) ? ' ❌' : 
+                         isStepInSummary(2) ? ' ✓' : 
+                         hasStepData(2) ? ' ○' : ''}
+                    </p>
+                    <p 
+                        className={`indice-item ${
+                            hasValidationErrors(3) ? 'error' : 
+                            isStepInSummary(3) ? 'in-summary' : 
+                            hasStepData(3) ? 'has-data' : ''
+                        } ${!canNavigateToStep(3) ? 'disabled' : ''}`}
+                        onClick={() => canNavigateToStep(3) && goToSlide(3)}
+                        title={!canNavigateToStep(3) ? "Agregue el cliente primero" : ""}
+                    >
+                        <b><u>Carga de Aberturas</u></b>
+                        {hasValidationErrors(3) ? ' ❌' : 
+                         isStepInSummary(3) ? ' ✓' : 
+                         hasStepData(3) ? ' ○' : ''}
+                    </p>
+                    <p 
+                        className={`indice-item ${
+                            hasValidationErrors(4) ? 'error' : 
+                            isStepInSummary(4) ? 'in-summary' : 
+                            hasStepData(4) ? 'has-data' : ''
+                        } ${!canNavigateToStep(4) ? 'disabled' : ''}`}
+                        onClick={() => canNavigateToStep(4) && goToSlide(4)}
+                        title={!canNavigateToStep(4) ? "Agregue el cliente primero" : ""}
+                    >
+                        <b><u>Carga de Complementos</u></b>
+                        {hasValidationErrors(4) ? ' ❌' : 
+                         isStepInSummary(4) ? ' ✓' : 
+                         hasStepData(4) ? ' ○' : ''}
+                    </p>
+                    <p 
+                        className={`indice-item ${
+                            hasValidationErrors(5) ? 'error' : 
+                            isStepInSummary(5) ? 'in-summary' : 
+                            hasStepData(5) ? 'has-data' : ''
+                        } ${!canNavigateToStep(5) ? 'disabled' : ''}`}
+                        onClick={() => canNavigateToStep(5) && goToSlide(5)}
+                        title={!canNavigateToStep(5) ? "Agregue el cliente primero" : ""}
+                    >
+                        <b><u>Comentarios</u></b>
+                        {hasValidationErrors(5) ? ' ❌' : 
+                         isStepInSummary(5) ? ' ✓' : 
+                         hasStepData(5) ? ' ○' : ''}
+                    </p>
+                </div>
+                <h3>Informacion General</h3>
+                {/* Datos informativos (clientes, agentes, espacios) */}
+                <div className="info-section">
+                    <h4>Clientes seleccionados:</h4>
+                    {clients.length === 0 && <div className="info-empty">No tiene cliente</div>}
+                    {clients.map((client, idx) => (
+                        <div key={idx} className="info-item">
+                            <span>{client.name} {client.lastname} - {client.dni}</span>
                         </div>
-                        <Swiper
-                            ref={swiperRef}
-                            allowTouchMove={false}
-                            slidesPerView={1}
-                            onSlideChange={handleSlideChange}
-                            initialSlide={0}
-                            className="quotation-swiper"
-                        >
-                            <SwiperSlide>
-                                <Customer
-                    newCustomer={newCustomer}
-                    setNewCustomer={setNewCustomer}
-                    errors={currentIndex === 0 ? stepErrors : {}}
-                    isCustomerFound={isCustomerFound}
-                    setIsCustomerFound={setIsCustomerFound}
-                    onAddClientToSummary={handleAddClientToSummary}
-                    isCustomerAdded={isCustomerAdded} // <-- Nueva prop
-                    setIsCustomerAdded={setIsCustomerAdded} // <-- Nueva prop
-                />{currentIndex === 0 && stepErrors.general && (
-                    <div className="error-message" style={{ 
-                        marginTop: '10px', 
-                        padding: '10px', 
-                        background: '#ffe6e6', 
-                        border: '1px solid #ffcccc',
-                        borderRadius: '4px'
-                    }}>
-                        {stepErrors.general}
-                    </div>
-                )}
-                            </SwiperSlide>
-                            <SwiperSlide>
-    {/* AGENTES */}
-    <div className="agent-container">
-        <h3>Agentes del Cliente</h3>
-        
-        {/* Sugerencias de agentes asociados al cliente */}
-        {customerAgentsSuggestion.length > 0 && (
-            <div className="suggested-agents">
-                <h4>Agentes ya asociados a este cliente:</h4>
-                {customerAgentsSuggestion.map((agent, idx) => (
-                    <div key={idx} className="agent-suggestion-row">
-                        <span>
-                            {agent.name} {agent.lastname} - {agent.dni}
-                        </span>
-                        <button type="button" className="add-agent-btn" onClick={() => handleAddSuggestedAgent(agent)}>
-                            +
+                    ))}
+                </div>
+
+                <div className="info-section">
+                    <h4>Agentes seleccionados:</h4>
+                    {agents.length === 0 && <div className="info-empty">No tiene agentes</div>}
+                    {agents.map((agent, idx) => (
+                        <div key={idx} className="info-item">
+                            <span>{agent.name} {agent.lastname} - {agent.dni}</span>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="info-section">
+                    <h4>Espacios de trabajo:</h4>
+                    {workPlaces.length === 0 && <div className="info-empty">No hay espacios agregados</div>}
+                    {workPlaces.map((wp, idx) => (
+                        <div key={idx} className="info-item">
+                            <span><b>{wp.location}</b> - {wp.address}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Formulario principal */}
+            <main className="quotation-main">
+                <form className="quotation-form" onKeyDown={handleFormKeyDown}>
+                    <div className="embla-buttons-container">
+                        <button type="button" className="embla__button embla__button--prev" onClick={handlePrev} disabled={currentIndex === 0}>
+                            Atrás
+                        </button>
+                        <span className="page-indicator">Página {currentIndex + 1} de 6</span>
+                        <button type="button" className="embla__button embla__button--next" onClick={handleNext} disabled={currentIndex === 5}>
+                            Adelante
                         </button>
                     </div>
-                ))}
-            </div>
-        )}
-        
-        {/* Buscar agente por DNI */}
-        <div className="agent-search">
-            <label>DNI del agente:</label>
-            <input
-                type="text"
-                value={agentSearchDni}
-                onChange={e => setAgentSearchDni(e.target.value.replace(/\D/g, '').slice(0, 8))}
-                placeholder="Ingrese DNI del agente"
-                maxLength={8}
-                className="agent-details"
-            />
-            {agentSearchError && <span className="error-message">{agentSearchError}</span>}
-        </div>
-        
-        {/* BUSCANDO AGENTE - Siempre muestra por 5 segundos cuando hay 8 dígitos */}
-        {agentSearchDni.length === 8 && agentSearched && (
-            <div className="embla__button">
-                <p>Buscando agente...</p>
-            </div>
-        )}
-        
-        {/* RESULTADO - Solo se muestra después de los 5 segundos */}
-        {agentSearchDni.length === 8 && !agentSearched && agentSearchResult && (
-            <div className="agent-found">
-                <p>Agente encontrado: <b>{agentSearchResult.name} {agentSearchResult.lastname}</b> - {agentSearchResult.dni}</p>
-                <button type="button" className="botton-carusel" onClick={handleAddExistingAgent}>
-                    Agregar este agente
-                </button>
-            </div>
-        )}
-        
-        {/* FORMULARIO NUEVO AGENTE - Solo después de los 5 segundos si no hay resultado */}
-        {agentSearchDni.length === 8 && !agentSearched && !agentSearchResult && (
-            <div className="form-group">
-                <h5>No se encontró el agente. Complete los datos para crear uno nuevo:</h5>
-                <label style={{ marginTop: 25 }}>Nombre:</label>
-                <input
-                    type="text"
-                    value={newAgent.name}
-                    onChange={e => setNewAgent(prev => ({ ...prev, name: e.target.value, dni: agentSearchDni }))}
-                />
-                <label>Apellido:</label>
-                <input
-                    type="text"
-                    value={newAgent.lastname}
-                    onChange={e => setNewAgent(prev => ({ ...prev, lastname: e.target.value, dni: agentSearchDni }))}
-                />
-                <label>Teléfono:</label>
-                <input
-                    type="text"
-                    value={newAgent.tel}
-                    onChange={e => setNewAgent(prev => ({ ...prev, tel: e.target.value, dni: agentSearchDni }))}
-                />
-                <label>Email:</label>
-                <input
-                    type="email"
-                    value={newAgent.mail}
-                    onChange={e => setNewAgent(prev => ({ ...prev, mail: e.target.value, dni: agentSearchDni }))}
-                />
-                <button type="button" className="botton-carusel" onClick={handleAddNewAgent}>
-                    Agregar nuevo agente
-                </button>
-            </div>
-        )}
-        
-        {/* Lista de agentes agregados */}
-        <div className="agents-list">
-            <h4>Agentes seleccionados:</h4>
-            {agents.length === 0 && <div>No hay agentes agregados.</div>}
-            {agents.map((agent, idx) => (
-                <div key={idx} className="agent-selected-row">
-                    <span>
-                        {agent.name} {agent.lastname} - {agent.dni}
-                    </span>
-                    <button type="button" className="remove-agent-btn" onClick={() => handleRemoveAgent(agent.dni)}>
-                        ×
-                    </button>
-                </div>
-            ))}
-        </div>
-    </div>
-</SwiperSlide>
-                            <SwiperSlide>
-                                <WorkPlace
-                                    workPlace={workPlace}
-                                    setWorkPlace={setWorkPlace}
-                                    workTypes={workTypes}
-                                    errors={currentIndex === 2 ? stepErrors : {}}
-                                />
-                                {/* Botón para agregar espacio de trabajo al resumen */}
-                                <button
-                                    type="button"
-                                    className="botton-carusel"
-                                    onClick={handleAddWorkPlaceToSummary}
-                                >
-                                    Agregar espacio de trabajo
-                                </button>
-                            </SwiperSlide>
-                            <SwiperSlide>
-                                <OpeningType
-                                    openingForm={openingForm}
-                                    setOpeningForm={setOpeningForm}
-                                    openingTypes={openingTypes}
-                                    treatments={treatments}
-                                    glassTypes={glassTypes}
-                                    selectedOpenings={selectedOpenings}
-                                    setSelectedOpenings={setSelectedOpenings}
-                                    errors={currentIndex === 3 ? stepErrors : {}}
-                                    openingConfigurations={openingConfigurations}
-                                    // Nueva prop para loguear solo al agregar
-                                    onLogOpening={opening => getOpeningSubtotal(opening, true)}
-                                    hideSelectedList={true}
-                                />
-                            </SwiperSlide>
-                            <SwiperSlide>
-                                <Complements
-                                    complementDoors={complementDoors}
-                                    complementPartitions={complementPartitions}
-                                    complementRailings={complementRailings}
-                                    selectedComplements={selectedComplements}
-                                    setSelectedComplements={setSelectedComplements}
-                                />
-                            </SwiperSlide>
-                            <SwiperSlide>
-                                <Extras
-                                    comment={comment}
-                                    setComment={setComment}
-                                    setDollarReference={setDollarReference}
-                                    setLabourReference={setLabourReference}
-                                />
-                                <div className="submit-container">
-                                    <button
-                                        type="button"
-                                        className="submit-button"
-                                        disabled={submitting}
-                                        onClick={handleSubmitQuotation}
-                                    >
-                                        {submitting ? "Enviando..." : "Cotizar"}
-                                    </button>
-                                    {submitError && (
-                                        <div className="submit-error">{submitError}</div>
-                                    )}
-                                    {Object.keys(validationErrors).length > 0 && (
-                                        <div className="validation-errors">
-                                            {Object.entries(validationErrors).map(([field, msg]) => (
-                                                <div key={field}>{msg}</div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            </SwiperSlide>
-                        </Swiper>
-                    </form>
-                </main>
-                <aside className="quotation-summary">
-                    <h3>Resumen</h3>
-                    <div>
-                        <div className="agents-list">
-                            <h4 className='summary-section-title'>Clientes seleccionados:</h4>
-                            {clients.length === 0 && <div className="summary-empty">No tiene cliente.</div>}
-                            {clients.map((client, idx) => (
-                                <div key={idx} className="agent-selected-row">
-                                    <span>
-                                        {client.name} {client.lastname} - {client.dni}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                        {/* Lista de agentes agregados */}
-                        <div className="agents-list">
-                            <h4 className='summary-section-title'>Agentes seleccionados:</h4>
-                            {agents.length === 0 && <div className="summary-empty">No tiene agentes.</div>}
-                            {agents.map((agent, idx) => (
-                                <div key={idx} className="agent-selected-row">
-                                    <span>
-                                        {agent.name} {agent.lastname} - {agent.dni}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="workplace-summary">
-                            <h4 className='summary-section-title'>Espacios de trabajo:</h4>
-                            {workPlaces.length === 0 && <div className="summary-empty">No hay espacios de trabajo agregados.</div>}
-                            {workPlaces.map((wp, idx) => (
-                                <div key={idx} className="summary-item">
-                                    <span>
-                                        <b>{wp.location}</b> - {wp.address}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
 
-                        <h4 className='summary-section-title'>Aberturas agregadas:</h4>
-                        {selectedOpenings.length === 0 && (
-                            <div className="summary-empty">No hay aberturas agregadas.</div>
-                        )}
-                        {selectedOpenings.map((opening, idx) => (
-                            <div key={idx} className="summary-item summary-opening-card">
-                                <button
-                                    className="summary-remove-btn"
-                                    title="Quitar abertura"
-                                    onClick={() => handleRemoveOpening(idx)}
-                                    type="button"
-                                >×</button>
-                                <div className="summary-title">{getOpeningTypeName(opening.typeId)}</div>
-                                <div className="opening-measures">
-                                    <div className="measure-row">Abertura: <span className="measure-value">{Number(opening.width || 0)} x {Number(opening.height || 0)} cm</span></div>
+                    <Swiper
+                        ref={swiperRef}
+                        allowTouchMove={false}
+                        slidesPerView={1}
+                        onSlideChange={handleSlideChange}
+                        initialSlide={0}
+                        className="quotation-swiper"
+                    >
+                        <SwiperSlide>
+                            {currentIndex === 0 && stepErrors.general && (
+                                <div className="error-message" style={{
+                                    marginTop: '10px',
+                                    padding: '10px',
+                                    background: '#ffe6e6',
+                                    border: '1px solid #ffcccc',
+                                    borderRadius: '4px',
+                                    width: '100%'
+                                }}>
+                                    {stepErrors.general}
                                 </div>
+                            )}
+                            <Customer
+                                newCustomer={newCustomer}
+                                setNewCustomer={setNewCustomer}
+                                errors={currentIndex === 0 ? stepErrors : {}}
+                                isCustomerFound={isCustomerFound}
+                                setIsCustomerFound={setIsCustomerFound}
+                                onAddClientToSummary={handleAddClientToSummary}
+                                isCustomerAdded={isCustomerAdded}
+                                setIsCustomerAdded={setIsCustomerAdded}
+                            />
+                            
+                        </SwiperSlide>
+                        <SwiperSlide>
+                            {/* AGENTES */}
+                            <div className="agent-container">
+                                <h3>Agentes del Cliente</h3>
 
-                                {/* Enhanced SVG preview with distinct panel rects and numbering */}
-                                <div className="opening-preview-container opening-preview-box">
-                                    {(() => {
-                                        // Treat opening.width/height as cm; convert to mm for config match
-                                        const wCm = Number(opening.width || 100);
-                                        const hCm = Number(opening.height || 60);
-                                        const widthMM = wCm * 10;
-                                        const heightMM = hCm * 10;
-                                        const cfg = safeArray(openingConfigurations).find(c =>
-                                            Number(c.opening_type_id) === Number(opening.typeId) &&
-                                            widthMM >= c.min_width_mm &&
-                                            widthMM <= c.max_width_mm &&
-                                            heightMM >= c.min_height_mm &&
-                                            heightMM <= c.max_height_mm
-                                        );
-                                        const numW = opening.numPanelsWidth || (cfg ? cfg.num_panels_width : 1);
-                                        const numH = opening.numPanelsHeight || (cfg ? cfg.num_panels_height : 1);
-                                        const vw = Math.min(260, wCm * 2);
-                                        const vh = Math.min(160, hCm * 2);
-                                        const panelW = wCm / numW;
-                                        const panelH = hCm / numH;
-                                        const cells = [];
-                                        for (let r = 0; r < numH; r++) {
-                                            for (let c = 0; c < numW; c++) {
-                                                cells.push({ x: c * panelW, y: r * panelH, w: panelW, h: panelH, idx: r * numW + c + 1 });
-                                            }
-                                        }
-                                        return (
-                                            <div className="opening-preview-row">
-                                                <div className="opening-preview-svg-wrapper opening-preview-svg-dark">
-                                                    <svg width={vw} height={vh} viewBox={`0 0 ${wCm} ${hCm}`} preserveAspectRatio="xMidYMid meet" className="opening-preview-svg">
-                                                        <rect x="0" y="0" width={wCm} height={hCm} fill="#0e0b0b" stroke={opening.treatmentId ? '#26b7cd' : '#070505'} strokeWidth={0.4} rx={3} />
-                                                        {cells.map(cell => (
-                                                            <g key={`cell-${cell.idx}`}>
-                                                                <rect x={cell.x} y={cell.y} width={cell.w} height={cell.h} fill="#f8fcff" stroke="#9aa9b0" strokeWidth={0.18} />
-                                                                <text x={cell.x + cell.w / 2} y={cell.y + cell.h / 2} fontSize={(Math.min(cell.w, cell.h) / 3).toFixed(2)} textAnchor="middle" dominantBaseline="middle" fill="#40666f" className="opening-panel-number">{cell.idx}</text>
-                                                            </g>
-                                                        ))}
-                                                        {/* glass overlay */}
-                                                        {opening.glassTypeId && <rect x="0" y="0" width={wCm} height={hCm} fill="#bfe9ff" opacity={0.10} />}
-                                                    </svg>
-                                                </div>
-                                                <div className="opening-preview-meta">
-                                                    {opening.treatmentName && <div className="badge badge-treatment">Tratamiento: {opening.treatmentName}</div>}
-                                                    {opening.glassTypeName && <div className="badge badge-glass">Vidrio: {opening.glassTypeName}</div>}
-                                                    <div className="opening-preview-size">Panel: <b>{(panelW).toFixed(1)} x {(panelH).toFixed(1)} cm</b></div>
-                                                    <div className="opening-preview-count">Paneles: <b>{numW} × {numH}</b></div>
-                                                </div>
+                                {/* Sugerencias de agentes asociados al cliente */}
+                                {customerAgentsSuggestion.length > 0 && (
+                                    <div className="suggested-agents">
+                                        <h4>Agentes ya asociados a este cliente:</h4>
+                                        {customerAgentsSuggestion.map((agent, idx) => (
+                                            <div key={idx} className="agent-suggestion-row">
+                                                <span>
+                                                    {agent.name} {agent.lastname} - {agent.dni}
+                                                </span>
+                                                <button type="button" className="add-agent-btn" onClick={() => handleAddSuggestedAgent(agent)}>
+                                                    +
+                                                </button>
                                             </div>
-                                        );
-                                    })()}
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Buscar agente por DNI */}
+                                <div className="agent-search">
+                                    <label>DNI del agente:</label>
+                                    <input
+                                        type="text"
+                                        value={agentSearchDni}
+                                        onChange={e => setAgentSearchDni(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                                        placeholder="Ingrese DNI del agente"
+                                        maxLength={8}
+                                        className="agent-details"
+                                    />
+                                    {agentSearchError && <span className="error-message">{agentSearchError}</span>}
                                 </div>
 
-                                <div className="summary-actions-row">
-                                    <div className="summary-detail summary-qty-row">
-                                        <button
-                                            className="summary-qty-btn" type="button"
-                                            onClick={() => handleChangeOpeningQty(idx, -1)}
-                                        >−</button>
-                                        <span className="summary-qty">{opening.quantity}</span>
-                                        <button
-                                            className="summary-qty-btn" type="button"
-                                            onClick={() => handleChangeOpeningQty(idx, 1)}
-                                        >+</button>
+                                {/* BUSCANDO AGENTE - Siempre muestra por 5 segundos cuando hay 8 dígitos */}
+                                {agentSearchDni.length === 8 && agentSearched && (
+                                    <div className="embla__button">
+                                        <p>Buscando agente...</p>
                                     </div>
-                                    <div className="opening-subtotal">
-                                        {getOpeningSubtotal(opening)}
+                                )}
+
+                                {/* RESULTADO - Solo se muestra después de los 5 segundos */}
+                                {agentSearchDni.length === 8 && !agentSearched && agentSearchResult && (
+                                    <div className="agent-found">
+                                        <p>Agente encontrado: <b>{agentSearchResult.name} {agentSearchResult.lastname}</b> - {agentSearchResult.dni}</p>
+                                        <button type="button" className="botton-carusel" onClick={handleAddExistingAgent}>
+                                            Agregar este agente
+                                        </button>
                                     </div>
+                                )}
+
+                                {/* FORMULARIO NUEVO AGENTE - Solo después de los 5 segundos si no hay resultado */}
+                                {agentSearchDni.length === 8 && !agentSearched && !agentSearchResult && (
+                                    <div className="form-group">
+                                        <h5>No se encontró el agente. Complete los datos para crear uno nuevo:</h5>
+                                        <label style={{ marginTop: 25 }}>Nombre:</label>
+                                        <input
+                                            type="text"
+                                            value={newAgent.name}
+                                            onChange={e => {
+                                                setNewAgent(prev => ({ ...prev, name: e.target.value, dni: agentSearchDni }));
+                                                setStepErrors(prev => {
+                                                    if (!prev) return {};
+                                                    const copy = { ...prev };
+                                                    delete copy.name;
+                                                    return copy;
+                                                });
+                                            }}
+                                        />
+                                        {stepErrors.name && <span className="error-message">{stepErrors.name}</span>}
+                                        <label>Apellido:</label>
+                                        <input
+                                            type="text"
+                                            value={newAgent.lastname}
+                                            onChange={e => {
+                                                setNewAgent(prev => ({ ...prev, lastname: e.target.value, dni: agentSearchDni }));
+                                                setStepErrors(prev => {
+                                                    if (!prev) return {};
+                                                    const copy = { ...prev };
+                                                    delete copy.lastname;
+                                                    return copy;
+                                                });
+                                            }}
+                                        />
+                                        {stepErrors.lastname && <span className="error-message">{stepErrors.lastname}</span>}
+                                        <label>Teléfono:</label>
+                                        <input
+                                            type="text"
+                                            value={newAgent.tel}
+                                            onChange={e => {
+                                                setNewAgent(prev => ({ ...prev, tel: e.target.value, dni: agentSearchDni }));
+                                                setStepErrors(prev => {
+                                                    if (!prev) return {};
+                                                    const copy = { ...prev };
+                                                    delete copy.tel;
+                                                    return copy;
+                                                });
+                                            }}
+                                        />
+                                        {stepErrors.tel && <span className="error-message">{stepErrors.tel}</span>}
+                                        <label>Email:</label>
+                                        <input
+                                            type="email"
+                                            value={newAgent.mail}
+                                            onChange={e => {
+                                                setNewAgent(prev => ({ ...prev, mail: e.target.value, dni: agentSearchDni }));
+                                                setStepErrors(prev => {
+                                                    if (!prev) return {};
+                                                    const copy = { ...prev };
+                                                    delete copy.mail;
+                                                    return copy;
+                                                });
+                                            }}
+                                        />
+                                        {stepErrors.mail && <span className="error-message">{stepErrors.mail}</span>}
+                                        <button type="button" className="botton-carusel" onClick={handleAddNewAgent}>
+                                            Agregar nuevo agente
+                                        </button>
+                                    </div>
+                                )}
+
+                                {/* Lista de agentes agregados */}
+                                <div className="agents-list">
+                                    <h4>Agentes seleccionados:</h4>
+                                    {agents.length === 0 && <div>No hay agentes agregados.</div>}
+                                    {agents.map((agent, idx) => (
+                                        <div key={idx} className="agent-selected-row">
+                                            <span>
+                                                {agent.name} {agent.lastname} - {agent.dni}
+                                            </span>
+                                            <button type="button" className="remove-agent-btn" onClick={() => handleRemoveAgent(agent.dni)}>
+                                                ×
+                                            </button>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
-                        ))}
-                        <div className="summary-total">
-                            <strong>Total aberturas: ${generalTotal.totalOpenings.toFixed(2)}</strong>
-                        </div>
-                    </div>
-                    <div className="complements-summary">
-                        <h4 className='summary-section-title'>Complementos agregados:</h4>
-                        {selectedComplements.length === 0 && (
-                            <div className="summary-empty">No hay complementos agregados.</div>
-                        )}
-                        {selectedComplements.map((complement, idx) => (
-                            <div key={idx} className="summary-item">
+                        </SwiperSlide>
+                        <SwiperSlide>
+                            <WorkPlace
+                                workPlace={workPlace}
+                                setWorkPlace={setWorkPlace}
+                                workTypes={workTypes}
+                                errors={currentIndex === 2 ? stepErrors : {}}
+                            />
+                            {/* Botón para agregar espacio de trabajo al resumen */}
+                            <button
+                                type="button"
+                                className="botton-carusel"
+                                onClick={handleAddWorkPlaceToSummary}
+                            >
+                                Agregar espacio de trabajo
+                            </button>
+                        </SwiperSlide>
+                        <SwiperSlide>
+                            <OpeningType
+                                openingForm={openingForm}
+                                setOpeningForm={setOpeningForm}
+                                openingTypes={openingTypes}
+                                treatments={treatments}
+                                glassTypes={glassTypes}
+                                selectedOpenings={selectedOpenings}
+                                setSelectedOpenings={setSelectedOpenings}
+                                errors={currentIndex === 3 ? stepErrors : {}}
+                                openingConfigurations={openingConfigurations}
+                                onLogOpening={opening => getOpeningSubtotal(opening, true)}
+                                hideSelectedList={true}
+                            />
+                        </SwiperSlide>
+                        <SwiperSlide>
+                            <Complements
+                                complementDoors={complementDoors}
+                                complementPartitions={complementPartitions}
+                                complementRailings={complementRailings}
+                                selectedComplements={selectedComplements}
+                                setSelectedComplements={setSelectedComplements}
+                            />
+                        </SwiperSlide>
+                        <SwiperSlide>
+                            <Extras
+                                comment={comment}
+                                setComment={setComment}
+                                setDollarReference={setDollarReference}
+                                setLabourReference={setLabourReference}
+                            />
+                            <div className="submit-container">
                                 <button
-                                    className="summary-remove-btn"
-                                    title="Quitar complemento"
-                                    onClick={() => handleRemoveComplement(idx)}
                                     type="button"
-                                >×</button>
-                                <div className="summary-title">
-                                    {complement.name ? complement.name : getComplementName(complement.complementId || complement.id, complement.type)}
-                                </div>
+                                    className="submit-button"
+                                    disabled={submitting}
+                                    onClick={handleSubmitQuotation}
+                                >
+                                    {submitting ? "Enviando..." : "Cotizar"}
+                                </button>
+                                {submitError && (
+                                    <div className="submit-error">{submitError}</div>
+                                )}
+                                {Object.keys(validationErrors).length > 0 && (
+                                    <div className="validation-errors">
+                                        {Object.entries(validationErrors).map(([field, msg]) => (
+                                            <div key={field}>{msg}</div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </SwiperSlide>
+                    </Swiper>
+                </form>
+            </main>
+
+            {/* Resumen de cálculos */}
+            <aside className="quotation-summary">
+                <h3 style={{ textAlign: "center" }}>Resumen</h3>
+
+                {/* Aberturas */}
+                <div>
+                    <h4 className='summary-section-title'>Aberturas agregadas:</h4>
+                    {selectedOpenings.length === 0 && (
+                        <div className="summary-empty">No hay aberturas agregadas.</div>
+                    )}
+                    {selectedOpenings.map((opening, idx) => (
+                        <div key={idx} className="summary-item summary-opening-card">
+                            <button
+                                className="summary-remove-btn"
+                                title="Quitar abertura"
+                                onClick={() => handleRemoveOpening(idx)}
+                                type="button"
+                            >×</button>
+                            <div className="summary-title">{getOpeningTypeName(opening.typeId)}</div>
+                            <div className="opening-measures">
+                                <div className="measure-row">Abertura: <span className="measure-value">{Number(opening.width || 0)} x {Number(opening.height || 0)} cm</span></div>
+                            </div>
+
+                            {/* Enhanced SVG preview with distinct panel rects and numbering */}
+                            <div className="opening-preview-container opening-preview-box">
+                                {(() => {
+                                    const wCm = Number(opening.width || 100);
+                                    const hCm = Number(opening.height || 60);
+                                    const widthMM = wCm * 10;
+                                    const heightMM = hCm * 10;
+                                    const cfg = safeArray(openingConfigurations).find(c =>
+                                        Number(c.opening_type_id) === Number(opening.typeId) &&
+                                        widthMM >= c.min_width_mm &&
+                                        widthMM <= c.max_width_mm &&
+                                        heightMM >= c.min_height_mm &&
+                                        heightMM <= c.max_height_mm
+                                    );
+                                    const numW = opening.numPanelsWidth || (cfg ? cfg.num_panels_width : 1);
+                                    const numH = opening.numPanelsHeight || (cfg ? cfg.num_panels_height : 1);
+                                    const vw = Math.min(260, wCm * 2);
+                                    const vh = Math.min(160, hCm * 2);
+                                    const panelW = wCm / numW;
+                                    const panelH = hCm / numH;
+                                    const cells = [];
+                                    for (let r = 0; r < numH; r++) {
+                                        for (let c = 0; c < numW; c++) {
+                                            cells.push({ x: c * panelW, y: r * panelH, w: panelW, h: panelH, idx: r * numW + c + 1 });
+                                        }
+                                    }
+                                    return (
+                                        <div className="opening-preview-row">
+                                            <div className="opening-preview-svg-wrapper opening-preview-svg-dark">
+                                                <svg width={vw} height={vh} viewBox={`0 0 ${wCm} ${hCm}`} preserveAspectRatio="xMidYMid meet" className="opening-preview-svg">
+                                                    <rect x="0" y="0" width={wCm} height={hCm} fill="#0e0b0b" stroke={opening.treatmentId ? '#26b7cd' : '#070505'} strokeWidth={0.4} rx={3} />
+                                                    {cells.map(cell => (
+                                                        <g key={`cell-${cell.idx}`}>
+                                                            <rect x={cell.x} y={cell.y} width={cell.w} height={cell.h} fill="#f8fcff" stroke="#9aa9b0" strokeWidth={0.18} />
+                                                            <text x={cell.x + cell.w / 2} y={cell.y + cell.h / 2} fontSize={(Math.min(cell.w, cell.h) / 3).toFixed(2)} textAnchor="middle" dominantBaseline="middle" fill="#40666f" className="opening-panel-number">{cell.idx}</text>
+                                                        </g>
+                                                    ))}
+                                                    {opening.glassTypeId && <rect x="0" y="0" width={wCm} height={hCm} fill="#bfe9ff" opacity={0.10} />}
+                                                </svg>
+                                            </div>
+                                            <div className="opening-preview-meta">
+                                                {opening.treatmentName && <div className="badge badge-treatment">Tratamiento: {opening.treatmentName}</div>}
+                                                {opening.glassTypeName && <div className="badge badge-glass">Vidrio: {opening.glassTypeName}</div>}
+                                                <div className="opening-preview-size">Panel: <b>{(panelW).toFixed(1)} x {(panelH).toFixed(1)} cm</b></div>
+                                                <div className="opening-preview-count">Paneles: <b>{numW} × {numH}</b></div>
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
+                            </div>
+
+                            <div className="summary-actions-row">
                                 <div className="summary-detail summary-qty-row">
                                     <button
-                                        className="summary-qty-btn"
-                                        type="button"
-                                        onClick={() => handleChangeComplementQty(idx, -1)}
+                                        className="summary-qty-btn" type="button"
+                                        onClick={() => handleChangeOpeningQty(idx, -1)}
                                     >−</button>
-                                    <span className="summary-qty">{complement.quantity}</span>
-                                    <button className="summary-qty-btn" type="button" onClick={() => handleChangeComplementQty(idx, 1)}
+                                    <span className="summary-qty">{opening.quantity}</span>
+                                    <button
+                                        className="summary-qty-btn" type="button"
+                                        onClick={() => handleChangeOpeningQty(idx, 1)}
                                     >+</button>
                                 </div>
-                                <div className="summary-subtotal">
-                                    {getComplementSubtotal(complement)}
+                                <div className="opening-subtotal">
+                                    {getOpeningSubtotal(opening)}
                                 </div>
                             </div>
-                        ))}
-                        <div className="summary-total">
-                            <strong>Total complementos: ${generalTotal.totalComplements.toFixed(2)}</strong>
                         </div>
+                    ))}
+                    <div className="summary-total">
+                        <strong>Total aberturas: ${generalTotal.totalOpenings.toFixed(2)}</strong>
                     </div>
+                </div>
 
-                    {/* NUEVO: TOTAL GENERAL CON COSTOS ADICIONALES */}
-                    <div className="general-total-container">
-                        <h4 className='summary-section-title'>Total General</h4>
-
-                        <div className="total-row">
-                            <span>Subtotal aberturas:</span>
-                            <span>${generalTotal.totalOpenings.toFixed(2)}</span>
+                {/* Complementos */}
+                <div className="complements-summary">
+                    <h4 className='summary-section-title'>Complementos agregados:</h4>
+                    {selectedComplements.length === 0 && (
+                        <div className="summary-empty">No hay complementos agregados.</div>
+                    )}
+                    {selectedComplements.map((complement, idx) => (
+                        <div key={idx} className="summary-item">
+                            <button
+                                className="summary-remove-btn"
+                                title="Quitar complemento"
+                                onClick={() => handleRemoveComplement(idx)}
+                                type="button"
+                            >×</button>
+                            <div className="summary-title">
+                                {complement.name ? complement.name : getComplementName(complement.complementId || complement.id, complement.type)}
+                            </div>
+                            <div className="summary-detail summary-qty-row">
+                                <button
+                                    className="summary-qty-btn"
+                                    type="button"
+                                    onClick={() => handleChangeComplementQty(idx, -1)}
+                                >−</button>
+                                <span className="summary-qty">{complement.quantity}</span>
+                                <button className="summary-qty-btn" type="button" onClick={() => handleChangeComplementQty(idx, 1)}
+                                >+</button>
+                            </div>
+                            <div className="summary-subtotal">
+                                {getComplementSubtotal(complement)}
+                            </div>
                         </div>
-
-                        <div className="total-row">
-                            <span>Subtotal complementos:</span>
-                            <span>${generalTotal.totalComplements.toFixed(2)}</span>
-                        </div>
-
-                        <div className="total-row subtotal-general">
-                            <span><strong>Subtotal general:</strong></span>
-                            <span><strong>${generalTotal.subtotalGeneral.toFixed(2)}</strong></span>
-                        </div>
-
-                        <div className="total-row cost-detail">
-                            <span>Costo fabricación (10%):</span>
-                            <span>${generalTotal.costoFabricacion.toFixed(2)}</span>
-                        </div>
-
-                        <div className="total-row cost-detail">
-                            <span>Costo administrativo (5%):</span>
-                            <span>${generalTotal.costoAdministrativo.toFixed(2)}</span>
-                        </div>
-
-                        <div className="total-row final-total">
-                            <span>TOTAL GENERAL:</span>
-                            <span>${generalTotal.totalGeneral.toFixed(2)}</span>
-                        </div>
+                    ))}
+                    <div className="summary-total">
+                        <strong>Total complementos: ${generalTotal.totalComplements.toFixed(2)}</strong>
                     </div>
-                </aside>
-            </div>
-            <Footer />
+                </div>
+
+                {/* Total General */}
+                <div className="general-total-container">
+                    <h4 className='summary-section-title'>Total General</h4>
+                    <div className="total-row">
+                        <span>Subtotal aberturas:</span>
+                        <span>${generalTotal.totalOpenings.toFixed(2)}</span>
+                    </div>
+                    <div className="total-row">
+                        <span>Subtotal complementos:</span>
+                        <span>${generalTotal.totalComplements.toFixed(2)}</span>
+                    </div>
+                    <div className="total-row subtotal-general">
+                        <span><strong>Subtotal general:</strong></span>
+                        <span><strong>${generalTotal.subtotalGeneral.toFixed(2)}</strong></span>
+                    </div>
+                    <div className="total-row cost-detail">
+                        <span>Costo fabricación (10%):</span>
+                        <span>${generalTotal.costoFabricacion.toFixed(2)}</span>
+                    </div>
+                    <div className="total-row cost-detail">
+                        <span>Costo administrativo (5%):</span>
+                        <span>${generalTotal.costoAdministrativo.toFixed(2)}</span>
+                    </div>
+                    <div className="total-row final-total">
+                        <span>TOTAL GENERAL:</span>
+                        <span>${generalTotal.totalGeneral.toFixed(2)}</span>
+                    </div>
+                </div>
+            </aside>
         </div>
-    );
+
+        <Footer />
+    </div>
+);
+
 };
 
 export default Quotation;

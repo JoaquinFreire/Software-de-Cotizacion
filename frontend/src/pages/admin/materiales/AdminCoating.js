@@ -4,6 +4,7 @@ import ReactLoading from "react-loading";
 import { toast, ToastContainer } from "react-toastify";
 import { safeArray } from "../../../utils/safeArray";
 import Navigation from "../../../components/Navigation";
+import { useNavigate } from "react-router-dom";
 import Footer from "../../../components/Footer";
 import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
@@ -19,6 +20,12 @@ export default function AdminCoating() {
 	const [viewingAll, setViewingAll] = useState(false);
 	const [deletingIds, setDeletingIds] = useState({});
 	const [modalSubmitting, setModalSubmitting] = useState(false);
+
+	const navigate = useNavigate();
+	const handleLogout = () => {
+			localStorage.removeItem("token");
+			navigate("/");
+	}
 
 	const normalizeItems = (items) => {
 		if (!items || !Array.isArray(items)) return [];
@@ -97,7 +104,7 @@ export default function AdminCoating() {
 
 	return (
 		<div className="dashboard-container">
-			<Navigation />
+            <Navigation onLogout={handleLogout} />
 			<ToastContainer autoClose={4000} theme="dark" position="bottom-right" />
 			<div className="admin-materials-content">
 				<div style={{ marginTop: 8 }}>

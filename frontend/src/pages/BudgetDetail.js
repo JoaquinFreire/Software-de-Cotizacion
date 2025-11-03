@@ -6,6 +6,7 @@ import logoAnodal from '../images/logo_secundario.webp';
 import miniLogo from '../images/logo_secundario.webp';
 import ReactLoading from 'react-loading';
 import Navbar from '../components/Navigation';
+import Navigation from '../components/Navigation';
 import { safeArray } from '../utils/safeArray';
 import '../styles/BudgetDetail.css';
 import Qrcode from '../images/qr-code.png';
@@ -13,6 +14,9 @@ import Qrcode from '../images/qr-code.png';
 import pdfMake from 'pdfmake/build/pdfmake';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import { ToastContainer, toast, Slide } from 'react-toastify';
+import { useNavigate } from 'react-router-dom'; // <-- agregado
+
+
 // Asignación robusta de vfs para distintas formas de exportación del paquete
 pdfMake.vfs = (
   (pdfFonts && (pdfFonts.pdfMake && pdfFonts.pdfMake.vfs)) ||
@@ -34,10 +38,43 @@ const BudgetDetail = () => {
   const { id } = useParams();
   const [budget, setBudget] = useState(null);
   const [sanitizedBudget, setSanitizedBudget] = useState(null);
+  const [versions, setVersions] = useState([]); // <-- lista de versiones (raw o saneadas)
+  const [selectedVersionIndex, setSelectedVersionIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [mailLoading, setMailLoading] = useState(false);
   const [whatsAppLoading, setWhatsAppLoading] = useState(false);
+
+  	const navigate = useNavigate();
+				const handleLogout = () => {
+					localStorage.removeItem("token");
+					navigate("/");}
+
+  // Helper: parsea/normaliza números que pueden venir como string con comas/puntos/extraneous chars
+  const safeNumber = (v) => {
+    if (v === null || v === undefined) return null;
+    if (typeof v === 'number') {
+      if (!Number.isFinite(v)) return null;
+      return v;
+    }
+    try {
+      let s = String(v).trim();
+      // reemplazar comas por punto
+      s = s.replace(/,/g, '.');
+      // eliminar caracteres que no sean dígitos, punto o signo menos
+      s = s.replace(/[^\d\.\-]/g, '');
+      // si hay más de un punto, dejar solo el first-rightmost sensible: 
+      // estrategia: keep first '.' and remove subsequent dots
+      const parts = s.split('.');
+      if (parts.length > 2) {
+        s = parts.shift() + '.' + parts.join(''); // primera parte + '.' + resto concatenado
+      }
+      const n = Number(s);
+      return Number.isFinite(n) ? n : null;
+    } catch (err) {
+      return null;
+    }
+  };
 
   // deepSanitize: extrae solo los campos necesarios y usa safeArray para Products (no elimina $values)
   const deepSanitize = (obj) => {
@@ -54,13 +91,64 @@ const BudgetDetail = () => {
 
       const products = safeArray(obj.Products).map(p => ({
         OpeningType: p?.OpeningType ? { name: p.OpeningType.name } : null,
-        Quantity: p?.Quantity ?? p?.quantity ?? 0,
-        width: p?.width ?? p?.Width ?? '-',
-        height: p?.height ?? p?.Height ?? '-',
+        Quantity: safeNumber(p?.Quantity ?? p?.quantity ?? 0) ?? 0,
+        width: (() => { const n = safeNumber(p?.width ?? p?.Width); return n !== null ? n : (p?.width ?? p?.Width ?? '-'); })(),
+        height: (() => { const n = safeNumber(p?.height ?? p?.Height); return n !== null ? n : (p?.height ?? p?.Height ?? '-'); })(),
         GlassType: p?.GlassType ? { name: p.GlassType.name } : null,
         AlumTreatment: p?.AlumTreatment ? { name: p.AlumTreatment.name } : null,
-        price: p?.price ?? p?.Price ?? null
+        price: safeNumber(p?.price ?? p?.Price) ?? null
       }));
+
+      // NORMALIZAR COMPLEMENTOS: support .Complement / .complement and .$values
+      const rawComplementsArray = safeArray(obj.Complement || obj.complement || obj.Complements);
+      const complements = [];
+      rawComplementsArray.forEach(c => {
+        // ComplementDoor
+        safeArray(c.ComplementDoor).forEach(d => {
+          complements.push({
+            type: 'Door',
+            name: d?.Name ?? d?.name ?? '',
+            quantity: safeNumber(d?.Quantity ?? d?.quantity) ?? 1,
+            unitPrice: safeNumber(d?.UnitPrice ?? d?.Price ?? d?.price) ?? 0,
+            totalPrice: safeNumber(d?.Price ?? d?.price) ?? 0,
+            details: `Puerta ${ (safeNumber(d?.Width ?? d?.width) !== null) ? (safeNumber(d?.Width ?? d?.width) + 'x' + (safeNumber(d?.Height ?? d?.height) ?? '')) : (d?.Width ?? d?.width ?? '') }`
+          });
+        });
+        // ComplementPartition
+        safeArray(c.ComplementPartition).forEach(p => {
+          complements.push({
+            type: 'Partition',
+            name: p?.Name ?? p?.name ?? '',
+            quantity: safeNumber(p?.Quantity ?? p?.quantity) ?? 1,
+            unitPrice: safeNumber(p?.UnitPrice ?? p?.Price ?? p?.price) ?? 0,
+            totalPrice: safeNumber(p?.Price ?? p?.price) ?? 0,
+            details: `Alto: ${ (safeNumber(p?.Height ?? p?.height) !== null) ? (safeNumber(p?.Height ?? p?.height) + ' cm') : (p?.Height ?? p?.height ?? '') } ${p?.Simple === false ? '(Complejo)' : ''}`
+          });
+        });
+        // ComplementRailing
+        safeArray(c.ComplementRailing).forEach(r => {
+          complements.push({
+            type: 'Railing',
+            name: r?.Name ?? r?.name ?? '',
+            quantity: safeNumber(r?.Quantity ?? r?.quantity) ?? 1,
+            unitPrice: safeNumber(r?.UnitPrice ?? r?.Price ?? r?.price) ?? 0,
+            totalPrice: safeNumber(r?.Price ?? r?.price) ?? 0,
+            details: r?.AlumTreatment?.name ? `Tratamiento: ${r.AlumTreatment.name}` : ''
+          });
+        });
+
+        // Si el elemento complement tiene 'price' agregado como total del grupo
+        if (c?.price && (!c.ComplementDoor && !c.ComplementPartition && !c.ComplementRailing)) {
+          complements.push({
+            type: 'ComplementGroup',
+            name: 'Varios',
+            quantity: 1,
+            unitPrice: safeNumber(c.price) ?? 0,
+            totalPrice: safeNumber(c.price) ?? 0,
+            details: ''
+          });
+        }
+      });
 
       return {
         budgetId: read(obj, ['budgetId', 'BudgetId']),
@@ -68,9 +156,9 @@ const BudgetDetail = () => {
         creationDate: read(obj, ['creationDate']),
         status: read(obj, ['status']),
         ExpirationDate: read(obj, ['ExpirationDate', 'EndDate']),
-        DollarReference: read(obj, ['DollarReference']),
-        LabourReference: read(obj, ['LabourReference']),
-        Total: read(obj, ['Total']),
+        DollarReference: safeNumber(read(obj, ['DollarReference'])) ?? read(obj, ['DollarReference']),
+        LabourReference: safeNumber(read(obj, ['LabourReference'])) ?? read(obj, ['LabourReference']),
+        Total: safeNumber(read(obj, ['Total'])) ?? read(obj, ['Total']),
         Comment: read(obj, ['Comment']) || '',
         user: obj.user ? {
           name: obj.user.name,
@@ -92,7 +180,8 @@ const BudgetDetail = () => {
           name: obj.workPlace.name,
           address: obj.workPlace.address ?? obj.workPlace.location
         } : null,
-        Products: products
+        Products: products,
+        Complement: complements
       };
     } catch (err) {
       console.error('deepSanitize fallback error:', err);
@@ -100,36 +189,60 @@ const BudgetDetail = () => {
         budgetId: obj?.budgetId,
         creationDate: obj?.creationDate,
         status: obj?.status,
-        Total: obj?.Total,
+        Total: safeNumber(obj?.Total) ?? obj?.Total,
         Comment: obj?.Comment || '',
-        Products: []
+        Products: [],
+        Complement: []
       };
     }
   };
 
   useEffect(() => {
-    const fetchBudget = async () => {
+    const fetchVersions = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`${API_URL}/api/Mongo/GetBudgetByBudgetId/${id}`, {
+        const res = await axios.get(`${API_URL}/api/Mongo/GetBudgetVersions/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        console.log('Fetched versions:', res.data);
 
-        // Sanitizar inmediatamente
-        const cleaned = deepSanitize(res.data);
+        // Soportar respuesta directa array o objeto con $values (serialización de .NET)
+        const rawList = Array.isArray(res.data)
+          ? res.data
+          : (res.data && Array.isArray(res.data.$values) ? res.data.$values : []);
 
-        setBudget(res.data);
-        setSanitizedBudget(cleaned);
+        setVersions(rawList);
 
+        // Seleccionar la primera (última versión) por defecto
+        const first = rawList[0] ?? null;
+        if (first) {
+          setBudget(first); // para funciones que usan 'budget' (ej. WhatsApp)
+          setSanitizedBudget(deepSanitize(first));
+          setSelectedVersionIndex(0);
+        } else {
+          setBudget(null);
+          setSanitizedBudget(null);
+        }
       } catch (error) {
-        console.error('Error fetching budget:', error);
+        console.error('Error fetching budget versions:', error);
         setBudget(null);
         setSanitizedBudget(null);
+        setVersions([]);
       }
       setLoading(false);
     };
-    fetchBudget();
+    fetchVersions();
   }, [id]);
+
+  // Handler cuando el usuario cambia la versión seleccionada
+  const handleVersionChange = (e) => {
+    const idx = parseInt(e.target.value, 10);
+    if (isNaN(idx) || !versions[idx]) return;
+    const selected = versions[idx];
+    setSelectedVersionIndex(idx);
+    setBudget(selected);
+    setSanitizedBudget(deepSanitize(selected));
+  };
 
   const show = (val) => val !== undefined && val !== null && val !== "" ? val : "No especificado";
 
@@ -265,6 +378,29 @@ const BudgetDetail = () => {
         { text: p?.GlassType?.name || '-', style: 'tableText' },
         { text: p?.AlumTreatment?.name || '-', style: 'tableText' },
         { text: p?.price ? `$${p.price}` : '-', style: 'tableText', alignment: 'right' }
+      ]);
+    });
+
+    // --- NUEVA TABLA: Complementos (si existen) ---
+    const complementsTableBody = [
+      [
+        { text: 'TIPO', style: 'tableHeader', fillColor: '#2c3e50' },
+        { text: 'DESCRIPCIÓN', style: 'tableHeader', fillColor: '#2c3e50' },
+        { text: 'CANT.', style: 'tableHeader', fillColor: '#2c3e50' },
+        { text: 'DETALLES', style: 'tableHeader', fillColor: '#2c3e50' },
+        { text: 'PRECIO/U', style: 'tableHeader', fillColor: '#2c3e50' },
+        { text: 'TOTAL', style: 'tableHeader', fillColor: '#2c3e50' }
+      ]
+    ];
+
+    (bgt.Complement || []).forEach(c => {
+      complementsTableBody.push([
+        { text: c?.type || '-', style: 'tableText' },
+        { text: c?.name || '-', style: 'tableText' },
+        { text: String(c?.quantity ?? '-'), style: 'tableText', alignment: 'center' },
+        { text: c?.details || '-', style: 'tableText' },
+        { text: c?.unitPrice ? `$${Number(c.unitPrice).toFixed(2)}` : '-', style: 'tableText', alignment: 'right' },
+        { text: c?.totalPrice ? `$${Number(c.totalPrice).toFixed(2)}` : '-', style: 'tableText', alignment: 'right' }
       ]);
     });
 
@@ -476,6 +612,25 @@ const BudgetDetail = () => {
             }
           }
         },
+
+        // <-- INSERTA AQUÍ la sección de complementos si existen -->
+        ...((bgt.Complement && bgt.Complement.length > 0) ? [
+          { text: '\n' },
+          { text: 'COMPLEMENTOS', style: 'sectionTitle', margin: [0, 8, 0, 8] },
+          {
+            table: {
+              headerRows: 1,
+              widths: [70, '*', 40, 120, 70, 70], // usar números (no strings) para evitar parseos extraños
+              body: complementsTableBody
+            },
+            layout: {
+              fillColor: function (rowIndex) {
+                return (rowIndex % 2 === 0) ? '#f8f9fa' : null;
+              }
+            },
+            margin: [0, 0, 0, 12]
+          }
+        ] : []),
 
         // Totales
         {
@@ -898,37 +1053,74 @@ const BudgetDetail = () => {
     }
   };
 
+  // Nuevo helper: traduce estados en inglés a español para el dropdown
+  const translateStatus = (s) => {
+    if (!s) return '';
+    const key = String(s).toLowerCase();
+    switch (key) {
+      case 'pending': return 'Pendiente';
+      case 'rejected': return 'Rechazado';
+      case 'finished': return 'Finalizado';
+      case 'approved': return 'Aprobado';
+      default: return s; // deja el original si no se mapea
+    }
+  };
+
   return (
+    
     <>
+    
       <Navbar />
+
       <div className="content-bottom">
         <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
-        <div className="only-screen">
-          <button
-            className="reporte-cotizaciones-btn-pdf btn-with-spinner"
-            onClick={handleDescargarPDF}
-            disabled={pdfLoading || !budget}
-          >
-            {pdfLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Descargar PDF"}
-          </button>
-        </div>
-        <div className="only-screen">
-          <button
-            className="reporte-cotizaciones-btn-email btn-with-spinner"
-            onClick={handleEnviarEmailJS}
-            disabled={mailLoading || !budget}
-          >
-            {mailLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Enviar por Email"}
-          </button>
-        </div>
-        <div className="only-screen">
-          <button
-            className="reporte-cotizaciones-btn-whatsapp btn-with-spinner"
-            onClick={handleEnviarWhatsApp}
-            disabled={whatsAppLoading || !budget}
-          >
-            {whatsAppLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Enviar por WhatsApp"}
-          </button>
+
+        {/* Contenedor único que agrupa botones y select para evitar que se desplacen */}
+        <div className="controls-wrapper">
+          <div className="button-group">
+            <button
+              className="reporte-cotizaciones-btn-pdf btn-with-spinner"
+              onClick={handleDescargarPDF}
+              disabled={pdfLoading || !sanitizedBudget}
+            >
+              {pdfLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Descargar PDF"}
+            </button>
+
+            <button
+              className="reporte-cotizaciones-btn-email btn-with-spinner"
+              onClick={handleEnviarEmailJS}
+              disabled={mailLoading || !budget}
+            >
+              {mailLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Enviar por Email"}
+            </button>
+
+            <button
+              className="reporte-cotizaciones-btn-whatsapp btn-with-spinner"
+              onClick={handleEnviarWhatsApp}
+              disabled={whatsAppLoading || !budget}
+            >
+              {whatsAppLoading ? <ReactLoading type="spin" color="#fff" height={24} width={24} /> : "Enviar por WhatsApp"}
+            </button>
+          </div>
+
+          <div className="version-select">
+            <label className="version-label">Versión</label>
+            <select
+              value={selectedVersionIndex}
+              onChange={handleVersionChange}
+              disabled={loading || versions.length === 0}
+              className="version-select-input"
+            >
+              {versions.map((v, idx) => {
+                const ver = v?.version ?? v?.Version ?? `#${idx + 1}`;
+                const cd = v?.creationDate ?? v?.CreationDate ?? v?.file_date ?? null;
+                const rawStatus = v?.status ?? v?.Status ?? '';
+                const status = translateStatus(rawStatus);
+                const labelDate = cd ? ` - ${new Date(cd).toLocaleDateString()}` : '';
+                return <option key={idx} value={idx}>{`v${ver || '?'} ${status ? `(${status})` : ''}${labelDate}`}</option>;
+              })}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -948,8 +1140,7 @@ const BudgetDetail = () => {
           <div>No se encontró la cotización.</div>
         )}
       </div>
-    </>
-  );
+    </>  );
 };
 
 export default BudgetDetail;

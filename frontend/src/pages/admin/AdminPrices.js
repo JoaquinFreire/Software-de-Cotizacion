@@ -7,6 +7,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ReactLoading from "react-loading";
 import { safeArray } from "../../utils/safeArray";
+import { useNavigate } from "react-router-dom";
+
 
 const API_URL = process.env.REACT_APP_API_URL || "";
 
@@ -19,6 +21,11 @@ export default function AdminPrices() {
 	const [submitting, setSubmitting] = useState(false);
 	const [deletingIds, setDeletingIds] = useState({});
 
+	const navigate = useNavigate();
+	const handleLogout = () => {
+			localStorage.removeItem("token");
+			navigate("/");
+	}
 	// Helper: convierte distintos formatos de id en Number o null
 	const getId = (p) => {
 		if (p == null) return null;
@@ -157,13 +164,13 @@ export default function AdminPrices() {
 			setDeletingIds(prev => ({ ...prev, [key]: false }));
 		}
 	};
-
+	
 	// normalizar para el render
 	const list = Array.isArray(prices) ? prices : [];
 
 	return (
 		<div className="dashboard-container">
-			<Navigation />
+            <Navigation onLogout={handleLogout} />
 			<ToastContainer autoClose={4000} theme="dark" position="bottom-right" />
 			<div className="admin-prices-wrapper">
 				<div className="admin-prices-header">
@@ -180,10 +187,10 @@ export default function AdminPrices() {
 					<>
 						<div className="prices-table">
 							<div className="prices-header">
-								<div className="col name">Nombre</div>
-								<div className="col price">Precio</div>
-								<div className="col ref">Referencia</div>
-								<div className="col actions">Acciones</div>
+								<div className="col-name-h3">Nombre</div>
+								<div className="col-price-h3">Precio</div>
+								<div className="col-ref-h3">Referencia</div>
+								<div className="col-actions-h3">Acciones</div>
 							</div>
 
 							<div className="prices-body">

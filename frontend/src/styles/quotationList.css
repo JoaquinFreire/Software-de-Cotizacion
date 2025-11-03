@@ -93,16 +93,16 @@ body.light-mode .quote-card {
     color: #fff;
 }
 .status-select {
-    background: #817821; /* Yellow */
+    background: #81772196; /* Yellow */
     color: rgb(243, 243, 243);
     padding: 5px;
-    width: 128px;
+    width: 138px;
 
 }
 
 .status-select option[value="pending"] {
     font-weight: 700;
-    background:  #998b0a8f; 
+    background:  #998b0a6b; 
     
 }
 .dropdown {
@@ -127,12 +127,12 @@ body.light-mode .delete-button {
     color: #d32f2f;
 }
 body.light-mode .status-select {
-    background: hsl(55, 100%, 85%);
-    color: #fbc02d;
+    background: hsl(55, 100%, 72%);
+    color: #ac7d06;
     border: none;
 }
 body.light-mode .status-select option {
-    background: hsl(55, 100%, 85%);
+    background: hsl(55, 60%, 63%);
     color: #f0d911;
 }
 body.light-mode .dropdown {

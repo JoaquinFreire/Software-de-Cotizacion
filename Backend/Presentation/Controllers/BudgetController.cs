@@ -10,6 +10,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Request;
 using System.Text.Json; // <-- para serializar en consola
+using System.Linq; // <--- agregado
 
 namespace Presentation.Controllers
 {
@@ -26,6 +27,69 @@ namespace Presentation.Controllers
             _budgetService = budgetService;
             _mapper = mapper;
             _mediator = mediator;
+        }
+
+        // Nuevo endpoint: devuelve todas las versiones para un BudgetId (ordenadas: la más reciente primero)
+        [HttpGet("GetBudgetVersions/{budgetId}")]
+        public async Task<IActionResult> GetBudgetVersions(string budgetId)
+        {
+            if (string.IsNullOrEmpty(budgetId))
+                return BadRequest("BudgetId requerido.");
+
+            var allBudgets = await _budgetService.GetAllBudgetsAsync();
+
+            // Filtrar por BudgetId de forma robusta (soporta propiedades 'budgetId' o 'BudgetId')
+            var matches = allBudgets.Where(b =>
+            {
+                try
+                {
+                    var t = b.GetType();
+                    var p1 = t.GetProperty("budgetId");
+                    var p2 = t.GetProperty("BudgetId");
+                    var val = p1?.GetValue(b) ?? p2?.GetValue(b);
+                    return val != null && val.ToString() == budgetId;
+                }
+                catch
+                {
+                    return false;
+                }
+            }).ToList();
+
+            if (!matches.Any())
+                return NotFound("No se encontraron cotizaciones con el BudgetId indicado.");
+
+            // Ordenar: intentar por 'version' (numérica si posible), si no por fecha de creación
+            var ordered = matches
+                .OrderByDescending(b =>
+                {
+                    try
+                    {
+                        var t = b.GetType();
+                        var verProp = t.GetProperty("version") ?? t.GetProperty("Version");
+                        if (verProp != null)
+                        {
+                            var v = verProp.GetValue(b);
+                            if (v != null && int.TryParse(v.ToString(), out int vi)) return vi;
+                        }
+                    }
+                    catch { }
+                    return int.MinValue;
+                })
+                .ThenByDescending(b =>
+                {
+                    try
+                    {
+                        var t = b.GetType();
+                        var dateProp = t.GetProperty("creationDate") ?? t.GetProperty("CreationDate") ?? t.GetProperty("file_date");
+                        var dv = dateProp?.GetValue(b);
+                        if (dv is DateTime dt) return dt;
+                    }
+                    catch { }
+                    return DateTime.MinValue;
+                })
+                .ToList();
+
+            return Ok(ordered);
         }
 
         [HttpPost("CreateBudget")]

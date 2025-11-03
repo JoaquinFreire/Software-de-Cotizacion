@@ -7,7 +7,8 @@ import { safeArray } from '../../utils/safeArray';
 import '../../styles/reportes.css';
 import '../../styles/reporteindividual.css';
 import html2pdf from 'html2pdf.js';
-import ReactLoading from 'react-loading'; // nuevo import para spinner
+import ReactLoading from 'react-loading'; 
+import { useNavigate } from "react-router-dom";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -32,6 +33,13 @@ const BeneficioEnCotizaciocionesPorTipoDeLinea = () => {
     numPanelsHeight: undefined,
     quantity: 1
   });
+
+  const navigate = useNavigate();
+          
+              const handleLogout = () => {
+                  localStorage.removeItem("token");
+                  navigate("/");
+              }
 
   const pdfRef = useRef();
 
@@ -251,7 +259,7 @@ const BeneficioEnCotizaciocionesPorTipoDeLinea = () => {
   return (
     // Añadida clase 'beneficio-report' para aplicar CSS de impresión localizada
     <div className="dashboard-container beneficio-report">
-      <Navigation />
+      <Navigation onLogout={handleLogout} />
       <h2 className="title">Beneficio en Cotizaciones por Tipo de Línea</h2>
       <div className="reporte-cotizaciones-root reporte-cotizaciones-toolbar">
         <div className="reporte-cotizaciones-toolbar reporte-cotizaciones-filtros " style={{ marginBottom: 12 }}>

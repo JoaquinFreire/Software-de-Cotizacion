@@ -71,12 +71,16 @@ const ReporteDeTendenciasDeCotizacionPorMes = () => {
   const [compareTableData, setCompareTableData] = useState([]);
   const [compareTotals, setCompareTotals] = useState({ count: 0, total: 0 }); // resumen simple
 
+    const navigate = useNavigate();
+          const handleLogout = () => {
+            localStorage.removeItem("token");
+            navigate("/");}
+
   // Nuevo estado: cotizaciones crudas del periodo comparado
   const [compareCotizaciones, setCompareCotizaciones] = useState([]); // <-- nuevo
   const [openCompareMonths, setOpenCompareMonths] = useState({}); // <-- nuevo
 
   const pdfRef = useRef();
-  const navigate = useNavigate(); // <-- nuevo
 
   const invalidRange = (() => {
     const d = parseMonthValueToDate(fechaDesde);
@@ -366,7 +370,7 @@ const ReporteDeTendenciasDeCotizacionPorMes = () => {
 
   return (
     <div className="dashboard-container beneficio-report">
-      <Navigation />
+      <Navigation onLogout={handleLogout} />
       <h2 className="title">Reporte de Tendencias de Cotizaciones por Mes</h2>
       <div className="reporte-cotizaciones-root">
         <div className="reporte-cotizaciones-toolbar">

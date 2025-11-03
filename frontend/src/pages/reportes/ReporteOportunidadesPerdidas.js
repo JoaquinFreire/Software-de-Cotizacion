@@ -62,7 +62,10 @@ const ReporteDeOportunidadesPerdidas = () => {
   const [loading, setLoading] = useState(false);
   const [cotizaciones, setCotizaciones] = useState([]);
   const pdfRef = useRef();
-  const navigate = useNavigate(); // <-- agregado
+  const navigate = useNavigate();
+        const handleLogout = () => {
+          localStorage.removeItem("token");
+          navigate("/");}
 
   // nuevo estado para ordenamiento por precio
   const [priceSortDirection, setPriceSortDirection] = useState(null); // 'asc' | 'desc' | null
@@ -251,7 +254,7 @@ const ReporteDeOportunidadesPerdidas = () => {
 
   return (
     <div className="dashboard-container">
-      <Navigation />
+      <Navigation onLogout={handleLogout} />
       <h2 className="title">Reporte de Oportunidades Perdidas</h2>
       <div className="reporte-cotizaciones-root">
         <div className="reporte-cotizaciones-toolbar">

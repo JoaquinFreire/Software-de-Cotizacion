@@ -10,6 +10,7 @@ import Navigation from '../../components/Navigation';
 import Footer from '../../components/Footer';
 import '../../styles/reportes.css';
 import '../../styles/reporteindividual.css';
+import { useNavigate } from "react-router-dom";
 
 Chart.register(ChartDataLabels);
 
@@ -63,6 +64,13 @@ const AnalisisSatisfaccionCliente = () => {
   const [resumen, setResumen] = useState([]);
   const [generar, setGenerar] = useState(false);
   const pdfRef = useRef();
+
+  const navigate = useNavigate();
+        
+            const handleLogout = () => {
+                localStorage.removeItem("token");
+                navigate("/");
+            }
 
   const fetchCSV = async () => {
     setLoading(true);
@@ -137,7 +145,7 @@ const AnalisisSatisfaccionCliente = () => {
 
   return (
     <div className="dashboard-container">
-      <Navigation />
+      <Navigation onLogout={handleLogout} />
       <h2 className="title">Análisis de Satisfacción del Cliente</h2>
       <div className="reporte-cotizaciones-root">
         {/* Filtros y acciones arriba de todo */}

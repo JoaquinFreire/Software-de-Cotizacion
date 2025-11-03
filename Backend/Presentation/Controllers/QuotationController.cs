@@ -452,12 +452,37 @@ public class QuotationController : ControllerBase
             return NotFound(new { message = "No se encontró la cotización o ocurrió un error" });
         }
     }
+
+    [HttpPut("{id}/total")]
+    public async Task<IActionResult> UpdateQuotationTotal(int id, [FromBody] UpdateTotalRequest request)
+    {
+        if (id <= 0) return BadRequest("Id inválido.");
+        if (request == null) return BadRequest("Request inválido.");
+
+        // Usamos directamente el DbContext para evitar depender de métodos del repositorio que podrían no existir
+        var dbContext = HttpContext.RequestServices.GetService(typeof(AppDbContext)) as AppDbContext;
+        if (dbContext == null) return StatusCode(500, "DbContext no disponible.");
+
+        var quotation = await dbContext.Quotations.FindAsync(id);
+        if (quotation == null) return NotFound("Cotización SQL no encontrada.");
+
+        quotation.TotalPrice = request.totalPrice;
+        await dbContext.SaveChangesAsync();
+
+        return Ok(new { message = "Total actualizado correctamente.", id = id, totalPrice = quotation.TotalPrice });
+    }
 }
 
 // DTOs internos
 public class UpdateStatusRequest
 {
     public string? Status { get; set; }
+}
+
+// Nuevo DTO para actualizar total desde frontend
+public class UpdateTotalRequest
+{
+    public decimal totalPrice { get; set; }
 }
 
 public class QuotationFullRequest

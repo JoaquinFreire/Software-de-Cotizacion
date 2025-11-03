@@ -7,6 +7,8 @@ import Navigation from "../../../components/Navigation";
 import Footer from "../../../components/Footer";
 import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 const API_URL = process.env.REACT_APP_API_URL || "";
 
 export default function AdminAccesory() {
@@ -19,6 +21,12 @@ export default function AdminAccesory() {
     const [viewingAll, setViewingAll] = useState(false);
     const [deletingIds, setDeletingIds] = useState({});
     const [modalSubmitting, setModalSubmitting] = useState(false);
+
+    const navigate = useNavigate();
+	const handleLogout = () => {
+			localStorage.removeItem("token");
+			navigate("/");
+	}
 
     const normalizeItems = (items) => { if (!items || !Array.isArray(items)) return []; return items.map(it => { if (!it) return it; if (it.id === undefined && it._id) it.id = it._id; if (typeof it.id === "string" && /^[0-9]+$/.test(it.id)) it.id = Number(it.id); return it; }); };
 
@@ -95,7 +103,7 @@ export default function AdminAccesory() {
 
     return (
         <div className="dashboard-container">
-            <Navigation />
+            <Navigation onLogout={handleLogout} />
             <ToastContainer autoClose={4000} theme="dark" position="bottom-right" />
             <div className="admin-materials-content">
                 {/* Botón volver a Admin Materials */}

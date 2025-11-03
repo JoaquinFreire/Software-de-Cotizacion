@@ -1,8 +1,9 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { Users, AlertTriangle, Clock, TrendingUp, Filter, Download, RefreshCw, ChevronDown, ChevronUp, User, Save, X } from 'lucide-react';
+import { Users, AlertTriangle, Clock, TrendingUp, Filter, Download, RefreshCw, ChevronDown, ChevronUp, User, Save, X, Omega } from 'lucide-react';
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
 import '../../styles/DashboardEficienciaOperativa.css';
+import { useNavigate } from "react-router-dom";
 
 const DashboardEficienciaOperativa = () => {
     const [workloadData, setWorkloadData] = useState([]);
@@ -23,6 +24,13 @@ const DashboardEficienciaOperativa = () => {
     const [selectedQuotation, setSelectedQuotation] = useState(null);
     const [selectedUserId, setSelectedUserId] = useState('');
     const [changingUser, setChangingUser] = useState(false);
+
+    const navigate = useNavigate();
+            
+                const handleLogout = () => {
+                    localStorage.removeItem("token");
+                    navigate("/");
+                }
 
     const API_URL = process.env.REACT_APP_API_URL;
 
@@ -275,7 +283,7 @@ const DashboardEficienciaOperativa = () => {
 
     return (
         <div className="dashboard-container">
-            <Navigation />
+            <Navigation onLogout={handleLogout} />
 
             <div className="dashboard-main-wrapper">
                 <div className="dashboard-content-container">
