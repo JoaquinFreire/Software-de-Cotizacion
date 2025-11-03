@@ -95,8 +95,8 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
           </div>
           <div className="quote-actions">
             <button className="go-button" onClick={() => navigate(`/quotation/${quotation.Id}`)}>Ver Detalles</button>
-            <button className="update-button" onClick={() => navigate(`/update-quotation/${quotation.Id}`)}>Actualizar</button>
-            <button className="delete-button" onClick={() => handleShowModal(quotation.Id)}>Eliminar</button>
+                  <button className="update-button" onClick={() => navigate(`/quotation-new-version/${quotation.Id}`)}>Actualizar</button>
+                  <button className="delete-button" onClick={() => handleShowModal(quotation.Id)}>Eliminar</button>
             {/* Cuando changingId === quotation.Id mostramos un único option "Actualizando..." */}
             <div style={{ position: 'relative', display: 'inline-block' }}>
               <select
