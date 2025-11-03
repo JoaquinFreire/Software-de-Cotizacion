@@ -59,8 +59,13 @@ const CreateBudgetVersion = () => {
     const [complementPartitions, setComplementPartitions] = useState([]);
     const [complementRailings, setComplementRailings] = useState([]);
     const [comment, setComment] = useState("");
+
+    // Estados para referencias (solo lectura)
     const [dollarReference, setDollarReference] = useState(null);
     const [labourReference, setLabourReference] = useState(null);
+    const [dolarVenta, setDolarVenta] = useState(null);
+    const [dolarCompra, setDolarCompra] = useState(null);
+    const [loadingPrices, setLoadingPrices] = useState(true);
 
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState(null);
@@ -85,112 +90,67 @@ const CreateBudgetVersion = () => {
             try {
                 const token = localStorage.getItem('token');
                 if (!token) {
-                    console.error('No hay token de autenticación');
                     toast.error('No hay token de autenticación');
                     setLoading(false);
                     return;
                 }
 
-                console.log('🔄 Iniciando carga de datos para budgetId:', budgetId);
+                console.log('Buscando versiones para budgetId:', budgetId);
 
                 // Obtener todas las versiones para este budgetId
                 const versionsResponse = await axios.get(`${API_URL}/api/Mongo/GetBudgetVersions/${budgetId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                    timeout: 10000 // 10 segundos timeout
+                    headers: { Authorization: `Bearer ${token}` }
                 });
 
-                console.log('✅ Respuesta HTTP recibida:', versionsResponse.status);
-                console.log('📦 Datos de versiones:', versionsResponse.data);
+                console.log('Respuesta completa de versiones:', versionsResponse);
+                console.log('Datos de versiones:', versionsResponse.data);
 
-                // VERIFICACIÓN MÁS DETALLADA
+                // VERIFICACIÓN MÁS ROBUSTA
                 let versionsArray = [];
 
-                if (versionsResponse.data) {
-                    if (versionsResponse.data.$values && Array.isArray(versionsResponse.data.$values)) {
-                        versionsArray = versionsResponse.data.$values;
-                        console.log('📊 Versiones extraídas de $values:', versionsArray.length);
-                    } else if (Array.isArray(versionsResponse.data)) {
-                        versionsArray = versionsResponse.data;
-                        console.log('📊 Versiones extraídas de array directo:', versionsArray.length);
-                    } else {
-                        console.warn('❌ Formato de datos inesperado:', versionsResponse.data);
-                    }
+                if (versionsResponse.data && versionsResponse.data.$values) {
+                    versionsArray = versionsResponse.data.$values;
+                } else if (Array.isArray(versionsResponse.data)) {
+                    versionsArray = versionsResponse.data;
                 }
 
-                console.log('🔍 Versiones procesadas:', versionsArray);
+                console.log('Versiones procesadas:', versionsArray);
 
                 if (!versionsArray || versionsArray.length === 0) {
-                    console.error('❌ No se encontraron versiones para esta cotización');
+                    console.error('No se encontraron versiones para esta cotización');
                     toast.error('No se encontraron versiones para esta cotización');
                     setLoading(false);
                     return;
                 }
 
-                console.log('🎯 Estableciendo budgetVersions con:', versionsArray.length, 'versiones');
                 setBudgetVersions(versionsArray);
 
                 // Seleccionar la última versión por defecto
                 const latestVersion = versionsArray[0];
-                console.log('🚀 Última versión a establecer:', latestVersion);
-                console.log('📝 ID de la versión:', latestVersion.id);
-                console.log('🔢 Número de versión:', latestVersion.version);
+                console.log('Última versión a establecer:', latestVersion);
 
                 // ESTABLECER AMBOS ESTADOS SIMULTÁNEAMENTE
-                console.log('⚡ Estableciendo selectedVersion y originalBudget...');
                 setSelectedVersion(latestVersion);
                 setOriginalBudget(latestVersion);
 
-                console.log('✅ Estados establecidos correctamente');
+                console.log('Estados establecidos correctamente');
 
             } catch (error) {
-                console.error('❌ Error fetching budget data:', error);
-                if (error.response) {
-                    console.error('📡 Error response:', error.response.status, error.response.data);
-                    toast.error(`Error ${error.response.status}: ${error.response.data}`);
-                } else if (error.request) {
-                    console.error('🌐 Error request:', error.request);
-                    toast.error('Error de conexión con el servidor');
-                } else {
-                    console.error('⚙️ Error config:', error.message);
-                    toast.error(`Error: ${error.message}`);
-                }
+                console.error('Error fetching budget data:', error);
+                console.error('Error details:', error.response?.data || error.message);
+                toast.error(`Error al cargar los datos: ${error.response?.data || error.message}`);
             } finally {
-                console.log('🏁 Finalizando carga, setting loading: false');
                 setLoading(false);
             }
         };
 
         if (budgetId) {
-            console.log('🎬 Ejecutando fetchBudgetData para budgetId:', budgetId);
             fetchBudgetData();
         } else {
-            console.error('❌ No se proporcionó budgetId');
             setLoading(false);
             toast.error('No se proporcionó ID de cotización');
         }
     }, [budgetId]);
-
-    useEffect(() => {
-        console.log('🎯 ESTADOS ACTUALES:');
-        console.log('loading:', loading);
-        console.log('originalBudget:', originalBudget ? `✅ SET (id: ${originalBudget.id})` : '❌ NULL');
-        console.log('budgetVersions:', budgetVersions.length > 0 ? `✅ ${budgetVersions.length} versiones` : '❌ VACÍO');
-        console.log('selectedVersion:', selectedVersion ? `✅ SET (v${selectedVersion.version})` : '❌ NULL');
-        console.log('masterDataLoaded:', masterDataLoaded);
-    }, [loading, originalBudget, budgetVersions, selectedVersion, masterDataLoaded]);
-
-    useEffect(() => {
-        console.log('🔍 DEBUG: budgetId en params:', budgetId);
-        console.log('🔍 DEBUG: API_URL:', API_URL);
-    }, [budgetId]);
-
-
-
-    useEffect(() => {
-        console.log('=== ORIGINAL BUDGET UPDATE ===');
-        console.log('originalBudget:', originalBudget);
-        console.log('selectedVersion:', selectedVersion);
-    }, [originalBudget, selectedVersion]);
 
     // Cargar datos maestros (tipos de abertura, tratamientos, etc.)
     useEffect(() => {
@@ -252,6 +212,42 @@ const CreateBudgetVersion = () => {
         fetchMasterData();
     }, []);
 
+    // Cargar referencias de dólar y mano de obra (solo lectura)
+    useEffect(() => {
+        const fetchReferences = async () => {
+            setLoadingPrices(true);
+            try {
+                // Obtener dólar
+                const dolarRes = await fetch('https://dolarapi.com/v1/dolares/oficial');
+                const dolarData = await dolarRes.json();
+                setDolarVenta(dolarData.venta);
+                setDolarCompra(dolarData.compra);
+                setDollarReference(dolarData.venta);
+
+                // Obtener mano de obra desde la API interna
+                const token = localStorage.getItem('token');
+                const pricesRes = await axios.get(`${API_URL}/api/prices`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const prices = toArray(pricesRes.data);
+                const labourObj = prices.find(p =>
+                    p.name?.toLowerCase().includes("manoobra") ||
+                    p.name?.toLowerCase().includes("manodeobra") ||
+                    p.name?.toLowerCase().includes("mano de obra")
+                );
+                if (labourObj) {
+                    setLabourReference(labourObj.price);
+                }
+            } catch (error) {
+                console.error('Error fetching references:', error);
+            } finally {
+                setLoadingPrices(false);
+            }
+        };
+
+        fetchReferences();
+    }, []);
+
     // Marcar cuando los datos maestros estén cargados
     useEffect(() => {
         if (openingTypes.length > 0 && treatments.length > 0 && glassTypes.length > 0 &&
@@ -262,25 +258,19 @@ const CreateBudgetVersion = () => {
     }, [openingTypes, treatments, glassTypes, complementDoors, complementPartitions, complementRailings]);
 
     // Funciones auxiliares para obtener IDs por nombre
-    const getOpeningTypeIdByName = (name) => {
-        if (!name) return '';
-        const type = openingTypes.find(t => t.name === name);
-        console.log(`Buscando opening type: "${name}" ->`, type ? type.id : 'no encontrado');
-        return type ? type.id : '';
+    const getOpeningTypeName = (typeId) => {
+        const type = openingTypes.find(t => String(t.id) === String(typeId));
+        return type ? (type.name || type.type) : '';
     };
 
-    const getTreatmentIdByName = (name) => {
-        if (!name) return '';
-        const treatment = treatments.find(t => t.name === name);
-        console.log(`Buscando treatment: "${name}" ->`, treatment ? treatment.id : 'no encontrado');
-        return treatment ? treatment.id : '';
+    const getTreatmentName = (treatmentId) => {
+        const treatment = treatments.find(t => String(t.id) === String(treatmentId));
+        return treatment ? treatment.name : '';
     };
 
-    const getGlassTypeIdByName = (name) => {
-        if (!name) return '';
-        const glassType = glassTypes.find(g => g.name === name);
-        console.log(`Buscando glass type: "${name}" ->`, glassType ? glassType.id : 'no encontrado');
-        return glassType ? glassType.id : '';
+    const getGlassTypeName = (glassTypeId) => {
+        const glassType = glassTypes.find(g => String(g.id) === String(glassTypeId));
+        return glassType ? glassType.name : '';
     };
 
     const getDoorIdByName = (name) => {
@@ -324,12 +314,12 @@ const CreateBudgetVersion = () => {
             console.log('Products encontrados:', productsArray);
 
             const openings = productsArray.map(product => ({
-                typeId: getOpeningTypeIdByName(product.OpeningType?.name),
+                typeId: openingTypes.find(t => t.name === product.OpeningType?.name)?.id || '',
                 width: product.width,
                 height: product.height,
                 quantity: product.Quantity || 1,
-                treatmentId: getTreatmentIdByName(product.AlumTreatment?.name),
-                glassTypeId: getGlassTypeIdByName(product.GlassType?.name),
+                treatmentId: treatments.find(t => t.name === product.AlumTreatment?.name)?.id || '',
+                glassTypeId: glassTypes.find(g => g.name === product.GlassType?.name)?.id || '',
                 numPanelsWidth: product.WidthPanelQuantity,
                 numPanelsHeight: product.HeightPanelQuantity,
                 panelWidth: product.PanelWidth,
@@ -355,7 +345,7 @@ const CreateBudgetVersion = () => {
                     complementGroup.ComplementDoor.$values.forEach(door => {
                         complements.push({
                             type: 'door',
-                            complementId: getDoorIdByName(door.Name),
+                            complementId: complementDoors.find(d => d.name === door.Name)?.id || '',
                             quantity: door.Quantity || 1,
                             custom: {
                                 width: door.Width,
@@ -373,10 +363,10 @@ const CreateBudgetVersion = () => {
                     complementGroup.ComplementRailing.$values.forEach(railing => {
                         complements.push({
                             type: 'railing',
-                            complementId: getRailingIdByName(railing.Name),
+                            complementId: complementRailings.find(r => r.name === railing.Name)?.id || '',
                             quantity: railing.Quantity || 1,
                             custom: {
-                                treatment: getTreatmentIdByName(railing.AlumTreatment?.name),
+                                treatment: treatments.find(t => t.name === railing.AlumTreatment?.name)?.id || '',
                                 reinforced: railing.Reinforced || false
                             },
                             totalPrice: railing.Price || 0
@@ -389,7 +379,7 @@ const CreateBudgetVersion = () => {
                     complementGroup.ComplementPartition.$values.forEach(partition => {
                         complements.push({
                             type: 'partition',
-                            complementId: getPartitionIdByName(partition.Name),
+                            complementId: complementPartitions.find(p => p.name === partition.Name)?.id || '',
                             quantity: partition.Quantity || 1,
                             custom: {
                                 height: partition.Height,
@@ -430,19 +420,15 @@ const CreateBudgetVersion = () => {
             setComment("");
         }
 
-        // Cargar referencias
+        // Cargar referencias (si existen en el budget)
         if (budget.DollarReference !== undefined && budget.DollarReference !== null) {
             setDollarReference(budget.DollarReference);
             console.log('DollarReference:', budget.DollarReference);
-        } else {
-            setDollarReference(null);
         }
 
         if (budget.LabourReference !== undefined && budget.LabourReference !== null) {
             setLabourReference(budget.LabourReference);
             console.log('LabourReference:', budget.LabourReference);
-        } else {
-            setLabourReference(null);
         }
 
     }, [openingTypes, treatments, glassTypes, complementDoors, complementPartitions, complementRailings]);
@@ -454,26 +440,6 @@ const CreateBudgetVersion = () => {
             loadFormDataFromBudget(originalBudget);
         }
     }, [originalBudget, masterDataLoaded, loadFormDataFromBudget]);
-
-    // Agrega esto para debug
-    useEffect(() => {
-        console.log('=== DEBUG STATES ===');
-        console.log('loading:', loading);
-        console.log('originalBudget:', originalBudget);
-        console.log('budgetVersions length:', budgetVersions.length);
-        console.log('selectedVersion:', selectedVersion);
-        console.log('masterDataLoaded:', masterDataLoaded);
-        console.log('openingTypes length:', openingTypes.length);
-        console.log('treatments length:', treatments.length);
-        console.log('glassTypes length:', glassTypes.length);
-        console.log('complementDoors length:', complementDoors.length);
-        console.log('complementPartitions length:', complementPartitions.length);
-        console.log('complementRailings length:', complementRailings.length);
-        console.log('selectedOpenings:', selectedOpenings);
-        console.log('selectedComplements:', selectedComplements);
-    }, [loading, originalBudget, budgetVersions, selectedVersion, masterDataLoaded,
-        openingTypes, treatments, glassTypes, complementDoors, complementPartitions,
-        complementRailings, selectedOpenings, selectedComplements]);
 
     // Navegación del carousel
     const handlePrev = useCallback(() => {
@@ -587,6 +553,140 @@ const CreateBudgetVersion = () => {
             setAgentSearched(false);
         }
     }, [agentSearchDni]);
+
+    // Funciones para cálculos en el resumen
+    const getComplementName = (complementId, type) => {
+        let arr = [];
+        if (type === 'door') arr = complementDoors;
+        else if (type === 'partition') arr = complementPartitions;
+        else if (type === 'railing') arr = complementRailings;
+        const comp = arr.find(c => String(c.id ?? c.Id) === String(complementId));
+        return comp ? comp.name : '';
+    };
+
+    const getComplementSubtotal = (complement) => {
+        if (complement.totalPrice !== undefined && complement.totalPrice !== null) {
+            return `Subtotal: $${(Number(complement.totalPrice)).toFixed(2)}`;
+        }
+        let arr = [];
+        if (complement.type === 'door') arr = complementDoors;
+        else if (complement.type === 'partition') arr = complementPartitions;
+        else if (complement.type === 'railing') arr = complementRailings;
+        const found = arr.find(item => String(item.id) === String(complement.complementId));
+        const price = found ? Number(found.price) : 0;
+        return `Subtotal: $${(price * Number(complement.quantity)).toFixed(2)}`;
+    };
+
+    // Cálculo de total general con costos adicionales
+    const getGeneralTotal = () => {
+        const totalOpenings = selectedOpenings.reduce((sum, opening) => {
+            // Cálculo simplificado - puedes ajustar según tu lógica de negocio
+            const basePrice = 1000; // Precio base por abertura
+            return sum + (basePrice * (opening.quantity || 1));
+        }, 0);
+
+        const totalComplements = selectedComplements.reduce((sum, complement) => {
+            let price = 0;
+            if (complement.totalPrice !== undefined && complement.totalPrice !== null) {
+                price = Number(complement.totalPrice);
+            } else {
+                let arr = [];
+                if (complement.type === 'door') arr = complementDoors;
+                else if (complement.type === 'partition') arr = complementPartitions;
+                else if (complement.type === 'railing') arr = complementRailings;
+                const found = arr.find(item => String(item.id) === String(complement.complementId));
+                price = found ? Number(found.price) : 0;
+            }
+            return sum + (price * Number(complement.quantity || 1));
+        }, 0);
+
+        const subtotalGeneral = totalOpenings + totalComplements;
+        const costoFabricacion = subtotalGeneral * 0.10; // 10%
+        const costoAdministrativo = subtotalGeneral * 0.05; // 5%
+        const totalGeneral = subtotalGeneral + costoFabricacion + costoAdministrativo;
+
+        return {
+            totalOpenings,
+            totalComplements,
+            subtotalGeneral,
+            costoFabricacion,
+            costoAdministrativo,
+            totalGeneral
+        };
+    };
+
+    const handleRemoveOpening = (idx) => {
+        setSelectedOpenings(prev => prev.filter((_, i) => i !== idx));
+    };
+
+    const handleChangeOpeningQty = (idx, delta) => {
+        setSelectedOpenings(prev =>
+            prev.map((op, i) =>
+                i === idx
+                    ? { ...op, quantity: Math.max(1, (op.quantity || 1) + delta) }
+                    : op
+            )
+        );
+    };
+
+    const handleRemoveComplement = (idx) => {
+        setSelectedComplements(prev => prev.filter((_, i) => i !== idx));
+    };
+
+    const handleChangeComplementQty = (idx, delta) => {
+        setSelectedComplements(prev =>
+            prev.map((comp, i) =>
+                i === idx
+                    ? { ...comp, quantity: Math.max(1, (comp.quantity || 1) + delta) }
+                    : comp
+            )
+        );
+    };
+
+    // Función para renderizar la vista previa SVG de paneles
+    const renderPanelPreview = (opening) => {
+        const w = Number(opening.width);
+        const h = Number(opening.height);
+        const numPanelsWidth = opening.numPanelsWidth || 1;
+        const numPanelsHeight = opening.numPanelsHeight || 1;
+
+        if (!w || !h || w <= 0 || h <= 0) return null;
+
+        const vw = Math.min(120, w * 0.8);
+        const vh = Math.min(80, h * 0.8);
+        const viewW = w;
+        const viewH = h;
+
+        return (
+            <div className="panel-preview-small">
+                <svg width={vw} height={vh} viewBox={`0 0 ${viewW} ${viewH}`} preserveAspectRatio="xMidYMid meet">
+                    <rect x="0" y="0" width={viewW} height={viewH} fill="#dff0f8" stroke="#26b7cd" strokeWidth={0.3} />
+                    {Array.from({ length: Math.max(0, numPanelsWidth - 1) }).map((_, i) => (
+                        <line
+                            key={`v-${i}`}
+                            x1={((i + 1) * viewW / numPanelsWidth)}
+                            y1={0}
+                            x2={((i + 1) * viewW / numPanelsWidth)}
+                            y2={viewH}
+                            stroke="#2c2727"
+                            strokeWidth={1.15}
+                        />
+                    ))}
+                    {Array.from({ length: Math.max(0, numPanelsHeight - 1) }).map((_, i) => (
+                        <line
+                            key={`h-${i}`}
+                            x1={0}
+                            y1={((i + 1) * viewH / numPanelsHeight)}
+                            x2={viewW}
+                            y2={((i + 1) * viewH / numPanelsHeight)}
+                            stroke="#1f1c1c"
+                            strokeWidth={1.15}
+                        />
+                    ))}
+                </svg>
+            </div>
+        );
+    };
 
     // Enviar nueva versión
     const handleSubmitVersion = async () => {
@@ -718,67 +818,6 @@ const CreateBudgetVersion = () => {
         }
     };
 
-    // Funciones para cálculos en el resumen (similares a las del formulario original)
-    const getOpeningTypeName = (typeId) => {
-        const type = openingTypes.find(t => String(t.id) === String(typeId));
-        return type ? (type.name || type.type) : '';
-    };
-
-    const getOpeningSubtotal = (opening) => {
-        // Implementar lógica de cálculo similar al formulario original
-        return "Cálculo en nueva versión";
-    };
-
-    const getComplementName = (complementId, type) => {
-        let arr = [];
-        if (type === 'door') arr = complementDoors;
-        else if (type === 'partition') arr = complementPartitions;
-        else if (type === 'railing') arr = complementRailings;
-        const comp = arr.find(c => String(c.id ?? c.Id) === String(complementId));
-        return comp ? comp.name : '';
-    };
-
-    const getComplementSubtotal = (complement) => {
-        if (complement.totalPrice !== undefined && complement.totalPrice !== null) {
-            return `Subtotal: $${(Number(complement.totalPrice)).toFixed(2)}`;
-        }
-        let arr = [];
-        if (complement.type === 'door') arr = complementDoors;
-        else if (complement.type === 'partition') arr = complementPartitions;
-        else if (complement.type === 'railing') arr = complementRailings;
-        const found = arr.find(item => String(item.id) === String(complement.complementId));
-        const price = found ? Number(found.price) : 0;
-        return `Subtotal: $${(price * Number(complement.quantity)).toFixed(2)}`;
-    };
-
-    const handleRemoveOpening = (idx) => {
-        setSelectedOpenings(prev => prev.filter((_, i) => i !== idx));
-    };
-
-    const handleChangeOpeningQty = (idx, delta) => {
-        setSelectedOpenings(prev =>
-            prev.map((op, i) =>
-                i === idx
-                    ? { ...op, quantity: Math.max(1, (op.quantity || 1) + delta) }
-                    : op
-            )
-        );
-    };
-
-    const handleRemoveComplement = (idx) => {
-        setSelectedComplements(prev => prev.filter((_, i) => i !== idx));
-    };
-
-    const handleChangeComplementQty = (idx, delta) => {
-        setSelectedComplements(prev =>
-            prev.map((comp, i) =>
-                i === idx
-                    ? { ...comp, quantity: Math.max(1, (comp.quantity || 1) + delta) }
-                    : comp
-            )
-        );
-    };
-
     // Evitar submit con Enter
     const handleFormKeyDown = (e) => {
         if (e.key === 'Enter' && currentIndex !== 4) {
@@ -800,7 +839,6 @@ const CreateBudgetVersion = () => {
                 <div className="materials-header">
                     <h2 className="materials-title">Cargando cotización...</h2>
                     <p>Por favor espere mientras se cargan los datos.</p>
-                    <p>ID: {budgetId}</p>
                 </div>
                 <Footer />
             </div>
@@ -808,19 +846,14 @@ const CreateBudgetVersion = () => {
     }
 
     if (!originalBudget) {
-        console.log('❌ RENDER: originalBudget es null/false');
-        console.log('📊 Estado actual - budgetVersions:', budgetVersions.length);
-        console.log('📊 Estado actual - selectedVersion:', selectedVersion);
-
+        console.log('Render: originalBudget es null/false');
         return (
             <div className="dashboard-container">
                 <Navigation onLogout={handleLogout} />
                 <div className="materials-header">
                     <h2 className="materials-title">No se pudo cargar la cotización</h2>
                     <p>La cotización solicitada no existe o no se pudo cargar.</p>
-                    <p><strong>ID:</strong> {budgetId}</p>
-                    <p><strong>Versiones encontradas:</strong> {budgetVersions.length}</p>
-                    <p><strong>Estado carga:</strong> {loading ? 'Cargando...' : 'Completado'}</p>
+                    <p>ID: {budgetId}</p>
                     <button onClick={() => navigate('/cotizaciones')} className="botton-carusel">
                         Volver a cotizaciones
                     </button>
@@ -843,6 +876,8 @@ const CreateBudgetVersion = () => {
             </div>
         );
     }
+
+    const generalTotal = getGeneralTotal();
 
     return (
         <div className="dashboard-container">
@@ -872,19 +907,19 @@ const CreateBudgetVersion = () => {
                             className={`indice-item ${currentIndex === 1 ? 'active' : ''}`}
                             onClick={() => goToSlide(1)}
                         >
-                            <b><u>Agente</u></b>
+                            <b><u>Datos Agente</u></b>
                         </p>
                         <p
                             className={`indice-item ${currentIndex === 2 ? 'active' : ''}`}
                             onClick={() => goToSlide(2)}
                         >
-                            <b><u>Aberturas</u></b>
+                            <b><u>Carga de Aberturas</u></b>
                         </p>
                         <p
                             className={`indice-item ${currentIndex === 3 ? 'active' : ''}`}
                             onClick={() => goToSlide(3)}
                         >
-                            <b><u>Complementos</u></b>
+                            <b><u>Carga de Complementos</u></b>
                         </p>
                         <p
                             className={`indice-item ${currentIndex === 4 ? 'active' : ''}`}
@@ -892,6 +927,26 @@ const CreateBudgetVersion = () => {
                         >
                             <b><u>Comentarios</u></b>
                         </p>
+                    </div>
+
+                    {/* Versiones disponibles - MOVIDO ARRIBA */}
+                    <div className="info-section">
+                        <h4>Versiones Disponibles:</h4>
+                        <select
+                            value={selectedVersion?.version || ''}
+                            onChange={(e) => {
+                                const version = budgetVersions.find(v => v.version === parseInt(e.target.value));
+                                setSelectedVersion(version);
+                                loadFormDataFromBudget(version);
+                            }}
+                            className="form-group select"
+                        >
+                            {budgetVersions.map(version => (
+                                <option key={version.version} value={version.version}>
+                                    Versión {version.version} - {new Date(version.creationDate).toLocaleDateString()}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     <h3>Información de la Cotización</h3>
@@ -922,23 +977,31 @@ const CreateBudgetVersion = () => {
                         </div>
                     </div>
 
+                    {/* Agente - NUEVA SECCIÓN CORREGIDA */}
                     <div className="info-section">
-                        <h4>Versiones Disponibles:</h4>
-                        <select
-                            value={selectedVersion?.version || ''}
-                            onChange={(e) => {
-                                const version = budgetVersions.find(v => v.version === parseInt(e.target.value));
-                                setSelectedVersion(version);
-                                loadFormDataFromBudget(version);
-                            }}
-                            className="form-group select"
-                        >
-                            {budgetVersions.map(version => (
-                                <option key={version.version} value={version.version}>
-                                    Versión {version.version} - {new Date(version.creationDate).toLocaleDateString()}
-                                </option>
-                            ))}
-                        </select>
+                        <h4>Agente:</h4>
+                        {agents.length > 0 ? (
+                            agents.map((agent, idx) => (
+                                <div key={idx}>
+                                    <div className="info-item">
+                                        <span>{agent.name} {agent.lastname}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span>DNI: {agent.dni}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span>Tel: {agent.tel}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span>Email: {agent.mail}</span>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="info-item">
+                                <span>No hay agente asignado</span>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -997,8 +1060,8 @@ const CreateBudgetVersion = () => {
                             {/* Paso 1: Agente */}
                             <SwiperSlide>
                                 <div className="agent-container">
-                                    <h3>Agente de la Cotización</h3>
-                                    <p>Puede modificar o agregar un agente para esta versión.</p>
+                                    <h3>Agente del Cliente</h3>
+                                    <p>Puede quitar y/o seleccionar un agente para esta cotización.</p>
 
                                     {/* Buscar agente por DNI */}
                                     <div className="agent-search">
@@ -1128,25 +1191,21 @@ const CreateBudgetVersion = () => {
                                     </div>
 
                                     <div className="form-group">
-                                        <label>Referencia Dólar:</label>
-                                        <input
-                                            type="number"
-                                            step="0.01"
-                                            value={dollarReference || ''}
-                                            onChange={e => setDollarReference(e.target.value ? Number(e.target.value) : null)}
-                                            placeholder="Valor de referencia del dólar"
-                                        />
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label>Referencia Mano de Obra:</label>
-                                        <input
-                                            type="number"
-                                            step="0.01"
-                                            value={labourReference || ''}
-                                            onChange={e => setLabourReference(e.target.value ? Number(e.target.value) : null)}
-                                            placeholder="Valor de referencia de mano de obra"
-                                        />
+                                        <label>Referencias Actuales:</label>
+                                        <div className="reference-display">
+                                            <div className="reference-item">
+                                                <span>Dólar compra oficial:</span>
+                                                <span>{loadingPrices ? "Cargando..." : dolarCompra ? `$${dolarCompra}` : "No disponible"}</span>
+                                            </div>
+                                            <div className="reference-item">
+                                                <span>Dólar venta oficial:</span>
+                                                <span>{loadingPrices ? "Cargando..." : dolarVenta ? `$${dolarVenta}` : "No disponible"}</span>
+                                            </div>
+                                            <div className="reference-item">
+                                                <span>Mano de obra:</span>
+                                                <span>{labourReference !== null ? `$${labourReference}` : "No disponible"}</span>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div className="submit-container">
@@ -1186,23 +1245,34 @@ const CreateBudgetVersion = () => {
                                     onClick={() => handleRemoveOpening(idx)}
                                     type="button"
                                 >×</button>
-                                <div className="summary-title">{getOpeningTypeName(opening.typeId)}</div>
-                                <div className="opening-measures">
-                                    <div className="measure-row">Medidas: <span className="measure-value">{opening.width} x {opening.height} cm</span></div>
-                                    <div className="measure-row">Paneles: <span className="measure-value">{opening.numPanelsWidth} × {opening.numPanelsHeight}</span></div>
-                                </div>
-                                <div className="summary-actions-row">
-                                    <div className="summary-detail summary-qty-row">
-                                        <button
-                                            className="summary-qty-btn" type="button"
-                                            onClick={() => handleChangeOpeningQty(idx, -1)}
-                                        >−</button>
-                                        <span className="summary-qty">{opening.quantity}</span>
-                                        <button
-                                            className="summary-qty-btn" type="button"
-                                            onClick={() => handleChangeOpeningQty(idx, 1)}
-                                        >+</button>
+                                <div className="summary-opening-content">
+                                    <div className="summary-title">{getOpeningTypeName(opening.typeId)}</div>
+                                    <div className="opening-measures">
+                                        <div className="measure-row">Medidas: <span className="measure-value">{opening.width} x {opening.height} cm</span></div>
+                                        <div className="measure-row">Paneles: <span className="measure-value">{opening.numPanelsWidth} × {opening.numPanelsHeight}</span></div>
+                                        {opening.treatmentId && (
+                                            <div className="measure-row">Tratamiento: <span className="measure-value">{getTreatmentName(opening.treatmentId)}</span></div>
+                                        )}
+                                        {opening.glassTypeId && (
+                                            <div className="measure-row">Vidrio: <span className="measure-value">{getGlassTypeName(opening.glassTypeId)}</span></div>
+                                        )}
                                     </div>
+                                    <div className="summary-actions-row">
+                                        <div className="summary-detail summary-qty-row">
+                                            <button
+                                                className="summary-qty-btn" type="button"
+                                                onClick={() => handleChangeOpeningQty(idx, -1)}
+                                            >−</button>
+                                            <span className="summary-qty">{opening.quantity}</span>
+                                            <button
+                                                className="summary-qty-btn" type="button"
+                                                onClick={() => handleChangeOpeningQty(idx, 1)}
+                                            >+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="panel-preview-container">
+                                    {renderPanelPreview(opening)}
                                 </div>
                             </div>
                         ))}
@@ -1242,22 +1312,34 @@ const CreateBudgetVersion = () => {
                         ))}
                     </div>
 
-                    {/* Información de la nueva versión */}
-                    <div className="version-summary">
-                        <h4 className='summary-section-title'>Nueva Versión</h4>
-                        <div className="summary-item">
-                            <div className="summary-title">Base: Versión {selectedVersion?.version}</div>
-                            <div className="summary-detail">
-                                Cliente: {originalBudget.customer?.name} {originalBudget.customer?.lastname}
+                    {/* Total General */}
+                    <div className="general-total-section">
+                        <h4 className='summary-section-title'>Total General</h4>
+                        <div className="total-breakdown">
+                            <div className="total-row">
+                                <span>Subtotal aberturas:</span>
+                                <span>${generalTotal.totalOpenings.toFixed(2)}</span>
                             </div>
-                            <div className="summary-detail">
-                                Lugar: {originalBudget.workPlace?.location}
+                            <div className="total-row">
+                                <span>Subtotal complementos:</span>
+                                <span>${generalTotal.totalComplements.toFixed(2)}</span>
                             </div>
-                            {agents.length > 0 && (
-                                <div className="summary-detail">
-                                    Agente: {agents[0].name} {agents[0].lastname}
-                                </div>
-                            )}
+                            <div className="total-row subtotal">
+                                <span>Subtotal general:</span>
+                                <span>${generalTotal.subtotalGeneral.toFixed(2)}</span>
+                            </div>
+                            <div className="total-row cost">
+                                <span>Costo fabricación (10%):</span>
+                                <span>${generalTotal.costoFabricacion.toFixed(2)}</span>
+                            </div>
+                            <div className="total-row cost">
+                                <span>Costo administrativo (5%):</span>
+                                <span>${generalTotal.costoAdministrativo.toFixed(2)}</span>
+                            </div>
+                            <div className="total-row final-total">
+                                <span>TOTAL GENERAL:</span>
+                                <span>${generalTotal.totalGeneral.toFixed(2)}</span>
+                            </div>
                         </div>
                     </div>
                 </aside>
