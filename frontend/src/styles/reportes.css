@@ -311,3 +311,38 @@ body.light-mode .card-icon-wrapper {
 a {
     text-decoration: none;
 }
+
+.user-role-badge {
+    background-color: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 16px;
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #475569;
+}
+
+.role-text {
+    font-weight: 600;
+    color: #3b82f6;
+    text-transform: capitalize;
+}
+
+/* Estilos para el estado de carga */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    font-size: 18px;
+    color: #64748b;
+}
+
+/* Mensaje cuando no hay reportes */
+.no-reports-message {
+    text-align: center;
+    padding: 60px 20px;
+    color: #64748b;
+    font-size: 16px;
+}
