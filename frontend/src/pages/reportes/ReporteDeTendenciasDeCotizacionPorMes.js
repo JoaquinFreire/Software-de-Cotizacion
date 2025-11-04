@@ -4,13 +4,30 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement,
 import { Bar, Line } from 'react-chartjs-2';
 import html2pdf from 'html2pdf.js';
 import ReactLoading from 'react-loading';
+import {
+    TrendingUp,
+    Download,
+    Printer,
+    Calendar,
+    Users,
+    CheckCircle,
+    Clock,
+    XCircle,
+    BarChart3,
+    RefreshCw,
+    ChevronDown,
+    ChevronUp,
+    Target,
+    Zap,
+    Award,
+    GitCompare
+} from 'lucide-react';
 import logoAnodal from '../../images/logo_secundario.webp';
-import '../../styles/reportes.css';
-import '../../styles/reporteindividual.css';
 import { safeArray } from '../../utils/safeArray';
 import Navigation from '../../components/Navigation';
 import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
+import '../../styles/ReporteTendencias.css';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -18,640 +35,700 @@ const API_URL = process.env.REACT_APP_API_URL;
 const monthsShort = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
 function resolveRefs(array) {
-  const byId = {};
-  array.forEach(obj => {
-    if (obj && obj.$id) byId[obj.$id] = obj;
-    if (obj?.Customer && obj.Customer.$id) byId[obj.Customer.$id] = obj.Customer;
-    if (obj?.WorkPlace && obj.WorkPlace.$id) byId[obj.WorkPlace.$id] = obj.WorkPlace;
-  });
-  function resolve(obj) {
-    if (!obj || typeof obj !== "object") return obj;
-    if (obj.$ref) return byId[obj.$ref] || {};
-    const out = Array.isArray(obj) ? [] : {};
-    for (const k in obj) out[k] = resolve(obj[k]);
-    return out;
-  }
-  return array.map(resolve);
+    const byId = {};
+    array.forEach(obj => {
+        if (obj && obj.$id) byId[obj.$id] = obj;
+        if (obj?.Customer && obj.Customer.$id) byId[obj.Customer.$id] = obj.Customer;
+        if (obj?.WorkPlace && obj.WorkPlace.$id) byId[obj.WorkPlace.$id] = obj.WorkPlace;
+    });
+    function resolve(obj) {
+        if (!obj || typeof obj !== "object") return obj;
+        if (obj.$ref) return byId[obj.$ref] || {};
+        const out = Array.isArray(obj) ? [] : {};
+        for (const k in obj) out[k] = resolve(obj[k]);
+        return out;
+    }
+    return array.map(resolve);
 }
 
 const getDefaultMonths = () => {
-  const year = new Date().getFullYear();
-  return { desde: `${year}-01`, hasta: `${year}-12` };
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1; // 1-12
+
+    // Por defecto: últimos 6 meses completos
+    const hastaMonth = currentMonth - 1;
+    const desdeMonth = hastaMonth - 5;
+
+    // Ajustar si cruzamos año
+    let desdeYear = currentYear;
+    let desdeMonthAdj = desdeMonth;
+
+    if (desdeMonth < 1) {
+        desdeYear = currentYear - 1;
+        desdeMonthAdj = desdeMonth + 12;
+    }
+
+    return {
+        desde: `${desdeYear}-${String(desdeMonthAdj).padStart(2, '0')}`,
+        hasta: `${currentYear}-${String(hastaMonth).padStart(2, '0')}`
+    };
 };
 
 const formatFechaCorta = (fecha) => {
-  if (!fecha) return '';
-  const [datePart] = fecha.split('T');
-  const [y, m, d] = datePart.split('-');
-  return `${d}-${m}-${y.slice(2)}`;
+    if (!fecha) return '';
+    const [datePart] = fecha.split('T');
+    const [y, m, d] = datePart.split('-');
+    return `${d}-${m}-${y.slice(2)}`;
 };
 
 const parseMonthValueToDate = (monthValue) => {
-  if (!monthValue) return null;
-  const [y, m] = monthValue.split('-').map(Number);
-  return new Date(y, (m || 1) - 1, 1);
+    if (!monthValue) return null;
+    const [y, m] = monthValue.split('-').map(Number);
+    return new Date(y, (m || 1) - 1, 1);
 };
+
 const lastDayOfMonth = (year, monthOneBased) => new Date(year, monthOneBased, 0).getDate();
 const addMonth = (d) => new Date(d.getFullYear(), d.getMonth() + 1, 1);
-
 const formatYYYYMM = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
 const ReporteDeTendenciasDeCotizacionPorMes = () => {
-  const defaultMonths = getDefaultMonths();
-  const [fechaDesde, setFechaDesde] = useState(defaultMonths.desde);
-  const [fechaHasta, setFechaHasta] = useState(defaultMonths.hasta);
-  const [generar, setGenerar] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [metric, setMetric] = useState('count');
-  const [tableData, setTableData] = useState([]); // primary table with monthKey, count, total, avg
-  const [cotizaciones, setCotizaciones] = useState([]);
-  const [openMonths, setOpenMonths] = useState({});
-  const [compareDesde, setCompareDesde] = useState('');
-  const [compareHasta, setCompareHasta] = useState('');
-  const [compareTableData, setCompareTableData] = useState([]);
-  const [compareTotals, setCompareTotals] = useState({ count: 0, total: 0 }); // resumen simple
+    const defaultMonths = getDefaultMonths();
+    const [fechaDesde, setFechaDesde] = useState(defaultMonths.desde);
+    const [fechaHasta, setFechaHasta] = useState(defaultMonths.hasta);
+    const [generar, setGenerar] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [tableData, setTableData] = useState([]);
+    const [cotizaciones, setCotizaciones] = useState([]);
+
+    // Estados para comparativa
+    const [compareDesde, setCompareDesde] = useState('');
+    const [compareHasta, setCompareHasta] = useState('');
+    const [compareTableData, setCompareTableData] = useState([]);
+    const [compareCotizaciones, setCompareCotizaciones] = useState([]);
+    const [compareLoading, setCompareLoading] = useState(false);
+    const [showComparison, setShowComparison] = useState(false);
 
     const navigate = useNavigate();
-          const handleLogout = () => {
-            localStorage.removeItem("token");
-            navigate("/");}
+    const pdfRef = useRef();
 
-  // Nuevo estado: cotizaciones crudas del periodo comparado
-  const [compareCotizaciones, setCompareCotizaciones] = useState([]); // <-- nuevo
-  const [openCompareMonths, setOpenCompareMonths] = useState({}); // <-- nuevo
+    // Calcular métricas para KPIs - CORREGIDO con estado "approved"
+    const calculateKPIs = (data, cotizacionesData) => {
+        const total = data.reduce((sum, row) => sum + row.count, 0);
 
-  const pdfRef = useRef();
+        // Contar por estados CORREGIDOS
+        const approved = cotizacionesData.filter(q => q.Status === 'approved').length;
+        const pending = cotizacionesData.filter(q => q.Status === 'pending').length;
+        const rejected = cotizacionesData.filter(q => q.Status === 'rejected').length;
+        const finished = cotizacionesData.filter(q => q.Status === 'finished').length;
 
-  const invalidRange = (() => {
-    const d = parseMonthValueToDate(fechaDesde);
-    const h = parseMonthValueToDate(fechaHasta);
-    if (!d || !h) return true;
-    return d.getFullYear() > h.getFullYear() || (d.getFullYear() === h.getFullYear() && d.getMonth() > h.getMonth());
-  })();
+        const conversionRate = total > 0 ? (approved / total) * 100 : 0;
 
-  const fetchAndAggregate = async () => {
-    if (!fechaDesde || !fechaHasta) return [];
-    if (invalidRange) {
-      alert('Rango inválido: El mes Desde no puede ser posterior al mes Hasta.');
-      return [];
-    }
-    setLoading(true);
-    try {
-      const [yDesde, mDesde] = fechaDesde.split('-').map(Number);
-      const [yHasta, mHasta] = fechaHasta.split('-').map(Number);
-      const fromStr = `${yDesde}-${String(mDesde).padStart(2,'0')}-01`;
-      const toLast = lastDayOfMonth(yHasta, mHasta);
-      const toStr = `${yHasta}-${String(mHasta).padStart(2,'0')}-${String(toLast).padStart(2,'0')}`;
+        return {
+            total,
+            approved,
+            pending,
+            rejected,
+            finished,
+            conversionRate
+        };
+    };
 
-      const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_URL}/api/quotations/by-period?from=${fromStr}&to=${toStr}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      let data = safeArray(res.data);
-      data = resolveRefs(data);
-      setCotizaciones(data);
+    const kpis = calculateKPIs(tableData, cotizaciones);
+    const compareKpis = calculateKPIs(compareTableData, compareCotizaciones);
 
-      const buckets = {};
-      data.forEach(q => {
-        const dateStr = q.CreationDate || q.creationDate || q.Creation || null;
-        const d = dateStr ? new Date(dateStr) : null;
-        if (!d || isNaN(d)) return;
-        const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-        if (!buckets[key]) buckets[key] = { count: 0, total: 0 };
-        buckets[key].count += 1;
-        const v = q?.TotalPrice ?? q?.totalPrice ?? q?.Total ?? q?.price ?? 0;
-        const n = Number(String(v).replace(/[^0-9.-]+/g, '')) || 0;
-        buckets[key].total += n;
-      });
+    const invalidRange = (() => {
+        const d = parseMonthValueToDate(fechaDesde);
+        const h = parseMonthValueToDate(fechaHasta);
+        if (!d || !h) return true;
+        return d.getFullYear() > h.getFullYear() || (d.getFullYear() === h.getFullYear() && d.getMonth() > h.getMonth());
+    })();
 
-      const desdeD = parseMonthValueToDate(fechaDesde);
-      const hastaD = parseMonthValueToDate(fechaHasta);
-      const months = [];
-      for (let cur = new Date(desdeD); cur <= hastaD; cur = addMonth(cur)) months.push(new Date(cur));
-
-      const table = months.map((d, idx) => {
-        const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-        const count = buckets[key]?.count ?? 0;
-        const total = buckets[key]?.total ?? 0;
-        const avg = count ? (total / count) : 0;
-        const prevKey = idx > 0 ? `${months[idx-1].getFullYear()}-${String(months[idx-1].getMonth()+1).padStart(2,'0')}` : null;
-        const prev = prevKey ? (buckets[prevKey]?.count ?? 0) : null;
-        const variation = prev === null ? null : (prev === 0 ? (count === 0 ? 0 : 100) : ((count - prev) / prev) * 100);
-        return { monthKey: key, monthLabel: `${monthsShort[d.getMonth()]} ${d.getFullYear()}`, year: d.getFullYear(), monthNum: d.getMonth()+1, count, total, avg, variationPct: variation };
-      });
-
-      setTableData(table);
-      return table;
-    } catch (err) {
-      console.error("Error generando reporte de tendencias:", err);
-      setTableData([]);
-      setCotizaciones([]);
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchAndAggregateCompare = async () => {
-    if (!compareDesde || !compareHasta) return [];
-    // validate range
-    const d = parseMonthValueToDate(compareDesde);
-    const h = parseMonthValueToDate(compareHasta);
-    if (!d || !h || d > h) {
-      alert('Rango de comparación inválido');
-      return [];
-    }
-    setLoading(true);
-    try {
-      const [yDesde, mDesde] = compareDesde.split('-').map(Number);
-      const [yHasta, mHasta] = compareHasta.split('-').map(Number);
-      const fromStr = `${yDesde}-${String(mDesde).padStart(2,'0')}-01`;
-      const last = lastDayOfMonth(yHasta, mHasta);
-      const toStr = `${yHasta}-${String(mHasta).padStart(2,'0')}-${String(last).padStart(2,'0')}`;
-      const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_URL}/api/quotations/by-period?from=${fromStr}&to=${toStr}`,
-        { headers: { Authorization: `Bearer ${token}` } });
-      let data = safeArray(res.data);
-      data = resolveRefs(data);
-
-      // Guardar cotizaciones crudas del periodo comparado
-      setCompareCotizaciones(data); // <-- nuevo
-
-      // Agrupar por meses dentro del periodo seleccionado
-      const buckets = {};
-      data.forEach(q => {
-        const dateStr = q.CreationDate || q.creationDate || q.Creation || null;
-        const dt = dateStr ? new Date(dateStr) : null;
-        if (!dt || isNaN(dt)) return;
-        const key = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`;
-        if (!buckets[key]) buckets[key] = { count: 0, total: 0 };
-        buckets[key].count += 1;
-        const v = q?.TotalPrice ?? q?.totalPrice ?? q?.Total ?? q?.price ?? 0;
-        const n = Number(String(v).replace(/[^0-9.-]+/g, '')) || 0;
-        buckets[key].total += n;
-      });
-
-      const desdeD = parseMonthValueToDate(compareDesde);
-      const hastaD = parseMonthValueToDate(compareHasta);
-      const months = [];
-      for (let cur = new Date(desdeD); cur <= hastaD; cur = addMonth(cur)) months.push(new Date(cur));
-
-      const table = months.map((d, idx) => {
-        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-        const count = buckets[key]?.count ?? 0;
-        const total = buckets[key]?.total ?? 0;
-        const avg = count ? (total / count) : 0;
-        return { monthKey: key, monthLabel: `${monthsShort[d.getMonth()]} ${d.getFullYear()}`, count, total, avg };
-      });
-
-      // Guardar la tabla comparativa (las series se generan dinámicamente desde compareTableData)
-      setCompareTableData(table);
-      // resumen simple totals
-      const totalCount = table.reduce((s, x) => s + x.count, 0);
-      const totalAmount = table.reduce((s, x) => s + x.total, 0);
-      setCompareTotals({ count: totalCount, total: totalAmount });
-    } catch (err) {
-      // limpiar estado de comparación en caso de error
-      setCompareTableData([]);
-      setCompareTotals({ count: 0, total: 0 });
-      setCompareCotizaciones([]); // <-- limpiar en caso de error
-      console.error("Error generando periodo de comparación:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Al generar el principal, autocompletar compareDesde/compareHasta con periodo anterior de la misma longitud
-  const handleGenerar = async () => {
-    setGenerar(true);
-    const mainTable = await fetchAndAggregate();
-    if (!mainTable || mainTable.length === 0) return;
-    const monthsCount = mainTable.length;
-    const desdeDate = parseMonthValueToDate(fechaDesde);
-    const compareHastaDate = new Date(desdeDate.getFullYear(), desdeDate.getMonth() - 1, 1);
-    const compareHastaVal = formatYYYYMM(compareHastaDate);
-    const compareDesdeDate = new Date(compareHastaDate.getFullYear(), compareHastaDate.getMonth() - (monthsCount - 1), 1);
-    const compareDesdeVal = formatYYYYMM(compareDesdeDate);
-    setCompareDesde(compareDesdeVal);
-    setCompareHasta(compareHastaVal);
-    // not auto-running comparison; user must press "Generar Comparación"
-  };
-
-  const handleImprimir = () => window.print();
-
-  const handleDescargarPDF = async () => {
-    if (!pdfRef.current) return;
-    const el = pdfRef.current;
-    document.body.classList.add('pdf-exporting');
-    const prevStyle = { width: el.style.width, boxShadow: el.style.boxShadow, borderRadius: el.style.borderRadius, overflow: el.style.overflow };
-    el.style.boxShadow = 'none'; el.style.borderRadius = '0'; el.style.overflow = 'visible';
-    try {
-      const width = el.scrollWidth, height = el.scrollHeight;
-      const opt = {
-        margin: [0.2,0.2,0.2,0.2],
-        filename: `reporte_tendencias_${fechaDesde}_a_${fechaHasta}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false, width, height, scrollY: -window.scrollY },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['css','legacy'] }
-      };
-      await new Promise(r => setTimeout(r, 120));
-      await html2pdf().set(opt).from(el).save();
-    } catch (err) {
-      console.error("Error exportando PDF:", err);
-    } finally {
-      el.style.width = prevStyle.width; el.style.boxShadow = prevStyle.boxShadow; el.style.borderRadius = prevStyle.borderRadius; el.style.overflow = prevStyle.overflow;
-      document.body.classList.remove('pdf-exporting');
-    }
-  };
-
-  // Crear unión cronológica de monthKeys y mapear ambas series (valores faltantes => 0)
-  const unionKeys = React.useMemo(() => {
-    const s = new Set();
-    tableData.forEach(t => s.add(t.monthKey));
-    compareTableData.forEach(t => s.add(t.monthKey));
-    return Array.from(s).sort();
-  }, [tableData, compareTableData]);
-
-  const unionLabels = unionKeys.map(k => {
-    const [y, m] = k.split('-').map(Number);
-    return `${monthsShort[m-1]} ${y}`;
-  });
-
-  const mapFromTable = (tbl) => {
-    const m = {};
-    tbl.forEach(r => { m[r.monthKey] = metric === 'count' ? r.count : metric === 'total' ? Math.round(r.total) : Math.round(r.avg); });
-    return m;
-  };
-
-  const primaryMap = React.useMemo(() => mapFromTable(tableData), [tableData, metric]);
-  const compareMap = React.useMemo(() => mapFromTable(compareTableData), [compareTableData, metric]);
-
-  const primarySeries = unionKeys.map(k => primaryMap[k] ?? 0);
-  const compareSeries = unionKeys.map(k => compareMap[k] ?? 0);
-
-  const chartData = {
-    labels: unionLabels,
-    datasets: [
-      {
-        label: metric === 'count' ? 'Periodo seleccionado (cantidad)' : metric === 'total' ? 'Periodo seleccionado (total $)' : 'Periodo seleccionado (promedio $)',
-        data: primarySeries,
-        backgroundColor: '#36A2EB',
-        borderColor: '#1976d2',
-        borderWidth: 1,
-        tension: 0.2,
-      },
-      ...(compareTableData && compareTableData.length ? [{
-        label: metric === 'count' ? 'Periodo comparación (cantidad)' : metric === 'total' ? 'Periodo comparación (total $)' : 'Periodo comparación (promedio $)',
-        data: compareSeries,
-        backgroundColor: 'rgba(220,53,69,0.5)',
-        borderColor: '#d32f2f',
-        borderWidth: 1,
-        tension: 0.2,
-      }] : [])
-    ]
-  };
-
-  const chartOptions = {
-    responsive: true,
-    plugins: { legend: { display: true, position: 'top' }, tooltip: {
-      callbacks: {
-        label: (ctx) => {
-          const val = ctx.raw ?? ctx.parsed?.y ?? 0;
-          if (metric === 'count') return `${ctx.dataset.label}: ${val} cot.`;
-          return `${ctx.dataset.label}: $${Number(val).toLocaleString()}`;
+    const fetchAndAggregate = async () => {
+        if (!fechaDesde || !fechaHasta) return [];
+        if (invalidRange) {
+            alert('Rango inválido: El mes Desde no puede ser posterior al mes Hasta.');
+            return [];
         }
-      }
-    } }
-  };
+        setLoading(true);
+        try {
+            const [yDesde, mDesde] = fechaDesde.split('-').map(Number);
+            const [yHasta, mHasta] = fechaHasta.split('-').map(Number);
+            const fromStr = `${yDesde}-${String(mDesde).padStart(2, '0')}-01`;
+            const toLast = lastDayOfMonth(yHasta, mHasta);
+            const toStr = `${yHasta}-${String(mHasta).padStart(2, '0')}-${String(toLast).padStart(2, '0')}`;
 
-  // Agrupar cotizaciones por monthKey "YYYY-MM" para el periodo principal (ya existe)
-  const cotizacionesPorMes = React.useMemo(() => {
-    const map = {};
-    cotizaciones.forEach(q => {
-      const dateStr = q.CreationDate || q.creationDate || q.Creation || null;
-      if (!dateStr) return;
-      const d = new Date(dateStr);
-      if (isNaN(d)) return;
-      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-      if (!map[key]) map[key] = [];
-      map[key].push(q);
-    });
-    return map;
-  }, [cotizaciones]);
+            const token = localStorage.getItem('token');
+            const res = await axios.get(`${API_URL}/api/quotations/by-period?from=${fromStr}&to=${toStr}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            let data = safeArray(res.data);
+            data = resolveRefs(data);
+            setCotizaciones(data);
 
-  // Nuevo: agrupar cotizaciones del periodo comparado
-  const compareCotizacionesPorMes = React.useMemo(() => {
-    const map = {};
-    compareCotizaciones.forEach(q => {
-      const dateStr = q.CreationDate || q.creationDate || q.Creation || null;
-      if (!dateStr) return;
-      const d = new Date(dateStr);
-      if (isNaN(d)) return;
-      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-      if (!map[key]) map[key] = [];
-      map[key].push(q);
-    });
-    return map;
-  }, [compareCotizaciones]);
+            const buckets = {};
+            data.forEach(q => {
+                const dateStr = q.CreationDate || q.creationDate || q.Creation || null;
+                const d = dateStr ? new Date(dateStr) : null;
+                if (!d || isNaN(d)) return;
+                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                if (!buckets[key]) buckets[key] = {
+                    count: 0,
+                    approved: 0,
+                    pending: 0,
+                    rejected: 0,
+                    finished: 0
+                };
+                buckets[key].count += 1;
 
-  // Nuevo: toggle para meses del periodo principal (evita error toggleMonth not defined)
-  const toggleMonth = (key) => {
-    setOpenMonths(prev => ({ ...prev, [key]: !prev[key] }));
-  };
+                // Contar por estados CORREGIDOS
+                if (q.Status === 'approved') buckets[key].approved += 1;
+                else if (q.Status === 'pending') buckets[key].pending += 1;
+                else if (q.Status === 'rejected') buckets[key].rejected += 1;
+                else if (q.Status === 'finished') buckets[key].finished += 1;
+            });
 
-  // Helper para obtener id de cotización (más robusto)
-  const getQuotationId = (q) => q?.Id ?? q?.id ?? q?.IdBudget ?? null;
+            const desdeD = parseMonthValueToDate(fechaDesde);
+            const hastaD = parseMonthValueToDate(fechaHasta);
+            const months = [];
+            for (let cur = new Date(desdeD); cur <= hastaD; cur = addMonth(cur)) months.push(new Date(cur));
 
-  // Nuevo: toggle para meses del periodo comparado
-  const toggleCompareMonth = (key) => {
-    setOpenCompareMonths(prev => ({ ...prev, [key]: !prev[key] }));
-  };
+            const table = months.map((d, idx) => {
+                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                const bucket = buckets[key] || {
+                    count: 0,
+                    approved: 0,
+                    pending: 0,
+                    rejected: 0,
+                    finished: 0
+                };
+                const conversion = bucket.count > 0 ? (bucket.approved / bucket.count) * 100 : 0;
 
-  return (
-    <div className="dashboard-container beneficio-report">
-      <Navigation onLogout={handleLogout} />
-      <h2 className="title">Reporte de Tendencias de Cotizaciones por Mes</h2>
-      <div className="reporte-cotizaciones-root">
-        <div className="reporte-cotizaciones-toolbar">
-          <div className="reporte-cotizaciones-filtros">
-            <label>
-              Desde (mes):
-              <input type="month" value={fechaDesde} onChange={e => setFechaDesde(e.target.value)} />
-            </label>
-            <label>
-              Hasta (mes):
-              <input type="month" value={fechaHasta} onChange={e => setFechaHasta(e.target.value)} />
-            </label>
-            <label>
-              Métrica:
-              <select className="reporte-cotizaciones-select" value={metric} onChange={e => setMetric(e.target.value)}>
-                <option value="count">Cantidad</option>
-                <option value="total">Monto total</option>
-                <option value="avg">Promedio</option>
-              </select>
-            </label>
+                const prevKey = idx > 0 ? `${months[idx - 1].getFullYear()}-${String(months[idx - 1].getMonth() + 1).padStart(2, '0')}` : null;
+                const prev = prevKey ? (buckets[prevKey]?.count ?? 0) : null;
+                const variation = prev === null ? null : (prev === 0 ? (bucket.count === 0 ? 0 : 100) : ((bucket.count - prev) / prev) * 100);
 
-            <div className="report-actions">
-              <button className="botton-Report" onClick={handleGenerar} disabled={loading || !fechaDesde || !fechaHasta || invalidRange}>
-                {loading ? 'Cargando...' : 'Generar Reporte'}
-              </button>
+                return {
+                    monthKey: key,
+                    monthLabel: `${monthsShort[d.getMonth()]} ${d.getFullYear()}`,
+                    year: d.getFullYear(),
+                    monthNum: d.getMonth() + 1,
+                    count: bucket.count,
+                    approved: bucket.approved,
+                    pending: bucket.pending,
+                    rejected: bucket.rejected,
+                    finished: bucket.finished,
+                    conversion: conversion,
+                    variationPct: variation
+                };
+            });
 
-              <button className="reporte-cotizaciones-btn-pdf" onClick={handleDescargarPDF} disabled={!generar || loading}>
-                Guardar PDF
-              </button>
+            setTableData(table);
+            return table;
+        } catch (err) {
+            console.error("Error generando reporte de tendencias:", err);
+            setTableData([]);
+            setCotizaciones([]);
+            return [];
+        } finally {
+            setLoading(false);
+        }
+    };
 
-              <button className="botton-Report reporte-cotizaciones-btn-print" onClick={handleImprimir} disabled={!generar}>
-                Imprimir
-              </button>
-            </div>
-          </div>
-        </div>
+    const fetchAndAggregateCompare = async () => {
+        if (!compareDesde || !compareHasta) return [];
+        const d = parseMonthValueToDate(compareDesde);
+        const h = parseMonthValueToDate(compareHasta);
+        if (!d || !h || d > h) {
+            alert('Rango de comparación inválido');
+            return [];
+        }
+        setCompareLoading(true);
+        try {
+            const [yDesde, mDesde] = compareDesde.split('-').map(Number);
+            const [yHasta, mHasta] = compareHasta.split('-').map(Number);
+            const fromStr = `${yDesde}-${String(mDesde).padStart(2, '0')}-01`;
+            const last = lastDayOfMonth(yHasta, mHasta);
+            const toStr = `${yHasta}-${String(mHasta).padStart(2, '0')}-${String(last).padStart(2, '0')}`;
+            const token = localStorage.getItem('token');
+            const res = await axios.get(`${API_URL}/api/quotations/by-period?from=${fromStr}&to=${toStr}`,
+                { headers: { Authorization: `Bearer ${token}` } });
+            let data = safeArray(res.data);
+            data = resolveRefs(data);
 
-        <div className="reporte-cotizaciones-a4">
-          <div className="reporte-cotizaciones-pdf" ref={pdfRef}>
-            <header className="reporte-cotizaciones-header">
-              <img src={logoAnodal} alt="Logo" className="reporte-cotizaciones-logo" />
-              <h1 className="reporte-cotizaciones-title">Tendencias por Mes</h1>
-              <div className="reporte-cotizaciones-logo-placeholder" />
-            </header>
+            setCompareCotizaciones(data);
 
-            {loading && generar ? (
-              <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:300 }}>
-                <ReactLoading type="spin" color="#1976d2" height={60} width={60} />
-                <div style={{ marginTop: 12 }}>Generando reporte...</div>
-              </div>
-            ) : !generar ? (
-              <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:300, color:'#888' }}>
-                <span>El reporte aún no fue generado.</span>
-                <span style={{ fontSize: 14, marginTop:8 }}>Seleccione un rango de meses y presione <b>Generar Reporte</b>.</span>
-              </div>
-            ) : (
-              <main className="reporte-cotizaciones-main">
-                <div className="reporte-cotizaciones-info" style={{ width:'90%' }}>
-                  <div><strong>Período:</strong> {formatYYYYMM(parseMonthValueToDate(fechaDesde))} → {formatYYYYMM(parseMonthValueToDate(fechaHasta))}</div>
-                  <div><strong>Métrica:</strong> {metric === 'count' ? 'Cantidad' : metric === 'total' ? 'Monto total' : 'Promedio'}</div>
-                  <div><strong>Generado:</strong> {new Date().toLocaleString()}</div>
-                </div>
+            const buckets = {};
+            data.forEach(q => {
+                const dateStr = q.CreationDate || q.creationDate || q.Creation || null;
+                const dt = dateStr ? new Date(dateStr) : null;
+                if (!dt || isNaN(dt)) return;
+                const key = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`;
+                if (!buckets[key]) buckets[key] = {
+                    count: 0,
+                    approved: 0,
+                    pending: 0,
+                    rejected: 0,
+                    finished: 0
+                };
+                buckets[key].count += 1;
 
-                <section className="reporte-cotizaciones-analisis" style={{ width:'90%' }}>
-                  <div><strong>Interpretación automática:</strong></div>
-                  <div>
-                    {tableData.length === 0 ? 'No hay datos para el período seleccionado.' :
-                      `Se muestran ${tableData.reduce((s,x)=>s+x.count,0)} cotizaciones en el período seleccionado.`}
-                  </div>
-                </section>
+                // Contar por estados CORREGIDOS
+                if (q.Status === 'approved') buckets[key].approved += 1;
+                else if (q.Status === 'pending') buckets[key].pending += 1;
+                else if (q.Status === 'rejected') buckets[key].rejected += 1;
+                else if (q.Status === 'finished') buckets[key].finished += 1;
+            });
 
-                {/* Tabla resumen mensual */}
-                <table className="reporte-cotizaciones-tabla tabla-ajustada" style={{ width:'90%', marginBottom: 24 }}>
-                  <thead>
-                    <tr>
-                      <th>Mes</th>
-                      <th>Cotizaciones</th>
-                      <th>Promedio</th>
-                      <th>Total cotizado</th>
-                      <th>Variación vs mes anterior</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tableData.map(row => (
-                      <tr key={`${row.year}-${row.monthNum}`}>
-                        <td>{row.monthLabel}</td>
-                        <td>{row.count}</td>
-                        <td>${Math.round(row.avg).toLocaleString()}</td>
-                        <td>${row.total.toLocaleString()}</td>
-                        <td>{row.variationPct === null ? '-' : `${Math.round(row.variationPct)}%`}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            const desdeD = parseMonthValueToDate(compareDesde);
+            const hastaD = parseMonthValueToDate(compareHasta);
+            const months = [];
+            for (let cur = new Date(desdeD); cur <= hastaD; cur = addMonth(cur)) months.push(new Date(cur));
 
-                {/* Único gráfico: muestra periodo principal y, si existe, comparison en la misma gráfica */}
-                <div style={{ width: '90%', margin: '0 auto 18px' }}>
-                  { (unionKeys.length === 0) ? null : (metric === 'count' || metric === 'avg') ? (
-                    <Line data={chartData} options={chartOptions} />
-                  ) : (
-                    <Bar data={chartData} options={chartOptions} />
-                  )}
-                </div>
+            const table = months.map((d) => {
+                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                const bucket = buckets[key] || {
+                    count: 0,
+                    approved: 0,
+                    pending: 0,
+                    rejected: 0,
+                    finished: 0
+                };
+                const conversion = bucket.count > 0 ? (bucket.approved / bucket.count) * 100 : 0;
 
-                {/* PANEL DE COMPARACIÓN (debajo del gráfico) */}
-                <section className="compare-panel" style={{ width:'90%', margin: '12px auto', display:'flex', gap:12, alignItems:'center', flexWrap:'wrap' }}>
-                  <div style={{ flex: '1 1 auto', minWidth: 200 }}>
-                    <div style={{ fontWeight: 700, marginBottom: 6 }}>Período de comparación (opcional)</div>
-                    <div style={{ fontSize: 12, color: '#555' }}>
-                      Después de generar el reporte principal, las fechas de comparación se autocompletan con el período anterior de la misma longitud.
-                    </div>
-                  </div>
+                return {
+                    monthKey: key,
+                    monthLabel: `${monthsShort[d.getMonth()]} ${d.getFullYear()}`,
+                    count: bucket.count,
+                    approved: bucket.approved,
+                    pending: bucket.pending,
+                    rejected: bucket.rejected,
+                    finished: bucket.finished,
+                    conversion: conversion
+                };
+            });
 
-                  <label>
-                    Desde (comparación):
-                    <input type="month" value={compareDesde} onChange={e => setCompareDesde(e.target.value)} />
-                  </label>
+            setCompareTableData(table);
+            setShowComparison(true);
+        } catch (err) {
+            setCompareTableData([]);
+            setCompareCotizaciones([]);
+            setShowComparison(false);
+            console.error("Error generando periodo de comparación:", err);
+        } finally {
+            setCompareLoading(false);
+        }
+    };
 
-                  <label>
-                    Hasta (comparación):
-                    <input type="month" value={compareHasta} onChange={e => setCompareHasta(e.target.value)} />
-                  </label>
+    const handleGenerar = async () => {
+        setGenerar(true);
+        setShowComparison(false); // Resetear comparación al generar nuevo reporte
+        const mainTable = await fetchAndAggregate();
+        if (!mainTable || mainTable.length === 0) return;
 
-                  <div style={{ display:'flex', gap:8 }}>
-                    <button className="botton-Report" onClick={fetchAndAggregateCompare} disabled={loading || !compareDesde || !compareHasta}>
-                      Generar Comparación
-                    </button>
-                  </div>
+        // Calcular período de comparación inteligente (mismo período del año anterior)
+        const [yDesde, mDesde] = fechaDesde.split('-').map(Number);
+        const [yHasta, mHasta] = fechaHasta.split('-').map(Number);
 
-                  {/* Resumen comparativo simple (si existe) */}
-                  {(compareTotals.count !== 0 || compareTotals.total !== 0) && (
-                    <div style={{ width: '100%', marginTop: 8, color: '#333' }}>
-                      <strong>Resumen:</strong>
-                      <div style={{ fontSize: 13 }}>
-                        Período 1: {tableData.reduce((s,x)=>s+x.count,0)} cot. / ${tableData.reduce((s,x)=>s+x.total,0).toLocaleString()} &nbsp; | &nbsp;
-                        Período 2: {compareTotals.count} cot. / ${compareTotals.total.toLocaleString()} &nbsp; | &nbsp;
-                        Variación total: {tableData.length ? `${Math.round(((compareTotals.count - tableData.reduce((s,x)=>s+x.count,0)) / (tableData.reduce((s,x)=>s+x.count,0) || 1)) * 100)}%` : '-'}
-                      </div>
-                    </div>
-                  )}
-                </section>
+        // Usar el año anterior para la comparación
+        const compareDesdeVal = `${yDesde }-${String(mDesde).padStart(2, '0')}`;
+        const compareHastaVal = `${yHasta }-${String(mHasta).padStart(2, '0')}`;
 
-                {/* Listado expandible de cotizaciones por mes */}
-                <section style={{ width:'90%', marginTop: 8 }}>
-                  {tableData.map(row => {
-                    const key = row.monthKey;
-                    const list = cotizacionesPorMes[key] || [];
-                    const isOpen = !!openMonths[key];
-                    return (
-                      <div key={key} style={{ marginBottom: 12 }}>
-                        <button onClick={() => toggleMonth(key)} style={{ width:'100%', textAlign:'left', padding:'10px 12px', background:'#f1f5fb', border:'1px solid #dfe7fb', borderRadius:4, cursor:'pointer', fontWeight:700, color:'#1976d2' }} aria-expanded={isOpen}>
-                          {row.monthLabel} — {row.count} cotizaciones
-                        </button>
-                        {isOpen && (
-                          <div className="tabla-cotizaciones-responsive" style={{ marginTop:8 }}>
-                            <table className="reporte-cotizaciones-tabla tabla-ajustada">
-                              <thead>
-                                <tr>
-                                  <th>Cliente</th>
-                                  <th>Teléfono</th>
-                                  <th>Email</th>
-                                  <th>Dirección</th>
-                                  <th>Fecha Creación</th>
-                                  <th>Última Edición</th>
-                                  <th style={{ whiteSpace:'nowrap' }}>Precio Total</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {list.map(q => {
-                                  const qId = getQuotationId(q);
-                                  return (
-                                    <tr key={qId || Math.random()} className={qId ? 'clickable-row' : ''} onClick={() => qId && navigate(`/quotation/${qId}`)} tabIndex={qId ? 0 : -1} onKeyDown={(e)=>{ if((e.key==='Enter'||e.key===' ')&&qId) navigate(`/quotation/${qId}`); }}>
-                                      <td>{q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''} {q.Customer?.Customer?.lastname || q.Customer?.lastname || q.customer?.lastname || ''}</td>
-                                      <td>{q.Customer?.Customer?.tel || q.Customer?.tel || q.customer?.tel || ''}</td>
-                                      <td>{q.Customer?.Customer?.mail || q.Customer?.mail || q.customer?.mail || ''}</td>
-                                      <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
-                                      <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
-                                      <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
-                                      <td style={{ whiteSpace:'nowrap' }}>${(q.TotalPrice ?? q.totalPrice ?? q.Total ?? q.price ?? 0).toLocaleString?.() ?? (q.TotalPrice ?? q.totalPrice ?? q.Total ?? q.price ?? 0)}</td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </section>
+        console.log('Período principal:', fechaDesde, 'a', fechaHasta);
+        console.log('Período comparación:', compareDesdeVal, 'a', compareHastaVal);
 
-                {/* Nuevo: listado de cotizaciones del período comparado */}
-                {compareTableData.length > 0 && (
-                  <section style={{ width: '100%', marginTop: 12 }}>
-                    <h3 style={{ color: '#c62828', marginBottom: 8 }}>Detalle — Período comparado</h3>
-                    {compareTableData.map(row => {
-                      const key = row.monthKey;
-                      const list = compareCotizacionesPorMes[key] || [];
-                      const isOpen = !!openCompareMonths[key];
-                      return (
-                        <div key={`cmp-${key}`} style={{ marginBottom: 12 }}>
-                          <button
-                            onClick={() => toggleCompareMonth(key)}
-                            style={{
-                              width: '100%',
-                              textAlign: 'left',
-                              padding: '8px 10px',
-                              background: '#fff6f6',
-                              border: '1px solid #f5c6cb',
-                              borderRadius: 4,
-                              cursor: 'pointer',
-                              fontWeight: 700,
-                              color: '#c62828'
-                            }}
-                            aria-expanded={isOpen}
-                          >
-                            {row.monthLabel} — {row.count} cotizaciones (Periodo comparación)
-                          </button>
+        setCompareDesde(compareDesdeVal);
+        setCompareHasta(compareHastaVal);
+    };
 
-                          {isOpen && (
-                            <div className="tabla-cotizaciones-responsive" style={{ marginTop: 8 }}>
-                              <table className="reporte-cotizaciones-tabla tabla-ajustada">
-                                <thead>
-                                  <tr>
-                                    <th>Cliente</th>
-                                    <th>Teléfono</th>
-                                    <th>Email</th>
-                                    <th>Dirección</th>
-                                    <th>Fecha Creación</th>
-                                    <th>Última Edición</th>
-                                    <th style={{ whiteSpace: 'nowrap' }}>Precio Total</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {list.map(q => {
-                                    const qId = getQuotationId(q);
-                                    return (
-                                      <tr
-                                        key={qId || Math.random()}
-                                        className={qId ? 'clickable-row' : ''}
-                                        onClick={() => qId && navigate(`/quotation/${qId}`)}
-                                        tabIndex={qId ? 0 : -1}
-                                        onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && qId) navigate(`/quotation/${qId}`); }}
-                                      >
-                                        <td>{q.Customer?.Customer?.name || q.Customer?.name || q.customer?.name || ''} {q.Customer?.Customer?.lastname || q.Customer?.lastname || q.customer?.lastname || ''}</td>
-                                        <td>{q.Customer?.Customer?.tel || q.Customer?.tel || q.customer?.tel || ''}</td>
-                                        <td>{q.Customer?.Customer?.mail || q.Customer?.mail || q.customer?.mail || ''}</td>
-                                        <td>{q.Customer?.Customer?.address || q.Customer?.address || q.customer?.address || ''}</td>
-                                        <td>{q.CreationDate ? formatFechaCorta(q.CreationDate) : (q.creationDate ? formatFechaCorta(q.creationDate) : '')}</td>
-                                        <td>{q.LastEdit ? formatFechaCorta(q.LastEdit) : (q.lastEdit ? formatFechaCorta(q.lastEdit) : '')}</td>
-                                        <td style={{ whiteSpace: 'nowrap' }}>${(q.TotalPrice ?? q.totalPrice ?? q.Total ?? q.price ?? 0).toLocaleString?.() ?? (q.TotalPrice ?? q.totalPrice ?? q.Total ?? q.price ?? 0)}</td>
-                                      </tr>
-                                    );
-                                  })}
-                                </tbody>
-                              </table>
+    const handleComparar = async () => {
+        await fetchAndAggregateCompare();
+    };
+
+    const handleImprimir = () => window.print();
+    const handleDescargarPDF = async () => {
+        if (!pdfRef.current) return;
+        const el = pdfRef.current;
+        document.body.classList.add('pdf-exporting');
+        const opt = {
+            margin: [0.2, 0.2, 0.2, 0.2],
+            filename: `reporte_tendencias_${fechaDesde}_a_${fechaHasta}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        await html2pdf().set(opt).from(el).save();
+        document.body.classList.remove('pdf-exporting');
+    };
+
+    // Datos para gráficos
+    const chartData = {
+        labels: tableData.map(row => row.monthLabel),
+        datasets: [
+            {
+                label: 'Aprobadas',
+                data: tableData.map(row => row.approved),
+                backgroundColor: '#10b981',
+                borderColor: '#0da271',
+                borderWidth: 2,
+            },
+            {
+                label: 'Pendientes',
+                data: tableData.map(row => row.pending),
+                backgroundColor: '#f59e0b',
+                borderColor: '#d97706',
+                borderWidth: 2,
+            },
+            {
+                label: 'Rechazadas',
+                data: tableData.map(row => row.rejected),
+                backgroundColor: '#ef4444',
+                borderColor: '#dc2626',
+                borderWidth: 2,
+            },
+            {
+                label: 'Finalizadas',
+                data: tableData.map(row => row.finished),
+                backgroundColor: '#6b7280',
+                borderColor: '#4b5563',
+                borderWidth: 2,
+            }
+        ]
+    };
+
+    const chartOptions = {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            },
+            tooltip: {
+                callbacks: {
+                    afterBody: function (context) {
+                        const datasetIndex = context[0].datasetIndex;
+                        const dataIndex = context[0].dataIndex;
+                        const value = context[0].raw;
+                        const total = tableData[dataIndex]?.count || 0;
+
+                        if (total > 0 && value > 0) {
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `Porcentaje: ${percentage}% del total`;
+                        }
+                        return '';
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                // ❌ QUITAR stacked: true
+            },
+            y: {
+                // ❌ QUITAR stacked: true
+                beginAtZero: true,
+                ticks: {
+                    // ✅ MANTENER: ocultar el 0 en el eje Y pero mostrar todos los meses
+                    callback: function (value) {
+                        if (value === 0) return '';
+                        return value;
+                    }
+                }
+            }
+        }
+    };
+
+    return (
+        <div className="tendencias-dashboard-container">
+            <Navigation onLogout={() => {
+                localStorage.removeItem("token");
+                navigate("/");
+            }} />
+
+            <div className="tendencias-main-wrapper">
+                <div className="tendencias-content-container">
+                    <div className="tendencias-main-container">
+                        {/* HEADER */}
+                        <div className="tendencias-header">
+                            <div className="tendencias-header-title">
+                                <TrendingUp size={32} />
+                                <div>
+                                    <h1>Reporte de Tendencias - Cotizaciones por Mes</h1>
+                                    <p>Análisis de volumen y performance por período</p>
+                                </div>
                             </div>
-                          )}
+                            <div className="tendencias-header-actions">
+                                <button className="tendencias-btn tendencias-btn-primary" onClick={handleGenerar} disabled={loading}>
+                                    <RefreshCw size={18} />
+                                    {loading ? 'Generando...' : 'Generar Reporte'}
+                                </button>
+                            </div>
                         </div>
-                      );
-                    })}
-                  </section>
-                )}
 
-                <footer className="reporte-cotizaciones-footer" style={{ width:'90%', marginTop:12 }}>
-                  <div className="reporte-cotizaciones-direccion">
-                    <span style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
-                      Avenida Japón 1292 / Córdoba / Argentina
-                    </span>
-                    <br />Solo para uso interno de la empresa Anodal S.A.
-                  </div>
-                  <img src={logoAnodal} alt="Logo Anodal" className="reporte-cotizaciones-footer-logo" />
-                </footer>
-              </main>
-            )}
-          </div>
+                        {/* FILTROS PRINCIPALES */}
+                        <div className="tendencias-filtros">
+                            <div className="filtros-grid">
+                                <div className="filtro-group">
+                                    <label>Desde (mes):</label>
+                                    <input
+                                        type="month"
+                                        value={fechaDesde}
+                                        onChange={e => setFechaDesde(e.target.value)}
+                                        className="filtro-input"
+                                    />
+                                </div>
+                                <div className="filtro-group">
+                                    <label>Hasta (mes):</label>
+                                    <input
+                                        type="month"
+                                        value={fechaHasta}
+                                        onChange={e => setFechaHasta(e.target.value)}
+                                        className="filtro-input"
+                                    />
+                                </div>
+                                <div className="filtro-actions">
+                                    <button className="tendencias-btn tendencias-btn-secondary" onClick={handleDescargarPDF} disabled={!generar}>
+                                        <Download size={18} />
+                                        PDF
+                                    </button>
+                                    <button className="tendencias-btn tendencias-btn-secondary" onClick={handleImprimir} disabled={!generar}>
+                                        <Printer size={18} />
+                                        Imprimir
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* COMPARACIÓN - Debajo de los filtros principales */}
+                        <div className="tendencias-comparar-filtros">
+                            <div className="comparar-header">
+                                <GitCompare size={20} />
+                                <h3>Comparar con Otro Período</h3>
+                            </div>
+                            <div className="comparar-grid">
+                                <div className="filtro-group">
+                                    <label>Desde (comparación):</label>
+                                    <input
+                                        type="month"
+                                        value={compareDesde}
+                                        onChange={e => setCompareDesde(e.target.value)}
+                                        className="filtro-input"
+                                        disabled={!generar}
+                                    />
+                                </div>
+                                <div className="filtro-group">
+                                    <label>Hasta (comparación):</label>
+                                    <input
+                                        type="month"
+                                        value={compareHasta}
+                                        onChange={e => setCompareHasta(e.target.value)}
+                                        className="filtro-input"
+                                        disabled={!generar}
+                                    />
+                                </div>
+                                <button
+                                    className="tendencias-btn tendencias-btn-comparar"
+                                    onClick={handleComparar}
+                                    disabled={compareLoading || !compareDesde || !compareHasta || !generar}
+                                >
+                                    {compareLoading ? 'Cargando...' : 'Generar Comparación'}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="tendencias-pdf-container" ref={pdfRef}>
+                            {/* KPIs PRINCIPALES */}
+                            {generar && !loading && (
+                                <div className="tendencias-kpis">
+                                    <div className="kpi-card">
+                                        <div className="kpi-icon" style={{ background: 'rgba(38, 183, 205, 0.1)' }}>
+                                            <BarChart3 size={24} />
+                                        </div>
+                                        <div className="kpi-content">
+                                            <div className="kpi-value">{kpis.total}</div>
+                                            <div className="kpi-label">Total Cotizaciones</div>
+                                        </div>
+                                    </div>
+                                    <div className="kpi-card">
+                                        <div className="kpi-icon" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                                            <CheckCircle size={24} />
+                                        </div>
+                                        <div className="kpi-content">
+                                            <div className="kpi-value">{kpis.approved}</div> {/* CORREGIDO: changed from accepted to approved */}
+                                            <div className="kpi-label">Aprobadas</div> {/* CORREGIDO: changed from Aceptadas to Aprobadas */}
+                                            <div className="kpi-subtext">{kpis.conversionRate.toFixed(1)}% conversión</div>
+                                        </div>
+                                    </div>
+                                    <div className="kpi-card">
+                                        <div className="kpi-icon" style={{ background: 'rgba(245, 158, 11, 0.1)' }}>
+                                            <Clock size={24} />
+                                        </div>
+                                        <div className="kpi-content">
+                                            <div className="kpi-value">{kpis.pending}</div>
+                                            <div className="kpi-label">Pendientes</div>
+                                            <div className="kpi-subtext">{((kpis.pending / kpis.total) * 100).toFixed(1)}% del total</div>
+                                        </div>
+                                    </div>
+                                    <div className="kpi-card">
+                                        <div className="kpi-icon" style={{ background: 'rgba(239, 68, 68, 0.1)' }}>
+                                            <XCircle size={24} />
+                                        </div>
+                                        <div className="kpi-content">
+                                            <div className="kpi-value">{kpis.rejected + kpis.finished}</div> {/* Incluir finished en "otras" */}
+                                            <div className="kpi-label">Otras</div>
+                                            <div className="kpi-subtext">Rechazadas + Finalizadas</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* COMPARATIVA ENTRE PERÍODOS - Debajo de KPIs */}
+                            {showComparison && compareTableData.length > 0 && (
+                                <div className="tendencias-comparativa-section">
+                                    <div className="section-header">
+                                        <Target size={24} />
+                                        <h2>Comparativa Entre Períodos</h2>
+                                    </div>
+                                    <div className="comparativa-grid">
+                                        <div className="comparativa-periodo">
+                                            <h3>Período Actual</h3>
+                                            <div className="periodo-fechas">{fechaDesde} a {fechaHasta}</div>
+                                            <div className="periodo-stats">
+                                                <div className="stat">
+                                                    <span className="stat-value">{kpis.total}</span>
+                                                    <span className="stat-label">Total</span>
+                                                </div>
+                                                <div className="stat">
+                                                    <span className="stat-value">{kpis.approved}</span> {/* CORREGIDO */}
+                                                    <span className="stat-label">Aprobadas</span> {/* CORREGIDO */}
+                                                </div>
+                                                <div className="stat">
+                                                    <span className="stat-value">{kpis.conversionRate.toFixed(1)}%</span>
+                                                    <span className="stat-label">Conversión</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="comparativa-variacion">
+                                            <div className="variacion-content">
+                                                <Award size={32} />
+                                                <div className="variacion-text">
+                                                    <div className="variacion-titulo">Variación General</div>
+                                                    <div className="variacion-valor">
+                                                        {compareKpis.total > 0 ?
+                                                            `${(((kpis.total - compareKpis.total) / compareKpis.total) * 100).toFixed(1)}%`
+                                                            : 'N/A'}
+                                                    </div>
+                                                    <div className="variacion-subtext">
+                                                        en volumen total
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="comparativa-periodo">
+                                            <h3>Período Comparación</h3>
+                                            <div className="periodo-fechas">{compareDesde} a {compareHasta}</div>
+                                            <div className="periodo-stats">
+                                                <div className="stat">
+                                                    <span className="stat-value">{compareKpis.total}</span>
+                                                    <span className="stat-label">Total</span>
+                                                </div>
+                                                <div className="stat">
+                                                    <span className="stat-value">{compareKpis.approved}</span> {/* CORREGIDO */}
+                                                    <span className="stat-label">Aprobadas</span> {/* CORREGIDO */}
+                                                </div>
+                                                <div className="stat">
+                                                    <span className="stat-value">{compareKpis.conversionRate.toFixed(1)}%</span>
+                                                    <span className="stat-label">Conversión</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* GRÁFICO PRINCIPAL */}
+                            {generar && !loading && tableData.length > 0 && (
+                                <div className="tendencias-grafico-section">
+                                    <div className="section-header">
+                                        <TrendingUp size={24} />
+                                        <h2>Evolución Mensual - Volumen de Cotizaciones</h2>
+                                    </div>
+                                    <div className="grafico-container">
+                                        {tableData.length > 0 ? (
+                                            <Bar data={chartData} options={chartOptions} />
+                                        ) : (
+                                            <div className="grafico-vacio">
+                                                <p>No hay datos para mostrar en el gráfico</p>
+                                                <span>No se encontraron cotizaciones para el período seleccionado</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* RESUMEN MENSUAL DETALLADO */}
+                            {generar && !loading && (
+                                <div className="tendencias-tabla-section">
+                                    <div className="section-header">
+                                        <BarChart3 size={24} />
+                                        <h2>Resumen Mensual Detallado</h2>
+                                    </div>
+                                    <div className="tabla-container">
+                                        <table className="tendencias-tabla">
+                                            <thead>
+                                                <tr>
+                                                    <th>Mes</th>
+                                                    <th>Total</th>
+                                                    <th>Aprobadas</th> {/* CORREGIDO */}
+                                                    <th>Pendientes</th>
+                                                    <th>Otras</th>
+                                                    <th>Conversión</th>
+                                                    <th>Variación</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {tableData.map(row => (
+                                                    <tr key={row.monthKey}>
+                                                        <td className="mes-cell">{row.monthLabel}</td>
+                                                        <td>{row.count}</td>
+                                                        <td className="aprobadas-cell">{row.approved}</td> {/* CORREGIDO */}
+                                                        <td className="pendientes-cell">{row.pending}</td>
+                                                        <td className="rechazadas-cell">{row.rejected + row.finished}</td> {/* Combinar rejected y finished */}
+                                                        <td className="conversion-cell">{row.conversion.toFixed(1)}%</td>
+                                                        <td className={`variacion-cell ${row.variationPct > 0 ? 'positivo' : row.variationPct < 0 ? 'negativo' : ''}`}>
+                                                            {row.variationPct === null ? '-' : `${row.variationPct > 0 ? '+' : ''}${Math.round(row.variationPct)}%`}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* LOADING STATE */}
+                            {loading && (
+                                <div className="tendencias-loading">
+                                    <ReactLoading type="spin" color="#26b7cd" height={60} width={60} />
+                                    <p>Generando reporte...</p>
+                                </div>
+                            )}
+
+                            {/* EMPTY STATE */}
+                            {!generar && !loading && (
+                                <div className="tendencias-empty">
+                                    <TrendingUp size={64} />
+                                    <h3>Reporte No Generado</h3>
+                                    <p>Seleccione un rango de meses y presione "Generar Reporte"</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <Footer />
         </div>
-      </div>
-      <Footer />
-    </div>
-  );
+    );
 };
 
 export default ReporteDeTendenciasDeCotizacionPorMes;

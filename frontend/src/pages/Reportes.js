@@ -40,7 +40,7 @@ const reportCards = [
         className: "reporte-proyectos-ubicacion",
         route: "/reportes/ubicacion-geografica",
         color: "#ef4444",
-        roles: ['quotator', 'coordinator', 'manager'] // Todos los roles
+        roles: ['coordinator', 'manager'] // Todos los roles
     },
     //Reporte 3
     {
