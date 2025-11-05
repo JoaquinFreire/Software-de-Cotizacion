@@ -30,7 +30,7 @@ const reportCards = [
         className: "reporte-estado-cotizaciones",
         route: "/reportes/estado-cotizaciones",
         color: "#3b82f6",
-        roles: ['quotator', 'coordinator', 'manager'] // Todos los roles
+        roles: ['quotator', 'coordinator'] // Todos los roles
     },
     //Reporte 2
     {
@@ -50,7 +50,7 @@ const reportCards = [
         className: "reporte-satisfaccion-cliente",
         route: "/reportes/analisis-satisfaccion-cliente",
         color: "#f59e0b",
-        roles: ['quotator', 'coordinator', 'manager'] // Todos los roles
+        roles: ['quotator', 'coordinator'] // Todos los roles
     },
     //Reporte 4
     {
@@ -80,7 +80,7 @@ const reportCards = [
         className: "reporte-Oportunidades-Perdidas",
         route: "/reportes/Oportunidades-Perdidas",
         color: "#64748b",
-        roles: ['quotator', 'coordinator', 'manager'] // Todos los roles
+        roles: ['coordinator', 'manager'] // Todos los roles
     },
     //Reporte 7
     {
