@@ -245,6 +245,193 @@ namespace Presentation.Controllers
             return Ok(filtered);
         }
 
+        [HttpGet("GetMaterialsUsage")]
+        public async Task<IActionResult> GetMaterialsUsage([FromQuery] string? from = null, [FromQuery] string? to = null)
+        {
+            // Log de entrada para verificar si la petición llega al backend
+            try
+            {
+                var remote = HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? "unknown";
+                Console.WriteLine($">>> GetMaterialsUsage invoked. Remote: {remote}, Path: {Request?.Path}, QueryString: {Request?.QueryString}");
+            }
+            catch { }
 
-    }
-}
+            var allBudgets = await _budgetService.GetAllBudgetsAsync();
+
+            DateTime? fromDt = null, toDt = null;
+            if (!string.IsNullOrEmpty(from) && DateTime.TryParse(from, out var f)) fromDt = f;
+            if (!string.IsNullOrEmpty(to) && DateTime.TryParse(to, out var t)) toDt = t;
+
+            var openings = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase);
+            var glassByType = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase);
+            var accessories = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase);
+            var treatments = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase);
+            var coatings = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase);
+
+            object GetProp(object src, string name)
+            {
+                if (src == null) return null;
+                var prop = src.GetType().GetProperty(name, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.IgnoreCase);
+                return prop != null ? prop.GetValue(src) : null;
+            }
+
+            decimal ToDecimal(object o)
+            {
+                if (o == null) return 0m;
+                if (o is decimal d) return d;
+                if (o is double db) return (decimal)db;
+                if (o is float f) return (decimal)f;
+                if (o is int i) return i;
+                if (o is long l) return l;
+                if (o is string s && decimal.TryParse(s.Replace(',', '.'), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var parsed)) return parsed;
+                return 0m;
+            }
+
+            int ToInt(object o)
+            {
+                if (o == null) return 0;
+                if (o is int i) return i;
+                if (o is long l) return (int)l;
+                if (o is decimal d) return (int)d;
+                if (o is double db) return (int)db;
+                if (o is string s && int.TryParse(s, out var parsed)) return parsed;
+                return 0;
+            }
+
+            DateTime? GetCreationDate(object budget)
+            {
+                var d = GetProp(budget, "creationDate") ?? GetProp(budget, "CreationDate") ?? GetProp(budget, "file_date");
+                if (d == null) return null;
+                if (d is DateTime dt) return dt;
+                if (DateTime.TryParse(d.ToString(), out var parsed)) return parsed;
+                return null;
+            }
+
+            foreach (var b in allBudgets)
+            {
+                var cd = GetCreationDate(b);
+                if (fromDt.HasValue && (!cd.HasValue || cd.Value < fromDt.Value)) continue;
+                if (toDt.HasValue && (!cd.HasValue || cd.Value > toDt.Value)) continue;
+
+                var productsObj = GetProp(b, "Products") ?? GetProp(b, "products");
+                if (productsObj == null) continue;
+
+                if (productsObj is System.Collections.IEnumerable productsEnum)
+                {
+                    foreach (var p in productsEnum)
+                    {
+                        if (p == null) continue;
+
+                        var openingName = GetProp(GetProp(p, "OpeningType"), "name")?.ToString() ?? GetProp(p, "OpeningType")?.ToString() ?? "Unknown Opening";
+                        int quantity = ToInt(GetProp(p, "Quantity") ?? GetProp(p, "quantity"));
+                        int wPanels = ToInt(GetProp(p, "WidthPanelQuantity") ?? GetProp(p, "widthPanelQuantity") ?? GetProp(p, "WidthPanel") ?? GetProp(p, "WidthPanelQty"));
+                        int hPanels = ToInt(GetProp(p, "HeightPanelQuantity") ?? GetProp(p, "heightPanelQuantity") ?? GetProp(p, "HeightPanel") ?? GetProp(p, "HeightPanelQty"));
+                        int panels = Math.Max(1, (wPanels == 0 || hPanels == 0) ? 1 : wPanels * hPanels);
+                        decimal openUnits = quantity * panels;
+                        if (!openings.ContainsKey(openingName)) openings[openingName] = 0m;
+                        openings[openingName] += openUnits;
+
+                        decimal panelWidth = ToDecimal(GetProp(p, "PanelWidth") ?? GetProp(p, "panelWidth") ?? GetProp(p, "PanelWidthCm"));
+                        decimal panelHeight = ToDecimal(GetProp(p, "PanelHeight") ?? GetProp(p, "panelHeight") ?? GetProp(p, "PanelHeightCm"));
+                        if (panelWidth == 0m) panelWidth = ToDecimal(GetProp(p, "Width") ?? GetProp(p, "width"));
+                        if (panelHeight == 0m) panelHeight = ToDecimal(GetProp(p, "Height") ?? GetProp(p, "height"));
+
+                        decimal panelAreaM2 = 0m;
+                        if (panelWidth > 0 && panelHeight > 0)
+                        {
+                            panelAreaM2 = (panelWidth / 100m) * (panelHeight / 100m);
+                        }
+                        decimal totalGlassArea = panelAreaM2 * panels * quantity;
+                        var glassName = GetProp(GetProp(p, "GlassType"), "name")?.ToString() ?? GetProp(p, "GlassType")?.ToString() ?? "Unknown Glass";
+                        if (!glassByType.ContainsKey(glassName)) glassByType[glassName] = 0m;
+                        glassByType[glassName] += Math.Round(totalGlassArea, 3);
+
+                        var treatName = GetProp(GetProp(p, "AlumTreatment"), "name")?.ToString() ?? GetProp(p, "AlumTreatment")?.ToString();
+                        if (!string.IsNullOrEmpty(treatName))
+                        {
+                            if (!treatments.ContainsKey(treatName)) treatments[treatName] = 0m;
+                            treatments[treatName] += quantity;
+                        }
+
+                        var coatingName = GetProp(GetProp(p, "Coating"), "name")?.ToString() ?? GetProp(p, "Coating")?.ToString();
+                        if (!string.IsNullOrEmpty(coatingName))
+                        {
+                            if (!coatings.ContainsKey(coatingName)) coatings[coatingName] = 0m;
+                            coatings[coatingName] += quantity;
+                        }
+
+                        var accsObj = GetProp(p, "Accesory") ?? GetProp(p, "Accesories") ?? GetProp(p, "Accesorio");
+                        if (accsObj is System.Collections.IEnumerable accEnum)
+                        {
+                            foreach (var acc in accEnum)
+                            {
+                                if (acc == null) continue;
+                                var accName = GetProp(acc, "Name")?.ToString() ?? GetProp(acc, "name")?.ToString() ?? "Unknown Accessory";
+                                int accQty = ToInt(GetProp(acc, "Quantity") ?? GetProp(acc, "quantity") ?? GetProp(acc, "Qty"));
+                                decimal totalAcc = accQty * quantity;
+                                if (!accessories.ContainsKey(accName)) accessories[accName] = 0m;
+                                accessories[accName] += totalAcc;
+                            }
+                        }
+                    }
+                }
+
+                var complements = GetProp(b, "Complement") ?? GetProp(b, "complement");
+                if (complements is System.Collections.IEnumerable compEnum)
+                {
+                    foreach (var comp in compEnum)
+                    {
+                        if (comp == null) continue;
+                        var doorsObj = GetProp(comp, "ComplementDoor") ?? GetProp(comp, "complementDoor");
+                        if (doorsObj is System.Collections.IEnumerable doorsEnum)
+                        {
+                            foreach (var d in doorsEnum)
+                            {
+                                if (d == null) continue;
+                                var name = GetProp(d, "Name")?.ToString() ?? "Door";
+                                int qty = ToInt(GetProp(d, "Quantity") ?? GetProp(d, "quantity"));
+                                if (!accessories.ContainsKey(name)) accessories[name] = 0m;
+                                accessories[name] += qty;
+                                var coat = GetProp(GetProp(d, "Coating"), "name")?.ToString();
+                                if (!string.IsNullOrEmpty(coat))
+                                {
+                                    if (!coatings.ContainsKey(coat)) coatings[coat] = 0m;
+                                    coatings[coat] += qty;
+                                }
+                            }
+                        }
+
+                        var railObj = GetProp(comp, "ComplementRailing") ?? GetProp(comp, "complementRailing");
+                        if (railObj is System.Collections.IEnumerable railEnum)
+                        {
+                            foreach (var r in railEnum)
+                            {
+                                var name = GetProp(r, "Name")?.ToString() ?? "Railing";
+                                int qty = ToInt(GetProp(r, "Quantity") ?? GetProp(r, "quantity"));
+                                if (!accessories.ContainsKey(name)) accessories[name] = 0m;
+                                accessories[name] += qty;
+                            }
+                        }
+                    }
+                }
+            }
+
+                        var topOpenings = openings.OrderByDescending(kv => kv.Value).ToDictionary(k => k.Key, v => Math.Round(v.Value, 2));
+                        var topGlass = glassByType.OrderByDescending(kv => kv.Value).ToDictionary(k => k.Key, v => Math.Round(v.Value, 3));
+                        var topAccessories = accessories.OrderByDescending(kv => kv.Value).ToDictionary(k => k.Key, v => Math.Round(v.Value, 2));
+                        var topTreatments = treatments.OrderByDescending(kv => kv.Value).ToDictionary(k => k.Key, v => (int)v.Value);
+                        var topCoatings = coatings.OrderByDescending(kv => kv.Value).ToDictionary(k => k.Key, v => (int)v.Value);
+            
+                        return Ok(new { 
+                            openings = topOpenings,
+                            glass = topGlass,
+                            accessories = topAccessories,
+                            treatments = topTreatments,
+                            coatings = topCoatings
+                        });
+            
+                    }
+            
+                }
+            
+            }

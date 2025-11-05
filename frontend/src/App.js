@@ -22,13 +22,14 @@ import DashboardMetricasPersonales from './pages/reportes/DashboardMetricasPerso
 import DashboardSostenibilidad from './pages/reportes/DashboardSostenibilidad';
 import ReporteConsumoComplementos from './pages/reportes/ReporteConsumoComplementos';
 import ReporteDeTendenciasDeCotizacionPorMes from './pages/reportes/ReporteDeTendenciasDeCotizacionPorMes';
+import ReportesMaterialesUsados from './pages/reportes/ReporteMaterialesUsados';
 import BudgetDetail from './pages/BudgetDetail';
 import CreatePassword from './pages/CreatePassword';
 import SessionModal from './components/SessionModal';
 import Customers from './pages/Customers';
 import Materiales from './pages/Materials/Materiales';
 import Aberturas from './pages/openings/Aberturas';
-import { QuotationProvider } from './context/QuotationContext'; // Importar el proveedor de contexto
+import { QuotationProvider } from './context/QuotationContext'; 
 import { CustomerProvider } from './context/customerContext';
 import Home from "./components/Home";
 import AdminMaterials from "./pages/admin/AdminMaterials";
@@ -213,6 +214,7 @@ function App() {
                         <Route path="/reportes/consumo-complementos" element={<PrivateRoute element={<ReporteConsumoComplementos />} />} />
                         <Route path="/reportes/tendencias-mensuales" element={<PrivateRoute element={<ReporteDeTendenciasDeCotizacionPorMes />} />} />
                         <Route path="/reportes/cliente-mayor-volumen"element={<PrivateRoute element={<ClienteConMayorVolumen />} />}/>
+                        <Route path="/reportes/materiales-mas-utilizados" element={<PrivateRoute element={<ReportesMaterialesUsados />} />} />
                         <Route path="/operational-dashboard" element={<PrivateRoute element={<DashboardEficienciaOperativa />} />} />
                         <Route path="/quotation" element={<PrivateRoute element={<Quotation />} />} />
                         <Route path="/quotation/:id" element={<PrivateRoute element={<BudgetDetail />} />} />
