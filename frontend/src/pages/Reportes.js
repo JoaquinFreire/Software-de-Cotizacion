@@ -146,7 +146,7 @@ const reportCards = [
     },
     //Reporte 13
     {
-        title: "Reporte de Clientes con Mayor Volumen",
+        title: "Cartera de clientes",
         description: "Clientes principales por volumen",
         icon: <Users size={32} />,
         className: "reporte-clientes-mayor-volumen",

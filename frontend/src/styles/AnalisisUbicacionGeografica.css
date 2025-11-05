@@ -1,0 +1,533 @@
+/* AnalisisUbicacionGeografica.css */
+/* Estilos específicos para el reporte de Análisis por Ubicación Geográfica */
+
+:root {
+	--report-container-bg: #1e1e1e;
+	--filters-bg: #2d2d2d;
+	--filters-border: #333;
+	--card-bg: #2d2d2d;
+	--background-light: #252525;
+	--border-light: #333;
+	--border: #444;
+	--text-primary: #e0e0e0;
+	--text-secondary: #999;
+	--text-muted: #888;
+	--primary-color: #1976d2;
+	--primary-dark: #1565c0;
+	--secondary-color: #666;
+	--secondary-dark: #555;
+	--success-color: #4caf50;
+	--error-color: #f44336;
+	--warning-color: #ff9800;
+	--table-header-bg: #2d2d2d;
+	--input-bg: #2d2d2d;
+}
+
+/* CONTENEDOR PRINCIPAL - MÁRGEN SUPERIOR AGREGADO */
+.analisis-ubicacion-content {
+	max-width: 1400px;
+	margin: 40px auto 0 auto; /* 40px de margen superior */
+	padding: 20px 24px;
+	background: var(--report-container-bg);
+	min-height: calc(100vh - 160px);
+}
+
+/* HEADER MODERNO */
+.analisis-ubicacion-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	margin-bottom: 32px;
+	padding-bottom: 24px;
+	border-bottom: 2px solid var(--border-light);
+}
+
+.header-title-moderno {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+	.header-title-moderno h1 {
+		margin: 0 0 8px 0;
+		font-size: 28px;
+		font-weight: 700;
+		color: var(--primary-color);
+	}
+
+	.header-title-moderno p {
+		margin: 0;
+		color: var(--text-secondary);
+		font-size: 16px;
+	}
+
+.header-actions-moderno {
+	display: flex;
+	gap: 12px;
+}
+
+/* KPI CARDS */
+.kpi-section-moderno {
+	margin-bottom: 32px;
+}
+
+.kpi-grid-moderno {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 20px;
+	margin-bottom: 24px;
+}
+
+.kpi-card-moderno {
+	display: flex;
+	align-items: center;
+	padding: 20px;
+	background: var(--card-bg);
+	border-radius: 8px;
+	border: 1px solid var(--border);
+	transition: all 0.2s ease;
+	height: 120px;
+}
+
+	.kpi-card-moderno:hover {
+		border-color: var(--primary-color);
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	}
+
+.kpi-icon-moderno {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 50px;
+	height: 50px;
+	border-radius: 8px;
+	color: white;
+	margin-right: 16px;
+	flex-shrink: 0;
+}
+
+.kpi-content-moderno {
+	flex: 1;
+}
+
+.kpi-value-moderno {
+	font-size: 28px;
+	font-weight: 700;
+	color: var(--text-primary);
+	margin-bottom: 4px;
+	line-height: 1;
+}
+
+.kpi-label-moderno {
+	font-size: 14px;
+	color: var(--text-secondary);
+	margin-bottom: 4px;
+}
+
+/* FILTROS MODERNOS - CORREGIDO */
+.filtros-ubicacion-modernos {
+	background: var(--filters-bg);
+	border-radius: 8px;
+	border: 1px solid var(--filters-border);
+	margin-bottom: 24px;
+	overflow: hidden;
+}
+
+.filtros-header-moderno {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 16px 20px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	background: var(--filters-bg);
+	font-weight: 600;
+	color: var(--text-primary);
+}
+
+	.filtros-header-moderno:hover {
+		background: #3d3d3d;
+	}
+
+.filtros-toggle-left {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.filtros-content-moderno {
+	padding: 20px;
+	border-top: 1px solid var(--filters-border);
+	background: var(--filters-bg);
+}
+
+.filtros-grid-moderno {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 16px;
+	margin-bottom: 20px;
+	align-items: start; /* Importante: alinear al inicio */
+}
+
+.filtro-group-moderno {
+	display: flex;
+	flex-direction: column;
+	gap: 6px; /* Reducido de 8px a 6px para más consistencia */
+	min-width: 0;
+}
+
+	.filtro-group-moderno label {
+		font-weight: 600;
+		color: var(--text-secondary);
+		font-size: 13px;
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		white-space: nowrap;
+		min-height: 20px; /* Fuerza altura consistente */
+		line-height: 1.2; /* Altura de línea consistente */
+		margin: 0; /* Eliminar cualquier margen por defecto */
+		padding: 0; /* Eliminar cualquier padding por defecto */
+	}
+
+		/* Asegurar que los iconos tengan tamaño consistente */
+		.filtro-group-moderno label svg {
+			width: 16px;
+			height: 16px;
+			flex-shrink: 0;
+		}
+
+.filtro-input-moderno,
+.filtro-select-moderno {
+	padding: 10px 12px;
+	border: 1px solid var(--border);
+	border-radius: 4px;
+	background: var(--input-bg);
+	color: var(--text-primary);
+	font-size: 14px;
+	transition: all 0.3s ease;
+	width: 100%;
+	box-sizing: border-box;
+	margin: 0; /* Eliminar márgenes */
+}
+
+	.filtro-input-moderno:focus,
+	.filtro-select-moderno:focus {
+		outline: none;
+		border-color: var(--primary-color);
+		box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+	}
+
+/* BOTONES MODERNOS */
+.btn-moderno {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 20px;
+	border: none;
+	border-radius: 6px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s ease;
+}
+
+.btn-primary-moderno {
+	background: var(--primary-color);
+	color: white;
+}
+
+	.btn-primary-moderno:hover:not(:disabled) {
+		background: var(--primary-dark);
+		transform: translateY(-1px);
+	}
+
+	.btn-primary-moderno:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		transform: none;
+	}
+
+/* TABLA MODERNA */
+.tabla-ubicacion-moderna {
+	background: var(--card-bg);
+	border-radius: 8px;
+	border: 1px solid var(--border);
+	overflow: hidden;
+	margin-bottom: 24px;
+}
+
+.tabla-header-moderno {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 16px 20px;
+	background: var(--card-bg);
+	border-bottom: 1px solid var(--border);
+}
+
+	.tabla-header-moderno h3 {
+		margin: 0;
+		font-size: 18px;
+		font-weight: 700;
+		color: var(--primary-color);
+		flex: 1;
+	}
+
+.panel-badge-moderno {
+	background: var(--primary-color);
+	color: white;
+	border-radius: 12px;
+	padding: 4px 12px;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.tabla-contenido-moderno {
+	padding: 0;
+}
+
+.tabla-responsive-moderna {
+	overflow-x: auto;
+	border-radius: 6px;
+}
+
+.tabla-moderna {
+	width: 100%;
+	border-collapse: collapse;
+	background: var(--card-bg);
+}
+
+	.tabla-moderna th {
+		text-align: left;
+		padding: 16px;
+		background: var(--table-header-bg);
+		font-weight: 600;
+		color: var(--text-primary);
+		border-bottom: 2px solid var(--border);
+		font-size: 14px;
+		white-space: nowrap;
+	}
+
+	.tabla-moderna td {
+		padding: 16px;
+		border-bottom: 1px solid var(--border);
+		color: var(--text-primary);
+		font-size: 14px;
+	}
+
+	.tabla-moderna tr:last-child td {
+		border-bottom: none;
+	}
+
+	.tabla-moderna tr:hover {
+		background: var(--background-light);
+	}
+
+/* BOTONES DE ACCIÓN EN TABLA */
+.btn-accion-tabla {
+	background: var(--primary-color);
+	color: white;
+	border: none;
+	border-radius: 4px;
+	padding: 8px 12px;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	white-space: nowrap;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+	.btn-accion-tabla:hover {
+		background: var(--primary-dark);
+		transform: translateY(-1px);
+	}
+
+	.btn-accion-tabla.secundario {
+		background: var(--secondary-color);
+	}
+
+		.btn-accion-tabla.secundario:hover {
+			background: var(--secondary-dark);
+		}
+
+/* DETALLE DE BARRIO */
+.detalle-barrio-moderno {
+	background: var(--background-light);
+	border-radius: 8px;
+	border: 1px solid var(--border);
+	margin: 16px 0;
+	overflow: hidden;
+}
+
+.detalle-barrio-header {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 16px 20px;
+	background: var(--card-bg);
+	border-bottom: 1px solid var(--border);
+}
+
+	.detalle-barrio-header h4 {
+		margin: 0;
+		font-size: 16px;
+		font-weight: 600;
+		color: var(--text-primary);
+		flex: 1;
+	}
+
+.detalle-barrio-contenido {
+	padding: 20px;
+}
+
+/* LOADING MODERNO */
+.loading-moderno {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 400px;
+	gap: 16px;
+}
+
+.loading-spinner-moderno {
+	width: 40px;
+	height: 40px;
+	border: 4px solid var(--border-light);
+	border-top: 4px solid var(--primary-color);
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+.loading-moderno p {
+	color: var(--text-secondary);
+	font-size: 16px;
+}
+
+/* ESTADO VACÍO */
+.estado-vacio-moderno {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 400px;
+	color: var(--text-secondary);
+	font-size: 18px;
+	text-align: center;
+	gap: 16px;
+}
+
+	.estado-vacio-moderno h3 {
+		margin: 0;
+		color: var(--text-primary);
+	}
+
+	.estado-vacio-moderno p {
+		margin: 0;
+		font-size: 16px;
+		color: var(--text-muted);
+	}
+
+/* UTILIDADES */
+.texto-primario {
+	color: var(--text-primary);
+}
+
+.texto-secundario {
+	color: var(--text-secondary);
+}
+
+.texto-acentuado {
+	color: var(--primary-color);
+	font-weight: 600;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+	.kpi-grid-moderno {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.filtros-grid-moderno {
+		grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets */
+	}
+}
+
+@media (max-width: 768px) {
+	.analisis-ubicacion-content {
+		padding: 20px 16px;
+		margin: 20px auto 0 auto; /* Menos margen en móviles */
+	}
+
+	.analisis-ubicacion-header {
+		flex-direction: column;
+		gap: 16px;
+		align-items: flex-start;
+	}
+
+	.header-actions-moderno {
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	.kpi-grid-moderno {
+		grid-template-columns: 1fr;
+	}
+
+	.kpi-card-moderno {
+		height: auto;
+		padding: 16px;
+	}
+
+	.filtros-grid-moderno {
+		grid-template-columns: 1fr; /* 1 columna en móviles */
+	}
+
+	.tabla-moderna {
+		font-size: 12px;
+	}
+
+		.tabla-moderna th,
+		.tabla-moderna td {
+			padding: 12px 8px;
+		}
+}
+
+@media (max-width: 480px) {
+	.header-title-moderno h1 {
+		font-size: 24px;
+	}
+
+	.kpi-value-moderno {
+		font-size: 24px;
+	}
+
+	.tabla-header-moderno {
+		padding: 12px 16px;
+	}
+
+	.btn-moderno {
+		padding: 10px 16px;
+		font-size: 13px;
+	}
+
+	.btn-accion-tabla {
+		padding: 6px 10px;
+		font-size: 11px;
+	}
+}
