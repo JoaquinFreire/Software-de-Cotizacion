@@ -1,13 +1,14 @@
 using Application.DTOs.BudgetDTOs.CreateBudget;
+using Application.DTOs.BudgetDTOs.UpdateBudget;
+using Application.DTOs.BudgetDTOs.DeleteBudget;
+using Application.DTOs.BudgetDTOs.GetAllBudgetByComplement;
 using Application.DTOs.BudgetDTOs.GetBudget;
 using Application.DTOs.BudgetDTOs.GetBudgetByCustomerDni;
-using Application.DTOs.BudgetDTOs.DeleteBudget;
 using Application.Services;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Request;
-using Application.DTOs.BudgetDTOs.GetAllBudgetByComplement;
 using System.Text.Json; // <-- para serializar en consola
 using System.Linq; // <--- agregado
 
@@ -105,7 +106,8 @@ namespace Presentation.Controllers
             // Log de la plantilla que Mongo espera (para comparar)
             var expectedTemplate = new
             {
-                Budget = new {
+                Budget = new
+                {
                     budgetId = "string",
                     user = new { name = "string", lastName = "string", mail = "string" },
                     customer = new { name = "string", lastname = "string", tel = "string", mail = "string", address = "string", dni = "string" },
@@ -137,6 +139,38 @@ namespace Presentation.Controllers
             return Ok("Presupuesto creado correctamente.");
         }
 
+        [HttpPost("CreateBudgetVersion")]
+        public async Task<IActionResult> CreateBudgetVersion([FromBody] CreateBudgetVersionRequest request)
+        {
+            if (request == null || request.Budget == null)
+                return BadRequest("Datos inválidos.");
+
+            try
+            {
+                var versionDTO = new CreateBudgetVersionDTO
+                {
+                    OriginalBudgetId = request.OriginalBudgetId,
+                    BudgetData = request.Budget
+                };
+
+                var command = new CreateBudgetVersionCommand(versionDTO);
+                var newBudgetId = await _mediator.Send(command);
+
+                return Ok(new
+                {
+                    message = "Nueva versión de cotización creada correctamente.",
+                    newBudgetId = newBudgetId
+                });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno: {ex.Message}");
+            }
+        }
 
         [HttpGet("GetBudgetByBudgetId/{budgetId}")]
         public async Task<IActionResult> GetBudgetByBudgetId(string budgetId)

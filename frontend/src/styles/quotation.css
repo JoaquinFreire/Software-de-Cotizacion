@@ -1504,3 +1504,80 @@ body.light-mode .info-item span {
 body.light-mode .opening-preview-box {
     background: #f0f8fb;
 }
+
+
+/* Estilos específicos para el formulario de nueva versión */
+.version-info {
+    padding: 20px;
+}
+
+.version-details {
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(38, 183, 205, 0.1);
+    border-radius: 6px;
+    border: 1px solid #26b7cd;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+    .detail-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+.version-notice {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 193, 7, 0.1);
+    border-radius: 6px;
+    border: 1px solid #ffc107;
+}
+
+    .version-notice p {
+        margin: 0;
+        color: #ffc107;
+    }
+
+.comments-container {
+    padding: 20px;
+}
+
+.searching-agent {
+    text-align: center;
+    padding: 10px;
+    color: #26b7cd;
+}
+
+.version-summary {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #334155;
+}
+
+.select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #4a4d52;
+    border-radius: 6px;
+    background: #3f4144;
+    color: white;
+    font-size: 0.95rem;
+}
+
+    .select:focus {
+        border-color: #26b7cd;
+        box-shadow: 0 0 0 2px rgba(38, 183, 205, 0.1);
+        outline: none;
+    }
+
+body.light-mode .select {
+    background: #dce0e4;
+    color: #000000;
+}

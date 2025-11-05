@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Historial from './pages/Historial';
 import Admin from './pages/Admin';
 import Quotation from './pages/Quotation';
+import QuotationNewVersion from './pages/QuotationNewVersion';
 import UpdateQuotation from './pages/UpdateQuotation';
 import AdminUsuarios from './pages/admin/AdminUsuarios';
 import Reportes from './pages/Reportes';
@@ -217,6 +218,7 @@ function App() {
                         <Route path="/operational-dashboard" element={<PrivateRoute element={<DashboardEficienciaOperativa />} />} />
                         <Route path="/quotation" element={<PrivateRoute element={<Quotation />} />} />
                         <Route path="/quotation/:id" element={<PrivateRoute element={<BudgetDetail />} />} />
+                        <Route path="/quotation-new-version/:id" element={<PrivateRoute element={<QuotationNewVersion />} />} />
                         <Route path="/crear-password" element={<PublicRoute element={<CreatePassword />} />} />
                         <Route path="/customers" element={<PrivateRoute element={<Customers />} />} />
                         <Route path="/materiales" element={<PrivateRoute element={<Materiales />} />} />
