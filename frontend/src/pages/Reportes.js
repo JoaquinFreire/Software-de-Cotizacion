@@ -30,7 +30,7 @@ const reportCards = [
         className: "reporte-estado-cotizaciones",
         route: "/reportes/estado-cotizaciones",
         color: "#3b82f6",
-        roles: ['quotator', 'coordinator', 'manager'] // Todos los roles
+        roles: ['quotator', 'coordinator'] // Todos los roles
     },
     //Reporte 2
     {
@@ -50,7 +50,7 @@ const reportCards = [
         className: "reporte-satisfaccion-cliente",
         route: "/reportes/analisis-satisfaccion-cliente",
         color: "#f59e0b",
-        roles: ['quotator', 'coordinator', 'manager'] // Todos los roles
+        roles: ['quotator', 'coordinator'] // Todos los roles
     },
     //Reporte 4
     {
@@ -63,15 +63,15 @@ const reportCards = [
         roles: ['coordinator', 'manager'] // Solo coordinador y gerente
     },
     //Reporte 5
-    {
-        title: "Reporte de Productividad por Cotizador",
-        description: "Rendimiento por cotizador",
-        icon: <UserCheck size={32} />,
-        className: "reporte-productividad-cotizador",
-        route: "/reportes/productividad-cotizador",
-        color: "#06b6d4",
-        roles: ['coordinator', 'manager'] // Solo coordinador y gerente
-    },
+    //{
+    //    title: "Reporte de Productividad por Cotizador",
+    //    description: "Rendimiento por cotizador",
+    //    icon: <UserCheck size={32} />,
+    //    className: "reporte-productividad-cotizador",
+    //    route: "/reportes/productividad-cotizador",
+    //    color: "#06b6d4",
+    //    roles: ['coordinator', 'manager'] // Solo coordinador y gerente
+    //},
     //Reporte 6
     {
         title: "Reporte de Oportunidades Perdidas",
@@ -80,7 +80,7 @@ const reportCards = [
         className: "reporte-Oportunidades-Perdidas",
         route: "/reportes/Oportunidades-Perdidas",
         color: "#64748b",
-        roles: ['quotator', 'coordinator', 'manager'] // Todos los roles
+        roles: ['coordinator', 'manager'] // Todos los roles
     },
     //Reporte 7
     {
@@ -129,7 +129,9 @@ const reportCards = [
         icon: <Layers size={32} />,
         className: "reporte-material-usado",
         route: "/reportes/materiales-mas-utilizados",
-        color: "#10b981"
+        color: "#10b981",
+        roles: ['manager'] // Solo gerente
+
 
     },
     //Reporte 12
@@ -153,15 +155,15 @@ const reportCards = [
         roles: ['quotator', 'coordinator', 'manager'] // Todos los roles
     },
     //Reporte 14
-    {
-        title: "Reporte de Tiempo Ocioso de Producción",
-        description: "Análisis de tiempos de inactividad",
-        icon: <TrendingUp size={32} />,
-        className: "reporte-tendencias-industria",
-        route: "/reportes/tendencias-industria",
-        color: "#f43f5e",
-        roles: ['coordinator', 'manager'] // Coordinador y gerente
-    },
+    //{
+    //    title: "Reporte de Tiempo Ocioso de Producción",
+    //    description: "Análisis de tiempos de inactividad",
+    //    icon: <TrendingUp size={32} />,
+    //    className: "reporte-tendencias-industria",
+    //    route: "/reportes/tendencias-industria",
+    //    color: "#f43f5e",
+    //    roles: ['coordinator', 'manager'] // Coordinador y gerente
+    //},
     //Reporte 15
     {
         title: "Reporte de sostenibilidad económica",
