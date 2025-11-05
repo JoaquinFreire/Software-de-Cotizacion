@@ -110,7 +110,7 @@ const reportCards = [
         className: "reporte-consumo-complementos",
         route: "/reportes/consumo-complementos",
         color: "#0ea5e9",
-        roles: ['quotator', 'coordinator', 'manager'] // Todos los roles
+        roles: ['coordinator', 'manager'] // Coordinador y gerente.
     },
     //Reporte 10
     {
