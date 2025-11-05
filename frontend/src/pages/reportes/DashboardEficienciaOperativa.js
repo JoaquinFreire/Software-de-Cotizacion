@@ -217,6 +217,16 @@ const DashboardEficienciaOperativa = () => {
         }
     }, [filters.timeRange, filters.alertLevel]);
 
+    const sortedWorkloadData = React.useMemo(() => {
+        if (!workloadData || !Array.isArray(workloadData)) return [];
+
+        return [...workloadData].sort((a, b) => {
+            const aActive = a.ActiveQuotations || 0;
+            const bActive = b.ActiveQuotations || 0;
+            return aActive - bActive; // Orden ascendente (menor a mayor)
+        });
+    }, [workloadData]);
+
     const getAlertColor = (level) => {
         switch (level) {
             case 'red': return '#f44336';
@@ -419,7 +429,7 @@ const DashboardEficienciaOperativa = () => {
                                 <div className="panel-header">
                                     <Users size={20} />
                                     <h3>Carga de Trabajo</h3>
-                                    <span className="panel-badge">{(workloadData && workloadData.length) || 0} cotizadores</span>
+                                    <span className="panel-badge">{(sortedWorkloadData && sortedWorkloadData.length) || 0} cotizadores</span>
                                 </div>
                                 <div className="panel-content">
                                     <div className="workload-table-container">
@@ -431,12 +441,12 @@ const DashboardEficienciaOperativa = () => {
                                                     <th>Pendientes</th>
                                                     <th>Demoras</th>
                                                     <th>Eficiencia</th>
-                                                    <th>Estado</th>
+                                                    {/* Quitamos la columna de Estado */}
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {workloadData && workloadData.length > 0 ? (
-                                                    workloadData.map((user, index) => (
+                                                {sortedWorkloadData && sortedWorkloadData.length > 0 ? (
+                                                    sortedWorkloadData.map((user, index) => (
                                                         <tr key={user.UserId || index}>
                                                             <td className="user-cell">
                                                                 <div className="user-avatar">
@@ -460,29 +470,16 @@ const DashboardEficienciaOperativa = () => {
                                                             </td>
                                                             <td>
                                                                 <div className="efficiency-cell">
-                                                                    <div
-                                                                        className="efficiency-bar"
-                                                                        style={{
-                                                                            width: `${user.Efficiency === -1 || !user.Efficiency ? 0 : Math.min(user.Efficiency, 100)}%`,
-                                                                            backgroundColor: getEfficiencyColor(user.Efficiency)
-                                                                        }}
-                                                                    ></div>
-                                                                    <span>
+                                                                    <span className="efficiency-percentage">
                                                                         {user.Efficiency === -1 || user.Efficiency === undefined ? 'Sin datos' : `${user.Efficiency}%`}
                                                                     </span>
                                                                 </div>
-                                                            </td>
-                                                            <td>
-                                                                <div
-                                                                    className="status-dot"
-                                                                    style={{ backgroundColor: getAlertColor(user.Alerts?.Overall || 'gray') }}
-                                                                ></div>
                                                             </td>
                                                         </tr>
                                                     ))
                                                 ) : (
                                                     <tr>
-                                                        <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
+                                                        <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
                                                             No hay datos de carga de trabajo
                                                         </td>
                                                     </tr>
@@ -497,7 +494,7 @@ const DashboardEficienciaOperativa = () => {
                             <div className="panel quotations-panel">
                                 <div className="panel-header">
                                     <AlertTriangle size={20} />
-                                    <h3>Cotizaciones Problemáticas</h3>
+                                    <h3>Cotizaciones en alerta</h3>
                                     <span className="panel-badge">{(problematicQuotations && problematicQuotations.length) || 0} cotizaciones</span>
                                 </div>
                                 <div className="panel-content">
