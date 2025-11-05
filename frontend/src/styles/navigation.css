@@ -1106,3 +1106,4 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
         transition: transform 0.5s cubic-bezier(.22, 1.2, .36, 1), box-shadow 0.3s, background-color 0.3s cubic-bezier(.4, 2, .6, 1);
     }
 }
+

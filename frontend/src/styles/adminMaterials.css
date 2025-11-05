@@ -19,7 +19,7 @@
     padding: 32px 24px;
     background: linear-gradient(145deg, #707677, #193c41);
     border: 1px solid #334155;
-    border-radius: 16px;
+    border-radius: 8px;
     text-decoration: none;
     color: #e2e8f0;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -115,7 +115,7 @@
     background: rgba(38, 183, 205, 0.1);
     color: #26b7cd;
     border: 1px solid rgba(38, 183, 205, 0.3);
-    border-radius: 8px;
+    border-radius: 4px;
     text-decoration: none;
     font-weight: 600;
     transition: all 0.3s ease;
@@ -140,7 +140,7 @@
     flex: 1;
     min-width: 300px;
     padding: 1rem 1.25rem;
-    border-radius: 12px;
+    border-radius: 6px;
     border: 1px solid #03869794;
     background: #1b7571a1;
     color: #f8fafc;
@@ -163,7 +163,7 @@
 
 .search-actions button {
     padding: 1rem 1.5rem;
-    border-radius: 12px;
+    border-radius: 6px;
     border: none;
     cursor: pointer;
     font-weight: 600;
@@ -207,7 +207,7 @@
 /* Table Container */
 .results-table-container {
     background: #1a1a1a;
-    border-radius: 16px;
+    border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     border: 1px solid #2d3748;
@@ -285,7 +285,7 @@ body.light-mode .results-body {
 /* Button Styles */
 .btn {
     padding: 0.75rem 1.25rem;
-    border-radius: 8px;
+    border-radius: 4px;
     border: none;
     cursor: pointer;
     font-weight: 600;
@@ -368,7 +368,6 @@ body.light-mode .results-body {
     width: 100%;
     max-width: 500px;
     background: #1e1e1e;
-    border-radius: 20px;
     padding: 2rem;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     border: 1px solid #374151;
@@ -410,7 +409,7 @@ body.light-mode .results-body {
 .modal-form input {
     width: 100%;
     padding: 0.875rem 1rem;
-    border-radius: 10px;
+    border-radius: 5px;
     border: 1px solid #4b5563;
     margin-top: 0.5rem;
     background: #2d3748;

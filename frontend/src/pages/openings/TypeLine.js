@@ -1,187 +1,131 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
-import { Settings, Zap, Shield, Thermometer, Star, Award, Crown } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import { Layers, Grid3X3, Puzzle, Wrench, Type } from "lucide-react";
+import "../../styles/Aberturas.css";
+import axios from "axios";
+import { safeArray } from '../../utils/safeArray';
+import ReactLoading from 'react-loading';
+const API_URL = process.env.REACT_APP_API_URL;
 
-const Aberturas = () => {
-
+const TypeLine = () => {
     const navigate = useNavigate();
-        
-            const handleLogout = () => {
-                localStorage.removeItem("token");
-                navigate("/");
-            }
+    const [openings, setOpenings] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
+    const [modalOpening, setModalOpening] = useState(null);
 
-    const lines = [
-        {
-            icon: <Settings size={32} />,
-            title: "Línea Tecno 1",
-            features: [
-                "Compacta y hermética",
-                "Gran variedad de sistemas de apertura",
-                "Ensambles de marco y hojas a 45°",
-                "Corredizas con cierres laterales",
-                "Ventanas de abrir con doble contacto en burletes de EPDM",
-                "Uniformidad visual en todas las combinaciones"
-            ],
-            color: "#06b6d4"
-        },
-        {
-            icon: <Zap size={32} />,
-            title: "Línea Tecno 2",
-            features: [
-                "Simple y sobria",
-                "Puertas y ventanas corredizas, puertas de abrir y paños fijos",
-                "Ensambles de marcos a 45° y hojas a 45/90° (opcional)",
-                "Cierre central o lateral (opcional)",
-                "Excelente relación precio – producto"
-            ],
-            color: "#8b5cf6"
-        },
-        {
-            icon: <Shield size={32} />,
-            title: "Línea Tecno 3",
-            features: [
-                "Alta prestación",
-                "Hermeticidad con burletes de triple contacto",
-                "Variedad completa de sistemas de apertura",
-                "Tapajuntas rectos o curvos (opcional)",
-                "Ensambles de marco y hojas a 45°",
-                "Corredizas con cierres laterales multipunto",
-                "Herrajes y accesorios de diseño exclusivo",
-                "Posibilidad de cerraduras electrónicas",
-                "Sistema oscilobatiente con bisagra oculta",
-                "Vidrios simples (VS) o doble vidriado hermético (DVH)",
-                "Mosquiteros reforzados con felpas y ruedas regulables"
-            ],
-            color: "#10b981"
-        },
-        {
-            icon: <Award size={32} />,
-            title: "Línea Tecno 4",
-            features: [
-                "Alta prestación para grandes luces",
-                "Resistencia a grandes presiones de viento",
-                "Hermeticidad con burletes de triple contacto",
-                "Tapajuntas rectos o curvos",
-                "Ensambles de marco y hojas a 45°",
-                "Posibilidad de acople ilimitado de hojas",
-                "Cierres laterales multipunto de acero inoxidable",
-                "Ruedas que soportan hasta 350 kg",
-                "Cerraduras electrónicas opcionales",
-                "Puertas de abrir reforzadas para grandes luces",
-                "Oscilobatiente con bisagra oculta",
-                "Vidrios simples (VS) o DVH",
-                "Mosquiteros reforzados con felpas y escuadras de tracción"
-            ],
-            color: "#f59e0b"
-        },
-        {
-            icon: <Thermometer size={32} />,
-            title: "Línea Tecno 4 RPT",
-            features: [
-                "Sistema de Ruptura de Puente Térmico",
-                "Mayor control térmico, acústico y ahorro energético",
-                "Alta prestación para grandes luces",
-                "Hermeticidad con burletes de triple contacto",
-                "Ensambles de marco y hojas a 45°",
-                "Acople ilimitado de hojas corredizas",
-                "Cierres multipunto de acero inoxidable",
-                "Ruedas que soportan hasta 350 kg",
-                "Cerraduras electrónicas opcionales",
-                "Puertas reforzadas para grandes luces",
-                "Oscilobatiente con bisagra oculta",
-                "Vidrios simples (VS) o DVH",
-                "Mosquiteros reforzados con felpas y escuadras de tracción"
-            ],
-            color: "#3b82f6"
-        },
-        {
-            icon: <Star size={32} />,
-            title: "Línea Tecno 5",
-            features: [
-                "Prestación alta",
-                "Especial para grandes luces",
-                "Suave y liviano desplazamiento",
-                "Ensambles a 90°",
-                "Cerrojos laterales de tres niveles de seguridad",
-                "Sistema de guías embutidas colgantes",
-                "Resistencia a grandes presiones de viento"
-            ],
-            color: "#ec4899"
-        },
-        {
-            icon: <Crown size={32} />,
-            title: "Línea Tecno 6",
-            features: [
-                "Sistema corredizo con hoja oculta para vidrio de 10mm",
-                "Visión panorámica sin interrupciones",
-                "Deslizamientos y hermetización ocultos",
-                "Resistencia a altas presiones de viento",
-                "Posibilidad de acople ilimitado de hojas",
-                "Deslizamiento suave y liviano"
-            ],
-            color: "#8b5cf6"
-        },
-        {
-            icon: <Award size={32} />,
-            title: "Línea Tecno 7",
-            features: [
-                "Sistema corredizo con hoja oculta para DVH",
-                "Paisajes sin interrupciones",
-                "Hermetización totalmente oculta",
-                "Corrediza reforzada para grandes luces",
-                "Resistencia a altas presiones de viento",
-                "Caja de agua con salida a pluviales",
-                "Posibilidad de acople ilimitado de hojas",
-                "Micro accesorios de acero inoxidable"
-            ],
-            color: "#f59e0b"
-        }
-    ];
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        navigate("/");
+    };
+
+    const openModal = (opening) => {
+        setModalOpening(opening);
+        setShowModal(true);
+    };
+    const closeModal = () => {
+        setShowModal(false);
+        setModalOpening(null);
+    };
+
+    useEffect(() => {
+        let mounted = true;
+        const fetchOpenings = async () => {
+            if (!mounted) return;
+            setIsLoading(true);
+            try {
+                const token = localStorage.getItem("token");
+                const headers = token ? { Authorization: `Bearer ${token}` } : {};
+                const resp = await axios.get(`${API_URL}/api/opening-types`, { headers });
+
+                // CORRECCIÓN: usar safeArray con los datos del response
+                if (!mounted) return;
+                setOpenings(safeArray(resp.data));
+            } catch (err) {
+                // Si el backend responde 401 => redirigir a login
+                if (axios.isAxiosError(err) && err.response?.status === 401) {
+                    console.warn("No autorizado, redirigiendo al login");
+                    navigate("/");
+                    return;
+                }
+                console.error("Error fetching openings:", err);
+                if (mounted) setOpenings([]);
+            } finally {
+                if (mounted) setIsLoading(false);
+            }
+        };
+
+        fetchOpenings();
+        return () => { mounted = false; };
+    }, [navigate]);
 
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
-            
+
             <div className="materials-header">
-                <h2 className="materials-title">Tipos de Líneas</h2>
+                <h2 className="materials-title">Panel de Aberturas</h2>
                 <p className="materials-subtitle">
-                    Explore nuestra completa gama de líneas de aberturas, cada una diseñada para necesidades específicas de prestación, diseño y funcionalidad
+                    Descubra los diferentes tipos de aberturas y sus componentes
                 </p>
             </div>
-            
-            <div className="treatments-grid">
-                {lines.map((line, index) => (
-                    <div 
-                        key={index}
-                        className="treatment-card"
-                        style={{ '--card-color': line.color }}
-                    >
-                        <div className="card-header">
-                            <div className="icon-wrapper">
-                                {line.icon}
-                            </div>
-                            <h3 className="card-title">{line.title}</h3>
+
+            {isLoading ? (
+                <div className="spinner-container" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <ReactLoading type="spin" color="#26b7cd" height={44} width={44} />
+                </div>
+            ) : (
+                <>
+                    {openings.length === 0 ? (
+                        <p style={{ textAlign: 'center' }}>No hay aberturas registradas.</p>
+                    ) : (
+                        <div className="materials-grid">
+                            {openings.map((opening) => (
+                                <button
+                                    key={opening.id}
+                                    className={`material-card`}
+                                    onClick={() => openModal(opening)} // <-- abrir modal
+                                    style={{ '--card-color': '#26b7cd' }}
+                                >
+                                    <div
+                                        className="card-background"
+                                        style={opening.image_url ? { backgroundImage: `url(${opening.image_url})` } : undefined}
+                                    ></div>
+                                    <div className="card-content">
+                                        <div className="card-icon-wrapper">
+                                            <Grid3X3 size={32} />
+                                        </div>
+                                        <h3 className="card-title">{opening.name}</h3>
+                                        <p className="card-description">Peso: {opening.weight} — Medida: {opening.predefined_size}</p>
+                                        <div className="card-arrow">→</div>
+                                    </div>
+                                </button>
+                            ))}
                         </div>
-                        <div className="card-content">
-                            <ul className="features-list">
-                                {line.features.map((feature, featureIndex) => (
-                                    <li key={featureIndex} className="feature-item">
-                                        {feature}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        <div className="card-hover-effect"></div>
+                    )}
+                </>
+            )}
+
+            {showModal && modalOpening && (
+                <div className="modal modal-opening" onClick={closeModal}>
+                    <div className="modal-content modal-opening-form" onClick={e => e.stopPropagation()}>
+                        <button className="modal-close" onClick={closeModal}>Cerrar</button>
+                        <h3 className="modal-title">{modalOpening.name}</h3>
+                        {modalOpening.image_url && (
+                            <img src={modalOpening.image_url} alt={modalOpening.name} style={{ maxWidth: '100%', marginBottom: 12 }} />
+                        )}
+                        {modalOpening.description && (
+                            <p>{modalOpening.description}</p>
+                        )}
                     </div>
-                ))}
-            </div>
-            
+                </div>
+            )}
+
             <Footer />
         </div>
     );
 };
 
-export default Aberturas;
+export default TypeLine;

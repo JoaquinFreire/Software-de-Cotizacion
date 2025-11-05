@@ -63,6 +63,8 @@ const Navigation = ({ onLogout }) => {
         localStorage.setItem("theme", theme);
     }, [theme]);
 
+    // Antes: useEffect que condicionaba el filtro por la ruta
+    /*
     useEffect(() => {
         const currentPath = window.location.pathname;
         if (currentPath === "/") {
@@ -77,6 +79,55 @@ const Navigation = ({ onLogout }) => {
         }
         localStorage.setItem("blueLightFilter", isFilterActive);
     }, [isFilterActive]);
+    */
+
+    // Cambiado: aplicar/remover el filtro directamente según el estado y persistir en localStorage.
+    useEffect(() => {
+        const overlayId = 'blue-light-overlay';
+        try {
+            // crear overlay si no existe
+            let overlay = document.getElementById(overlayId);
+            if (isFilterActive) {
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.id = overlayId;
+                    Object.assign(overlay.style, {
+                        position: 'fixed',
+                        top: '0',
+                        left: '0',
+                        right: '0',
+                        bottom: '0',
+                        pointerEvents: 'none',
+                        backgroundColor: "#fcc42bc8",
+                        mixBlendMode: 'multiply',
+                        zIndex: '900' // por debajo de los modales (modales usan 1000)
+                    });
+                    document.body.appendChild(overlay);
+                } else {
+                    overlay.style.display = '';
+                }
+                document.body.classList.add('filtro'); // compatibilidad con CSS existente
+            } else {
+                if (overlay) overlay.style.display = 'none';
+                document.body.classList.remove('filtro');
+            }
+            localStorage.setItem("blueLightFilter", isFilterActive ? "true" : "false");
+        } catch (err) {
+            console.debug("Error applying blue light filter:", err);
+        }
+        // cleanup opcional: no removemos overlay aquí para que persista hasta reinicio; removemos en desmontaje abajo
+    }, [isFilterActive]);
+
+    // Limpiar overlay al desmontar el componente (evita restos si la app se destruye)
+    useEffect(() => {
+        return () => {
+            const overlay = document.getElementById('blue-light-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+            document.body.classList.remove('filtro');
+        };
+    }, []);
 
     // Cerrar menú usuario al hacer click fuera
     useEffect(() => {

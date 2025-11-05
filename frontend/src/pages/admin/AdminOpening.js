@@ -33,9 +33,16 @@ const AdminOpening = () => {
         name: "",
         weight: "",
         predefined_size: "",
+        description: "" // <-- nueva propiedad
     });
     const [loading, setLoading] = useState(false);
     const [validationErrors, setValidationErrors] = useState({});
+    const [imageFile, setImageFile] = useState(null);
+
+    // Tamaños en KB (ajustables)
+    const MIN_IMAGE_KB = 5;      // 5 KB mínimo
+    const MAX_IMAGE_KB = 5120;   // 5 MB máximo
+    const RECOMMENDED_KB = 200;  // recomendación visual ~200 KB (Cloudinary comprimirá a ~125 KB)
 
     useEffect(() => {
         fetchOpenings();
@@ -91,17 +98,20 @@ const AdminOpening = () => {
     const handleOpenModal = (opening = null) => {
         setEditingOpening(opening);
         setValidationErrors({});
+        setImageFile(null);
         setFormData(
             opening
                 ? {
                     name: opening.name || "",
                     weight: opening.weight || "",
                     predefined_size: opening.predefined_size || "",
+                    description: opening.description || "" // <-- setear description al editar
                 }
                 : {
                     name: "",
                     weight: "",
                     predefined_size: "",
+                    description: "" // <-- nuevo campo al crear
                 }
         );
         setShowModal(true);
@@ -117,33 +127,65 @@ const AdminOpening = () => {
         setFormData({ ...formData, [name]: value });
     };
 
+    const handleFileChange = (e) => {
+        const file = e.target.files?.[0] || null;
+        setImageFile(file);
+
+        if (file) {
+            const kb = Math.round(file.size / 1024);
+            if (kb < MIN_IMAGE_KB) {
+                setValidationErrors({ general: `La imagen es demasiado pequeña (${kb} KB). Mínimo ${MIN_IMAGE_KB} KB.` });
+                return;
+            }
+            if (kb > MAX_IMAGE_KB) {
+                setValidationErrors({ general: `La imagen es demasiado grande (${kb} KB). Máximo ${MAX_IMAGE_KB} KB.` });
+                return;
+            }
+
+            // Si pasa validación quitar errores anteriores
+            setValidationErrors({});
+        } else {
+            setValidationErrors({});
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setValidationErrors({});
         const token = localStorage.getItem("token");
+
+        // bloquear si hay error de validación
+        if (validationErrors.general) {
+            return;
+        }
+
         setLoading(true);
         try {
-            const payload = {
-                name: formData.name,
-                weight: formData.weight,
-                predefined_size: formData.predefined_size,
-            };
+            const formDataToSend = new FormData();
+            formDataToSend.append("name", formData.name);
+            formDataToSend.append("weight", formData.weight);
+            formDataToSend.append("predefined_size", formData.predefined_size);
+            formDataToSend.append("description", formData.description); // <-- enviar description
+            if (imageFile) {
+                formDataToSend.append("image", imageFile);
+            }
+
             if (editingOpening) {
-                await axios.put(`${API_URL}/api/opening-types/${editingOpening.id}`, payload, {
+                await axios.put(`${API_URL}/api/opening-types/${editingOpening.id}`, formDataToSend, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
             } else {
-                await axios.post(`${API_URL}/api/opening-types`, payload, {
+                await axios.post(`${API_URL}/api/opening-types`, formDataToSend, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
             }
             await fetchOpenings();
             handleCloseModal();
         } catch (error) {
+            // si el backend devuelve un mensaje, mostralo
+            const backendMsg = error?.response?.data?.message;
             setValidationErrors({
-                general: editingOpening
-                    ? "Error al actualizar la abertura."
-                    : "Error al crear la abertura.",
+                general: backendMsg || (editingOpening ? "Error al actualizar la abertura." : "Error al crear la abertura.")
             });
             console.error("Error saving opening:", error);
         }
@@ -177,12 +219,13 @@ const AdminOpening = () => {
                             // Agrupar en filas de 4
                             Array.from({ length: Math.ceil(openings.length / 4) }).map((_, rowIdx) => (
                                 <div className="openings-row" key={rowIdx}>
-                                    {openings.slice(rowIdx * 4, rowIdx * 4 + 4).map((opening) => (
+                                    {openings.slice(rowIdx * 4, rowIdx * 4 + 4).map((   opening) => (
                                         <div className='AdminOpeningCard' key={opening.id}>
                                             <div className="opening-info">
                                                 <h3 className="opening-name">{opening.name}</h3>
                                                 <p className="opening-weight"><strong>Peso:</strong> {opening.weight}</p>
                                                 <p className="opening-size"><strong>Medida Predefinadia:</strong> {opening.predefined_size}</p>
+                                                {opening.description && <p className="opening-desc">{opening.description}</p>}
                                             </div>
                                             <div className="opening-actions">
                                                 <button className="update-button" onClick={() => handleOpenModal(opening)}>
@@ -206,8 +249,8 @@ const AdminOpening = () => {
 
                 {/* Modal para actualizar abertura */}
                 {showModal && (
-                    <div className="modal modal-opening">
-                        <div className="modal-content modal-opening-form">
+                    <div className="modal modal-opening" onClick={handleCloseModal}>
+                        <div className="modal-content modal-opening-form" onClick={e => e.stopPropagation()}>
                             <h3 className="modal-title">
                                 {editingOpening ? "Actualizar Abertura" : "Crear Nueva Abertura"}
                             </h3>
@@ -248,6 +291,29 @@ const AdminOpening = () => {
                                         className="modal-input"
                                     />
                                 </label>
+                                <label className="modal-label">
+                                    Descripción:
+                                    <textarea
+                                        name="description"
+                                        value={formData.description}
+                                        onChange={handleInputChange}
+                                        required
+                                        className="modal-input modal-input-textarea"
+                                    />
+                                </label>
+
+                                
+
+                                <label className="modal-label">
+                                    Imagen (recomendado &lt; {RECOMMENDED_KB} KB, máximo {MAX_IMAGE_KB / 1024} MB):
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        className="modal-input"
+                                    />
+                                </label>
+
                                 <div className="modal-actions">
                                     <button
                                         type="submit"
