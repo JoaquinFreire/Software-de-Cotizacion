@@ -110,7 +110,7 @@ const reportCards = [
         description: "Uso de materiales en cotizaciones",
         icon: <Layers size={32} />,
         className: "reporte-material-usado",
-        route: "/reportes/material-usado",
+        route: "/reportes/materiales-mas-utilizados",
         color: "#10b981"
     },
     { // Reporte 12
@@ -170,8 +170,7 @@ const handleLogout = () => {
                     <a
                         key={idx}
                         href={card.route}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        onClick={(e) => { e.preventDefault(); navigate(card.route); }}
                         className={`reporte-card ${card.className}`}
                         style={{ '--card-color': card.color }}
                     >
