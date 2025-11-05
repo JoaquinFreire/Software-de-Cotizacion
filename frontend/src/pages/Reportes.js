@@ -30,7 +30,7 @@ const reportCards = [
         className: "reporte-estado-cotizaciones",
         route: "/reportes/estado-cotizaciones",
         color: "#3b82f6",
-        roles: ['quotator', 'coordinator'] // Todos los roles
+        roles: ['quotator', 'coordinator', 'manager'] // Todos los roles
     },
     //Reporte 2
     {
