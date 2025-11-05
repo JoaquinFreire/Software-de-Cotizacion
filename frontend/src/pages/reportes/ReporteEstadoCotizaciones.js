@@ -663,15 +663,6 @@ const ReporteEstadoCotizaciones = () => {
                                             </label>
                                         </div>
 
-                                        {/* Botón de PDF en los controles */}
-                                        <button
-                                            className="estado-btn estado-btn-secondary"
-                                            onClick={handleDescargarPDF}
-                                            disabled={!generar}
-                                        >
-                                            <Download size={18} />
-                                            Descargar PDF
-                                        </button>
                                     </div>
 
                                     {/* Detalle de cotizaciones */}

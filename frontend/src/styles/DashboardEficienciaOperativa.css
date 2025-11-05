@@ -1152,3 +1152,23 @@ body.dark-mode {
             background: #333333 !important;
             color: #888888 !important;
         }
+
+
+/* Estilo para el porcentaje de eficiencia sin barra */
+.efficiency-percentage {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.efficiency-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ajustar el ancho de las columnas después de quitar una columna */
+.workload-table th:nth-child(5),
+.workload-table td:nth-child(5) {
+    text-align: center;
+}
