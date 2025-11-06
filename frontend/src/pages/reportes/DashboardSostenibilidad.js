@@ -567,7 +567,7 @@ const DashboardSostenibilidad = () => {
                                         <label>Desde:</label>
                                         <input
                                             type="month"
-                                            value={filters.fromDate.substring(0, 7)}
+                                            value={filters.fromDate.substring(0, 1)}
                                             //onChange={(e) => setFilters({ ...filters, fromDate: e.target.value + '-01'})}
                                             onChange={(e) => setFilters({ ...filters, fromDate: 01/01/2025})}
                                             className="date-filter-input"
@@ -578,7 +578,7 @@ const DashboardSostenibilidad = () => {
                                         <label>Hasta:</label>
                                         <input
                                             type="month"
-                                            value={filters.toDate.substring(0, 7)}
+                                            value={filters.toDate.substring(0, 1)}
                                             onChange={(e) => {
                                                 const lastDay = new Date(parseInt(e.target.value.split('-')[0]), parseInt(e.target.value.split('-')[1]), 0);
                                                 setFilters({ ...filters, toDate: 01/01/2026 });
