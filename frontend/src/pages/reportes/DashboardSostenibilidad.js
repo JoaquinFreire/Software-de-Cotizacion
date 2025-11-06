@@ -89,7 +89,7 @@ const DashboardSostenibilidad = () => {
         return lastDay.toISOString().split('T')[0];
     }
 
-    // Función para formatear fecha a solo mes y año para el backend - CORREGIDO
+    // Función para formatear fecha a solo mes y año para el backend 
     const formatDateForBackend = (dateString, isEndDate = false) => {
         const date = new Date(dateString);
         if (isEndDate) {
@@ -103,7 +103,7 @@ const DashboardSostenibilidad = () => {
         }
     };
 
-    // Función para obtener texto en español de estacionalidad - AGREGADA
+    // Función para obtener texto en español de estacionalidad 
     const getSeasonalityText = (seasonality) => {
         switch (seasonality?.toUpperCase()) {
             case 'HIGH': return 'ALTA';
@@ -568,7 +568,8 @@ const DashboardSostenibilidad = () => {
                                         <input
                                             type="month"
                                             value={filters.fromDate.substring(0, 7)}
-                                            onChange={(e) => setFilters({ ...filters, fromDate: e.target.value + '-01' })}
+                                            //onChange={(e) => setFilters({ ...filters, fromDate: e.target.value + '-01'})}
+                                            onChange={(e) => setFilters({ ...filters, fromDate: 01/01/2025})}
                                             className="date-filter-input"
                                             disabled={loading.metrics}
                                         />
@@ -580,7 +581,7 @@ const DashboardSostenibilidad = () => {
                                             value={filters.toDate.substring(0, 7)}
                                             onChange={(e) => {
                                                 const lastDay = new Date(parseInt(e.target.value.split('-')[0]), parseInt(e.target.value.split('-')[1]), 0);
-                                                setFilters({ ...filters, toDate: lastDay.toISOString().split('T')[0] });
+                                                setFilters({ ...filters, toDate: 01/01/2026 });
                                             }}
                                             className="date-filter-input"
                                             disabled={loading.metrics}
