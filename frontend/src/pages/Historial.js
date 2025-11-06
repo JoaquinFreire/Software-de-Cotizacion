@@ -199,7 +199,9 @@ const Historial = () => {
     }, []);
 
     useEffect(() => {
-        setFilteredQuotations(Array.isArray(quotations) ? quotations : safeArray(quotations));
+        let arr = Array.isArray(quotations) ? quotations : safeArray(quotations);
+        arr = resolveRefs(arr);  // ← AGREGA ESTA LÍNEA
+        setFilteredQuotations(arr);
     }, [quotations]);
 
     // Scroll arriba al cambiar de página
@@ -345,6 +347,23 @@ const Historial = () => {
 
     // Determina qué cotizaciones mostrar según el estado de filtrado
     const quotationsToShow = isFiltering ? filterResults : filteredQuotations;
+
+    function resolveRefs(array) {
+        const byId = {};
+        array.forEach(obj => {
+            if (obj && obj.$id) byId[obj.$id] = obj;
+            if (obj.Customer && obj.Customer.$id) byId[obj.Customer.$id] = obj.Customer;
+            if (obj.WorkPlace && obj.WorkPlace.$id) byId[obj.WorkPlace.$id] = obj.WorkPlace;
+        });
+        function resolve(obj) {
+            if (!obj || typeof obj !== "object") return obj;
+            if (obj.$ref) return byId[obj.$ref] || {};
+            const out = Array.isArray(obj) ? [] : {};
+            for (const k in obj) out[k] = resolve(obj[k]);
+            return out;
+        }
+        return array.map(resolve);
+    }
 
     return (
         <div className="dashboard-container">
