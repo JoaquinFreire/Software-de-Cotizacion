@@ -74,10 +74,10 @@ const DashboardSostenibilidad = () => {
     const chartRef = useRef(null);
     const API_URL = process.env.REACT_APP_API_URL;
 
-    // Helper functions para fechas - CORREGIDO
+    // Helper functions para fechas
     function getDefaultFromDate() {
         const date = new Date();
-        date.setFullYear(date.getFullYear() - 1);
+        date.setFullYear(date.getFullYear());
         date.setDate(1); // Primer día del mes
         return date.toISOString().split('T')[0];
     }
@@ -85,7 +85,7 @@ const DashboardSostenibilidad = () => {
     function getDefaultToDate() {
         const date = new Date();
         // Último día del mes actual
-        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        const lastDay = new Date(date.getFullYear() + 1, date.getMonth() + 2, 0);
         return lastDay.toISOString().split('T')[0];
     }
 
@@ -568,8 +568,8 @@ const DashboardSostenibilidad = () => {
                                         <input
                                             type="month"
                                             value={filters.fromDate.substring(0, 1)}
-                                            //onChange={(e) => setFilters({ ...filters, fromDate: e.target.value + '-01'})}
-                                            onChange={(e) => setFilters({ ...filters, fromDate: 01/01/2025})}
+                                            onChange={(e) => setFilters({ ...filters, fromDate: e.target.value + '-01'})}
+                                            //onChange={(e) => setFilters({ ...filters, fromDate: 01/01/2025})}
                                             className="date-filter-input"
                                             disabled={loading.metrics}
                                         />
@@ -581,7 +581,7 @@ const DashboardSostenibilidad = () => {
                                             value={filters.toDate.substring(0, 1)}
                                             onChange={(e) => {
                                                 const lastDay = new Date(parseInt(e.target.value.split('-')[0]), parseInt(e.target.value.split('-')[1]), 0);
-                                                setFilters({ ...filters, toDate: 01/01/2026 });
+                                                setFilters({ ...filters, toDate:  e.target.value + '-01' });
                                             }}
                                             className="date-filter-input"
                                             disabled={loading.metrics}
