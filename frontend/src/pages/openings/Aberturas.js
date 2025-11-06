@@ -42,9 +42,9 @@ const Aberturas = () => {
             <Navigation onLogout={handleLogout} />
             
             <div className="materials-header">
-                <h2 className="materials-title">Panel de Aberturas</h2>
+                <h2 className="materials-title">Panel de gamas</h2>
                 <p className="materials-subtitle">
-                    Descubra los diferentes tipos de aberturas y sus componentes
+                    Visualice los diferentes tipos de líenas y sus componentes
                 </p>
             </div>
             

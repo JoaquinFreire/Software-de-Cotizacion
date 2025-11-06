@@ -433,7 +433,7 @@ const Navigation = ({ onLogout }) => {
                     Materiales
                 </NavLink>
                 <NavLink to="/aberturas" className="sidebar-link">
-                    Aberturas
+                    Gama completa
                 </NavLink>
 
                 {/* Solo mostrar sección "Administrar" si NO es quotator */}

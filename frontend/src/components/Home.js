@@ -97,7 +97,7 @@ const Home = () => {
         },
         {
             path: "/materiales",
-            className: "material",
+            className: "materiales",
             icon: Layers,
             title: "Materiales",
             description: "Catálogo de materiales"
