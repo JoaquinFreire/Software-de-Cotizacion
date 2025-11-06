@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+  import React, { useState, useEffect, useRef } from 'react';
 import {
     TrendingUp,
     RefreshCw,
@@ -56,7 +56,7 @@ const DashboardSostenibilidad = () => {
 
     const [filters, setFilters] = useState({
         fromDate: getDefaultFromDate(),
-        toDate: getDefaultToDate(), // Usar función para obtener último día del mes
+        toDate: getDefaultToDate(),
         customRange: false
     });
 
@@ -67,26 +67,23 @@ const DashboardSostenibilidad = () => {
 
     const navigate = useNavigate();
             
-                const handleLogout = () => {
-                    localStorage.removeItem("token");
-                    navigate("/");
-                }
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        navigate("/");
+    }
+
     const chartRef = useRef(null);
     const API_URL = process.env.REACT_APP_API_URL;
 
-    // Helper functions para fechas
+    // Helper functions para fechas - CORREGIDO para enero 2024 a enero 2025
     function getDefaultFromDate() {
-        const date = new Date();
-        date.setFullYear(date.getFullYear());
-        date.setDate(1); // Primer día del mes
+        const date = new Date(2024, 0, 1); // 1 de enero 2024
         return date.toISOString().split('T')[0];
     }
 
     function getDefaultToDate() {
-        const date = new Date();
-        // Último día del mes actual
-        const lastDay = new Date(date.getFullYear() + 1, date.getMonth() + 2, 0);
-        return lastDay.toISOString().split('T')[0];
+        const date = new Date(2025, 0, 31); // 31 de enero 2025
+        return date.toISOString().split('T')[0];
     }
 
     // Función para formatear fecha a solo mes y año para el backend 
@@ -220,6 +217,20 @@ const DashboardSostenibilidad = () => {
             fetchSustainabilityMetrics();
         }
     }, [filters.fromDate, filters.toDate]);
+
+    // Función para manejar cambio de fecha desde
+    const handleFromDateChange = (e) => {
+        const newDate = e.target.value + '-01'; // Agregar día 01
+        setFilters({ ...filters, fromDate: newDate });
+    };
+
+    // Función para manejar cambio de fecha hasta
+    const handleToDateChange = (e) => {
+        const [year, month] = e.target.value.split('-');
+        const lastDay = new Date(parseInt(year), parseInt(month), 0).getDate();
+        const newDate = `${e.target.value}-${lastDay}`;
+        setFilters({ ...filters, toDate: newDate });
+    };
 
     // Función para calcular crecimiento del período
     const calculateGrowthRate = () => {
@@ -564,225 +575,7 @@ const DashboardSostenibilidad = () => {
                             <div className="sustainability-header-controls">
                                 <div className="sustainability-date-filters">
                                     <div className="date-filter-group">
-                                        <label>Desde:</label>
-                                        <input
-                                            type="month"
-                                            value={filters.fromDate.substring(0, 1)}
-                                            onChange={(e) => setFilters({ ...filters, fromDate: e.target.value + '-01'})}
-                                            //onChange={(e) => setFilters({ ...filters, fromDate: 01/01/2025})}
-                                            className="date-filter-input"
-                                            disabled={loading.metrics}
-                                        />
-                                    </div>
-                                    <div className="date-filter-group">
-                                        <label>Hasta:</label>
-                                        <input
-                                            type="month"
-                                            value={filters.toDate.substring(0, 1)}
-                                            onChange={(e) => {
-                                                const lastDay = new Date(parseInt(e.target.value.split('-')[0]), parseInt(e.target.value.split('-')[1]), 0);
-                                                setFilters({ ...filters, toDate:  e.target.value + '-01' });
-                                            }}
-                                            className="date-filter-input"
-                                            disabled={loading.metrics}
-                                        />
-                                    </div>
-                                </div>
-                                <button className="sustainability-btn sustainability-btn-primary" onClick={handleRefresh} disabled={loading.metrics}>
-                                    <RefreshCw size={18} />
-                                    {loading.metrics ? 'Cargando...' : 'Actualizar'}
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* LAYOUT PRINCIPAL CON SIDEBAR */}
-                        <div className="sustainability-main-layout">
-
-                            {/* CONTENIDO PRINCIPAL */}
-                            <div className="sustainability-main-content">
-
-                                {/* KPIs PRINCIPALES - SIN TICKET PROMEDIO */}
-                                <div className="sustainability-main-kpis">
-                                    {loading.metrics ? (
-                                        <>
-                                            <SkeletonKPI />
-                                            <SkeletonKPI />
-                                            <SkeletonKPI />
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div className="sustainability-kpi-card">
-                                                <div className="sustainability-kpi-icon">
-                                                    <DollarSign size={24} color="#26b7cd" />
-                                                </div>
-                                                <div className="sustainability-kpi-content">
-                                                    <div className="sustainability-kpi-value">
-                                                        {formatPrice(metricsData.TotalRevenue)}
-                                                    </div>
-                                                    <div className="sustainability-kpi-label">Ingresos Totales</div>
-                                                    <div className="sustainability-kpi-subtext">
-                                                        Período seleccionado
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="sustainability-kpi-card">
-                                                <div className="sustainability-kpi-icon">
-                                                    <TrendingUp size={24} color="#26b7cd" />
-                                                </div>
-                                                <div className="sustainability-kpi-content">
-                                                    <div className="sustainability-kpi-value" style={{
-                                                        color: growthRate >= 0 ? '#10b981' : '#ef4444'
-                                                    }}>
-                                                        {formatPercentage(growthRate)}
-                                                        {growthRate >= 0 ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
-                                                    </div>
-                                                    <div className="sustainability-kpi-label">
-                                                        Crecimiento del período
-                                                    </div>
-                                                    <div className="sustainability-kpi-subtext">
-                                                        Vs. período anterior
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="sustainability-kpi-card">
-                                                <div className="sustainability-kpi-icon">
-                                                    <Target size={24} color="#26b7cd" />
-                                                </div>
-                                                <div className="sustainability-kpi-content">
-                                                    <div className="sustainability-kpi-value">
-                                                        {formatPrice(metricsData.RevenueForecast?.TotalPendingRevenue || 0)}
-                                                    </div>
-                                                    <div className="sustainability-kpi-label">Ingresos Probables</div>
-                                                    <div className="sustainability-kpi-subtext">
-                                                        Últimos 30 días
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-
-                                {/* SECCIÓN 1: EVOLUCIÓN TEMPORAL CON CHART.JS */}
-                                <div className="sustainability-section">
-                                    <div className="sustainability-section-header">
-                                        <Calendar size={20} color="#26b7cd" />
-                                        <h2>Evolución de Ingresos Mensuales</h2>
-                                    </div>
-                                    <div className="sustainability-section-content">
-                                        {loading.metrics ? (
-                                            <SkeletonChart />
-                                        ) : (
-                                            <>
-                                                <div className="sustainability-chart-container">
-                                                    <Bar
-                                                        ref={chartRef}
-                                                        data={chartData}
-                                                        options={chartOptions}
-                                                        height={400}
-                                                    />
-                                                </div>
-                                                <div className="chart-info-note">
-                                                    <small>Mostrando datos desde {filters.fromDate.substring(0, 7)} hasta {filters.toDate.substring(0, 7)}</small>
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* SECCIÓN 2: INGRESOS PROBABLES */}
-                                <div className="sustainability-section">
-                                    <div className="sustainability-section-header">
-                                        <Target size={20} color="#26b7cd" />
-                                        <h2>Ingresos Probables de Cotizaciones Pendientes</h2>
-                                        <button
-                                            className="sustainability-expand-btn"
-                                            onClick={() => toggleSection('forecast')}
-                                            disabled={loading.metrics}
-                                        >
-                                            {expandedSections.forecast ? 'Contraer' : 'Expandir'}
-                                            <ChevronDown size={16} />
-                                        </button>
-                                    </div>
-                                    <div className="forecast-info-note">
-                                        <small>Mostrando cotizaciones de los últimos 30 días</small>
-                                    </div>
-                                    <div className="sustainability-forecast-cards">
-                                        {loading.metrics ? (
-                                            <>
-                                                <div className="sustainability-forecast-card skeleton">
-                                                    <div className="skeleton-line medium"></div>
-                                                    <div className="skeleton-line large"></div>
-                                                    <div className="skeleton-line short"></div>
-                                                </div>
-                                                <div className="sustainability-forecast-card skeleton">
-                                                    <div className="skeleton-line medium"></div>
-                                                    <div className="skeleton-line large"></div>
-                                                    <div className="skeleton-line short"></div>
-                                                </div>
-                                                <div className="sustainability-forecast-card skeleton">
-                                                    <div className="skeleton-line medium"></div>
-                                                    <div className="skeleton-line large"></div>
-                                                    <div className="skeleton-line short"></div>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <div className="sustainability-forecast-card high-probability">
-                                                    <div className="forecast-card-header">
-                                                        <div className="probability-badge high">ALTA PROBABILIDAD</div>
-                                                    </div>
-                                                    <div className="forecast-card-value">
-                                                        {formatPrice(metricsData.RevenueForecast?.TotalHighProbabilityRevenue || 0)}
-                                                    </div>
-                                                    <div className="forecast-card-details">
-                                                        <span>{metricsData.RevenueForecast?.HighProbability?.$values?.length || 0} clientes</span>
-                                                        <span>70%+ conversión</span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="sustainability-forecast-card medium-probability">
-                                                    <div className="forecast-card-header">
-                                                        <div className="probability-badge medium">MEDIA PROBABILIDAD</div>
-                                                    </div>
-                                                    <div className="forecast-card-value">
-                                                        {formatPrice(metricsData.RevenueForecast?.TotalMediumProbabilityRevenue || 0)}
-                                                    </div>
-                                                    <div className="forecast-card-details">
-                                                        <span>{metricsData.RevenueForecast?.MediumProbability?.$values?.length || 0} clientes</span>
-                                                        <span>40-69% conversión</span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="sustainability-forecast-card total">
-                                                    <div className="forecast-card-header">
-                                                        <div className="probability-badge total">TOTAL PENDIENTE</div>
-                                                    </div>
-                                                    <div className="forecast-card-value">
-                                                        {formatPrice(metricsData.RevenueForecast?.TotalPendingRevenue || 0)}
-                                                    </div>
-                                                    <div className="forecast-card-details">
-                                                        <span>{(metricsData.RevenueForecast?.HighProbability?.$values?.length || 0) + (metricsData.RevenueForecast?.MediumProbability?.$values?.length || 0)} clientes</span>
-                                                        <span>Total pendiente</span>
-                                                    </div>
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-
-                                    {/* TABLA EXPANDIBLE DE PRONÓSTICOS */}
-                                    {expandedSections.forecast && (
-                                        <div className="sustainability-forecast-table">
-                                            <div className="table-header">
-                                                <h4>Detalle de Cotizaciones Pendientes</h4>
-                                            </div>
-                                            <div className="table-container-wrapper">
-                                                {loading.metrics ? (
-                                                    <SkeletonTable rows={8} />
-                                                ) : (
-                                                    <>
-                                                        <div className="table-container">
+                                        <label>                                                      <div className="table-container">
                                                             <table className="sustainability-detail-table">
                                                                 <thead>
                                                                     <tr>
