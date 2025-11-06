@@ -95,8 +95,8 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
                         <p><b><u>Precio</u>:  </b>${quotation.TotalPrice}</p>
                         <p><b><u>Lugar</u>:  </b>{quotation.WorkPlace.name}</p>
                         <p><b><u>Dirección</u>:  </b>{quotation.WorkPlace.address}</p>
-                        <p><b><u>Entrega</u>:  </b>{new Date(quotation.CreationDate).toLocaleDateString()}</p>
-                        <p><b><u>Vencimiento</u>:</b> {quotation.ExpirationDate ? new Date(quotation.ExpirationDate).toLocaleDateString() : "No especificado"}</p>
+                        {/*<p><b><u>Entrega</u>:  </b>{new Date(quotation.CreationDate).toLocaleDateString()}</p>*/}
+                        {/*<p><b><u>Vencimiento</u>:</b> {quotation.ExpirationDate ? new Date(quotation.ExpirationDate).toLocaleDateString() : "No especificado"}</p>*/}
                     </div>
                     <div className="quote-actions">
                         <button className="go-button" onClick={() => window.open(`/quotation/${quotation.Id}`)}>Ver Detalles</button>
