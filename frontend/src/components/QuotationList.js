@@ -99,7 +99,7 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
                         <p><b><u>Vencimiento</u>:</b> {quotation.ExpirationDate ? new Date(quotation.ExpirationDate).toLocaleDateString() : "No especificado"}</p>
                     </div>
                     <div className="quote-actions">
-                        <button className="go-button" onClick={() => navigate(`/quotation/${quotation.Id}`)}>Ver Detalles</button>
+                        <button className="go-button" onClick={() => window.open(`/quotation/${quotation.Id}`)}>Ver Detalles</button>
 
                         {/* Botón Actualizar - Solo disponible para cotizaciones rechazadas */}
                         <div className="tooltip-container">

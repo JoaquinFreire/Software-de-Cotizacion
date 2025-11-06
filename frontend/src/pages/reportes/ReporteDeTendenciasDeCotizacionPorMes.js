@@ -346,20 +346,20 @@ const ReporteDeTendenciasDeCotizacionPorMes = () => {
     };
 
     const handleImprimir = () => window.print();
-    const handleDescargarPDF = async () => {
-        if (!pdfRef.current) return;
-        const el = pdfRef.current;
-        document.body.classList.add('pdf-exporting');
-        const opt = {
-            margin: [0.2, 0.2, 0.2, 0.2],
-            filename: `reporte_tendencias_${fechaDesde}_a_${fechaHasta}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        await html2pdf().set(opt).from(el).save();
-        document.body.classList.remove('pdf-exporting');
-    };
+    //const handleDescargarPDF = async () => {
+    //    if (!pdfRef.current) return;
+    //    const el = pdfRef.current;
+    //    document.body.classList.add('pdf-exporting');
+    //    const opt = {
+    //        margin: [0.2, 0.2, 0.2, 0.2],
+    //        filename: `reporte_tendencias_${fechaDesde}_a_${fechaHasta}.pdf`,
+    //        image: { type: 'jpeg', quality: 0.98 },
+    //        html2canvas: { scale: 2, useCORS: true },
+    //        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    //    };
+    //    await html2pdf().set(opt).from(el).save();
+    //    document.body.classList.remove('pdf-exporting');
+    //};
 
     // Datos para gráficos
     const chartData = {
@@ -398,6 +398,7 @@ const ReporteDeTendenciasDeCotizacionPorMes = () => {
 
     const chartOptions = {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: {
                 display: true,
@@ -422,13 +423,17 @@ const ReporteDeTendenciasDeCotizacionPorMes = () => {
         },
         scales: {
             x: {
-                // ❌ QUITAR stacked: true
-            },
+                ticks: {
+                    font: {
+                        size: 14 // ← AUMENTAR TAMAÑO DE FUENTE EJE X
+                    }
+                }            },
             y: {
-                // ❌ QUITAR stacked: true
                 beginAtZero: true,
                 ticks: {
-                    // ✅ MANTENER: ocultar el 0 en el eje Y pero mostrar todos los meses
+                    font: {
+                        size: 14 // ← AUMENTAR TAMAÑO DE FUENTE EJE Y
+                    },
                     callback: function (value) {
                         if (value === 0) return '';
                         return value;
@@ -487,14 +492,14 @@ const ReporteDeTendenciasDeCotizacionPorMes = () => {
                                     />
                                 </div>
                                 <div className="filtro-actions">
-                                    <button className="tendencias-btn tendencias-btn-secondary" onClick={handleDescargarPDF} disabled={!generar}>
-                                        <Download size={18} />
-                                        PDF
-                                    </button>
-                                    <button className="tendencias-btn tendencias-btn-secondary" onClick={handleImprimir} disabled={!generar}>
-                                        <Printer size={18} />
-                                        Imprimir
-                                    </button>
+                                    {/*<button className="tendencias-btn tendencias-btn-secondary" onClick={handleDescargarPDF} disabled={!generar}>*/}
+                                    {/*    <Download size={18} />*/}
+                                    {/*    PDF*/}
+                                    {/*</button>*/}
+                                    {/*<button className="tendencias-btn tendencias-btn-secondary" onClick={handleImprimir} disabled={!generar}>*/}
+                                    {/*    <Printer size={18} />*/}
+                                    {/*    Imprimir*/}
+                                    {/*</button>*/}
                                 </div>
                             </div>
                         </div>
