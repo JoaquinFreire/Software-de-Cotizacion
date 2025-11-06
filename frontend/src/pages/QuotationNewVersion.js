@@ -18,8 +18,12 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 // Utilidad para normalizar arrays serializados con $values
 function toArray(data) {
+    if (!data) return [];
     if (Array.isArray(data)) return data;
     if (data && Array.isArray(data.$values)) return data.$values;
+    if (data && typeof data === 'object' && !data.type) { // Excluir objetos de error
+        return [data];
+    }
     return [];
 }
 
@@ -83,7 +87,7 @@ const CreateBudgetVersion = () => {
     const [loading, setLoading] = useState(true);
     const [masterDataLoaded, setMasterDataLoaded] = useState(false);
 
-    // Cargar datos de la cotización original
+    // Cargar datos de la cotización original - VERSIÓN CORREGIDA
     useEffect(() => {
         const fetchBudgetData = async () => {
             setLoading(true);
@@ -103,15 +107,20 @@ const CreateBudgetVersion = () => {
                 });
 
                 console.log('Respuesta completa de versiones:', versionsResponse);
-                console.log('Datos de versiones:', versionsResponse.data);
 
-                // VERIFICACIÓN MÁS ROBUSTA
+                // VERIFICACIÓN MÁS ROBUSTA Y SEGURA
                 let versionsArray = [];
 
-                if (versionsResponse.data && versionsResponse.data.$values) {
-                    versionsArray = versionsResponse.data.$values;
-                } else if (Array.isArray(versionsResponse.data)) {
-                    versionsArray = versionsResponse.data;
+                // Manejar diferentes estructuras de respuesta
+                const responseData = versionsResponse.data;
+
+                if (responseData && responseData.$values && Array.isArray(responseData.$values)) {
+                    versionsArray = responseData.$values;
+                } else if (Array.isArray(responseData)) {
+                    versionsArray = responseData;
+                } else if (responseData && typeof responseData === 'object') {
+                    // Si es un objeto individual, convertirlo a array
+                    versionsArray = [responseData];
                 }
 
                 console.log('Versiones procesadas:', versionsArray);
@@ -123,22 +132,38 @@ const CreateBudgetVersion = () => {
                     return;
                 }
 
+                // VERIFICAR SI ES UN OBJETO DE ERROR
+                if (versionsArray[0] && versionsArray[0].type && versionsArray[0].status) {
+                    console.error('Respuesta de error recibida:', versionsArray[0]);
+                    toast.error(`Error del servidor: ${versionsArray[0].title || 'Error desconocido'}`);
+                    setLoading(false);
+                    return;
+                }
+
                 setBudgetVersions(versionsArray);
 
                 // Seleccionar la última versión por defecto
                 const latestVersion = versionsArray[0];
                 console.log('Última versión a establecer:', latestVersion);
 
-                // ESTABLECER AMBOS ESTADOS SIMULTÁNEAMENTE
                 setSelectedVersion(latestVersion);
                 setOriginalBudget(latestVersion);
-
-                console.log('Estados establecidos correctamente');
 
             } catch (error) {
                 console.error('Error fetching budget data:', error);
                 console.error('Error details:', error.response?.data || error.message);
-                toast.error(`Error al cargar los datos: ${error.response?.data || error.message}`);
+
+                // Manejar error específico de la API
+                if (error.response && error.response.data) {
+                    const errorData = error.response.data;
+                    if (errorData.type && errorData.title) {
+                        toast.error(`Error: ${errorData.title}`);
+                    } else {
+                        toast.error(`Error al cargar los datos: ${error.response.status} ${error.response.statusText}`);
+                    }
+                } else {
+                    toast.error(`Error de conexión: ${error.message}`);
+                }
             } finally {
                 setLoading(false);
             }
@@ -303,6 +328,12 @@ const CreateBudgetVersion = () => {
     const loadFormDataFromBudget = useCallback((budget) => {
         if (!budget) {
             console.log('No hay datos de budget para cargar');
+            return;
+        }
+
+        // VERIFICAR SI ES UN OBJETO DE ERROR
+        if (budget.type && budget.status) {
+            console.error('Intento de cargar un objeto de error como budget:', budget);
             return;
         }
 
@@ -688,7 +719,7 @@ const CreateBudgetVersion = () => {
         );
     };
 
-    // Enviar nueva versión
+    // Enviar nueva versión - VERSIÓN CORREGIDA CON LA ESTRUCTURA EXACTA
     const handleSubmitVersion = async () => {
         setSubmitting(true);
         setSubmitError(null);
@@ -701,17 +732,80 @@ const CreateBudgetVersion = () => {
                 return;
             }
 
-            // Preparar datos para la nueva versión
-            const versionPayload = {
+            // VERIFICACIÓN DE DATOS ANTES DE ENVIAR
+            console.log('=== VERIFICACIÓN DE DATOS ANTES DE ENVIAR ===');
+            console.log('selectedOpenings:', selectedOpenings);
+            console.log('selectedComplements:', selectedComplements);
+            console.log('agents:', agents);
+            console.log('comment:', comment);
+
+            // Validar que haya al menos una abertura
+            if (selectedOpenings.length === 0) {
+                setSubmitError("Debe agregar al menos una abertura");
+                setSubmitting(false);
+                return;
+            }
+
+            // FUNCIÓN PARA LIMPIAR OBJETOS DE PROPIEDADES $id
+            const cleanObject = (obj) => {
+                if (!obj || typeof obj !== 'object') return obj;
+
+                const cleaned = { ...obj };
+
+                // Remover propiedades $id
+                if ('$id' in cleaned) {
+                    delete cleaned.$id;
+                }
+
+                // Limpiar propiedades anidadas
+                Object.keys(cleaned).forEach(key => {
+                    if (cleaned[key] && typeof cleaned[key] === 'object') {
+                        if (Array.isArray(cleaned[key])) {
+                            cleaned[key] = cleaned[key].map(item => cleanObject(item));
+                        } else {
+                            cleaned[key] = cleanObject(cleaned[key]);
+                        }
+                    }
+                });
+
+                return cleaned;
+            };
+
+            // Preparar datos para la nueva versión - ESTRUCTURA EXACTA
+            const finalPayload = {
                 OriginalBudgetId: budgetId,
                 Budget: {
-                    // Mantener datos del cliente y lugar de trabajo de la versión original
+                    // Usar datos limpios sin $id
                     budgetId: budgetId,
-                    user: originalBudget.user,
-                    customer: originalBudget.customer,
-                    agent: agents.length > 0 ? agents[0] : {},
-                    workPlace: originalBudget.workPlace,
-                    Products: selectedOpenings.map(opening => ({
+                    user: cleanObject({
+                        name: originalBudget.user?.name || "",
+                        lastName: originalBudget.user?.lastName || "",
+                        mail: originalBudget.user?.mail || ""
+                    }),
+                    customer: cleanObject({
+                        name: originalBudget.customer?.name || "",
+                        lastname: originalBudget.customer?.lastname || "",
+                        tel: originalBudget.customer?.tel || "",
+                        mail: originalBudget.customer?.mail || "",
+                        address: originalBudget.customer?.address || "",
+                        dni: originalBudget.customer?.dni || ""
+                    }),
+                    agent: agents.length > 0 ? cleanObject({
+                        name: agents[0].name || "",
+                        lastname: agents[0].lastname || "",
+                        dni: agents[0].dni || "",
+                        tel: agents[0].tel || "",
+                        mail: agents[0].mail || ""
+                    }) : {},
+                    workPlace: cleanObject({
+                        name: originalBudget.workPlace?.name || "",
+                        location: originalBudget.workPlace?.location || "",
+                        address: originalBudget.workPlace?.address || "",
+                        workType: {
+                            type: originalBudget.workPlace?.WorkType?.type || ""
+                        }
+                    }),
+                    Products: selectedOpenings.map(opening => cleanObject({
                         OpeningType: {
                             name: openingTypes.find(type => Number(type.id) === Number(opening.typeId))?.name || ""
                         },
@@ -729,41 +823,44 @@ const CreateBudgetVersion = () => {
                         PanelWidth: Number(opening.panelWidth),
                         PanelHeight: Number(opening.panelHeight),
                         Quantity: Number(opening.quantity),
-                        Accesory: (opening.accesories || []).map(a => ({
+                        Accesory: (opening.accesories || []).map(a => cleanObject({
                             Name: a.name || a.Name || '',
                             Quantity: Number(a.quantity || a.Quantity || 0),
                             Price: Number(a.price || a.Price || 0)
                         })),
                         price: 0 // Se calculará en el backend
                     })),
-                    complement: [
-                        {
+                    complement: selectedComplements.length > 0 ? [
+                        cleanObject({
                             ComplementDoor: selectedComplements
                                 .filter(c => c.type === 'door')
                                 .map(door => {
                                     const doorData = complementDoors.find(d => String(d.id) === String(door.complementId));
-                                    return {
+                                    return cleanObject({
                                         Name: doorData?.name || '',
                                         Width: Number(door.custom?.width),
                                         Height: Number(door.custom?.height),
-                                        Coating: {
-                                            name: "", // Se necesitaría cargar coatings
+                                        Coating: door.custom?.coating ? {
+                                            name: "", // Necesitarías cargar los coatings
+                                            price: 0
+                                        } : {
+                                            name: "",
                                             price: 0
                                         },
                                         Quantity: Number(door.quantity),
-                                        Accesory: (door.custom?.accesories || []).map(acc => ({
-                                            Name: acc.name,
-                                            Quantity: Number(acc.quantity),
-                                            Price: Number(acc.price)
-                                        })),
+                                        Accesory: (door.custom?.accesories || []).map(acc => cleanObject({
+                                            Name: acc.name || '',
+                                            Quantity: Number(acc.quantity || 0),
+                                            Price: Number(acc.price || 0)
+                                        })).filter(acc => acc.Name && acc.Quantity > 0),
                                         Price: Number(door.totalPrice || 0)
-                                    };
+                                    });
                                 }),
                             ComplementRailing: selectedComplements
                                 .filter(c => c.type === 'railing')
                                 .map(railing => {
                                     const railingData = complementRailings.find(r => String(r.id) === String(railing.complementId));
-                                    return {
+                                    return cleanObject({
                                         Name: railingData?.name || '',
                                         AlumTreatment: {
                                             name: treatments.find(t => String(t.id) === String(railing.custom?.treatment))?.name || ""
@@ -771,22 +868,29 @@ const CreateBudgetVersion = () => {
                                         Reinforced: Boolean(railing.custom?.reinforced),
                                         Quantity: Number(railing.quantity),
                                         Price: Number(railing.totalPrice || 0)
-                                    };
+                                    });
                                 }),
                             ComplementPartition: selectedComplements
                                 .filter(c => c.type === 'partition')
                                 .map(partition => {
                                     const partitionData = complementPartitions.find(p => String(p.id) === String(partition.complementId));
-                                    return {
+                                    return cleanObject({
                                         Name: partitionData?.name || '',
                                         Height: Number(partition.custom?.height),
                                         Quantity: Number(partition.quantity),
                                         Simple: Boolean(partition.custom?.simple),
                                         GlassMilimeters: partition.custom?.glassMilimeters ? `Mm${partition.custom.glassMilimeters}` : '',
                                         Price: Number(partition.totalPrice || 0)
-                                    };
+                                    });
                                 }),
                             price: 0 // Se calculará en el backend
+                        })
+                    ] : [
+                        {
+                            ComplementDoor: [],
+                            ComplementRailing: [],
+                            ComplementPartition: [],
+                            price: 0
                         }
                     ],
                     Comment: comment,
@@ -795,15 +899,16 @@ const CreateBudgetVersion = () => {
                 }
             };
 
-            console.log("Payload enviado:", versionPayload);
+            console.log("Payload completo enviado:", JSON.stringify(finalPayload, null, 2));
 
-            const response = await axios.post(`${API_URL}/api/Mongo/CreateBudgetVersion`, versionPayload, {
+            const response = await axios.post(`${API_URL}/api/Mongo/CreateBudgetVersion`, finalPayload, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 }
             });
 
+            console.log("Respuesta exitosa:", response.data);
             setSubmitting(false);
             toast.success("Nueva versión creada exitosamente");
 
@@ -813,7 +918,35 @@ const CreateBudgetVersion = () => {
             }, 2000);
 
         } catch (err) {
-            setSubmitError(err.response?.data || err.message || 'Error al crear la nueva versión');
+            console.error('Error creating version:', err);
+            console.error('Error response:', err.response);
+
+            // MANEJO SIMPLE Y ROBUSTO DEL ERROR
+            let errorMessage = 'Error al crear la nueva versión';
+
+            if (err.response && err.response.data) {
+                const errorData = err.response.data;
+
+                // Intentar extraer el mensaje de error de diferentes formas
+                if (errorData.title && errorData.status) {
+                    errorMessage = `Error ${errorData.status}: ${errorData.title}`;
+                }
+                else if (typeof errorData === 'string') {
+                    errorMessage = errorData;
+                }
+                else if (errorData.message) {
+                    errorMessage = errorData.message;
+                }
+                else {
+                    // Si no podemos parsear el error, mostrar el objeto completo como string
+                    errorMessage = JSON.stringify(errorData);
+                }
+            } else if (err.message) {
+                errorMessage = err.message;
+            }
+
+            // Asegurarse de que errorMessage sea siempre un string
+            setSubmitError(String(errorMessage));
             setSubmitting(false);
         }
     };
@@ -830,6 +963,33 @@ const CreateBudgetVersion = () => {
         localStorage.removeItem("token");
         navigate("/");
     };
+
+    // Debug para identificar el problema
+    console.log('DEBUG - Estado actual:', {
+        loading,
+        originalBudget,
+        budgetVersions,
+        selectedVersion,
+        masterDataLoaded
+    });
+
+    // Verificar si hay un objeto de error en los datos
+    if (originalBudget && originalBudget.type && originalBudget.status) {
+        console.error('OBJETO DE ERROR DETECTADO EN RENDER:', originalBudget);
+        return (
+            <div className="dashboard-container">
+                <Navigation onLogout={handleLogout} />
+                <div className="materials-header">
+                    <h2 className="materials-title">Error al cargar la cotización</h2>
+                    <p>{originalBudget.title || 'Error desconocido del servidor'}</p>
+                    <button onClick={() => navigate('/cotizaciones')} className="botton-carusel">
+                        Volver a cotizaciones
+                    </button>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
 
     // Render condicional mejorado
     if (loading) {
