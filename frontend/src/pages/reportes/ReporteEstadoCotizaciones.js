@@ -406,7 +406,7 @@ const ReporteEstadoCotizaciones = () => {
                                         <tr
                                             key={qId || Math.random()}
                                             className={qId ? 'clickable-row' : ''}
-                                            onClick={() => qId && navigate(`/quotation/${qId}`)}
+                                            onClick={() => qId && window.open(`/quotation/${qId}`)}
                                             tabIndex={qId ? 0 : -1}
                                             onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && qId) navigate(`/quotation/${qId}`); }}
                                         >

@@ -1,6 +1,6 @@
-/* frontend/src/styles/ReporteTendencias.css */
+Ôªø/* frontend/src/styles/ReporteTendencias.css */
 
-/* Variables especÌficas para este reporte */
+/* Variables espec√≠ficas para este reporte */
 :root {
     --tendencias-primary: #26b7cd;
     --tendencias-primary-dark: #1fa5b9;
@@ -386,9 +386,9 @@
     color: var(--tendencias-text-muted);
 }
 
-/* Gr·fico */
 .tendencias-grafico-section {
     margin-bottom: 30px;
+    width: 100%; /* ‚Üê ASEGURAR ANCHO COMPLETO */
 }
 
 .grafico-container {
@@ -397,6 +397,11 @@
     border: 1px solid var(--tendencias-border);
     padding: 24px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    height: 500px;
+    width: 100%;
+    max-width: 100%; /* ‚Üê EVITAR DESBORDAMIENTO */
+    position: relative;
+    margin: 0 auto; /* ‚Üê CENTRAR SI ES NECESARIO */
 }
 
 /* Tabla */
@@ -598,7 +603,7 @@
     }
 }
 
-/* Estilos para impresiÛn */
+/* Estilos para impresi√≥n */
 @media print {
     .tendencias-dashboard-container {
         background: white !important;
@@ -639,7 +644,7 @@
     align-items: end;
 }
 
-/* Filtros de comparaciÛn */
+/* Filtros de comparaci√≥n */
 .tendencias-comparar-filtros {
     background: var(--tendencias-bg-medium);
     border-radius: 12px;
@@ -668,7 +673,7 @@
     align-items: end;
 }
 
-/* BotÛn de comparaciÛn especÌfico */
+/* Bot√≥n de comparaci√≥n espec√≠fico */
 .tendencias-btn-comparar {
     background: linear-gradient(135deg, #8b5cf6, #a855f7);
     color: white;

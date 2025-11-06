@@ -545,7 +545,7 @@ const ReporteConsumoComplementos = () => {
     const handleOpenQuotation = (b) => {
         const qId = b.budgetId || b._id || b.id || null;
         if (qId) {
-            navigate(`/quotation/${qId}`);
+            window.open(`/quotation/${qId}`);
         } else {
             alert('No se encontró ID de cotización para abrir.');
         }
