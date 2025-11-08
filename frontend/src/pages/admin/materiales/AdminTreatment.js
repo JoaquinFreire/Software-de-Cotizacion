@@ -15,7 +15,7 @@ export default function AdminTreatment() {
     const [query, setQuery] = useState("");
     const [results, setResults] = useState([]);
     const [selected, setSelected] = useState(null);
-    const [form, setForm] = useState({ name: "", pricePercentage: 0 });
+    const [form, setForm] = useState({ name: "", pricePercentage: 0, description: "" });
     const [isLoading, setIsLoading] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [viewingAll, setViewingAll] = useState(false);
@@ -62,18 +62,19 @@ export default function AdminTreatment() {
 
     const handleSearch = async (e) => { e?.preventDefault(); setViewingAll(false); await fetchResults(query); };
 
-    const openCreateModal = () => { setSelected(null); setForm({ name: "", pricePercentage: 0 }); setShowModal(true); };
+    const openCreateModal = () => { setSelected(null); setForm({ name: "", pricePercentage: 0, description: "" }); setShowModal(true); };
     const closeModal = () => setShowModal(false);
 
     const handleCreate = async () => {
         setModalSubmitting(true);
         try {
             const token = localStorage.getItem("token");
-            const resp = await axios.post(`${API_URL}/api/alum-treatments`, form, { headers: { Authorization: `Bearer ${token}` } });
+            const payload = { name: form.name, pricePercentage: form.pricePercentage, description: form.description };
+            const resp = await axios.post(`${API_URL}/api/alum-treatments`, payload, { headers: { Authorization: `Bearer ${token}` } });
             toast.success("Tratamiento creado correctamente.");
             closeModal();
             const createdId = resp?.data?.result ?? resp?.data?.id ?? null;
-            const newItem = { id: createdId ?? undefined, name: form.name, pricePercentage: form.pricePercentage };
+            const newItem = { id: createdId ?? undefined, name: form.name, pricePercentage: form.pricePercentage, description: form.description };
             if (viewingAll) setResults(prev => { const next = [...(prev || []), newItem]; next.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "es")); return next; });
             else await fetchResults(query);
         } catch (err) { console.error(err); toast.error("Error al crear tratamiento."); } finally { setModalSubmitting(false); }
@@ -84,8 +85,9 @@ export default function AdminTreatment() {
         setModalSubmitting(true);
         try {
             const token = localStorage.getItem("token");
-            await axios.put(`${API_URL}/api/alum-treatments/${selected.id}`, { name: form.name, pricePercentage: form.pricePercentage }, { headers: { Authorization: `Bearer ${token}` } });
-            setResults(prev => (prev || []).map(r => ((r.id ?? r.name) === (selected.id ?? selected.name) ? { ...r, name: form.name, pricePercentage: form.pricePercentage } : r)));
+            const payload = { name: form.name, pricePercentage: form.pricePercentage, description: form.description };
+            await axios.put(`${API_URL}/api/alum-treatments/${selected.id}`, payload, { headers: { Authorization: `Bearer ${token}` } });
+            setResults(prev => (prev || []).map(r => ((r.id ?? r.name) === (selected.id ?? selected.name) ? { ...r, name: form.name, pricePercentage: form.pricePercentage, description: form.description } : r)));
             toast.success("Tratamiento actualizado correctamente.");
             closeModal();
         } catch (err) { console.error(err); toast.error("Error al actualizar tratamiento."); } finally { setModalSubmitting(false); }
@@ -103,7 +105,7 @@ export default function AdminTreatment() {
         } catch (err) { console.error(err); toast.error("Error al eliminar tratamiento."); } finally { setDeletingIds(prev => ({ ...prev, [key]: false })); }
     };
 
-    const handleSelect = (t) => { setSelected(t); setForm({ name: t.name ?? "", pricePercentage: t.pricePercentage ?? 0 }); setShowModal(true); };
+    const handleSelect = (t) => { setSelected(t); setForm({ name: t.name ?? "", pricePercentage: t.pricePercentage ?? 0, description: t.description ?? "" }); setShowModal(true); };
     const handleChange = (e) => { const { name, value } = e.target; setForm(f => ({ ...f, [name]: name === "pricePercentage" ? Number(value) : value })); };
 
     const normalizeItems = (items) => {
@@ -113,9 +115,11 @@ export default function AdminTreatment() {
             if (it.id !== undefined && it.id !== null) return it;
             if (it._id) it.id = it._id;
             if (typeof it.id === "string" && /^[0-9]+$/.test(it.id)) it.id = Number(it.id);
-            return it;
-        });
-    };
+            // asegurar description disponible
+            if (it.description === undefined) it.description = it.description ?? "";
+             return it;
+         });
+     };
 
     return (
         <div className="dashboard-container">
@@ -141,6 +145,7 @@ export default function AdminTreatment() {
                     <div className="results-table">
                         <div className="results-header">
                             <div className="col name">Nombre</div>
+                            <div className="col desc">Descripción</div>
                             <div className="col percent">Porcentaje agregado</div>
                             <div className="col-actions">Acciones</div>
                         </div>
@@ -156,6 +161,7 @@ export default function AdminTreatment() {
                                 return (
                                     <div key={itemKey} className="results-row">
                                         <div className="col name">{t.name}</div>
+                                        <div className="col desc" style={{ maxWidth: 360, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={t.description}>{t.description || '—'}</div>
                                         <div className="col percent">{t.pricePercentage}%</div>
                                         <div className="col-actions">
                                             <button className="btn update" onClick={() => handleSelect(t)}>Actualizar</button>
@@ -174,6 +180,7 @@ export default function AdminTreatment() {
                                 <div className="modal-form">
                                     <label>Nombre<input name="name" value={form.name} onChange={handleChange} /></label>
                                     <label>Porcentaje agregado<input name="pricePercentage" type="number" value={form.pricePercentage} onChange={handleChange} /></label>
+                                    <label>Descripción<textarea name="description" value={form.description} onChange={handleChange} /></label>
                                     <div className="modal-actions">
                                         <button onClick={selected ? handleUpdate : handleCreate} className="btn primary" disabled={modalSubmitting}>{modalSubmitting ? <ReactLoading type="spin" color="#fff" height={14} width={14} /> : (selected ? "Actualizar" : "Crear")}</button>
                                         <button onClick={closeModal} className="btn">Cancelar</button>

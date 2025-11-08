@@ -15,7 +15,7 @@ const SessionModal = ({ show, onExtend, onLogout }) => {
                 <div className="session-modal-actions">
                     {isRecovering ? (
                         <div className="spinner-container">
-                            <ReactLoading type="spin" color="#26b7cd" height={40} width={40} />
+                            <ReactLoading type="spin" color="#26b7cd" height={20} width={20} />
                             <div style={{ marginTop: 14, fontSize: 14, color: '#26b7cd' }}>Cargando...</div>
                         </div>
                     ) : (

@@ -5,5 +5,6 @@ namespace Application.DTOs.GlassTypeDTOs.CreateGlassType
     {
         public required string name { get; set; }
         public decimal price { get; set; }
+        public string? description { get; set; }
     }
 }

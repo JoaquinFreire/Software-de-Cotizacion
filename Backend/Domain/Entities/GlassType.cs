@@ -10,5 +10,6 @@ namespace Domain.Entities
         public required string name { get; set; }
         [BsonElement("precio")]
         public decimal price { get; set; }
+        public string? description { get; set; }
     }
 }

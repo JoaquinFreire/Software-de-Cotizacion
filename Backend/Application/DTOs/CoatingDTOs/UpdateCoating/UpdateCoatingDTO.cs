@@ -5,5 +5,6 @@ namespace Application.DTOs.CoatingDTOs.UpdateCoating
     {
         public required string name { get; set; }
         public required decimal price { get; set; }
+        public required string description { get; set; }
     }
 }

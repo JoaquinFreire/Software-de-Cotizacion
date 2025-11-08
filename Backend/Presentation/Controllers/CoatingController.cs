@@ -24,8 +24,17 @@ namespace Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var result = await _services.GetAllAsync();
-            return Ok(result);
+            try
+            {
+                var result = await _services.GetAllAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                // devolver detalle mínimo para facilitar debugging desde frontend
+                // en producción preferir loggear y devolver un mensaje genérico
+                return StatusCode(500, new { Message = "Error al obtener los revestimientos", Detail = ex.Message });
+            }
         }
 
         [HttpGet("{id}")]

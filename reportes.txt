@@ -1,20 +1,38 @@
 
-_*ELIJAN*_
-
-*Reporte de variacion de precios:* (no se sabe, bruno sabe)
-
-*Reporte de Simulación de Cambios de Precio:* ver la diferencia de precio para sacar un resultado que le sirva al gerente(leo).
-
-*Reporte de Oportunidades Perdidas:* vos ahí ves las cotizaciones rechazadas, este y ves eeh digamos, o sea según el comentario cual fue el motivo del rechazo mismo, pero eso solamente tiene que llamar al comentario que se hizo solamente en las cotizaciones rechazadas, hay que buscarle la lógica al rechazo de las cotizaciones, que cuando rechace una cotización tenga que poner si o si algo, que no se puede poner sin nada, que en la cotización cuando cambias de estado a rechazado, te pida un comentario si o si.(bruno, al fin hace algo)
-
-*Beneficio en Cotizaciones por Tipo de Linea:* este reporte brindará al usuario el beneficio obtenido por cotizar un tipo de línea, el reporte deberá seleccionar la línea que desee, el tamaño, y dará el beneficio obtenido, listo.
-
-*Reporte de Clientes con Mayor Volumen de Cotización:* este reporte busca dar información sobre los clientes que han tenido mayores compras dentro de la empresa. Lo pensará bien Leo. (no flashees leo).
-
-*Análisis de Ciclo de Vida de los Proyectos(cotizador):* (leo dice que va a hacer algo piolaza, ojala termine este año).
-
-*Reporte de Promociones y Descuentos:*
-
-*Reporte de consumo de complementos en proyectos:* este reporte brindará la informaciónde los complementos incluidos en las cotizaciones, deberá poner un rango para traer, el endpoint ya está hecho en quotationcontroller.(bruno)*
-
-*Reporte de tipo de vidrio, revestimiento y tratamientos más usados en las cotizaciones:*(ver)
+      const navigate = useNavigate();
+            const handleLogout = () => {
+                    localStorage.removeItem("token");
+                    navigate("/");
+            }
+    const coatings = [
+        {
+            icon: <Palette size={32} />,
+            title: "Melamina Texturada",
+            description: "Ideal para muebles modernos, este revestimiento combina estética y resistencia. Su textura imita la madera real, es fácil de limpiar y tiene excelente relación precio-calidad. Perfecta para ambientes interiores elegantes y duraderos.",
+            color: "#8b5cf6"
+        },
+        {
+            icon: <TreePine size={32} />,
+            title: "PVC Madera Natural",
+            description: "Alternativa liviana y económica a la madera. Es resistente a la humedad, no se deforma con el tiempo y su apariencia natural aporta calidez al ambiente. Ideal para cocinas, baños o muebles que requieran bajo mantenimiento.",
+            color: "#f59e0b"
+        },
+        {
+            icon: <Layers size={32} />,
+            title: "Laminado HPL Gris Grafito",
+            description: "Revestimiento de alta resistencia para superficies exigentes. El color grafito aporta un diseño moderno y sobrio. Es muy duradero, antihumedad y fácil de limpiar. Perfecto para oficinas, cocinas o espacios comerciales.",
+            color: "#64748b"
+        },
+        {
+            icon: <Brush size={32} />,
+            title: "Chapa Pintada Blanca",
+            description: "Revestimiento metálico ideal para zonas donde se requiere alta resistencia y limpieza visual. Su terminación blanca aporta prolijidad, es lavable y muy durable. Ideal para frentes de muebles, estructuras o cerramientos.",
+            color: "#f8fafc"
+        },
+        {
+            icon: <Sticker size={32} />,
+            title: "Vinilo Autoadhesivo Decorativo",
+            description: "Solución práctica y rápida para renovar superficies. Se aplica fácilmente, sin herramientas especiales. Viene con diseños decorativos y se puede cambiar sin dañar el material original. Ideal para decorar sin obras.",
+            color: "#ec4899"
+        }
+    ];

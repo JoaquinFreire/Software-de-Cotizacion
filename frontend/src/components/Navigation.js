@@ -63,24 +63,6 @@ const Navigation = ({ onLogout }) => {
         localStorage.setItem("theme", theme);
     }, [theme]);
 
-    // Antes: useEffect que condicionaba el filtro por la ruta
-    /*
-    useEffect(() => {
-        const currentPath = window.location.pathname;
-        if (currentPath === "/") {
-            document.body.classList.remove("filtro");
-            setIsFilterActive(false);
-        } else {
-            if (isFilterActive) {
-                document.body.classList.add("filtro");
-            } else {
-                document.body.classList.remove("filtro");
-            }
-        }
-        localStorage.setItem("blueLightFilter", isFilterActive);
-    }, [isFilterActive]);
-    */
-
     // Cambiado: aplicar/remover el filtro directamente según el estado y persistir en localStorage.
     useEffect(() => {
         const overlayId = 'blue-light-overlay';
@@ -430,7 +412,7 @@ const Navigation = ({ onLogout }) => {
                     Clientes
                 </NavLink>
                 <NavLink to="/materiales" className="sidebar-link">
-                    Materiales
+                    Acabados
                 </NavLink>
                 <NavLink to="/aberturas" className="sidebar-link">
                     Gama completa

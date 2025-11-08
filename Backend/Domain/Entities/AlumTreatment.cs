@@ -15,5 +15,6 @@ namespace Domain.Entities
         public required string name { get; set; }
         [BsonElement("price")]
         public string? pricePercentage { get; set; }
+        public string? description { get; set; }
     }
 }
