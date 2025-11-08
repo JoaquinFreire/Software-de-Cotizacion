@@ -1,82 +1,99 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
 import { Square, Shield, Zap, Thermometer, Gem } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
-
+import axios from 'axios';
+import { safeArray } from '../../utils/safeArray';
+import ReactLoading from 'react-loading';
+const API_URL = process.env.REACT_APP_API_URL ?? '';
 
 const Materiales = () => {
     const navigate = useNavigate();
-    
-        const handleLogout = () => {
-            localStorage.removeItem("token");
-            navigate("/");
-        };
-    const glasses = [
-        {
-            icon: <Square size={32} />,
-            title: "Vidrio Simple",
-            description: "Es el vidrio más básico y económico. Recomendado para interiores o zonas donde no se requiera aislamiento térmico o acústico. Brinda una apariencia limpia y moderna, ideal para puertas, estanterías o vitrinas.",
-            color: "#06b6d4"
-        },
-        {
-            icon: <Shield size={32} />,
-            title: "Vidrio Laminado",
-            description: "Compuesto por dos o más láminas unidas con una capa plástica que evita que se rompa en fragmentos peligrosos. Es una excelente opción para seguridad, aislamiento acústico y filtrado UV. Muy usado en frentes, puertas y ventanas.",
-            color: "#10b981"
-        },
-        {
-            icon: <Zap size={32} />,
-            title: "Vidrio Templado",
-            description: "Hasta cinco veces más resistente que un vidrio común. En caso de rotura, se fragmenta en trozos pequeños no cortantes, lo que lo hace muy seguro. Ideal para mamparas, mesas, puertas de vidrio y zonas de alto tránsito.",
-            color: "#f59e0b"
-        },
-        {
-            icon: <Thermometer size={32} />,
-            title: "Vidrio DVH",
-            description: "Vidrio compuesto por dos paneles separados por una cámara de aire o gas. Brinda gran aislamiento térmico y acústico, ideal para viviendas o espacios que requieren eficiencia energética y confort.",
-            color: "#3b82f6"
-        },
-        {
-            icon: <Gem size={32} />,
-            title: "Vidrio Flotado",
-            description: "Es el vidrio base de mayor calidad, con superficie perfectamente lisa y uniforme. Sirve como materia prima para templados, laminados o espejados. También puede usarse solo en ventanas, muebles o decoración.",
-            color: "#8b5cf6"
-        }
-    ];
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        navigate("/");
+    };
+
+    const [glasses, setGlasses] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const currency = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' });
+
+    useEffect(() => {
+        let mounted = true;
+        setLoading(true);
+        setError(null);
+        const token = localStorage.getItem("token");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        axios.get(`${API_URL}/api/glass-types`, { headers })
+            .then(resp => {
+                if (!mounted) return;
+                const items = safeArray(resp.data);
+                const mapped = items.map((it, i) => ({
+                    id: it.id ?? it._id ?? i,
+                    name: it.name,
+                    price: it.price ?? it.precio ?? 0,
+                    description: it.description ?? '',
+                    icon: <Square size={32} />,
+                    color: "#06b6d4"
+                }));
+                setGlasses(mapped);
+            })
+            .catch(err => {
+                console.error('Error GET /api/glass-types', err);
+                if (axios.isAxiosError(err)) {
+                    const resp = err.response;
+                    const detail = resp?.data?.Message ?? resp?.data ?? resp?.statusText ?? err.message;
+                    setError(`Error servidor ${resp?.status ?? ''}: ${detail}`);
+                } else {
+                    setError('Error desconocido al cargar tipos de vidrio.');
+                }
+            })
+            .finally(() => { if (mounted) setLoading(false); });
+        return () => { mounted = false; };
+    }, []);
 
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
-            
+
             <div className="materials-header">
                 <h2 className="materials-title">Tipos de Vidrios</h2>
                 <p className="materials-subtitle">
                     Explore nuestra gama de vidrios especializados que ofrecen seguridad, eficiencia energética y diseño para cada proyecto
                 </p>
             </div>
-            
-            <div className="treatments-grid">
-                {glasses.map((glass, index) => (
-                    <div 
-                        key={index}
-                        className="treatment-card"
-                        style={{ '--card-color': glass.color }}
-                    >
-                        <div className="card-header">
-                            <div className="icon-wrapper">
-                                {glass.icon}
+
+            {loading ? (
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: 48
+                }}>
+                    <ReactLoading type="spin" color="#26b7cd" height={40} width={40} />
+                </div>
+            ) : error ? (
+                <div style={{ padding: 24, textAlign: 'center', color: '#ef4444' }}>{error}</div>
+            ) : (
+                <div className="treatments-grid">
+                    {glasses.map((glass) => (
+                        <div key={glass.id} className="treatment-card" style={{ '--card-color': glass.color }}>
+                            <div className="card-header">
+                                <div className="icon-wrapper">{glass.icon}</div>
+                                <h3 className="card-title">{glass.name}</h3>
                             </div>
-                            <h3 className="card-title">{glass.title}</h3>
+                            <div className="card-content">
+                                <p className="card-description">{glass.description}</p>
+                                <div style={{ marginTop: 8, fontWeight: 700 }}>{currency.format(glass.price ?? 0)}</div>
+                            </div>
+                            <div className="card-hover-effect"></div>
                         </div>
-                        <div className="card-content">
-                            <p className="card-description">{glass.description}</p>
-                        </div>
-                        <div className="card-hover-effect"></div>
-                    </div>
-                ))}
-            </div>
-            
+                    ))}
+                </div>
+            )}
+
             <Footer />
         </div>
     );

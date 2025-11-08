@@ -13,5 +13,6 @@ namespace Application.DTOs.AlumTreatmentDTOs.GetAlumTreatment
 
         public required string name { get; set; }
         public int pricePercentage { get; set; }
+        public string? description { get; set; }
     }
 }

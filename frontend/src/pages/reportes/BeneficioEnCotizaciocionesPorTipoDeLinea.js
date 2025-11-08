@@ -992,7 +992,7 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                                         </div>
                                         <div className="panel-content">
                                             {!tab.result ? (
-                                                <div className="no-results">
+                                                <div className="no-result">
                                                     Complete los parámetros y presione "Calcular Cotización" para ver los resultados.
                                                 </div>
                                             ) : (
@@ -1119,7 +1119,7 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                                         </div>
                                         <div className="panel-content">
                                             {!tab.result ? (
-                                                <div className="no-results">
+                                                <div className="no-result">
                                                     Los resultados aparecerán aquí después del cálculo.
                                                 </div>
                                             ) : (

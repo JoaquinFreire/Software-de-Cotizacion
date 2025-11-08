@@ -1,82 +1,108 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
 import { Palette, TreePine, Layers, Brush, Sticker } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
-
+import axios from 'axios';
+import { safeArray } from '../../utils/safeArray';
+import ReactLoading from 'react-loading';
+const API_URL = process.env.REACT_APP_API_URL ?? '';
 
 const Materiales = () => {
+    const navigate = useNavigate();
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        navigate("/");
+    };
 
-      const navigate = useNavigate();
-            const handleLogout = () => {
-                    localStorage.removeItem("token");
-                    navigate("/");
-            }
-    const coatings = [
-        {
-            icon: <Palette size={32} />,
-            title: "Melamina Texturada",
-            description: "Ideal para muebles modernos, este revestimiento combina estética y resistencia. Su textura imita la madera real, es fácil de limpiar y tiene excelente relación precio-calidad. Perfecta para ambientes interiores elegantes y duraderos.",
-            color: "#8b5cf6"
-        },
-        {
-            icon: <TreePine size={32} />,
-            title: "PVC Madera Natural",
-            description: "Alternativa liviana y económica a la madera. Es resistente a la humedad, no se deforma con el tiempo y su apariencia natural aporta calidez al ambiente. Ideal para cocinas, baños o muebles que requieran bajo mantenimiento.",
-            color: "#f59e0b"
-        },
-        {
-            icon: <Layers size={32} />,
-            title: "Laminado HPL Gris Grafito",
-            description: "Revestimiento de alta resistencia para superficies exigentes. El color grafito aporta un diseño moderno y sobrio. Es muy duradero, antihumedad y fácil de limpiar. Perfecto para oficinas, cocinas o espacios comerciales.",
-            color: "#64748b"
-        },
-        {
-            icon: <Brush size={32} />,
-            title: "Chapa Pintada Blanca",
-            description: "Revestimiento metálico ideal para zonas donde se requiere alta resistencia y limpieza visual. Su terminación blanca aporta prolijidad, es lavable y muy durable. Ideal para frentes de muebles, estructuras o cerramientos.",
-            color: "#f8fafc"
-        },
-        {
-            icon: <Sticker size={32} />,
-            title: "Vinilo Autoadhesivo Decorativo",
-            description: "Solución práctica y rápida para renovar superficies. Se aplica fácilmente, sin herramientas especiales. Viene con diseños decorativos y se puede cambiar sin dañar el material original. Ideal para decorar sin obras.",
-            color: "#ec4899"
-        }
-    ];
+    const [coatings, setCoatings] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const currency = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' });
+
+    useEffect(() => {
+        let mounted = true;
+        setLoading(true);
+        setError(null);
+        const token = localStorage.getItem("token");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        axios.get(`${API_URL}/api/coating`, { headers })
+            .then(resp => {
+                if (!mounted) return;
+                const items = safeArray(resp.data);
+                const mapped = items.map(it => ({
+                    id: it.id ?? it._id,
+                    name: it.name,
+                    price: it.price ?? 0,
+                    description: it.description ?? '',
+                    icon: <Palette size={32} />,
+                    color: "#8b5cf6"
+                }));
+                setCoatings(mapped);
+            })
+            .catch(err => {
+                // Mejor logging y mensaje para el usuario
+                console.error('Error GET /api/coating', err);
+                if (axios.isAxiosError(err)) {
+                    const resp = err.response;
+                    console.error('Backend response:', resp?.data ?? resp);
+                    const detail = resp?.data?.Message ?? resp?.data ?? resp?.statusText ?? err.message;
+                    setError(`Error servidor ${resp?.status ?? ''}: ${detail}`);
+                } else {
+                    setError('Error desconocido al cargar los revestimientos.');
+                }
+            })
+            .finally(() => { if (mounted) setLoading(false); });
+
+        return () => { mounted = false; };
+    }, []);
 
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
-            
+
             <div className="materials-header">
                 <h2 className="materials-title">Revestimientos</h2>
                 <p className="materials-subtitle">
                     Descubra nuestra variedad de revestimientos que combinan estética, durabilidad y funcionalidad para cada necesidad
                 </p>
             </div>
-            
-            <div className="treatments-grid">
-                {coatings.map((coating, index) => (
-                    <div 
-                        key={index}
-                        className="treatment-card"
-                        style={{ '--card-color': coating.color }}
-                    >
-                        <div className="card-header">
-                            <div className="icon-wrapper">
-                                {coating.icon}
+
+            {loading ? (
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: 48
+                }}>
+                    <ReactLoading type="spin" color="#26b7cd" height={40} width={40} />
+                </div>
+            ) : error ? (
+                <div style={{ padding: 24, textAlign: 'center', color: '#ef4444' }}>{error}</div>
+            ) : (
+                <div className="treatments-grid">
+                    {coatings.map((coating, index) => (
+                        <div
+                            key={coating.id ?? index}
+                            className="treatment-card"
+                            style={{ '--card-color': coating.color }}
+                        >
+                            <div className="card-header">
+                                <div className="icon-wrapper">
+                                    {coating.icon}
+                                </div>
+                                <h3 className="card-title">{coating.name}</h3>
                             </div>
-                            <h3 className="card-title">{coating.title}</h3>
+                            <div className="card-content">
+                                <p className="card-description">{coating.description}</p>
+                                <div style={{ marginTop: 8, fontWeight: 700 }}>{currency.format(coating.price ?? 0)}</div>
+                            </div>
+                            <div className="card-hover-effect"></div>
                         </div>
-                        <div className="card-content">
-                            <p className="card-description">{coating.description}</p>
-                        </div>
-                        <div className="card-hover-effect"></div>
-                    </div>
-                ))}
-            </div>
-            
+                    ))}
+                </div>
+            )}
+
             <Footer />
         </div>
     );
