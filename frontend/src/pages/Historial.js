@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 import QuotationList from "../components/QuotationList";
@@ -42,6 +42,7 @@ const Historial = () => {
     } = useContext(QuotationContext);
     const { quotations, page, total, loading } = historialState;
     const navigate = useNavigate();
+    const location = useLocation();
     const [filteredQuotations, setFilteredQuotations] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [quotationToDelete, setQuotationToDelete] = useState(null);
@@ -146,7 +147,7 @@ const Historial = () => {
 
                     const resolveRef = (obj) => {
                         if (obj && typeof obj === "object" && obj.$ref) {
-                            return byId[obj.$ref] || obj;
+                          return byId[obj.$ref] || obj;
                         }
                         return obj;
                     };
@@ -155,14 +156,14 @@ const Historial = () => {
                         let rawRole = u?.role ?? u?.role_name ?? u?.roleName ?? u?.userRole ?? null;
                         if (rawRole && typeof rawRole === "object") rawRole = resolveRef(rawRole);
                         if (!rawRole) {
-                            const candidate = resolveRef(u)?.role_name ?? resolveRef(u)?.roleName ?? resolveRef(u)?.role;
-                            if (typeof candidate === "string") return candidate.toLowerCase();
-                            return "";
+                          const candidate = resolveRef(u)?.role_name ?? resolveRef(u)?.roleName ?? resolveRef(u)?.role;
+                          if (typeof candidate === "string") return candidate.toLowerCase();
+                          return "";
                         }
                         if (typeof rawRole === "string") return rawRole.toLowerCase();
                         if (typeof rawRole === "object") {
-                            const val = rawRole.role_name ?? rawRole.name ?? rawRole.roleName ?? rawRole.type ?? rawRole.title;
-                            return val ? String(val).toLowerCase() : "";
+                          const val = rawRole.role_name ?? rawRole.name ?? rawRole.roleName ?? rawRole.type ?? rawRole.title;
+                          return val ? String(val).toLowerCase() : "";
                         }
                         return "";
                     };
@@ -269,11 +270,13 @@ const Historial = () => {
         setFilters({ ...filters, [e.target.name]: e.target.value });
     };
 
-    const fetchFilteredQuotations = async (page = 1) => {
+    // Ajuste: fetchFilteredQuotations acepta overrideFilters
+    const fetchFilteredQuotations = async (page = 1, overrideFilters = null) => {
         setIsFiltering(true);
         setIsApplyingFilters(true);
         const token = localStorage.getItem("token");
-        let params = { ...filters, page, pageSize };
+        let usedFilters = overrideFilters ?? filters;
+        let params = { ...usedFilters, page, pageSize };
         // Remove empty values
         Object.keys(params).forEach(k => {
             if (!params[k]) delete params[k];
@@ -295,13 +298,36 @@ const Historial = () => {
             setFilterResults(res.data.quotations || []);
             setFilterTotal(res.data.total || 0);
             setFilterPage(page);
+            setIsFiltering(true);
         } catch (err) {
             setFilterResults([]);
             setFilterTotal(0);
-        }finally {
+            setIsFiltering(true);
+        } finally {
             setIsApplyingFilters(false);
         } 
     };
+
+    // Nuevo: si venimos desde Customers con state, preaplicar filtros
+    useEffect(() => {
+        if (location && location.state) {
+            const s = location.state;
+            const incomingDni = s.customerDni ?? s.customer_dni ?? s.dni ?? "";
+            const incomingStatus = (s.status === undefined || s.status === null) ? "" : s.status;
+            if (incomingDni) {
+                const newFilters = { ...filters, customerDni: incomingDni, status: incomingStatus || "" };
+                setFilters(newFilters);
+                setShowFilters(true);
+                // lanzar búsqueda usando override para evitar race con setFilters
+                fetchFilteredQuotations(1, newFilters);
+            }
+            // limpiar location.state para evitar re-aplicaciones si vuelve
+            try {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } catch (e) { /* ignore */ }
+        }
+        // eslint-disable-next-line
+    }, [location]);
 
     const handleFilterSubmit = (e) => {
         e.preventDefault();

@@ -12,13 +12,34 @@ export const CustomerProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const PAGE_SIZE = 10;
 
+    // NUEVO: helper para obtener headers Authorization de forma segura
+    const getAuthHeaders = () => {
+        let token = localStorage.getItem("token");
+        if (!token) return null;
+        // Normalizar token (quitar comillas envolventes posibles y espacios)
+        token = token?.toString().trim();
+        if (token.startsWith('"') && token.endsWith('"')) {
+            token = token.slice(1, -1);
+        }
+        if (!token) return null;
+        return { Authorization: `Bearer ${token}` };
+    };
+
     const fetchCustomers = useCallback(async (pageToLoad = 1) => {
         setLoading(true);
         try {
-            const token = localStorage.getItem("token");
+            const headers = getAuthHeaders();
+            if (!headers) {
+                // no hay token -> no intentar la llamada
+                setCustomers([]);
+                setTotal(0);
+                setPage(1);
+                setLoading(false);
+                return;
+            }
             const res = await axios.get(
                 `${API_URL}/api/customers/paged?page=${pageToLoad}&pageSize=${PAGE_SIZE}`,
-                { headers: { Authorization: `Bearer ${token}` } }
+                { headers }
             );
             // Normaliza el array aquí
             setCustomers(safeArray(res.data.Items));
@@ -42,10 +63,11 @@ export const CustomerProvider = ({ children }) => {
     const fetchCustomerByDni = async (dni) => {
         setLoading(true);
         try {
-            const token = localStorage.getItem("token");
+            const headers = getAuthHeaders();
+            if (!headers) return null;
             const res = await axios.get(
                 `${API_URL}/api/customers/dni/${encodeURIComponent(dni)}`,
-                { headers: { Authorization: `Bearer ${token}` } }
+                { headers }
             );
             return res.data || null;
         } catch (err) {
@@ -59,17 +81,18 @@ export const CustomerProvider = ({ children }) => {
     const createCustomer = async (newCustomer) => {
         setLoading(true);
         try {
-            const token = localStorage.getItem("token");
+            const headers = getAuthHeaders();
+            if (!headers) return { success: false, error: "No auth token" };
             const res = await axios.post(
                 `${API_URL}/api/customers`,
                 newCustomer,
-                { headers: { Authorization: `Bearer ${token}` } }
+                { headers }
             );
             if (res.status === 200 || res.status === 201) {
                 // intentar obtener el objeto creado (por DNI) y añadirlo localmente
                 let created = null;
                 try {
-                    const getRes = await axios.get(`${API_URL}/api/customers/dni/${encodeURIComponent(newCustomer.dni)}`, { headers: { Authorization: `Bearer ${token}` } });
+                    const getRes = await axios.get(`${API_URL}/api/customers/dni/${encodeURIComponent(newCustomer.dni)}`, { headers });
                     created = normalizeOne(getRes.data);
                 } catch (e) {
                     created = null;
@@ -77,17 +100,14 @@ export const CustomerProvider = ({ children }) => {
                 setCustomers(prev => {
                     const next = [...(prev || [])];
                     if (created) {
-                        // si ya existe en la página actual, reemplaza; si no, añade al inicio
                         const idx = next.findIndex(c => String(c.dni) === String(created.dni));
                         if (idx >= 0) next[idx] = created;
                         else next.unshift(created);
                     } else {
-                        // fallback: insertar un stub con al menos DNI y nombre si no obtenemos objeto completo
                         const stub = { ...newCustomer };
                         if (!stub.id && newCustomer.dni) stub.id = newCustomer.dni;
                         next.unshift(stub);
                     }
-                    // mantener tamaño razonable (no necesitamos eliminar)
                     return next;
                 });
                 setTotal(prev => (typeof prev === "number" ? prev + 1 : 1));
@@ -106,17 +126,17 @@ export const CustomerProvider = ({ children }) => {
     const updateCustomer = async (dni, updatedCustomer) => {
         setLoading(true);
         try {
-            const token = localStorage.getItem("token");
+            const headers = getAuthHeaders();
+            if (!headers) return { success: false, error: "No auth token" };
             const safeDni = encodeURIComponent(dni);
             const res = await axios.put(
                 `${API_URL}/api/customers/${safeDni}`,
                 updatedCustomer,
-                { headers: { Authorization: `Bearer ${token}` } }
+                { headers }
             );
             if (res.status === 200) {
-                // obtener el cliente actualizado y reemplazar en array local
                 try {
-                    const getRes = await axios.get(`${API_URL}/api/customers/dni/${safeDni}`, { headers: { Authorization: `Bearer ${token}` } });
+                    const getRes = await axios.get(`${API_URL}/api/customers/dni/${safeDni}`, { headers });
                     const updatedObj = normalizeOne(getRes.data);
                     if (updatedObj) {
                         setCustomers(prev => {
@@ -128,7 +148,7 @@ export const CustomerProvider = ({ children }) => {
                         });
                     }
                 } catch (e) {
-                    // si no pudimos obtener el actualizado, no rompemos: retornamos éxito igual
+                    // ignore fetch error
                 }
                 return { success: true, data: res.data };
             }

@@ -11,12 +11,12 @@ import ReactLoading from "react-loading";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 const Customers = () => {
   const handleLogout = () => {
-          localStorage.removeItem("token");
-          navigate("/");
-      };
+    localStorage.removeItem("token");
+    navigate("/");
+  };
+
   const {
     customers, page, total, loading, PAGE_SIZE,
     goToCustomerPage, switchToCustomers,
@@ -25,22 +25,18 @@ const Customers = () => {
 
   const [searchTerm] = useState("");
   const [filteredCustomers, setFilteredCustomers] = useState([]);
-
-  // new: DNI search state
   const [searchDni, setSearchDni] = useState("");
-  const [searchResult, setSearchResult] = useState(undefined); // undefined = no search yet, null = not found, object = found
-
-  // modal/form state
+  const [searchResult, setSearchResult] = useState(undefined);
   const [showForm, setShowForm] = useState(false);
-  const [formMode, setFormMode] = useState("create"); // "create" | "update"
+  const [formMode, setFormMode] = useState("create");
   const [formData, setFormData] = useState({
     name: "", lastname: "", dni: "", tel: "", mail: "", address: ""
   });
   const [modalSubmitting, setModalSubmitting] = useState(false);
-
-  // Contact menu state
   const [contactMenu, setContactMenu] = useState({ visible: false, cliente: null, x: 0, y: 0 });
   const contactMenuRef = useRef(null);
+  const [viewQuotesMenu, setViewQuotesMenu] = useState({ visible: false, cliente: null, x: 0, y: 0 });
+  const viewQuotesMenuRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -58,7 +54,7 @@ const Customers = () => {
       setFilteredCustomers([]);
       return;
     }
-    const arr = safeArray(customers); // <-- Normaliza aquí
+    const arr = safeArray(customers);
     setFilteredCustomers(
       arr.filter((cliente) =>
         `${cliente.name} ${cliente.lastname}`.toLowerCase().includes(searchTerm.toLowerCase())
@@ -66,7 +62,6 @@ const Customers = () => {
     );
   }, [customers, searchTerm]);
 
-  // handlers for modal form
   const openCreateForm = () => {
     setFormMode("create");
     setFormData({ name: "", lastname: "", dni: "", tel: "", mail: "", address: "" });
@@ -74,7 +69,6 @@ const Customers = () => {
   };
 
   const handleUpdate = (cliente) => {
-    // if called from map we pass the whole cliente
     const c = cliente || {};
     setFormMode("update");
     setFormData({
@@ -92,25 +86,33 @@ const Customers = () => {
     navigate(`/customers/${id}/detalle`);
   };
 
-  const handleAgent = (agent) => {
-    if (agent && agent.id) {
-      navigate(`/agentes/${agent.id}`);
-    }
+  const navigateToHistorialWithFilter = (cliente, status) => {
+    if (!cliente) return;
+    const dni = cliente.dni ?? cliente.DNI ?? cliente.id ?? "";
+    navigate("/historial", { state: { customerDni: dni, status: status ?? "" } });
+    closeViewQuotesMenu();
   };
 
-  // Open create modal (used by + Nuevo Cliente button)
+  const openViewQuotesMenu = (cliente, event) => {
+    const x = event?.clientX ?? window.innerWidth / 2;
+    const y = event?.clientY ?? window.innerHeight / 2;
+    setViewQuotesMenu({ visible: true, cliente, x, y });
+  };
+
+  const handleAgent = (cliente, event) => {
+    if (event && typeof event.stopPropagation === "function") event.stopPropagation();
+    openViewQuotesMenu(cliente, event);
+  };
+
   const handleCreate = () => {
     openCreateForm();
   };
 
-  // Wrapper used by Contact buttons to open the contact menu and
-  // prevent event bubbling from triggering other click handlers
   const handleContact = (cliente, event) => {
     if (event && typeof event.stopPropagation === "function") event.stopPropagation();
     openContactMenu(cliente, event);
   };
 
-  // Open contact menu (position is optional; we'll center if not provided)
   const openContactMenu = (cliente, event) => {
     const x = event?.clientX ?? window.innerWidth / 2;
     const y = event?.clientY ?? window.innerHeight / 2;
@@ -118,8 +120,8 @@ const Customers = () => {
   };
 
   const closeContactMenu = () => setContactMenu({ visible: false, cliente: null, x: 0, y: 0 });
+  const closeViewQuotesMenu = () => setViewQuotesMenu({ visible: false, cliente: null, x: 0, y: 0 });
 
-  // contact actions
   const contactByMail = (cliente) => {
     if (!cliente?.mail) return;
     window.open(`mailto:${cliente.mail}`, "_blank");
@@ -128,13 +130,10 @@ const Customers = () => {
 
   const contactByWhatsapp = (cliente) => {
     if (!cliente?.tel) return;
-    // Normalize phone: keep only digits and plus sign if present at start
     let tel = String(cliente.tel || "");
     tel = tel.replace(/\s+/g, "");
-    // allow leading +, then digits
     const plus = tel.startsWith("+") ? "+" : "";
     tel = plus + tel.replace(/\D/g, "");
-    // wa.me requires no plus, country code must be present; remove leading +
     const waNumber = tel.replace(/^\+/, "");
     if (!/^\d+$/.test(waNumber)) {
       toast.error("Número inválido para WhatsApp.");
@@ -145,7 +144,6 @@ const Customers = () => {
     closeContactMenu();
   };
 
-  // submit form
   const submitForm = async (e) => {
     e.preventDefault();
     setModalSubmitting(true);
@@ -190,40 +188,41 @@ const Customers = () => {
     }
   };
 
-  // search by DNI
   const handleSearchDni = async (e) => {
     e && e.preventDefault();
     if (!searchDni || searchDni.trim() === "") {
       setSearchResult(undefined);
-      // volver a cargar listado si estaba filtrado
       await fetchCustomers(1);
       return;
     }
     const res = await fetchCustomerByDni(searchDni.trim());
-    setSearchResult(res); // null = not found, object = found
+    setSearchResult(res);
   };
-  
 
   return (
     <div className="dashboard-container">
       <Navigation onLogout={handleLogout} />
       <ToastContainer position="bottom-right" autoClose={3000} />
+
       <div className="materials-header">
-          <h2 className="materials-title">Gestión de Clientes</h2>
-          <p className="materials-subtitle">
-            Administre y consulte la información de los clientes, realizando busquedas rápidas y manteniendo sus datos actualizados</p>
-          </div>
+        <h2 className="materials-title">Gestión de Clientes</h2>
+        <p className="materials-subtitle">
+          Administre y consulte la información de los clientes, realizando búsquedas rápidas y manteniendo sus datos actualizados
+        </p>
+      </div>
+
       <div className="clientes-header">
-
-
         <form className="search-container" onSubmit={handleSearchDni}>
-          <input
-            className="search-input"
-            type="text"
-            placeholder="Buscar por DNI..."
-            value={searchDni}
-            onChange={(e) => setSearchDni(e.target.value)}
-          />
+          <div className="search-input-wrapper">
+            <i className="search-icon">🔍</i>
+            <input
+              className="search-input"
+              type="text"
+              placeholder="Buscar por DNI..."
+              value={searchDni}
+              onChange={(e) => setSearchDni(e.target.value)}
+            />
+          </div>
           <div className="search-buttons">
             <button className="btn-search" type="submit">Buscar</button>
             <button className="btn-clear" type="button" onClick={async () => { setSearchDni(""); setSearchResult(undefined); await fetchCustomers(1); }}>
@@ -233,7 +232,8 @@ const Customers = () => {
         </form>
         <div className="clientes-btn-container">
           <button className="btn-nuevo-cliente" onClick={handleCreate}>
-            + Nuevo Cliente
+            <i className="btn-icon">+</i>
+            Nuevo Cliente
           </button>
         </div>
       </div>
@@ -257,69 +257,101 @@ const Customers = () => {
           </div>
         ) : (
           <div className="clientes-list">
-            {/* if a search was performed */}
             {typeof searchResult !== "undefined" ? (
               searchResult === null ? (
-                <div className="no-clientes">No se encontró cliente con DNI {searchDni}.</div>
+                <div className="no-clientes">
+                  <i className="no-data-icon">👤</i>
+                  <p>No se encontró cliente con DNI {searchDni}</p>
+                </div>
               ) : (
                 <div className="cliente-card" key={searchResult.id ?? searchResult.dni}>
+                  <div className="cliente-avatar">
+                    {searchResult.name?.charAt(0)}{searchResult.lastname?.charAt(0)}
+                  </div>
                   <div className="cliente-info">
                     <div className="cliente-nombre">
                       <strong>{searchResult.name} {searchResult.lastname}</strong>
+                      <span className="cliente-dni-tag">DNI: {searchResult.dni}</span>
                     </div>
                     <div className="cliente-datos">
-                      <span><u><b>DNI: </b></u>{searchResult.dni}</span>
-                      <span><u><b>Tel: </b></u>{searchResult.tel}</span>
-                      <span><u><b>Mail: </b></u>{searchResult.mail}</span>
-                      <span><u><b>Dirección: </b></u>{searchResult.address}</span>
+                      <div className="data-item">
+                        <i className="data-icon">📱</i>
+                        <span>{searchResult.tel || 'No especificado'}</span>
+                      </div>
+                      <div className="data-item">
+                        <i className="data-icon">📧</i>
+                        <span>{searchResult.mail || 'No especificado'}</span>
+                      </div>
+                      <div className="data-item">
+                        <i className="data-icon">📍</i>
+                        <span>{searchResult.address || 'No especificado'}</span>
+                      </div>
                     </div>
                   </div>
                   <div className="cliente-actions">
-                    <button className="btn-detalle" onClick={() => handleDetails(searchResult.id)}>
-                      <b>Detalles</b>
+                    <button className="btn-action btn-detalle" onClick={() => handleDetails(searchResult.id)}>
+                      <i className="action-icon">👁️</i>
+                      <span>Detalles</span>
                     </button>
-                    <button className="btn-actualizar" onClick={() => handleUpdate(searchResult)}>
-                      <b>Actualizar</b>
+                    <button className="btn-action btn-actualizar" onClick={() => handleUpdate(searchResult)}>
+                      <i className="action-icon">✏️</i>
+                      <span>Actualizar</span>
                     </button>
-                    <button className="btn-agente" onClick={() => handleAgent(searchResult.agent)}>
-                      <b>Ver Agente</b>
+                    <button className="btn-action btn-agente" onClick={(e) => handleAgent(searchResult, e)}>
+                      <i className="action-icon">📊</i>
+                      <span>Cotizaciones</span>
                     </button>
-                    <button className="btn-contactar" onClick={(e) => handleContact(searchResult, e)}>
-                      <b>Contactar</b>
+                    <button className="btn-action btn-contactar" onClick={(e) => handleContact(searchResult, e)}>
+                      <i className="action-icon">💬</i>
+                      <span>Contactar</span>
                     </button>
                   </div>
                 </div>
               )
             ) : (
-              // default: paged list
               (!filteredCustomers || filteredCustomers.length === 0) ? (
-                <div className="no-clientes">No hay clientes para mostrar.</div>
+                <div className="no-clientes">
+                  <i className="no-data-icon">👥</i>
+                  <p>No hay clientes para mostrar</p>
+                </div>
               ) : (
                 safeArray(filteredCustomers).map((cliente) => (
                   <div className="cliente-card" key={cliente.id}>
+                    <div className="cliente-avatar">
+                      {cliente.name?.charAt(0)}{cliente.lastname?.charAt(0)}
+                    </div>
                     <div className="cliente-info">
                       <div className="cliente-nombre">
                         <strong>{cliente.name} {cliente.lastname}</strong>
+                        <span className="cliente-dni-tag">DNI: {cliente.dni}</span>
                       </div>
                       <div className="cliente-datos">
-                        <span><u><b>DNI: </b></u>{cliente.dni}</span>
-                        <span><u><b>Tel: </b></u>{cliente.tel}</span>
-                        <span><u><b>Mail: </b></u>{cliente.mail}</span>
-                        <span><u><b>Dirección: </b></u>{cliente.address}</span>
+                        <div className="data-item">
+                          <i className="data-icon">📱</i>
+                          <span>{cliente.tel || 'No especificado'}</span>
+                        </div>
+                        <div className="data-item">
+                          <i className="data-icon">📧</i>
+                          <span>{cliente.mail || 'No especificado'}</span>
+                        </div>
+                        <div className="data-item">
+                          <i className="data-icon">📍</i>
+                          <span>{cliente.address || 'No especificado'}</span>
+                        </div>
                       </div>
                     </div>
                     <div className="cliente-actions">
-                      <button className="btn-detalle" onClick={() => handleDetails(cliente.id)}>
-                        <b>Detalles</b>
+                      <button className="btn-action btn-detalle" onClick={() => handleDetails(cliente.id)}>
+                        <span>Detalles</span>
                       </button>
-                      <button className="btn-actualizar" onClick={() => handleUpdate(cliente)}>
-                        <b>Actualizar</b>
+                      <button className="btn-action btn-actualizar" onClick={() => handleUpdate(cliente)}>
+                        <span>Actualizar</span>
                       </button>
-                      <button className="btn-agente" onClick={() => handleAgent(cliente.agent)}>
-                        <b>Ver Agente</b>
+                      <button className="btn-action btn-agente" onClick={(e) => handleAgent(cliente, e)}>
+                        <span>Cotizaciones</span>
                       </button>
-                      <button className="btn-contactar" onClick={(e) => handleContact(cliente, e)}>
-                        <b>Contactar</b>
+                      <button className="btn-action btn-contactar" onClick={(e) => handleContact(cliente, e)}>
+                        <span>Contactar</span>
                       </button>
                     </div>
                   </div>
@@ -334,68 +366,176 @@ const Customers = () => {
         <button
           onClick={() => goToCustomerPage(page - 1)}
           disabled={page <= 1}
-        >Anterior</button>
-        <span>
+          className="pagination-btn"
+        >
+          <i>←</i> Anterior
+        </button>
+        <span className="pagination-info">
           Página {page} de {Math.max(1, Math.ceil(total / PAGE_SIZE))}
         </span>
         <button
           onClick={() => goToCustomerPage(page + 1)}
           disabled={page >= Math.ceil(total / PAGE_SIZE)}
-        >Siguiente</button>
+          className="pagination-btn"
+        >
+          Siguiente <i>→</i>
+        </button>
       </div>
 
-      {/* Contact menu */}
+      {/* Contact Menu */}
       {contactMenu.visible && (
         <div
-          className="contact-menu-overlay"
-          role="dialog"
-          aria-modal="true"
-          onClick={(e) => { /* clicking overlay closes via doc listener */ }}
+          className="menu-overlay"
+          onClick={closeContactMenu}
         >
           <div
-            className="contact-menu"
+            className="modern-menu contact-menu"
             ref={contactMenuRef}
-            style={{ left: Math.min(contactMenu.x, window.innerWidth - 220), top: Math.min(contactMenu.y, window.innerHeight - 140) }}
+            style={{
+              left: Math.min(contactMenu.x, window.innerWidth - 280),
+              top: Math.min(contactMenu.y, window.innerHeight - 180)
+            }}
           >
-            <div className="contact-menu-title">Contactar a {contactMenu.cliente?.name ?? ""} {contactMenu.cliente?.lastname ?? ""}</div>
-            <div className="contact-menu-actions">
-              <button className="btn-mail" onClick={() => contactByMail(contactMenu.cliente)}>Enviar mail</button>
-              <button className="btn-wsp" onClick={() => contactByWhatsapp(contactMenu.cliente)}>Enviar WhatsApp</button>
-              <button className="btn-cancel" onClick={closeContactMenu}>Cerrar</button>
+            <div className="menu-header">
+              <i className="menu-icon">💬</i>
+              <div className="menu-title">
+                <div className="menu-title-main">Contactar a</div>
+                <div className="menu-title-sub">{contactMenu.cliente?.name} {contactMenu.cliente?.lastname}</div>
+              </div>
+            </div>
+            <div className="menu-actions">
+              <button className="menu-btn btn-mail" onClick={() => contactByMail(contactMenu.cliente)}>
+
+                <span>Enviar mail</span>
+              </button>
+              <button className="menu-btn btn-wsp" onClick={() => contactByWhatsapp(contactMenu.cliente)}>
+                <span>Enviar WhatsApp</span>
+              </button>
+              <button className="menu-btn btn-cancel" onClick={closeContactMenu}>
+                <i className="btn-menu-icon">✕</i>
+                <span>Cerrar</span>
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal / Form: render different fields for create vs update */}
+      {/* View Quotes Menu */}
+      {viewQuotesMenu.visible && (
+        <div
+          className="menu-overlay"
+          onClick={closeViewQuotesMenu}
+        >
+          <div
+            className="modern-menu quotes-menu"
+            ref={viewQuotesMenuRef}
+            style={{
+              left: Math.min(viewQuotesMenu.x, window.innerWidth - 300),
+              top: Math.min(viewQuotesMenu.y, window.innerHeight - 320)
+            }}
+          >
+            <div className="menu-header">
+              <i className="menu-icon">📊</i>
+              <div className="menu-title">
+                <div className="menu-title-main">Cotizaciones de</div>
+                <div className="menu-title-sub">{viewQuotesMenu.cliente?.name} {viewQuotesMenu.cliente?.lastname}</div>
+              </div>
+            </div>
+            <div className="menu-actions">
+              <button className="menu-btn btn-all" onClick={() => navigateToHistorialWithFilter(viewQuotesMenu.cliente, "")}>
+                <i className="btn-menu-icon">📋</i>
+                <span>Todas las cotizaciones</span>
+              </button>
+              <button className="menu-btn btn-pending" onClick={() => navigateToHistorialWithFilter(viewQuotesMenu.cliente, "pending")}>
+                <i className="btn-menu-icon">⏳</i>
+                <span>Pendientes</span>
+              </button>
+              <button className="menu-btn btn-approved" onClick={() => navigateToHistorialWithFilter(viewQuotesMenu.cliente, "approved")}>
+                <i className="btn-menu-icon">✅</i>
+                <span>Aprobadas</span>
+              </button>
+              <button className="menu-btn btn-rejected" onClick={() => navigateToHistorialWithFilter(viewQuotesMenu.cliente, "rejected")}>
+                <i className="btn-menu-icon">❌</i>
+                <span>Rechazadas</span>
+              </button>
+              <button className="menu-btn btn-finished" onClick={() => navigateToHistorialWithFilter(viewQuotesMenu.cliente, "finished")}>
+                <i className="btn-menu-icon">🏁</i>
+                <span>Finalizadas</span>
+              </button>
+              <button className="menu-btn btn-cancel" onClick={closeViewQuotesMenu}>
+                <i className="btn-menu-icon">✕</i>
+                <span>Cerrar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Form */}
       {showForm && (
         <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>{formMode === "create" ? "Crear Cliente" : "Actualizar Cliente"}</h3>
+          <div className="modern-modal">
+            <div className="modal-header">
+              <h3>{formMode === "create" ? "Crear Cliente" : "Actualizar Cliente"}</h3>
+              <button className="modal-close" onClick={() => setShowForm(false)}>✕</button>
+            </div>
             <form onSubmit={submitForm} className="client-form">
-              {formMode === "create" ? (
-                <>
-                  <input placeholder="Nombre" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
-                  <input placeholder="Apellido" value={formData.lastname} onChange={(e) => setFormData({ ...formData, lastname: e.target.value })} required />
-                  <input placeholder="DNI" value={formData.dni} onChange={(e) => setFormData({ ...formData, dni: e.target.value })} required />
-                </>
-              ) : (
-                <>
-                  <div className="readonly-field"><label>Nombre</label><div className="readonly-value">{formData.name}</div></div>
-                  <div className="readonly-field"><label>Apellido</label><div className="readonly-value">{formData.lastname}</div></div>
-                  <div className="readonly-field"><label>DNI</label><div className="readonly-value">{formData.dni}</div></div>
-                </>
-              )}
+              <div className="form-grid">
+                {formMode === "create" ? (
+                  <>
+                    <div className="form-group">
+                      <label>Nombre</label>
+                      <input placeholder="Ingrese el nombre" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
+                    </div>
+                    <div className="form-group">
+                      <label>Apellido</label>
+                      <input placeholder="Ingrese el apellido" value={formData.lastname} onChange={(e) => setFormData({ ...formData, lastname: e.target.value })} required />
+                    </div>
+                    <div className="form-group">
+                      <label>DNI</label>
+                      <input placeholder="Ingrese el DNI" value={formData.dni} onChange={(e) => setFormData({ ...formData, dni: e.target.value })} required />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="form-group readonly">
+                      <label>Nombre</label>
+                      <div className="readonly-value">{formData.name}</div>
+                    </div>
+                    <div className="form-group readonly">
+                      <label>Apellido</label>
+                      <div className="readonly-value">{formData.lastname}</div>
+                    </div>
+                    <div className="form-group readonly">
+                      <label>DNI</label>
+                      <div className="readonly-value">{formData.dni}</div>
+                    </div>
+                  </>
+                )}
 
-              {/* Editable fields for both modes */}
-              <input placeholder="Tel" value={formData.tel} onChange={(e) => setFormData({ ...formData, tel: e.target.value })} required />
-              <input placeholder="Mail" value={formData.mail} onChange={(e) => setFormData({ ...formData, mail: e.target.value })} required />
-              <input placeholder="Dirección" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} required />
+                <div className="form-group">
+                  <label>Teléfono</label>
+                  <input placeholder="Ingrese el teléfono" value={formData.tel} onChange={(e) => setFormData({ ...formData, tel: e.target.value })} required />
+                </div>
+                <div className="form-group">
+                  <label>Email</label>
+                  <input type="email" placeholder="Ingrese el email" value={formData.mail} onChange={(e) => setFormData({ ...formData, mail: e.target.value })} required />
+                </div>
+                <div className="form-group full-width">
+                  <label>Dirección</label>
+                  <input placeholder="Ingrese la dirección" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} required />
+                </div>
+              </div>
 
-              <div className="form-actions">
-                <button type="button" onClick={() => setShowForm(false)} disabled={modalSubmitting}>Cancelar</button>
-                <button type="submit" disabled={modalSubmitting}>
-                  {modalSubmitting ? <ReactLoading type="spin" color="#fff" height={16} width={16} /> : (formMode === "create" ? "Crear" : "Actualizar")}
+              <div className="modal-actions">
+                <button className='modal-btn modal-cancel-btn' type="button" onClick={() => setShowForm(false)} disabled={modalSubmitting}>
+                  Cancelar
+                </button>
+                <button className='modal-btn modal-submit-btn' type="submit" disabled={modalSubmitting}>
+                  {modalSubmitting ?
+                    <div  style={{ display: 'flex', alignItems: 'center'}}>
+                      <ReactLoading type="spin" color="#26b7cd" height={20} width={20} />
+                    </div> : (formMode === "create" ? "Crear Cliente" : "Actualizar Cliente")}
                 </button>
               </div>
             </form>
@@ -409,4 +549,3 @@ const Customers = () => {
 };
 
 export default Customers;
-
