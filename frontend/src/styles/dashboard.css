@@ -312,32 +312,8 @@ body.light-mode .dashboard-title {
     font-size: 0.9rem;
 }
 
-.pagination-nav {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
 
-.pagination-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 500;
-}
 
-.pagination-btn:hover:not(:disabled) {
-    background: rgba(38, 183, 205, 0.2);
-    border-color: #26b7cd;
-}
-
-.pagination-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
 
 .pagination-page {
     color: #94a3b8;
@@ -385,11 +361,7 @@ body.light-mode .quote-card-skeleton {
     border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-body.light-mode .pagination-btn {
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid #e2e8f0;
-    color: #1e293b;
-}
+
 
 body.light-mode .pagination-info {
     color: #64748b;
@@ -401,8 +373,7 @@ body.light-mode .pagination-info {
 .advanced-filters-container,
 .filters-toggle-btn,
 .filter-input,
-.filter-select,
-.pagination-btn {
+.filter-select{
     transition: all 0.3s ease;
 }
 

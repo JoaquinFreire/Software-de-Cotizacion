@@ -32,18 +32,21 @@
   font-size: 0.9rem;
 }
 
-.search-input {
-  padding: 12px 12px 12px 36px;
-  border-radius: 12px;
-  border: 2px solid #e2e8f0;
+.search-input-client {
   width: 100%;
-  font-size: 0.95rem;
-  outline: none;
-  transition: all 0.3s ease;
-  background: #fff;
-  color: #1e293b;
+    padding: 7px 7px 7px 30px;
+    border: 1px solid #283131;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #393b3d;
+    color: #e2e8f0;
+    transition: all 0.2s ease;
 }
-
+body.light-mode .search-input-client {
+    background: #dfdede;
+    border-color: #e2e8f0;
+    color: #1e293b;
+}
 .search-input:focus {
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -51,12 +54,12 @@
 
 .search-buttons {
   display: flex;
-  gap: 8px;
+  gap: 5px;
 }
 
 .btn-search, .btn-clear {
-  padding: 12px 20px;
-  border-radius: 10px;
+  padding: 7px 20px;
+  border-radius: 5px;
   border: none;
   cursor: pointer;
   font-size: 0.95rem;
@@ -65,14 +68,17 @@
 }
 
 .btn-search {
-  background: #3b82f6;
+  background: #4cd8cc9a;
   color: #fff;
+}
+body.light-mode .btn-search {
+  background: #10b3b9;
 }
 
 .btn-search:hover {
-  background: #2563eb;
+  background: #117777;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(59, 224, 246, 0.3);
 }
 
 .btn-clear {
@@ -169,7 +175,7 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(135deg, #1a73e87c, #34a8a2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -204,6 +210,7 @@
   background: #f1f5f9;
   color: #475569;
   padding: 4px 12px;
+  width: fit-content;
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 600;
@@ -271,7 +278,7 @@
 
 .btn-actualizar {
   background: #fef7ff;
-  color: #7c3aed;
+  color: #1a2a1d;
   border: 1px solid #e9d5ff;
 }
 
@@ -320,42 +327,6 @@
   opacity: 0.5;
 }
 
-/* Pagination */
-.pagination-nav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-  margin: 40px 0 20px 0;
-}
-
-.pagination-btn {
-  padding: 12px 24px;
-  border-radius: 10px;
-  border: 2px solid #e2e8f0;
-  background: #fff;
-  color: #475569;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.pagination-btn:hover:not(:disabled) {
-  border-color: #3b82f6;
-  color: #3b82f6;
-  transform: translateY(-1px);
-}
-
-.pagination-btn:disabled {
-  background: #f8fafc;
-  color: #cbd5e1;
-  cursor: not-allowed;
-  transform: none;
-}
 
 .pagination-info {
   color: #64748b;
@@ -633,12 +604,8 @@
   transform: none;
 }
 
-/* ==========================================================================
-   DARK MODE STYLES - Integración completa con tu sistema de temas
-   ========================================================================== */
-
 body.light-mode .cliente-card {
-  background: #ffffff;
+  background: #e7e6e6;
   border-color: #f1f5f9;
   color: #1e293b;
 }
@@ -815,21 +782,6 @@ body:not(.light-mode) .modal-cancel-btn:hover {
   border-color: #6b7280;
 }
 
-body:not(.light-mode) .pagination-btn {
-  background: #1e293b;
-  border-color: #475569;
-  color: #cbd5e1;
-}
-
-body:not(.light-mode) .pagination-btn:hover:not(:disabled) {
-  border-color: #3b82f6;
-  color: #3b82f6;
-}
-
-body:not(.light-mode) .pagination-btn:disabled {
-  background: #334155;
-  color: #64748b;
-}
 
 body:not(.light-mode) .pagination-info {
   color: #94a3b8;
@@ -847,9 +799,9 @@ body:not(.light-mode) .btn-detalle {
 }
 
 body:not(.light-mode) .btn-actualizar {
-  background: #37255e;
-  color: #a78bfa;
-  border-color: #5b21b6;
+  background: #2c5534;
+  color: #43a856;
+  border-color: #0d3b11;
 }
 
 body:not(.light-mode) .btn-agente {
