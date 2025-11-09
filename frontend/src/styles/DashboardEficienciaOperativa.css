@@ -201,7 +201,7 @@ body.dark-mode {
     .filter-select:focus {
         outline: none;
         border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+        box-shadow: #303030;
     }
 
 .filters-actions {

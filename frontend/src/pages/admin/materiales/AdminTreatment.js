@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import Footer from "../../../components/Footer";
 import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
+import ConfirmationModal from "../../../components/ConfirmationModal";
 
 const API_URL = process.env.REACT_APP_API_URL || "";
 
@@ -21,6 +22,9 @@ export default function AdminTreatment() {
     const [viewingAll, setViewingAll] = useState(false);
     const [deletingIds, setDeletingIds] = useState({});
     const [modalSubmitting, setModalSubmitting] = useState(false);
+    // Confirm delete modal
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [pendingDeleteItem, setPendingDeleteItem] = useState(null);
 
     const fetchResults = async (searchQuery = "") => {
         setIsLoading(true);
@@ -105,6 +109,14 @@ export default function AdminTreatment() {
         } catch (err) { console.error(err); toast.error("Error al eliminar tratamiento."); } finally { setDeletingIds(prev => ({ ...prev, [key]: false })); }
     };
 
+    const openDeleteModal = (item) => { setPendingDeleteItem(item); setShowDeleteModal(true); };
+    const closeDeleteModal = () => { setShowDeleteModal(false); setPendingDeleteItem(null); };
+    const confirmDelete = async () => {
+        if (!pendingDeleteItem) return;
+        await handleDelete(pendingDeleteItem);
+        closeDeleteModal();
+    };
+
     const handleSelect = (t) => { setSelected(t); setForm({ name: t.name ?? "", pricePercentage: t.pricePercentage ?? 0, description: t.description ?? "" }); setShowModal(true); };
     const handleChange = (e) => { const { name, value } = e.target; setForm(f => ({ ...f, [name]: name === "pricePercentage" ? Number(value) : value })); };
 
@@ -165,7 +177,7 @@ export default function AdminTreatment() {
                                         <div className="col percent">{t.pricePercentage}%</div>
                                         <div className="col-actions">
                                             <button className="btn update" onClick={() => handleSelect(t)}>Actualizar</button>
-                                            <button className="btn delete" onClick={() => handleDelete(t)} disabled={isDeleting}>{isDeleting ? <ReactLoading type="spin" color="#fcd1d1" height={14} width={14} /> : "Eliminar"}</button>
+                                            <button className="btn delete" onClick={() => openDeleteModal(t)} disabled={isDeleting}>{isDeleting ? <ReactLoading type="spin" color="#fcd1d1" height={14} width={14} /> : "Eliminar"}</button>
                                         </div>
                                     </div>
                                 );
@@ -189,6 +201,7 @@ export default function AdminTreatment() {
                             </div>
                         </div>
                     )}
+                    <ConfirmationModal show={showDeleteModal} onClose={closeDeleteModal} onConfirm={confirmDelete} />
                 </div>
             </div>
             <Footer />

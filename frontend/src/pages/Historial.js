@@ -476,7 +476,6 @@ const Historial = () => {
                                     value={filters.approxTotalPrice}
                                     onChange={handleFilterChange}
                                     placeholder="Monto aproximado"
-                                    className="filter-input"
                                 />
                             </div>
 
@@ -507,7 +506,6 @@ const Historial = () => {
                                     value={filters.customerDni}
                                     onChange={handleFilterChange}
                                     placeholder="Número de DNI"
-                                    className="filter-input"
                                 />
                             </div>
                         </div>
@@ -539,7 +537,7 @@ const Historial = () => {
 
                         <div className="filters-actions">
                             {isApplyingFilters ? (
-                                <div className="spinner-container" style={{display: 'flex', alignItems: 'center', gap: 12}}>
+                                <div className="spinner-container-dashboard">
                                     <ReactLoading type="spin" color="#26b7cd" height={24} width={24}/>
                                     <div style={{fontSize: 14, color: '#26b7cd'}}>Aplicando filtros...</div>
                                 </div>

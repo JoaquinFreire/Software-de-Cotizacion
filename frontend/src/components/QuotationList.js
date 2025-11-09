@@ -3,8 +3,11 @@ import ConfirmationModal from "./ConfirmationModal";
 import "../styles/quotationList.css";
 import 'react-loading-skeleton/dist/skeleton.css'
 import { safeArray } from "../utils/safeArray";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactLoading from 'react-loading';
+import axios from 'axios';
+
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5187";
 
 const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setShowModal, setQuotationToDelete, onDeleteSuccess }) => {
     const navigate = useNavigate();
@@ -13,8 +16,61 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
     const [rejectReason, setRejectReason] = useState("");
     const [quotationToReject, setQuotationToReject] = useState(null);
     const [pendingStatus, setPendingStatus] = useState(null);
-    // id de cotización que está cambiando estado (muestra "Actualizando..." en el select)
     const [changingId, setChangingId] = useState(null);
+    const [versionsMap, setVersionsMap] = useState({}); // { quotationId: versions[] }
+
+    // Función para obtener las versiones de cada cotización
+    const fetchQuotationVersions = async (quotationId) => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get(`${API_URL}/api/Mongo/GetBudgetVersions/${quotationId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            // Procesar la respuesta igual que en BudgetDetail
+            const rawList = Array.isArray(res.data)
+                ? res.data
+                : (res.data && Array.isArray(res.data.$values) ? res.data.$values : []);
+
+            return rawList;
+        } catch (error) {
+            console.error(`Error fetching versions for quotation ${quotationId}:`, error);
+            return [];
+        }
+    };
+
+    // Cargar versiones para todas las cotizaciones
+    useEffect(() => {
+        const loadAllVersions = async () => {
+            const newVersionsMap = {};
+            
+            for (const quotation of safeArray(quotations)) {
+                const versions = await fetchQuotationVersions(quotation.Id);
+                newVersionsMap[quotation.Id] = versions;
+            }
+            
+            setVersionsMap(newVersionsMap);
+        };
+
+        if (quotations && quotations.length > 0) {
+            loadAllVersions();
+        }
+    }, [quotations]);
+
+    // Función para obtener la última versión de una cotización
+    const getLatestVersion = (quotationId) => {
+        const versions = versionsMap[quotationId] || [];
+        if (versions.length === 0) return "1"; // Valor por defecto
+        
+        const latestVersion = versions[0]; // La primera es la más reciente
+        return latestVersion.version || latestVersion.Version || "1";
+    };
+
+    // Función para obtener el conteo de versiones
+    const getVersionCount = (quotationId) => {
+        const versions = versionsMap[quotationId] || [];
+        return versions.length;
+    };
 
     const handleShowModal = (id) => {
         setQuotationToDelete(id);
@@ -40,13 +96,11 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
             return;
         }
 
-        // mostrar indicador local en el select
         setChangingId(id);
         try {
-            // esperar a que el padre complete la petición
             await onStatusChange(id, newStatus);
         } catch (err) {
-            // el padre ya muestra toast; opcional: manejar errores locales si hace falta
+            // manejo de errores
         } finally {
             setChangingId(null);
         }
@@ -56,7 +110,6 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
         if (quotationToReject && pendingStatus) {
             setIsRecovering(true);
             try {
-                // Ya no usamos localStorage; enviamos el motivo directamente al callback
                 await onStatusChange(quotationToReject, pendingStatus, rejectReason.trim());
             } finally {
                 setIsRecovering(false);
@@ -75,7 +128,6 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
         setRejectReason("");
     };
 
-    // Función para verificar si la cotización está rechazada
     const isQuotationRejected = (quotation) => {
         return quotation.Status?.toLowerCase() === "rejected";
     };
@@ -86,17 +138,17 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
                 <div key={quotation.Id} className="quote-card">
                     <div className="quote-details">
                         <p><b><u>Cliente</u>:  </b>{quotation.Customer.name} {quotation.Customer.lastname}</p>
-                        <p><b><u>Creación</u>:  </b>{new Date(quotation.CreationDate).toLocaleDateString()}</p>
-                        <p><b><u>Estado</u>:  </b>{quotation.Status}</p>
+                        <p><b><u>DNI</u>:   </b>{quotation.Customer.dni}</p>
                         <p><b><u>Teléfono</u>:  </b>{quotation.Customer.tel}</p>
                         <p><b><u>Correo</u>:  </b>{quotation.Customer.mail}</p>
+                        <p><b><u>Lugar</u>:  </b>{quotation.WorkPlace.name}</p>
                     </div>
                     <div className="quote-details">
                         <p><b><u>Precio</u>:  </b>${quotation.TotalPrice}</p>
-                        <p><b><u>Lugar</u>:  </b>{quotation.WorkPlace.name}</p>
+                        <p><b><u>Creación</u>:  </b>{new Date(quotation.CreationDate).toLocaleDateString()}</p>
                         <p><b><u>Dirección</u>:  </b>{quotation.WorkPlace.address}</p>
-                        {/*<p><b><u>Entrega</u>:  </b>{new Date(quotation.CreationDate).toLocaleDateString()}</p>*/}
-                        {/*<p><b><u>Vencimiento</u>:</b> {quotation.ExpirationDate ? new Date(quotation.ExpirationDate).toLocaleDateString() : "No especificado"}</p>*/}
+                        <p><b><u>Versión actual</u>:  </b>v{getLatestVersion(quotation.Id)}</p>
+                        <p><b><u>Total versiones</u>:  </b>{getVersionCount(quotation.Id)}</p>
                     </div>
                     <div className="quote-actions">
                         <button className="go-button" onClick={() => window.open(`/quotation/${quotation.Id}`)}>Ver Detalles</button>
@@ -119,7 +171,6 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
 
                         <button className="delete-button" onClick={() => handleShowModal(quotation.Id)}>Eliminar</button>
 
-                        {/* Cuando changingId === quotation.Id mostramos un único option "Actualizando..." */}
                         <div style={{ position: 'relative', display: 'inline-block' }}>
                             <select
                                 className="status-select"
