@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import ReactLoading from "react-loading";
 import { safeArray } from "../../utils/safeArray";
 import { useNavigate } from "react-router-dom";
+import ConfirmationModal from "../../components/ConfirmationModal";
 
 
 const API_URL = process.env.REACT_APP_API_URL || "";
@@ -20,6 +21,9 @@ export default function AdminPrices() {
 	const [form, setForm] = useState({ name: "", price: 0, reference: "" });
 	const [submitting, setSubmitting] = useState(false);
 	const [deletingIds, setDeletingIds] = useState({});
+	// Confirm modal state
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
+	const [pendingDeleteItem, setPendingDeleteItem] = useState(null);
 
 	const navigate = useNavigate();
 	const handleLogout = () => {
@@ -146,6 +150,14 @@ export default function AdminPrices() {
 		}
 	};
 
+	const openDeleteModal = (item) => { setPendingDeleteItem(item); setShowDeleteModal(true); };
+	const closeDeleteModal = () => { setShowDeleteModal(false); setPendingDeleteItem(null); };
+	const confirmDelete = async () => {
+		if (!pendingDeleteItem) return;
+		await handleDelete(pendingDeleteItem);
+		closeDeleteModal();
+	};
+
 	const handleDelete = async (p) => {
 		const id = getId(p);
 		const key = id ?? p.reference ?? Math.random().toString(36).slice(2);
@@ -207,7 +219,7 @@ export default function AdminPrices() {
 												<div className="col ref">{p.reference ?? "-"}</div>
 												<div className="col actions">
 													<button className="btn update" onClick={() => openEdit(p)}>Actualizar</button>
-													<button className="btn delete" onClick={() => handleDelete(p)} disabled={deleting}>{deleting ? <ReactLoading type="spin" color="#fcd1d1" height={14} width={14} /> : "Eliminar"}</button>
+													<button className="btn delete" onClick={() => openDeleteModal(p)} disabled={deleting}>{deleting ? <ReactLoading type="spin" color="#fcd1d1" height={14} width={14} /> : "Eliminar"}</button>
 												</div>
 											</div>
 										);
@@ -242,6 +254,9 @@ export default function AdminPrices() {
 					</div>
 				</div>
 			)}
+
+			{/* Confirm delete modal */}
+			<ConfirmationModal show={showDeleteModal} onClose={closeDeleteModal} onConfirm={confirmDelete} />
 
 			<Footer />
 		</div>

@@ -5,7 +5,7 @@ import anodalLogo from "../images/anodal_logo.webp";
 import Logonegro from "../images/anodal_logo_Negro.webp";
 import "../styles/navigation.css";
 import "../styles/scrollbar.css";
-import axios from "axios"; // <-- agregado
+import axios from "axios";
 
 const Navigation = ({ onLogout }) => {
     const { user, loading } = useContext(UserContext);
@@ -149,48 +149,14 @@ const Navigation = ({ onLogout }) => {
         }
     }, [location.pathname]);
 
-    // nuevo estado para almacenar usuario traído desde la API (fallback)
+    // estado para almacenar usuario traído desde la API
     const [fetchedUser, setFetchedUser] = useState(null);
-    const API_URL = process.env.REACT_APP_API_URL; // <-- agregado
+    const API_URL = process.env.REACT_APP_API_URL;
 
-    // Helper: extrae nombre y apellido desde varias posibles keys del objeto user
-    const getUserNameParts = (u) => {
-        if (!u) return { firstName: "", lastName: "" };
-        const firstName =
-            u.name ||
-            u.firstName ||
-            u.firstname ||
-            u.first_name ||
-            u.nombres ||
-            (typeof u.fullName === "string" && u.fullName.split(" ")[0]) ||
-            "";
-        const lastName =
-            u.lastName ||
-            u.last_name ||
-            u.lastname ||
-            u.apellido ||
-            u.apellidos ||
-            u.surname ||
-            (typeof u.fullName === "string" && u.fullName.split(" ").slice(1).join(" ")) ||
-            "";
-        return { firstName, lastName };
-    };
-
-    // Si el contexto no trae apellido, intentar pedir /api/auth/me y guardarlo en fetchedUser
+    // Obtener usuario desde API al montar el componente
     useEffect(() => {
         const token = localStorage.getItem("token");
-        if (!token) return;
-        // si ya tenemos apellido en contexto no hace falta pedir
-        const ctxHasLastName =
-            user &&
-            (Boolean(user.lastName) ||
-                Boolean(user.last_name) ||
-                Boolean(user.lastname) ||
-                Boolean(user.apellido) ||
-                Boolean(user.apellidos));
-        if (ctxHasLastName) return;
-
-        if (!API_URL) return;
+        if (!token || !API_URL) return;
 
         let mounted = true;
         (async () => {
@@ -201,26 +167,27 @@ const Navigation = ({ onLogout }) => {
                 const u = resp.data?.user || resp.data;
                 if (mounted && u) setFetchedUser(u);
             } catch (err) {
-                // no hacer nada crítico si falla
                 console.debug("Navigation: no se pudo obtener user desde API", err);
             }
         })();
         return () => { mounted = false; };
-    }, [user, API_URL]);
+    }, [API_URL]);
 
-    // Función para obtener iniciales a partir del objeto user (combina fetchedUser + contexto)
-    const getInitials = (u) => {
-        const combined = { ...(fetchedUser || {}), ...(u || {}) }; // fetchedUser primero, luego contexto sobreescribe si existe
-        const { firstName, lastName } = getUserNameParts(combined);
+    // Función para obtener iniciales
+    const getInitials = (userData) => {
+        if (!userData) return "US";
+        const firstName = userData.name || userData.firstName || "";
+        const lastName = userData.lastName || "";
         const firstInitial = firstName ? firstName.charAt(0).toUpperCase() : "U";
         const lastInitial = lastName ? lastName.charAt(0).toUpperCase() : "";
         return `${firstInitial}${lastInitial}`;
     };
 
-    // Componente reutilizable para el menú de usuario (usa nombres normalizados y combinación)
+    // Componente reutilizable para el menú de usuario (usa solo fetchedUser)
     const UserMenu = () => {
-        const combined = { ...(fetchedUser || {}), ...(user || {}) };
-        const { firstName, lastName } = getUserNameParts(combined);
+        const firstName = fetchedUser?.name || fetchedUser?.firstName || "";
+        const lastName = fetchedUser?.lastName || "";
+        const fullName = `${firstName} ${lastName}`.trim();
 
         return (
             <div className="user-menu-container" ref={userMenuRef}>
@@ -231,21 +198,26 @@ const Navigation = ({ onLogout }) => {
                     aria-label="Usuario"
                 >
                     <div className="nav-profile-initials">
-                        {getInitials(user)}
+                        {getInitials(fetchedUser)}
                     </div>
                 </button>
                 {userMenuOpen && (
-                    /* <-- CORRECCIÓN: agregar espacio antes de la clase opcionesuser cuando theme === "light" */
                     <div className={`dropdown-menu user-dropdown ${theme === "light" ? "opcionesuser" : ""}`}>
-                        {loading ? (
+                        {!fetchedUser ? (
                             <div className="user-text">Cargando...</div>
                         ) : (
                             <>
-                                {/* Evitar p>h2; usar elementos válidos y simples para que el CSS funcione bien */}
-                                <div className="user-text"><strong>{firstName} {lastName}</strong></div>
-                                <div className="user-text">Rol: <span>{user?.role || "Sin rol"}</span></div>
+                                <div className="user-text"><strong>{fullName}</strong></div>
+                                <div className="user-text">Rol: <span>
+                                    {userRole === "manager"
+                                        ? "Gerente"
+                                        : userRole === "coordinator"
+                                            ? "Supervisor"
+                                            : userRole === "quotator"
+                                                ? "Cotizador"
+                                                : userRole}
+                                </span></div>
 
-                                {/* Botones simplificados sin encabezados anidados */}
                                 <button className="dropdown-link" onClick={() => { setUserMenuOpen(false); navigate('/config-user'); }}>Configuración</button>
                                 <button className="dropdown-link" onClick={onLogout}>Cerrar Sesión</button>
                             </>

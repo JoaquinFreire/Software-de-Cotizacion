@@ -364,15 +364,7 @@ body.light-mode .results-body {
     backdrop-filter: blur(4px);
 }
 
-.modal {
-    width: 100%;
-    max-width: 500px;
-    background: #1e1e1e;
-    padding: 2rem;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    border: 1px solid #374151;
-    animation: modalSlideIn 0.3s ease-out;
-}
+
 
 @keyframes modalSlideIn {
     from {
@@ -423,7 +415,7 @@ body.light-mode .results-body {
     outline: none;
     border-color: #26b7cd;
     box-shadow: 0 0 0 3px rgba(38, 183, 205, 0.1);
-    background: #374151;
+    background: #374c51;
 }
 
 .modal-actions {

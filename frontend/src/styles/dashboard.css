@@ -200,7 +200,7 @@ body.light-mode .dashboard-title {
 .filter-input,
 .filter-select {
     width: 100%;
-    background: #2d2d2d;
+    background: #303030;
     border: 1px solid rgba(0, 0, 0, 0.2);
     color: white;
     border-radius: 6px;
@@ -404,4 +404,10 @@ body.light-mode .pagination-info {
 .filter-select,
 .pagination-btn {
     transition: all 0.3s ease;
+}
+
+.spinner-container-dashboard {
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }

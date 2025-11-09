@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import '../styles/confirmationModal.css';
 import ReactLoading from 'react-loading';
 
-const ConfirmationModal = ({ show, onClose, onConfirm }) => {
+const ConfirmationModal = ({ show, onClose, onConfirm, title, message, confirmLabel = "Confirmar", cancelLabel = "Cancelar" }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   if (!show) {
@@ -12,10 +12,8 @@ const ConfirmationModal = ({ show, onClose, onConfirm }) => {
   const handleConfirm = async () => {
     setIsLoading(true);
     try {
-      // Ejecuta la acción que recibís por props
       await onConfirm();
     } finally {
-      // 🔹 Si querés que se cierre solo al terminar
       setIsLoading(false);
       onClose();
     }
@@ -24,16 +22,16 @@ const ConfirmationModal = ({ show, onClose, onConfirm }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h2>Se eliminará la cotización</h2>
-        <p>¿Está seguro de su eliminación?</p>
+        <h2>{title ?? "Confirmar eliminación"}</h2>
+        <p>{message ?? "¿Está seguro de que desea eliminar?"}</p>
         <div className="modal-actions">
           <button className="cancel-button" onClick={onClose} disabled={isLoading}>
-            Cancelar
+            {cancelLabel}
           </button>
 
-          <button 
-            className="confirm-button" 
-            onClick={handleConfirm} 
+          <button
+            className="confirm-button"
+            onClick={handleConfirm}
             disabled={isLoading}
           >
             {isLoading ? (
@@ -42,7 +40,7 @@ const ConfirmationModal = ({ show, onClose, onConfirm }) => {
                 Eliminando...
               </div>
             ) : (
-              'Confirmar'
+              confirmLabel
             )}
           </button>
         </div>

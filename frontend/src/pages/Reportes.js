@@ -249,7 +249,16 @@ const Reportes = () => {
                     Acceda a informes detallados y análisis de datos para una mejor toma de decisiones
                 </p>
                 <div className="user-role-badge">
-                    Rol actual: <span className="role-text">{userRole}</span>
+                    Rol actual: <span className="role-text">
+                        {userRole === "manager"
+                            ? "Gerente"
+                            : userRole === "coordinator"
+                                ? "Supervisor"
+                                : userRole === "quotator"
+                                    ? "Cotizador"
+                                    : userRole}
+                    </span>
+
                 </div>
             </div>
 

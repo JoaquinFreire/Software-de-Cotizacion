@@ -8,6 +8,7 @@ import Footer from "../../../components/Footer";
 import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import ConfirmationModal from "../../../components/ConfirmationModal";
 
 const API_URL = process.env.REACT_APP_API_URL || "";
 
@@ -21,6 +22,9 @@ export default function AdminAccesory() {
     const [viewingAll, setViewingAll] = useState(false);
     const [deletingIds, setDeletingIds] = useState({});
     const [modalSubmitting, setModalSubmitting] = useState(false);
+    // Confirm delete modal
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [pendingDeleteItem, setPendingDeleteItem] = useState(null);
 
     const navigate = useNavigate();
 	const handleLogout = () => {
@@ -89,6 +93,14 @@ export default function AdminAccesory() {
         } catch (err) { console.error(err); toast.error("Error al actualizar accesorio."); } finally { setModalSubmitting(false); }
     };
 
+    const openDeleteModal = (item) => { setPendingDeleteItem(item); setShowDeleteModal(true); };
+    const closeDeleteModal = () => { setShowDeleteModal(false); setPendingDeleteItem(null); };
+    const confirmDelete = async () => {
+        if (!pendingDeleteItem) return;
+        await handleDelete(pendingDeleteItem);
+        closeDeleteModal();
+    };
+
     const handleDelete = async (t) => {
         const key = t.id ?? t.name ?? Math.random().toString(36).slice(2);
         setDeletingIds(prev => ({ ...prev, [key]: true }));
@@ -138,7 +150,7 @@ export default function AdminAccesory() {
                                                 <div className="col percent">{t.price}</div>
                                                 <div className="col-actions">
                                                     <button className="btn update" onClick={() => { setSelected(t); setForm({ name: t.name || "", price: t.price || 0 }); setShowModal(true); }}>Actualizar</button>
-                                                    <button className="btn delete" onClick={() => handleDelete(t)} disabled={isDeleting}>{isDeleting ? <ReactLoading type="spin" color="#fcd1d1" height={14} width={14} /> : "Eliminar"}</button>
+                                                    <button className="btn delete" onClick={() => openDeleteModal(t)} disabled={isDeleting}>{isDeleting ? <ReactLoading type="spin" color="#fcd1d1" height={14} width={14} /> : "Eliminar"}</button>
                                                 </div>
                                             </div>
                                         );
@@ -161,6 +173,7 @@ export default function AdminAccesory() {
                             </div>
                         </div>
                     )}
+                    <ConfirmationModal show={showDeleteModal} onClose={closeDeleteModal} onConfirm={confirmDelete} />
                 </div>
             </div>
             <Footer />
