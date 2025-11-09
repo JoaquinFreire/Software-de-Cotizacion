@@ -581,7 +581,6 @@ const Dashboard = () => {
                                         else goToDashboardPage(page - 1);
                                     }}
                                     disabled={isFiltering ? filterPage <= 1 : page <= 1}
-                                    className="pagination-btn"
                                 >
                                     Anterior
                                 </button>
@@ -600,7 +599,6 @@ const Dashboard = () => {
                                             ? filterPage >= Math.ceil(filterTotal / pageSize)
                                             : page >= Math.ceil(total / pageSize)
                                     }
-                                    className="pagination-btn"
                                 >
                                     Siguiente
                                 </button>

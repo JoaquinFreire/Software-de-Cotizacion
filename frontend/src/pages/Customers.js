@@ -214,14 +214,15 @@ const Customers = () => {
       <div className="clientes-header">
         <form className="search-container" onSubmit={handleSearchDni}>
           <div className="search-input-wrapper">
-            <i className="search-icon">🔍</i>
+            
             <input
-              className="search-input"
+              className="search-input-client"
               type="text"
               placeholder="Buscar por DNI..."
               value={searchDni}
               onChange={(e) => setSearchDni(e.target.value)}
             />
+            <i className="search-icon">🔍</i>
           </div>
           <div className="search-buttons">
             <button className="btn-search" type="submit">Buscar</button>
@@ -323,9 +324,10 @@ const Customers = () => {
                     <div className="cliente-info">
                       <div className="cliente-nombre">
                         <strong>{cliente.name} {cliente.lastname}</strong>
-                        <span className="cliente-dni-tag">DNI: {cliente.dni}</span>
+                        
                       </div>
                       <div className="cliente-datos">
+                        <span className="cliente-dni-tag">DNI: {cliente.dni}</span>
                         <div className="data-item">
                           <i className="data-icon">📱</i>
                           <span>{cliente.tel || 'No especificado'}</span>
@@ -365,9 +367,7 @@ const Customers = () => {
       <div className="pagination-nav">
         <button
           onClick={() => goToCustomerPage(page - 1)}
-          disabled={page <= 1}
-          className="pagination-btn"
-        >
+          disabled={page <= 1}        >
           <i>←</i> Anterior
         </button>
         <span className="pagination-info">
@@ -376,7 +376,6 @@ const Customers = () => {
         <button
           onClick={() => goToCustomerPage(page + 1)}
           disabled={page >= Math.ceil(total / PAGE_SIZE)}
-          className="pagination-btn"
         >
           Siguiente <i>→</i>
         </button>

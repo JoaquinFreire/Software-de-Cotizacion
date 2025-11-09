@@ -61,11 +61,11 @@ body.light-mode .quote-card {
     line-height: 1;
 }
 .go-button {
-    background: #1a2a1d; /* Green */
+    background: #2c5534; /* Green */
     color: rgb(197, 194, 194);
 }
 .go-button:hover {
-    background: #18301e; /* Un verde más oscuro */
+    background: #326b41; /* Un verde más oscuro */
 }
 
 .update-button {
