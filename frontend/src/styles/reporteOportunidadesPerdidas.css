@@ -1,10 +1,10 @@
 /* frontend/src/styles/reporteOportunidadesPerdidas.css */
 
-/* Variables específicas para este reporte */
+/* Variables especï¿½ficas para este reporte */
 :root {
-    --oportunidades-primary: #ef4444;
-    --oportunidades-primary-dark: #dc2626;
-    --oportunidades-secondary: #f59e0b;
+    --oportunidades-primary: #44efb6;
+    --oportunidades-primary-dark: #2657dc;
+    --oportunidades-secondary: #0b42f5;
     --oportunidades-success: #10b981;
     --oportunidades-info: #3b82f6;
     --oportunidades-warning: #f59e0b;
@@ -276,7 +276,7 @@
         color: var(--oportunidades-text-primary);
     }
 
-/* Gráficos */
+/* Grï¿½ficos */
 .oportunidades-grafico-section {
     margin-bottom: 30px;
 }
@@ -546,7 +546,7 @@
     font-weight: 600;
 }
 
-/* Estados de carga y vacío */
+/* Estados de carga y vacï¿½o */
 .oportunidades-loading {
     display: flex;
     flex-direction: column;
@@ -670,7 +670,7 @@
     }
 }
 
-/* Estilos para impresión y PDF */
+/* Estilos para impresiï¿½n y PDF */
 @media print {
     .oportunidades-header-actions,
     .oportunidades-filtros,
@@ -684,14 +684,14 @@
     }
 }
 
-/* Clase para ocultar elementos durante exportación PDF */
+/* Clase para ocultar elementos durante exportaciï¿½n PDF */
 .pdf-exporting .oportunidades-header-actions,
 .pdf-exporting .oportunidades-filtros,
 .pdf-exporting .oportunidades-btn {
     display: none !important;
 }
 
-/* Mejoras para el gráfico */
+/* Mejoras para el grï¿½fico */
 .grafico-container {
     position: relative;
 }
@@ -773,7 +773,7 @@
         }
 }
 
-/* Mejoras para las cards de cotización en vista detalle */
+/* Mejoras para las cards de cotizaciï¿½n en vista detalle */
 .cotizacion-card {
     transition: all 0.3s ease;
 }

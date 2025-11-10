@@ -434,7 +434,7 @@ const ReporteOportunidadesPerdidas = () => {
     const handleImprimir = () => window.print();
 
     return (
-        <div className="oportunidades-dashboard-container">
+        <div className="dashboard-container">
             <Navigation onLogout={() => {
                 localStorage.removeItem("token");
                 navigate("/");

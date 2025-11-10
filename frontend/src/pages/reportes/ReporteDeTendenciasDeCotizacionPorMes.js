@@ -444,7 +444,7 @@ const ReporteDeTendenciasDeCotizacionPorMes = () => {
     };
 
     return (
-        <div className="tendencias-dashboard-container">
+        <div className="dashboard-container">
             <Navigation onLogout={() => {
                 localStorage.removeItem("token");
                 navigate("/");

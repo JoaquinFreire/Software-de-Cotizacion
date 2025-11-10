@@ -139,8 +139,116 @@ const Navigation = ({ onLogout }) => {
     // Helper para saber si es móvil (se usa en render)
     const mobile = isMobile();
 
-    // Derivar rol como string (soporta estructura { role_name } o string)
-    const userRole = user?.role?.role_name ? String(user.role.role_name).toLowerCase() : (user?.role ? String(user.role).toLowerCase() : null);
+    // --- NEW: helper to decode JWT payload (base64url) safely ---
+    const decodeJwtPayload = (token) => {
+        try {
+            const parts = token.split('.');
+            if (parts.length < 2) return null;
+            const payload = parts[1];
+            // base64url -> base64
+            const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+            // atob then decode URI components safely
+            const json = decodeURIComponent(
+                atob(base64)
+                    .split('')
+                    .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                    .join('')
+            );
+            return JSON.parse(json);
+        } catch (e) {
+            console.debug("decodeJwtPayload error", e);
+            return null;
+        }
+    };
+
+    // Claims constants para evitar magic strings (MOVIDO arriba para evitar ReferenceError)
+    const ClaimTypes = {
+        NameIdentifier: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
+        Name: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+        Role: "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
+        GivenName: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname",
+        Surname: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
+    };
+
+    // --- MEJORADO: helper to normalize user shape ---
+    const normalizeUser = (u) => {
+        if (!u) return null;
+        
+        // Mantener lo que venga en u.firstName/u.lastName si existe; si falta cualquiera, intentar extraer de name (rawName)
+        const existingFirstName = (u.firstName || "").trim();
+        const existingLastName = (u.lastName || "").trim();
+        const rawName = (u.name || u.firstName || u.unique_name || "").trim();
+        
+        let firstName = existingFirstName;
+        let lastName = existingLastName;
+
+        if (rawName && (!firstName || !lastName)) {
+            // dividir rawName en partes y rellenar los campos que falten sin sobrescribir los que ya existen
+            const parts = String(rawName).trim().split(/\s+/);
+            if (!firstName && parts.length > 0) {
+                firstName = parts[0];
+            }
+            if (!lastName && parts.length > 1) {
+                lastName = parts.slice(1).join(" ");
+            }
+        }
+ 
+        const role = u.role || u.role_name || (u.role?.role_name) || "";
+        const id = u.id || u.userId || u.sub || u.nameid || null;
+        const name = `${firstName}${lastName ? " " + lastName : ""}`.trim();
+ 
+        return {
+            ...u,
+            firstName,
+            lastName,
+            name,
+            role,
+            id
+        };
+    };
+
+    // Inicializar fetchedUser a partir del token (si está) para mostrar nombre/rol inmediatamente
+    const [fetchedUser, setFetchedUser] = useState(() => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) return null;
+            const payload = decodeJwtPayload(token);
+            if (!payload) return null;
+
+            // Leer claims comunes sin depender de variables no inicializadas
+            const firstNameFromClaims =
+                payload[ClaimTypes.GivenName]
+                || payload["given_name"]
+                || payload["givenname"]
+                || "";
+            const lastNameFromClaims =
+                payload[ClaimTypes.Surname]
+                || payload["family_name"]
+                || payload["surname"]
+                || "";
+            const fullName = payload[ClaimTypes.Name] || payload["name"] || payload["unique_name"] || "";
+            const role = payload[ClaimTypes.Role] || payload["role"] || "";
+            const id = payload[ClaimTypes.NameIdentifier] || payload["nameid"] || payload["sub"] || null;
+
+            const tokenUser = {
+                firstName: firstNameFromClaims,
+                lastName: lastNameFromClaims,
+                name: fullName,
+                role,
+                id
+            };
+
+            return normalizeUser(tokenUser);
+        } catch (e) {
+            console.debug("init fetchedUser error", e);
+            return null;
+        }
+    });
+
+    // Preferir fetchedUser (token o API) y luego el contexto user
+    const userRole = (fetchedUser?.role && typeof fetchedUser.role === "string")
+        ? String(fetchedUser.role).toLowerCase()
+        : (user?.role?.role_name ? String(user.role.role_name).toLowerCase() : (user?.role ? String(user.role).toLowerCase() : null));
 
     useEffect(() => {
         // Abre el menú admin si la ruta comienza con /admin
@@ -149,11 +257,9 @@ const Navigation = ({ onLogout }) => {
         }
     }, [location.pathname]);
 
-    // estado para almacenar usuario traído desde la API
-    const [fetchedUser, setFetchedUser] = useState(null);
     const API_URL = process.env.REACT_APP_API_URL;
 
-    // Obtener usuario desde API al montar el componente
+    // Obtener usuario desde API al montar el componente - MEJORADO para mantener los nombres del token
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token || !API_URL) return;
@@ -165,29 +271,66 @@ const Navigation = ({ onLogout }) => {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const u = resp.data?.user || resp.data;
-                if (mounted && u) setFetchedUser(u);
+                if (mounted && u) {
+                    // Preservar los nombres del token y solo actualizar otros datos
+                    const currentUser = fetchedUser || {};
+                    const updatedUser = {
+                        ...currentUser, // Mantener nombres del token
+                        ...u, // Datos de la API
+                        // No sobrescribir firstName y lastName a menos que la API los provea explícitamente
+                        firstName: u.firstName || currentUser.firstName,
+                        lastName: u.lastName || currentUser.lastName,
+                        name: u.name || currentUser.name
+                    };
+                    setFetchedUser(normalizeUser(updatedUser));
+                }
             } catch (err) {
                 console.debug("Navigation: no se pudo obtener user desde API", err);
+                // Si falla la API, mantener los datos del token
             }
         })();
         return () => { mounted = false; };
-    }, [API_URL]);
+    }, [API_URL]); // Solo dependencia de API_URL
 
-    // Función para obtener iniciales
+    // Función para obtener iniciales - MEJORADA para ser más robusta
     const getInitials = (userData) => {
         if (!userData) return "US";
-        const firstName = userData.name || userData.firstName || "";
+        
+        // Priorizar firstName + lastName, luego name completo
+        const firstName = userData.firstName || "";
         const lastName = userData.lastName || "";
-        const firstInitial = firstName ? firstName.charAt(0).toUpperCase() : "U";
-        const lastInitial = lastName ? lastName.charAt(0).toUpperCase() : "";
-        return `${firstInitial}${lastInitial}`;
+        const fullName = userData.name || "";
+        
+        if (firstName && lastName) {
+            return `${firstName.charAt(0).toUpperCase()}${lastName.charAt(0).toUpperCase()}`;
+        }
+        
+        if (fullName) {
+            const parts = fullName.trim().split(/\s+/);
+            if (parts.length >= 2) {
+                return `${parts[0].charAt(0).toUpperCase()}${parts[parts.length - 1].charAt(0).toUpperCase()}`;
+            }
+            return parts[0].charAt(0).toUpperCase();
+        }
+        
+        return "US";
     };
 
-    // Componente reutilizable para el menú de usuario (usa solo fetchedUser)
+    // Componente reutilizable para el menú de usuario - MEJORADO
     const UserMenu = () => {
-        const firstName = fetchedUser?.name || fetchedUser?.firstName || "";
+        const firstName = fetchedUser?.firstName || "";
         const lastName = fetchedUser?.lastName || "";
-        const fullName = `${firstName} ${lastName}`.trim();
+        const fullNameFromAPI = fetchedUser?.name || "";
+        
+        // Determinar el nombre completo a mostrar
+        let displayName = "";
+        if (firstName && lastName) {
+            displayName = `${firstName} ${lastName}`.trim();
+        } else if (fullNameFromAPI) {
+            displayName = fullNameFromAPI;
+        } else {
+            displayName = "Usuario";
+        }
 
         return (
             <div className="user-menu-container" ref={userMenuRef}>
@@ -207,7 +350,7 @@ const Navigation = ({ onLogout }) => {
                             <div className="user-text">Cargando...</div>
                         ) : (
                             <>
-                                <div className="user-text"><strong>{fullName}</strong></div>
+                                <div className="user-text"><strong>{displayName}</strong></div>
                                 <div className="user-text">Rol: <span>
                                     {userRole === "manager"
                                         ? "Gerente"

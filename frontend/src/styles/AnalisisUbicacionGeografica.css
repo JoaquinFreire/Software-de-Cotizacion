@@ -1,5 +1,5 @@
 /* AnalisisUbicacionGeografica.css */
-/* Estilos específicos para el reporte de Análisis por Ubicación Geográfica */
+/* Estilos especï¿½ficos para el reporte de Anï¿½lisis por Ubicaciï¿½n Geogrï¿½fica */
 
 :root {
 	--report-container-bg: #1e1e1e;
@@ -12,8 +12,8 @@
 	--text-primary: #e0e0e0;
 	--text-secondary: #999;
 	--text-muted: #888;
-	--primary-color: #1976d2;
-	--primary-dark: #1565c0;
+	--primary-color: #19c6d2;
+	--primary-dark: #1598c0;
 	--secondary-color: #666;
 	--secondary-dark: #555;
 	--success-color: #4caf50;
@@ -23,7 +23,7 @@
 	--input-bg: #2d2d2d;
 }
 
-/* CONTENEDOR PRINCIPAL - MÁRGEN SUPERIOR AGREGADO */
+/* CONTENEDOR PRINCIPAL - Mï¿½RGEN SUPERIOR AGREGADO */
 .analisis-ubicacion-content {
 	max-width: 1400px;
 	margin: 40px auto 0 auto; /* 40px de margen superior */
@@ -173,7 +173,7 @@
 .filtro-group-moderno {
 	display: flex;
 	flex-direction: column;
-	gap: 6px; /* Reducido de 8px a 6px para más consistencia */
+	gap: 6px; /* Reducido de 8px a 6px para mï¿½s consistencia */
 	min-width: 0;
 }
 
@@ -186,12 +186,12 @@
 		gap: 6px;
 		white-space: nowrap;
 		min-height: 20px; /* Fuerza altura consistente */
-		line-height: 1.2; /* Altura de línea consistente */
+		line-height: 1.2; /* Altura de lï¿½nea consistente */
 		margin: 0; /* Eliminar cualquier margen por defecto */
 		padding: 0; /* Eliminar cualquier padding por defecto */
 	}
 
-		/* Asegurar que los iconos tengan tamaño consistente */
+		/* Asegurar que los iconos tengan tamaï¿½o consistente */
 		.filtro-group-moderno label svg {
 			width: 16px;
 			height: 16px;
@@ -209,7 +209,7 @@
 	transition: all 0.3s ease;
 	width: 100%;
 	box-sizing: border-box;
-	margin: 0; /* Eliminar márgenes */
+	margin: 0; /* Eliminar mï¿½rgenes */
 }
 
 	.filtro-input-moderno:focus,
@@ -325,7 +325,7 @@
 		background: var(--background-light);
 	}
 
-/* BOTONES DE ACCIÓN EN TABLA */
+/* BOTONES DE ACCIï¿½N EN TABLA */
 .btn-accion-tabla {
 	background: var(--primary-color);
 	color: white;
@@ -419,7 +419,7 @@
 	font-size: 16px;
 }
 
-/* ESTADO VACÍO */
+/* ESTADO VACï¿½O */
 .estado-vacio-moderno {
 	display: flex;
 	flex-direction: column;
@@ -471,7 +471,7 @@
 @media (max-width: 768px) {
 	.analisis-ubicacion-content {
 		padding: 20px 16px;
-		margin: 20px auto 0 auto; /* Menos margen en móviles */
+		margin: 20px auto 0 auto; /* Menos margen en mï¿½viles */
 	}
 
 	.analisis-ubicacion-header {
@@ -495,7 +495,7 @@
 	}
 
 	.filtros-grid-moderno {
-		grid-template-columns: 1fr; /* 1 columna en móviles */
+		grid-template-columns: 1fr; /* 1 columna en mï¿½viles */
 	}
 
 	.tabla-moderna {

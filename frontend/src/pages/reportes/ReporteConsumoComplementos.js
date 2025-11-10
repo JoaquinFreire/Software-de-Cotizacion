@@ -569,7 +569,7 @@ const ReporteConsumoComplementos = () => {
     };
 
     return (
-        <div className="consumo-complementos-container">
+        <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
 
             <div className="consumo-complementos-content">

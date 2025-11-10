@@ -380,5 +380,8 @@ body.light-mode .pagination-info {
 .spinner-container-dashboard {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 2px;
+    margin: 0 auto; 
+    justify-content: center;
+    
 }

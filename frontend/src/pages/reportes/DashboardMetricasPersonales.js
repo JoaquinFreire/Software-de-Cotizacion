@@ -352,7 +352,7 @@ const DashboardMetricasPersonales = () => {
     );
 
     return (
-        <div className="metrics-dashboard-container">
+        <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
 
             <div className="metrics-dashboard-main-wrapper">

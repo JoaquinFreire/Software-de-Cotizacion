@@ -730,7 +730,7 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
     }
 
     return (
-        <div className="beneficio-dashboard-container">
+        <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
 
             <div className="beneficio-main-wrapper">

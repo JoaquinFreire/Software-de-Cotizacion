@@ -5,6 +5,7 @@ import { UserContext } from "../context/UserContext";
 import Navigation from "./Navigation";
 import Footer from "./Footer";
 import "../styles/UserConfig.css";
+import ReactLoading from "react-loading";
 import { ToastContainer, toast, Slide } from 'react-toastify'; // Agregar notificaciones
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -151,9 +152,10 @@ export default function ConfigUser() {
 				</div>
 
 				{loading ? (
-					<div className="loading-container">
-						<div className="loading-spinner"></div>
-						<p>Cargando información...</p>
+					<div className="spinner-container-dashboard">
+						<ReactLoading type="spin" color="#26b7cd" height={34} width={34} 
+						display={"flex"} alignItems={"center"} justifyContent={"center"}
+						/>
 					</div>
 				) : (
 					<form className="user-config-form" onSubmit={handleSave}>
@@ -179,33 +181,33 @@ export default function ConfigUser() {
 							<div className="form-grid">
 								<div className="form-group">
 									<label className="form-label">Nombre</label>
-									<input 
-										name="name" 
-										value={form.name} 
+									<input
+										name="name"
+										value={form.name}
 										onChange={handleChange}
-										className="form-input" 
+										className="form-input"
 										readOnly
 									/>
 								</div>
 
 								<div className="form-group">
 									<label className="form-label">Apellido</label>
-									<input 
-										name="lastName" 
-										value={form.lastName} 
+									<input
+										name="lastName"
+										value={form.lastName}
 										onChange={handleChange}
-										className="form-input" 
+										className="form-input"
 										readOnly
 									/>
 								</div>
 
 								<div className="form-group">
 									<label className="form-label">Legajo</label>
-									<input 
-										name="legajo" 
-										value={form.legajo} 
-										readOnly 
-										className="form-input readonly" 
+									<input
+										name="legajo"
+										value={form.legajo}
+										readOnly
+										className="form-input readonly"
 									/>
 								</div>
 

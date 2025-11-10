@@ -202,15 +202,15 @@ body.light-mode {
 
 .profile-image-info h3 {
 	margin: 0 0 8px 0;
-	font-size: 18px;
-	font-weight: 500;
-	color: #202124;
+	font-size: 30px;
+	font-weight: 400;
+	color: #000000;
 }
 
 .profile-image-info p {
 	margin: 0;
-	font-size: 14px;
-	color: #5f6368;
+	font-size: 20px;
+	color: #979ea7;
 }
 
 /* Secciones del Formulario */
@@ -224,7 +224,7 @@ body.light-mode {
 }
 
 .section-title {
-	font-size: 18px;
+	font-size: 24px;
 	font-weight: 500;
 	color: var(--text);
 	margin: 0 0 24px 0;
@@ -242,6 +242,12 @@ body.light-mode {
 .form-group {
 	display: flex;
 	flex-direction: column;
+}
+.form-grid .form-group label{
+	font-size: 20px;
+	font-weight: 500;
+	color: var(--text);
+	margin-bottom: 8px;
 }
 
 .form-label {
