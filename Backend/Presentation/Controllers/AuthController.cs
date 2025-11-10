@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Linq;
 
 [ApiController]
 [Route("api/auth")]
@@ -39,22 +40,31 @@ public class AuthController : ControllerBase
         string jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? throw new Exception("JWT_SECRET_KEY no está definida.");
         string jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "default-issuer";
         string jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "default-audience";
-    
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        // Intentar derivar first/last name a partir de user (si user tiene name completo)
+        var fullName = user.name ?? "";
+        var parts = fullName.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        var firstName = parts.Length > 0 ? parts[0] : "";
+        var lastName = parts.Length > 1 ? string.Join(" ", parts.Skip(1)) : "";
+
+        var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.id.ToString()), // Se asigna el ID del usuario
-            new Claim(ClaimTypes.Name, user.name), // Se asigna el nombre del usuario
-            new Claim(ClaimTypes.Role, user.role.role_name ?? "user") // Si el rol no está definido, se asigna "user"
+            new Claim(ClaimTypes.Name, user.name ?? firstName), // Nombre completo o firstName
+            new Claim(ClaimTypes.Role, user.role?.role_name ?? "user"),
+            // Añadir claims separados para given name y surname para que el frontend pueda leerlos directamente
+            new Claim(ClaimTypes.GivenName, firstName ?? ""),
+            new Claim(ClaimTypes.Surname, lastName ?? "")
         };
 
         var token = new JwtSecurityToken(
             jwtIssuer,
             jwtAudience,
             claims,
-            expires: System.DateTime.UtcNow.AddHours(2), // El token expira en 30 minutos
+            expires: System.DateTime.UtcNow.AddHours(2),
             signingCredentials: credentials
         );
 
@@ -71,9 +81,24 @@ public class AuthController : ControllerBase
         var query = new GetUserQuery { id = int.Parse(userId) };
         var userDto = await _mediator.Send(query);
 
+        // Dividir el nombre completo en firstName y lastName para el frontend
+        var fullName = userDto.name ?? "";
+        var parts = fullName.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        var firstName = parts.Length > 0 ? parts[0] : "";
+        var lastName = parts.Length > 1 ? string.Join(" ", parts.Skip(1)) : "";
+
         return Ok(new
         {
-            user = userDto,
+            user = new
+            {
+                id = userDto.id,
+                name = userDto.name,
+                firstName = firstName,
+                lastName = lastName,
+                mail = userDto.mail,
+                role = userDto.role,
+                // incluir otras propiedades que necesites
+            },
             userId = userDto.id
         });
     }

@@ -162,35 +162,6 @@ const ReporteEstadoCotizaciones = () => {
                 const resolvedUserId = user?.id ?? res.data?.userId ?? null;
                 if (resolvedUserId) setCurrentUserId(resolvedUserId);
 
-                // Cargar lista de usuarios para coordinadores y managers
-                //const roleLower = roleName.toLowerCase();
-                //if (roleLower === 'manager' || roleLower === 'coordinator') {
-                //    try {
-                //        const usersRes = await axios.get(`${API_URL}/api/users`, {
-                //            headers: { Authorization: `Bearer ${token}` }
-                //        });
-
-                //        const raw = usersRes.data;
-                //        let arr = [];
-                //        if (Array.isArray(raw)) arr = raw;
-                //        else if (raw && Array.isArray(raw.users)) arr = raw.users;
-                //        else if (raw && Array.isArray(raw.data)) arr = raw.data;
-                //        else arr = [];
-
-                //        // Filtrar usuarios activos (status === 1) y que no sean managers
-                //        const usuariosFiltrados = arr.filter(user =>
-                //            user.status === 1 &&
-                //            user.role?.role_name !== 'manager' &&
-                //            user.role !== 'manager'
-                //        );
-
-                //        setUsersList(usuariosFiltrados);
-                //        setSelectedUserId('');
-                //    } catch (uErr) {
-                //        console.error("Error fetching users list:", uErr);
-                //    }
-                //}
-
                 // Configurar visibilidad por defecto según rol
                 if (roleName !== 'manager') {
                     setMostrarPendientes(true);
@@ -433,7 +404,7 @@ const ReporteEstadoCotizaciones = () => {
     };
 
     return (
-        <div className="estado-dashboard-container">
+        <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
 
             {/* Loading Overlay */}
@@ -525,7 +496,7 @@ const ReporteEstadoCotizaciones = () => {
                                 <div className="estado-kpis">
                                     <div
                                         className="kpi-card"
-                                        style={{ "--card-color": "#f59e0b" }}
+                                        style={{ "--card-color": "#0be5f5" }}
                                         onClick={() => setMostrarPendientes(!mostrarPendientes)}
                                     >
                                         <div className="kpi-icon">
@@ -540,7 +511,7 @@ const ReporteEstadoCotizaciones = () => {
 
                                     <div
                                         className="kpi-card"
-                                        style={{ "--card-color": "#10b981" }}
+
                                         onClick={() => setMostrarAprobados(!mostrarAprobados)}
                                     >
                                         <div className="kpi-icon">
@@ -570,7 +541,7 @@ const ReporteEstadoCotizaciones = () => {
 
                                     <div
                                         className="kpi-card"
-                                        style={{ "--card-color": "#3b82f6" }}
+                                        style={{ "--card-color": "#3bdaf6" }}
                                         onClick={() => setMostrarFinalizados(!mostrarFinalizados)}
                                     >
                                         <div className="kpi-icon">

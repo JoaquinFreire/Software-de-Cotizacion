@@ -1,6 +1,6 @@
 /* frontend/src/styles/ReporteEstadoCotizaciones.css */
 
-/* Variables específicas para este reporte */
+/* Variables especï¿½ficas para este reporte */
 :root {
     --estado-primary: #26b7cd;
     --estado-primary-dark: #1fa5b9;
@@ -8,11 +8,11 @@
     --estado-success: #10b981;
     --estado-warning: #f59e0b;
     --estado-error: #ef4444;
-    --estado-info: #3b82f6;
-    --estado-bg-dark: #0f172a;
-    --estado-bg-medium: #1e293b;
+    --estado-info: #3bd1f6;
+    --estado-bg-dark: #0f252a;
+    --estado-bg-medium: #0d343b;
     --estado-bg-light: #2d2d2d;
-    --estado-border: #334155;
+    --estado-border: #334655;
     --estado-text-primary: #ffffff;
     --estado-text-secondary: #94a3b8;
     --estado-text-muted: #64748b;
@@ -283,7 +283,7 @@
         color: var(--estado-text-primary);
     }
 
-/* Gráfico */
+/* Grï¿½fico */
 .estado-grafico-section {
     margin-bottom: 30px;
 }
@@ -299,7 +299,7 @@
     align-items: center;
 }
 
-/* Controles de visualización */
+/* Controles de visualizaciï¿½n */
 .estado-controles {
     display: flex;
     gap: 24px;
@@ -393,7 +393,7 @@
         transform: translateX(4px);
     }
 
-/* Botón de ordenamiento */
+/* Botï¿½n de ordenamiento */
 .sort-btn {
     background: transparent;
     border: none;
@@ -409,7 +409,7 @@
         background: rgba(38, 183, 205, 0.1);
     }
 
-/* Estados específicos para cada tipo */
+/* Estados especï¿½ficos para cada tipo */
 .estado-pendiente {
     color: var(--estado-warning);
 }
@@ -548,7 +548,7 @@
     }
 }
 
-/* Estilos para impresión */
+/* Estilos para impresiï¿½n */
 @media print {
     .estado-dashboard-container {
         background: white !important;
@@ -596,14 +596,14 @@
         background: var(--estado-primary);
     }
 
-/* Ajustes específicos para el reporte de estado */
+/* Ajustes especï¿½ficos para el reporte de estado */
 .grafico-container .chartjs-render-monitor {
     max-width: 300px !important;
     max-height: 300px !important;
     margin: 0 auto;
 }
 
-/* Ajuste del contenedor del gráfico */
+/* Ajuste del contenedor del grï¿½fico */
 .grafico-container {
     background: var(--estado-bg-medium);
     border-radius: 16px;
@@ -644,7 +644,7 @@
     box-sizing: border-box;
 }
 
-/* Ajuste específico para el select de usuarios */
+/* Ajuste especï¿½fico para el select de usuarios */
 .user-selector {
     min-width: 200px;
 }
@@ -693,7 +693,7 @@
 
 /* Agregar al final de ReporteEstadoCotizaciones.css */
 
-/* Sección de análisis estratégico expandida */
+/* Secciï¿½n de anï¿½lisis estratï¿½gico expandida */
 .estado-analisis-section {
     margin-bottom: 30px;
 }
@@ -739,7 +739,7 @@
     margin-top: 5px;
 }
 
-/* Mejoras para el gráfico */
+/* Mejoras para el grï¿½fico */
 .grafico-container .chartjs-render-monitor {
     max-width: 300px !important;
     max-height: 300px !important;
@@ -751,7 +751,7 @@
     min-width: 220px;
 }
 
-/* Mejor alineación de los filtros */
+/* Mejor alineaciï¿½n de los filtros */
 .filtros-grid {
     display: grid;
     grid-template-columns: auto auto auto 1fr;

@@ -181,41 +181,70 @@ const Reportes = () => {
     const [userRole, setUserRole] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Función para obtener el rol del usuario
-    const getUserRole = async () => {
+    // Helper para decodificar payload JWT (base64url)
+    const decodeJwtPayload = (token) => {
         try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                navigate("/");
-                return;
-            }
-
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                setUserRole(data.user.role);
-            } else {
-                console.error('Error al obtener información del usuario');
-                handleLogout();
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            handleLogout();
-        } finally {
-            setLoading(false);
+            const parts = token.split('.');
+            if (parts.length < 2) return null;
+            const payload = parts[1];
+            const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+            const json = decodeURIComponent(
+                atob(base64)
+                    .split('')
+                    .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                    .join('')
+            );
+            return JSON.parse(json);
+        } catch (e) {
+            console.debug("decodeJwtPayload error", e);
+            return null;
         }
     };
 
+    // Claim names utilizados por el backend
+    const ClaimTypes = {
+        Role: "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
+    };
+
+    // Obtener el rol desde el token y mostrar instantáneamente; hacer fetch en background para sincronizar si se desea.
     useEffect(() => {
-        getUserRole();
-    }, []);
+        const token = localStorage.getItem("token");
+        if (!token) {
+            navigate("/");
+            return;
+        }
+
+        // Extraer rol del token para mostrar instantáneamente
+        const payload = decodeJwtPayload(token);
+        const roleFromToken = payload?.[ClaimTypes.Role] || payload?.role || payload?.role_name || null;
+        setUserRole(roleFromToken ? String(roleFromToken).toLowerCase() : null);
+        setLoading(false); // ya podemos renderizar
+
+        // Opcional: refrescar en background desde la API y actualizar si cambia (no bloquea el UI)
+        (async () => {
+            try {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const apiRole = data?.user?.role;
+                    if (apiRole && String(apiRole).toLowerCase() !== (roleFromToken ? String(roleFromToken).toLowerCase() : null)) {
+                        setUserRole(String(apiRole).toLowerCase());
+                    }
+                } else {
+                    // si la API responde mal, no bloqueamos ni forzamos logout aquí
+                    console.debug('Reportes: /me response not ok');
+                }
+            } catch (err) {
+                console.debug('Reportes: background /me failed', err);
+            }
+        })();
+    }, [navigate]);
 
     const handleLogout = () => {
         localStorage.removeItem("token");
