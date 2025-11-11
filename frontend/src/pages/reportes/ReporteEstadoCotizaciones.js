@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Pie } from 'react-chartjs-2';
 import axios from 'axios';
 import 'chart.js/auto';
-import logoAnodal from '../../images/logo_secundario.webp';
 import '../../styles/ReporteEstadoCotizaciones.css';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Chart } from 'chart.js/auto';
@@ -15,17 +14,14 @@ import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
 import {
     BarChart3,
-    User,
     Clock,
     CheckCircle,
     XCircle,
     Award,
-    Download,
     Filter,
     RefreshCw,
     ChevronUp,
     ChevronDown,
-    Users,
     PieChart
 } from 'lucide-react';
 
@@ -38,12 +34,6 @@ const getDefaultDates = () => {
         desde: `${year}-01-01`,
         hasta: `${year}-12-31`
     };
-};
-
-const formatFecha = (fecha) => {
-    if (!fecha) return '';
-    const [y, m, d] = fecha.split('-');
-    return `${d}-${m}-${y.slice(2)}`;
 };
 
 const formatFechaCorta = (fecha) => {
@@ -84,12 +74,6 @@ const ReporteEstadoCotizaciones = () => {
     const [mostrarAprobados, setMostrarAprobados] = useState(false);
     const [mostrarRechazados, setMostrarRechazados] = useState(false);
     const [mostrarFinalizados, setMostrarFinalizados] = useState(false);
-    const [contentLoaded, setContentLoaded] = useState(false);
-    const pdfRef = useRef();
-    const pendientesRef = useRef();
-    const aprobadosRef = useRef();
-    const rechazadosRef = useRef();
-    const finalizadosRef = useRef();
     const [currentRole, setCurrentRole] = useState(null);
     const [currentUserId, setCurrentUserId] = useState(null);
     const [sortDirection, setSortDirection] = useState({
@@ -98,8 +82,12 @@ const ReporteEstadoCotizaciones = () => {
         rejected: null,
         finished: null
     });
-    const [selectedUserId, setSelectedUserId] = useState('');
-    const [usersList, setUsersList] = useState([]);
+
+    const pdfRef = useRef();
+    const pendientesRef = useRef();
+    const aprobadosRef = useRef();
+    const rechazadosRef = useRef();
+    const finalizadosRef = useRef();
 
     const navigate = useNavigate();
 
@@ -108,7 +96,6 @@ const ReporteEstadoCotizaciones = () => {
         navigate("/");
     };
 
-    // Mover handlePieClick aquí, antes de chartOptions
     const handlePieClick = (evt, elements) => {
         if (!elements.length) return;
         const idx = elements[0].index;
@@ -144,11 +131,12 @@ const ReporteEstadoCotizaciones = () => {
         onClick: handlePieClick
     };
 
+    // Cargar datos del usuario una sola vez
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        (async () => {
+        const loadUserData = async () => {
             try {
                 const res = await axios.get(`${API_URL}/api/auth/me`, {
                     headers: { Authorization: `Bearer ${token}` }
@@ -162,28 +150,18 @@ const ReporteEstadoCotizaciones = () => {
                 const resolvedUserId = user?.id ?? res.data?.userId ?? null;
                 if (resolvedUserId) setCurrentUserId(resolvedUserId);
 
-                // Configurar visibilidad por defecto según rol
-                if (roleName !== 'manager') {
-                    setMostrarPendientes(true);
-                    setMostrarAprobados(false);
-                    setMostrarRechazados(false);
-                    setMostrarFinalizados(false);
-                } else {
-                    setMostrarPendientes(true);
-                    setMostrarAprobados(true);
-                    setMostrarRechazados(true);
-                    setMostrarFinalizados(true);
-                }
             } catch (err) {
                 console.error("Error fetching current role for report:", err);
             }
-        })();
+        };
+
+        loadUserData();
     }, []);
 
     const fetchData = async () => {
         if (!fechaDesde || !fechaHasta) return;
+
         setLoading(true);
-        setContentLoaded(false);
 
         try {
             const token = localStorage.getItem('token');
@@ -191,8 +169,6 @@ const ReporteEstadoCotizaciones = () => {
             let userIdParam = '';
             if (currentRole === 'quotator' && currentUserId) {
                 userIdParam = `&userId=${currentUserId}`;
-            } else if ((currentRole === 'manager' || currentRole === 'coordinator') && selectedUserId) {
-                userIdParam = selectedUserId ? `&userId=${selectedUserId}` : '';
             }
 
             const res = await axios.get(
@@ -212,17 +188,12 @@ const ReporteEstadoCotizaciones = () => {
             ];
             setCounts(newCounts);
 
-            // Delay más largo para que se renderice todo correctamente, especialmente para manager
-            setTimeout(() => {
-                setContentLoaded(true);
-            }, 800);
-
         } catch (err) {
             setCounts([0, 0, 0, 0]);
             setCotizaciones([]);
-            setContentLoaded(true);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const handleGenerarReporte = () => {
@@ -244,11 +215,9 @@ const ReporteEstadoCotizaciones = () => {
             pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
 
-        setTimeout(() => {
-            html2pdf().set(opt).from(pdfRef.current).save().then(() => {
-                if (scrollBtn) scrollBtn.style.display = '';
-            });
-        }, 100);
+        html2pdf().set(opt).from(pdfRef.current).save().then(() => {
+            if (scrollBtn) scrollBtn.style.display = '';
+        });
     };
 
     const cotizacionesPorEstado = {
@@ -335,16 +304,18 @@ const ReporteEstadoCotizaciones = () => {
         return <Filter size={14} />;
     };
 
-    // Función para renderizar las tablas de otros estados (aprobados, rechazados, finalizados)
     const renderTablaEstado = (estado, titulo, colorClase, icono, ref) => {
+        const count = cotizacionesPorEstado[estado].length;
         return (
             <div ref={ref} style={{ marginTop: '40px' }}>
                 <div className="section-header">
                     {icono}
-                    <h2 className={colorClase}>{titulo}</h2>
+                    <h2 className={colorClase}>
+                        {titulo} <span className="estado-count">({count})</span>
+                    </h2>
                 </div>
                 <div className="tabla-container">
-                    {cotizacionesPorEstado[estado].length === 0 ? (
+                    {count === 0 ? (
                         <div style={{ padding: '20px', textAlign: 'center', color: 'var(--estado-text-secondary)' }}>
                             No hay {titulo.toLowerCase()}
                         </div>
@@ -407,19 +378,11 @@ const ReporteEstadoCotizaciones = () => {
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
 
-            {/* Loading Overlay */}
-            {loading && (
-                <div className="estado-loading-overlay">
-                    <ReactLoading type="spin" color="#26b7cd" height={80} width={80} />
-                    <p>Cargando reporte...</p>
-                </div>
-            )}
-
             <div className="estado-main-wrapper">
                 <div className="estado-content-container">
-                    <div className={`estado-main-container ${!contentLoaded && generar ? 'content-hidden' : 'content-visible'}`}>
+                    <div className="estado-main-container">
 
-                        {/* Header moderno */}
+                        {/* Header con badge que carga inmediatamente */}
                         <div className="estado-header">
                             <div className="estado-header-title">
                                 <BarChart3 size={32} />
@@ -428,18 +391,12 @@ const ReporteEstadoCotizaciones = () => {
                                     <p>Análisis detallado por estados y períodos</p>
                                 </div>
                             </div>
-                            {currentRole && (
-                                <div className="role-badge">
-                                    <User size={16} />
-                                    Rol: {currentRole}
-                                </div>
-                            )}
                         </div>
 
-                        {/* Filtros modernos */}
+                        {/* Filtros unificados */}
                         <div className="estado-filtros">
-                            <div className="filtros-grid">
-                                <div className="filtro-group">
+                            <div className="filtros-grid-unificado">
+                                <div className="filtro-group fecha-group">
                                     <label>Desde:</label>
                                     <input
                                         type="date"
@@ -449,7 +406,7 @@ const ReporteEstadoCotizaciones = () => {
                                     />
                                 </div>
 
-                                <div className="filtro-group">
+                                <div className="filtro-group fecha-group">
                                     <label>Hasta:</label>
                                     <input
                                         type="date"
@@ -459,144 +416,10 @@ const ReporteEstadoCotizaciones = () => {
                                     />
                                 </div>
 
-                                {/*{(currentRole === 'manager' || currentRole === 'coordinator') && (*/}
-                                {/*    <div className="filtro-group user-selector">*/}
-                                {/*        <label>Usuario:</label>*/}
-                                {/*        <select*/}
-                                {/*            value={selectedUserId}*/}
-                                {/*            onChange={(e) => setSelectedUserId(e.target.value)}*/}
-                                {/*            className="filtro-input"*/}
-                                {/*        >*/}
-                                {/*            <option value="">Todos los usuarios</option>*/}
-                                {/*            {usersList.map(user => (*/}
-                                {/*                <option key={user.id} value={user.id}>*/}
-                                {/*                    {user.name} {user.lastName} ({user.role?.role_name || user.role})*/}
-                                {/*                </option>*/}
-                                {/*            ))}*/}
-                                {/*        </select>*/}
-                                {/*    </div>*/}
-                                {/*)}*/}
-
-                                <div className="filtro-actions">
-                                    <button
-                                        className="estado-btn estado-btn-primary"
-                                        onClick={handleGenerarReporte}
-                                        disabled={loading || !fechaDesde || !fechaHasta}
-                                    >
-                                        <RefreshCw size={18} />
-                                        {loading ? 'Generando...' : 'Generar Reporte'}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* KPIs modernos - Solo mostrar cuando todo esté cargado */}
-                        {generar && !loading && contentLoaded && (
-                            <>
-                                <div className="estado-kpis">
-                                    <div
-                                        className="kpi-card"
-                                        style={{ "--card-color": "#0be5f5" }}
-                                        onClick={() => setMostrarPendientes(!mostrarPendientes)}
-                                    >
-                                        <div className="kpi-icon">
-                                            <Clock size={24} />
-                                        </div>
-                                        <div className="kpi-content">
-                                            <div className="kpi-value">{counts[0]}</div>
-                                            <div className="kpi-label">Pendientes</div>
-                                            <div className="kpi-subtext">{porcentajes[0]} del total</div>
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        className="kpi-card"
-
-                                        onClick={() => setMostrarAprobados(!mostrarAprobados)}
-                                    >
-                                        <div className="kpi-icon">
-                                            <CheckCircle size={24} />
-                                        </div>
-                                        <div className="kpi-content">
-                                            <div className="kpi-value">{counts[1]}</div>
-                                            <div className="kpi-label">Aprobadas</div>
-                                            <div className="kpi-subtext">{porcentajes[1]} del total</div>
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        className="kpi-card"
-                                        style={{ "--card-color": "#ef4444" }}
-                                        onClick={() => setMostrarRechazados(!mostrarRechazados)}
-                                    >
-                                        <div className="kpi-icon">
-                                            <XCircle size={24} />
-                                        </div>
-                                        <div className="kpi-content">
-                                            <div className="kpi-value">{counts[2]}</div>
-                                            <div className="kpi-label">Rechazadas</div>
-                                            <div className="kpi-subtext">{porcentajes[2]} del total</div>
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        className="kpi-card"
-                                        style={{ "--card-color": "#3bdaf6" }}
-                                        onClick={() => setMostrarFinalizados(!mostrarFinalizados)}
-                                    >
-                                        <div className="kpi-icon">
-                                            <Award size={24} />
-                                        </div>
-                                        <div className="kpi-content">
-                                            <div className="kpi-value">{counts[3]}</div>
-                                            <div className="kpi-label">Finalizadas</div>
-                                            <div className="kpi-subtext">{porcentajes[3]} del total</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="estado-pdf-container" ref={pdfRef}>
-                                    {/* Gráfico - sólo para manager */}
-                                    {currentRole === 'manager' && total > 0 && (
-                                        <div className="estado-grafico-section">
-                                            <div className="section-header">
-                                                <PieChart size={24} />
-                                                <h2>Distribución de Estados</h2>
-                                            </div>
-                                            <div className="grafico-container" style={{ height: '350px' }}>
-                                                <Pie data={data} options={chartOptions} />
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Análisis estratégico - sólo para manager */}
-                                    {currentRole === 'manager' && (
-                                        <div className="estado-analisis-section">
-                                            <div className="section-header">
-                                                <BarChart3 size={24} />
-                                                <h2>Análisis Estratégico</h2>
-                                            </div>
-                                            <div className="analisis-container">
-                                                <div className="analisis-content">
-                                                    <div className="analisis-item">
-                                                        <strong>Estado predominante:</strong> {estadoMasComun} ({porcentajeMasComun})
-                                                    </div>
-                                                    <div className="analisis-item">
-                                                        <strong>Observaciones:</strong>
-                                                        <div className="analisis-texto">{observacion}</div>
-                                                    </div>
-                                                    <div className="analisis-item">
-                                                        <strong>Recomendaciones:</strong>
-                                                        <div className="analisis-texto">{recomendacion}</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Controles de visualización */}
-                                    <div className="estado-controles">
-                                        <div className="control-group">
+                                <div className="filtro-group estado-filtros-checkbox">
+                                    <label>Mostrar:</label>
+                                    <div className="estado-checkboxes-container">
+                                        <div className="estado-checkboxes">
                                             <label className="control-checkbox">
                                                 <input
                                                     type="checkbox"
@@ -633,10 +456,73 @@ const ReporteEstadoCotizaciones = () => {
                                                 Finalizadas
                                             </label>
                                         </div>
-
                                     </div>
+                                </div>
 
-                                    {/* Detalle de cotizaciones */}
+                                <div className="filtro-actions">
+                                    <button
+                                        className="estado-btn estado-btn-primary"
+                                        onClick={handleGenerarReporte}
+                                        disabled={loading || !fechaDesde || !fechaHasta}
+                                    >
+                                        <RefreshCw size={18} />
+                                        {loading ? 'Generando...' : 'Generar Reporte'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Contenido del reporte con loading interno */}
+                        <div className="satisfaction-content">
+                            {loading && generar ? (
+                                <div className="satisfaction-loading">
+                                    <ReactLoading type="spin" color="#26b7cd" height={80} width={80} />
+                                    <div className="loading-text">Cargando reporte...</div>
+                                </div>
+                            ) : !generar ? (
+                                <div className="satisfaction-empty">
+                                    <BarChart3 size={64} />
+                                    <h3>Reporte no generado</h3>
+                                    <p>Presione "Generar Reporte" para analizar las cotizaciones</p>
+                                </div>
+                            ) : (
+                                <div className="satisfaction-report" ref={pdfRef}>
+                                    {currentRole === 'manager' && total > 0 && (
+                                        <div className="estado-grafico-section">
+                                            <div className="section-header">
+                                                <PieChart size={24} />
+                                                <h2>Distribución de Estados</h2>
+                                            </div>
+                                            <div className="grafico-container" style={{ height: '350px' }}>
+                                                <Pie data={data} options={chartOptions} />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {currentRole === 'manager' && (
+                                        <div className="estado-analisis-section">
+                                            <div className="section-header">
+                                                <BarChart3 size={24} />
+                                                <h2>Análisis Estratégico</h2>
+                                            </div>
+                                            <div className="analisis-container">
+                                                <div className="analisis-content">
+                                                    <div className="analisis-item">
+                                                        <strong>Estado predominante:</strong> {estadoMasComun} ({porcentajeMasComun})
+                                                    </div>
+                                                    <div className="analisis-item">
+                                                        <strong>Observaciones:</strong>
+                                                        <div className="analisis-texto">{observacion}</div>
+                                                    </div>
+                                                    <div className="analisis-item">
+                                                        <strong>Recomendaciones:</strong>
+                                                        <div className="analisis-texto">{recomendacion}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div className="estado-tabla-section">
                                         {mostrarPendientes && renderTablaEstado(
                                             'pending',
@@ -671,17 +557,8 @@ const ReporteEstadoCotizaciones = () => {
                                         )}
                                     </div>
                                 </div>
-                            </>
-                        )}
-
-                        {/* Empty State */}
-                        {!generar && !loading && (
-                            <div className="estado-empty">
-                                <BarChart3 size={64} />
-                                <h3>Reporte No Generado</h3>
-                                <p>Seleccione un rango de fechas y presione "Generar Reporte"</p>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

@@ -3,16 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\components\\QuotationList.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\components\\QuotationList.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\styles\\ReporteEstadoCotizaciones.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\styles\\ReporteEstadoCotizaciones.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\Historial.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\pages\\Historial.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\ReporteEstadoCotizaciones.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\pages\\reportes\\ReporteEstadoCotizaciones.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\Dashboard.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\pages\\Dashboard.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\styles\\reporte-satisfaccion.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\styles\\reporte-satisfaccion.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\AnalisisSatisfaccionCliente.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\pages\\reportes\\AnalisisSatisfaccionCliente.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,7 +26,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 13,
+          "SelectedChildIndex": 15,
           "Children": [
             {
               "$type": "Bookmark",
@@ -78,40 +82,53 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "QuotationList.js",
-              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\components\\QuotationList.js",
-              "RelativeDocumentMoniker": "src\\components\\QuotationList.js",
-              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\components\\QuotationList.js",
-              "RelativeToolTip": "src\\components\\QuotationList.js",
-              "ViewState": "AgIAAE4AAAAAAAAAAAAYwGIAAACoAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "reporte-satisfaccion.css",
+              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\styles\\reporte-satisfaccion.css",
+              "RelativeDocumentMoniker": "src\\styles\\reporte-satisfaccion.css",
+              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\styles\\reporte-satisfaccion.css",
+              "RelativeToolTip": "src\\styles\\reporte-satisfaccion.css",
+              "ViewState": "AgIAAD4CAAAAAAAAAAAgwFUCAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-11-10T22:45:37.868Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AnalisisSatisfaccionCliente.js",
+              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\AnalisisSatisfaccionCliente.js",
+              "RelativeDocumentMoniker": "src\\pages\\reportes\\AnalisisSatisfaccionCliente.js",
+              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\AnalisisSatisfaccionCliente.js",
+              "RelativeToolTip": "src\\pages\\reportes\\AnalisisSatisfaccionCliente.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAI4CAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-11-06T20:15:51.644Z",
+              "WhenOpened": "2025-11-10T22:44:51.51Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ReporteEstadoCotizaciones.css",
+              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\styles\\ReporteEstadoCotizaciones.css",
+              "RelativeDocumentMoniker": "src\\styles\\ReporteEstadoCotizaciones.css",
+              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\styles\\ReporteEstadoCotizaciones.css",
+              "RelativeToolTip": "src\\styles\\ReporteEstadoCotizaciones.css",
+              "ViewState": "AgIAALgAAAAAAAAAAAApwMoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-11-10T22:14:53.234Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Historial.js",
-              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\Historial.js",
-              "RelativeDocumentMoniker": "src\\pages\\Historial.js",
-              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\Historial.js",
-              "RelativeToolTip": "src\\pages\\Historial.js",
-              "ViewState": "AgIAAOsAAAAAAAAAAAAcwP8AAABFAAAAAAAAAA==",
+              "Title": "ReporteEstadoCotizaciones.js",
+              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\ReporteEstadoCotizaciones.js",
+              "RelativeDocumentMoniker": "src\\pages\\reportes\\ReporteEstadoCotizaciones.js",
+              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\ReporteEstadoCotizaciones.js",
+              "RelativeToolTip": "src\\pages\\reportes\\ReporteEstadoCotizaciones.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-11-06T19:54:44.167Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Dashboard.js",
-              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\Dashboard.js",
-              "RelativeDocumentMoniker": "src\\pages\\Dashboard.js",
-              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\Dashboard.js",
-              "RelativeToolTip": "src\\pages\\Dashboard.js",
-              "ViewState": "AgIAAEUBAAAAAAAAAAAgwFEBAAA1AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-11-06T19:54:17.164Z"
+              "WhenOpened": "2025-11-10T22:14:39.522Z",
+              "EditorCaption": ""
             }
           ]
         }
