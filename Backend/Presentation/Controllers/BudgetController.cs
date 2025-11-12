@@ -1,16 +1,17 @@
 using Application.DTOs.BudgetDTOs.CreateBudget;
-using Application.DTOs.BudgetDTOs.UpdateBudget;
 using Application.DTOs.BudgetDTOs.DeleteBudget;
 using Application.DTOs.BudgetDTOs.GetAllBudgetByComplement;
 using Application.DTOs.BudgetDTOs.GetBudget;
 using Application.DTOs.BudgetDTOs.GetBudgetByCustomerDni;
+using Application.DTOs.BudgetDTOs.UpdateBudget;
+using Application.DTOs.BudgetDTOs.GetBudgetsByUserAndDate;
 using Application.Services;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Request;
-using System.Text.Json; // <-- para serializar en consola
 using System.Linq; // <--- agregado
+using System.Text.Json; // <-- para serializar en consola
 
 namespace Presentation.Controllers
 {
@@ -190,6 +191,47 @@ namespace Presentation.Controllers
             var query = new GetBudgetByCustomerDniQuery(customerDni);
             var result = await _mediator.Send(query);
             return Ok(result);
+        }
+
+        [HttpGet("GetBudgetsByDateAndUser")]
+        public async Task<IActionResult> GetBudgetsByDateAndUser([FromQuery] string from, [FromQuery] string to, [FromQuery] string userName, [FromQuery] string userLastName)
+        {
+            // Validar parámetros requeridos
+            if (string.IsNullOrEmpty(from) || string.IsNullOrEmpty(to) ||
+                string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(userLastName))
+                return BadRequest("Debe especificar las fechas 'from', 'to', 'userName' y 'userLastName'.");
+
+            // Parsear fechas
+            if (!DateTime.TryParse(from, out DateTime desde) || !DateTime.TryParse(to, out DateTime hasta))
+                return BadRequest("Formato de fecha inválido.");
+
+            // Validar que from no sea mayor que to
+            if (desde > hasta)
+                return BadRequest("La fecha 'from' no puede ser posterior a 'to'.");
+
+            try
+            {
+                var query = new GetBudgetByDateAndUserQuery
+                {
+                    FromDate = desde,
+                    ToDate = hasta,
+                    UserName = userName,
+                    UserLastName = userLastName
+                };
+
+                var result = await _mediator.Send(query);
+
+                if (result == null || !result.Any())
+                    return NotFound($"No se encontraron cotizaciones para el usuario {userName} {userLastName} en el período especificado.");
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                // Log del error
+                Console.WriteLine($"Error en GetBudgetsByDateAndUser: {ex.Message}");
+                return StatusCode(500, "Error interno del servidor.");
+            }
         }
 
 

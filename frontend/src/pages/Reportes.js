@@ -30,7 +30,7 @@ const reportCards = [
         className: "reporte-estado-cotizaciones",
         route: "/reportes/estado-cotizaciones",
         color: "#3b82f6",
-        roles: ['quotator', 'coordinator'] // Todos los roles
+        roles: ['quotator', 'coordinator'] // Cotizador y gerente
     },
     //Reporte 2
     {
@@ -40,7 +40,7 @@ const reportCards = [
         className: "reporte-proyectos-ubicacion",
         route: "/reportes/ubicacion-geografica",
         color: "#ef4444",
-        roles: ['coordinator', 'manager'] // Todos los roles
+        roles: ['coordinator', 'manager'] // Coordinador y gerente
     },
     //Reporte 3
     {
@@ -50,7 +50,7 @@ const reportCards = [
         className: "reporte-satisfaccion-cliente",
         route: "/reportes/analisis-satisfaccion-cliente",
         color: "#f59e0b",
-        roles: ['quotator', 'coordinator'] // Todos los roles
+        roles: ['coordinator'] // Coordinador
     },
     //Reporte 4
     {
@@ -72,6 +72,15 @@ const reportCards = [
     //    color: "#06b6d4",
     //    roles: ['coordinator', 'manager'] // Solo coordinador y gerente
     //},
+    {
+        title: "Calendario de movimientos",
+        description: "Acciones realizadas cronologicamente",
+        icon: <UserCheck size={32} />,
+        className: "reporte-productividad-cotizador",
+        route: "/reportes/agenda-semanal-cotizaciones",
+        color: "#06b6d4",
+        roles: ['quotator'] // Solo cotizador
+    },
     //Reporte 6
     {
         title: "Reporte de Oportunidades Perdidas",
