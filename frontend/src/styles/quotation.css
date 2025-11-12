@@ -163,7 +163,7 @@
 .form-group textarea {
     width: 410px;
     padding: 10px 12px;
-    border: 1px solid #4a4d52;
+    border: 1px var(--beneficio-bg-light);
     border-radius: 6px;
     background: #3f4144;
     color: white;
