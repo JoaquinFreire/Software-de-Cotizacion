@@ -51,6 +51,7 @@ import AdminCoating from "./pages/admin/materiales/AdminCoating";
 import AdminComplements from "./pages/admin/materiales/AdminComplements";
 import AdminGlass from "./pages/admin/materiales/AdminGlass";
 import AdminAccesory from "./pages/admin/materiales/AdminAccesory";
+import AgendaSemanalCotizaciones from './pages/reportes/AgendaSemanalCotizaciones';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -203,6 +204,7 @@ function App() {
                         <Route path="/admin/Administrar" element={<PrivateRoute element={<Administrar />} />} />
                         <Route path="/reportes" element={<PrivateRoute element={<Reportes />} />} />
                         <Route path="/reportes/estado-cotizaciones" element={<PrivateRoute element={<ReporteEstadoCotizaciones />} />} />
+                        <Route path="/reportes/agenda-semanal-cotizaciones" element={<PrivateRoute element={<AgendaSemanalCotizaciones />} />} />
                         <Route path="/reportes/ubicacion-geografica" element={<PrivateRoute element={<AnalisisDeProyectoPorUbicacionGeografica />} />} />
                         <Route path="/reportes/analisis-satisfaccion-cliente" element={<AnalisisSatisfaccionCliente />} />
                         <Route path="/reportes/LineaDeTiempoCotizaciones" element={<PrivateRoute element={<LineaDeTiempoCotizaciones />} />} />
