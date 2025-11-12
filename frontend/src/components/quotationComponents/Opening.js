@@ -344,14 +344,17 @@ const OpeningType = ({
 
             {/* Mosquitero */}
             <div className="form-group">
-                <label>
+                <label style={{ display: 'flex', flexDirection: 'column' }}>
+                    <p>Con tela mosquitera</p>
+
+
                     <input
                         type="checkbox"
                         checked={!!openingForm.mosquito}
                         onChange={e => handleInputChange("mosquito", e.target.checked)}
                         style={{ marginRight: 8 }}
                     />
-                    Tela mosquitera (agrega precio por m²)
+
                 </label>
             </div>
 

@@ -367,7 +367,7 @@
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: var(--beneficio-accent);
+            border-color: 0 0 0 2px rgba(38, 183, 205, 0.1);
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
 

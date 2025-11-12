@@ -66,11 +66,7 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
         return latestVersion.version || latestVersion.Version || "1";
     };
 
-    // Función para obtener el conteo de versiones
-    const getVersionCount = (quotationId) => {
-        const versions = versionsMap[quotationId] || [];
-        return versions.length;
-    };
+    
 
     const handleShowModal = (id) => {
         setQuotationToDelete(id);
@@ -148,7 +144,7 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
                         <p><b><u>Creación</u>:  </b>{new Date(quotation.CreationDate).toLocaleDateString()}</p>
                         <p><b><u>Dirección</u>:  </b>{quotation.WorkPlace.address}</p>
                         <p><b><u>Versión actual</u>:  </b>v{getLatestVersion(quotation.Id)}</p>
-                        <p><b><u>Total versiones</u>:  </b>{getVersionCount(quotation.Id)}</p>
+
                     </div>
                     <div className="quote-actions">
                         <button className="go-button" onClick={() => window.open(`/quotation/${quotation.Id}`)}>Ver Detalles</button>
