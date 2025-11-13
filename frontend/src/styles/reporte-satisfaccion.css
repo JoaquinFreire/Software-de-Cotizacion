@@ -21,11 +21,25 @@
     color: var(--satisfaction-text-primary);
 }
 
+.satisfaction-report-container {
+    max-width: 1600px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #2f3c3d
+}
+
 .satisfaction-dashboard-main {
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
     min-height: calc(100vh - 120px);
+}
+
+.satisfaction-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    background: var(--satisfaction-card-bg);
 }
 
 /* Header */

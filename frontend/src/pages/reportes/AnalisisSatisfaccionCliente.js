@@ -536,7 +536,7 @@ const AnalisisSatisfaccionCliente = () => {
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
-
+            <div className="satisfaction-report-container">
             <div className="satisfaction-dashboard-main">
                 <div className="satisfaction-header">
                     <div className="satisfaction-title">
@@ -792,7 +792,8 @@ const AnalisisSatisfaccionCliente = () => {
                     )}
                 </div>
             </div>
-
+ </div>
+      
             <Footer />
         </div>
     );

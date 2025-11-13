@@ -843,7 +843,7 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                 <Navigation onLogout={handleLogout} />
                 <div className="loading-fullscreen">
                     <div className="loading-spinner-large">
-                        <Calculator size={48} className="spinner-icon" />
+                        <loading-spinner />
                     </div>
                     <h3>Cargando reporte...</h3>
                     <p>Estamos preparando todo para usted</p>

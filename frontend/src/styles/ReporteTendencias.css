@@ -107,7 +107,7 @@
 }
 
 .tendencias-btn-comparar {
-    background: linear-gradient(135deg, #8b5cf6, #a855f7);
+    background: linear-gradient(135deg, var(--tendencias-primary-dark), #26c4ab);
     color: white;
 }
 
@@ -124,9 +124,9 @@
 }
 
 .tendencias-btn-comparar:hover {
-    background: linear-gradient(135deg, #7c3aed, #9333ea);
+    background:linear-gradient(135deg, var(--tendencias-primary-dark), #26c4ab);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 8px 25px rgba(92, 246, 208, 0.3);
 }
 
 .tendencias-btn:disabled {
@@ -673,18 +673,7 @@
     align-items: end;
 }
 
-/* Botón de comparación específico */
-.tendencias-btn-comparar {
-    background: linear-gradient(135deg, #8b5cf6, #a855f7);
-    color: white;
-    height: fit-content;
-}
 
-    .tendencias-btn-comparar:hover {
-        background: linear-gradient(135deg, #7c3aed, #9333ea);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
-    }
 
 /* Responsive para el nuevo layout */
 @media (max-width: 1200px) {
