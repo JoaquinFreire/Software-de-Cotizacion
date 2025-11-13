@@ -396,8 +396,8 @@ const filteredUsers = safeArray(users).filter(user => {
                 </div>
 
                 {showModal && (
-                    <div className="modal">
-                        <div className="modal-content modal-user-form">
+                    <div className="modal-overlay">
+                        <div className="modal">
                             <h3 style={{ textAlign: "center", color: "#26b7cd", marginBottom: 12 }}>
                                 {editingUser ? "Actualizar Usuario" : "Crear Usuario"}
                             </h3>
