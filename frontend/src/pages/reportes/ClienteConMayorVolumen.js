@@ -1,115 +1,87 @@
 import React, { useEffect, useState } from "react";
 import Navigation from '../../components/Navigation';
 import Footer from '../../components/Footer';
-import { TrendingUp, Filter, ChevronDown, ChevronUp, Download, RefreshCw } from 'lucide-react';
+import { TrendingUp, Filter, ChevronDown, ChevronUp, RefreshCw, ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
 import '../../styles/DashboardEficienciaOperativa.css';
 import { useNavigate } from "react-router-dom";
 
 const API_BASE = process.env.REACT_APP_API_URL || '';
-const FALLBACK_ENDPOINT = `${API_BASE}/api/reportes/cliente-mayor-volumen`;
-const PORTFOLIO_ENDPOINT = `${API_BASE}/api/portfolio/quoter-client-portfolio`;
-const BUDGETS_ENDPOINT = `${API_BASE}/api/Mongo/GetAllBudgetsWithComplements`;
+const QUOTATIONS_ENDPOINT = `${API_BASE}/api/quotations/by-period`;
+const CUSTOMERS_ENDPOINT = `${API_BASE}/api/customers`;
+const USERS_ENDPOINT = `${API_BASE}/api/users/active`;
 
 function formatDateInput(date) {
     const d = new Date(date);
     return d.toISOString().slice(0, 10);
 }
 
-function formatMoney(n) {
-    return Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
+// Función para obtener el token
+const getAuthToken = () => {
+    return localStorage.getItem("token");
+};
 
-function toCSV(rows) {
-    if (!rows || rows.length === 0) return "";
-    const headers = Object.keys(rows[0]);
-    const lines = [headers.join(",")];
-    for (const r of rows) {
-        const vals = headers.map(h => {
-            const v = r[h] == null ? "" : String(r[h]).replace(/"/g, '""');
-            return `"${v}"`;
-        });
-        lines.push(vals.join(","));
+// Función para hacer fetch con autenticación
+const fetchWithAuth = async (url, options = {}) => {
+    const token = getAuthToken();
+    const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        ...options.headers
+    };
+
+    const response = await fetch(url, { ...options, headers });
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return lines.join("\n");
-}
+    return response.json();
+};
 
-// Función SEGURA para extraer cliente - EVITA RECURSIÓN
-function extractClientFromBudget(budget) {
-    if (!budget) {
-        return { id: 'unknown', name: 'Sin cliente' };
-    }
+// Función mejorada para obtener información del cliente
+const getCustomerInfo = (quotation, customersMap) => {
+    // Primero intentar obtener del objeto Customer de la cotización
+    let customer = quotation.Customer;
 
-    // Estrategia simple y directa - sin recursión
-    let customer = null;
+    if (customer && customer.id) {
+        // Si tenemos un customer con ID, buscar en el mapa de clientes para información completa
+        const fullCustomerInfo = customersMap[customer.id];
+        if (fullCustomerInfo) {
+            return {
+                id: customer.id,
+                nombre: `${fullCustomerInfo.name || ''} ${fullCustomerInfo.lastname || ''}`.trim() || 'Cliente sin nombre',
+                telefono: fullCustomerInfo.tel || 'Sin teléfono',
+                mail: fullCustomerInfo.mail || 'Sin email'
+            };
+        }
 
-    // Buscar en niveles específicos sin profundizar
-    if (budget.Budget && budget.Budget.customer) {
-        customer = budget.Budget.customer;
-    } else if (budget.Budget && budget.Budget.Customer) {
-        customer = budget.Budget.Customer;
-    } else if (budget.customer) {
-        customer = budget.customer;
-    } else if (budget.Customer) {
-        customer = budget.Customer;
-    }
-
-    if (customer && typeof customer === 'object') {
-        const name = (customer.name || customer.nombre || customer.firstName || customer.first_name || '').trim();
-        const lastname = (customer.lastname || customer.lastName || customer.last_name || customer.apellido || '').trim();
-        const dni = (customer.dni || customer.Dni || customer.DNI || customer.DNICliente || '').toString().trim();
-        const mail = (customer.mail || customer.email || customer.Email || '').trim();
-        const id = customer.id || customer.ClientId || customer.clientId || dni;
-
-        const fullName = `${name || ''}${name && lastname ? ' ' : ''}${lastname || ''}`.trim() ||
-            (mail || dni || id || 'Cliente desconocido');
-
+        // Si no está en el mapa, usar la información básica de la cotización
         return {
-            id: id || fullName,
-            name: fullName,
-            dni,
-            mail
+            id: customer.id,
+            nombre: `${customer.name || ''} ${customer.lastname || ''}`.trim() || 'Cliente sin nombre',
+            telefono: customer.tel || 'Sin teléfono',
+            mail: customer.mail || 'Sin email'
         };
     }
 
-    // Fallback: usar ID del presupuesto
-    const budgetId = budget.Budget?.budgetId || budget.budgetId || budget.BudgetId || budget.Id || budget.id;
+    // Si no hay customer en la cotización, buscar por CustomerId
+    const customerId = quotation.CustomerId;
+    if (customerId && customersMap[customerId]) {
+        const fullCustomerInfo = customersMap[customerId];
+        return {
+            id: customerId,
+            nombre: `${fullCustomerInfo.name || ''} ${fullCustomerInfo.lastname || ''}`.trim() || 'Cliente sin nombre',
+            telefono: fullCustomerInfo.tel || 'Sin teléfono',
+            mail: fullCustomerInfo.mail || 'Sin email'
+        };
+    }
+
+    // Fallback: información mínima
     return {
-        id: budgetId ? `budget-${budgetId}` : 'unknown',
-        name: budgetId ? `Presupuesto ${budgetId}` : 'Sin cliente'
+        id: quotation.Id || 'unknown',
+        nombre: 'Cliente no identificado',
+        telefono: 'Sin teléfono',
+        mail: 'Sin email'
     };
-}
-
-// Función SEGURA para extraer total
-function extractTotalFromBudget(b) {
-    // Campos directos primero
-    const directFields = [
-        b?.Budget?.TotalPrice, b?.Budget?.Total, b?.Budget?.TotalAmount,
-        b?.TotalPrice, b?.Total, b?.TotalAmount, b?.TotalMonto, b?.TotalPriceUsd
-    ];
-
-    for (const value of directFields) {
-        if (value !== undefined && value !== null && value !== '') {
-            const num = Number(String(value).replace(/[^0-9.-]+/g, ''));
-            if (!isNaN(num)) return num;
-        }
-    }
-
-    // Sumar productos si existen (sin recursión)
-    const products = b?.Budget?.Products || b?.Products || b?.products || [];
-    if (Array.isArray(products) && products.length > 0) {
-        let sum = 0;
-        for (const product of products) {
-            const price = product?.price ?? product?.Price ?? product?.PricePerUnit ?? 0;
-            const qty = product?.Quantity ?? product?.quantity ?? product?.QuantityUnits ?? 1;
-            const priceNum = Number(String(price).replace(/[^0-9.-]+/g, '')) || 0;
-            const qtyNum = Number(String(qty).replace(/[^0-9.-]+/g, '')) || 0;
-            sum += priceNum * (qtyNum || 1);
-        }
-        if (sum > 0) return sum;
-    }
-
-    return 0;
-}
+};
 
 export default function ClienteConMayorVolumen() {
     const today = new Date();
@@ -120,61 +92,61 @@ export default function ClienteConMayorVolumen() {
     const [hasta, setHasta] = useState(defaultTo);
     const [quoters, setQuoters] = useState([]);
     const [selectedQuoter, setSelectedQuoter] = useState('');
-    const [sortBy, setSortBy] = useState('activity_desc');
-    const [topN, setTopN] = useState(10); // Aumentado para mostrar más clientes
     const [data, setData] = useState([]);
-    const [summary, setSummary] = useState(null);
+    const [customers, setCustomers] = useState([]);
+    const [customersMap, setCustomersMap] = useState({});
     const [loading, setLoading] = useState(false);
     const [filtersVisible, setFiltersVisible] = useState(false);
     const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [sortConfig, setSortConfig] = useState({ key: 'totalCotizaciones', direction: 'desc' });
+
+    const itemsPerPage = 10;
 
     // Estados para control de acceso
     const [userRole, setUserRole] = useState(null);
     const [roleLoading, setRoleLoading] = useState(true);
-    const requiredRoles = ['quotator', 'coordinator']; // Todos los roles pueden ver este reporte
+    const [currentUserId, setCurrentUserId] = useState(null);
+    const requiredRoles = ['quotator', 'coordinator'];
 
     const navigate = useNavigate();
 
     // Verificación de rol
     useEffect(() => {
-        const checkUserRole = () => {
-            const token = localStorage.getItem("token");
+        const checkUserRole = async () => {
+            const token = getAuthToken();
             if (!token) {
                 navigate("/");
                 return;
             }
 
             try {
-                // Decodificar el JWT directamente - INSTANTÁNEO
+                // Decodificar el JWT directamente
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 const role = payload?.role?.toLowerCase() ||
                     payload?.Role?.toLowerCase() ||
                     payload?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']?.toLowerCase();
 
-                if (role) {
+                const userId = payload?.userId || payload?.UserId || payload?.nameid;
+
+                if (role && userId) {
                     setUserRole(role);
+                    setCurrentUserId(userId);
                     setRoleLoading(false);
-                    return; // ¡No hace falta llamar a la API!
+                    return;
                 }
             } catch (error) {
                 console.debug('No se pudo decodificar JWT');
             }
 
-            // Fallback: llamar a la API solo si falla el JWT
+            // Fallback: llamar a la API
             const fetchUserRoleFromAPI = async () => {
                 try {
-                    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        const role = data?.user?.role?.toLowerCase();
-                        setUserRole(role);
-                    }
+                    const data = await fetchWithAuth(`${process.env.REACT_APP_API_URL}/api/auth/me`);
+                    const role = data?.user?.role?.toLowerCase();
+                    const userId = data?.userId || data?.user?.id;
+                    setUserRole(role);
+                    setCurrentUserId(userId);
                 } catch (error) {
                     console.error('Error verificando rol:', error);
                 }
@@ -194,18 +166,29 @@ export default function ClienteConMayorVolumen() {
 
     useEffect(() => {
         fetchQuoters();
+        fetchCustomers();
     }, []);
+
+    // Crear mapa de clientes cuando se cargan
+    useEffect(() => {
+        if (customers.length > 0) {
+            const map = {};
+            customers.forEach(customer => {
+                if (customer.id) {
+                    map[customer.id] = customer;
+                }
+            });
+            setCustomersMap(map);
+        }
+    }, [customers]);
 
     async function fetchQuoters() {
         try {
-            const url = `${API_BASE || ''}/api/users/active`;
-            const res = await fetch(url);
-            if (!res.ok) throw new Error('No se pudo cargar lista de cotizadores');
-            const json = await res.json();
+            const json = await fetchWithAuth(USERS_ENDPOINT);
             const arr = json && json.$values ? json.$values : (Array.isArray(json) ? json : []);
             setQuoters(arr.map(u => ({
                 id: u.id ?? u.UserId ?? u.Id,
-                name: `${u.name ?? u.UserName ?? u.Name ?? ''}`.trim() || (u.mail ?? u.UserEmail ?? 'Sin nombre')
+                name: `${u.name ?? u.UserName ?? u.Name ?? ''} ${u.lastName ?? u.LastName ?? ''}`.trim() || (u.mail ?? u.UserEmail ?? 'Sin nombre')
             })).filter(u => u.id != null));
         } catch (err) {
             console.error('No se pudo cargar cotizadores:', err);
@@ -213,196 +196,148 @@ export default function ClienteConMayorVolumen() {
         }
     }
 
+    async function fetchCustomers() {
+        try {
+            const json = await fetchWithAuth(CUSTOMERS_ENDPOINT);
+            const customersData = json && json.$values ? json.$values : (Array.isArray(json) ? json : []);
+            setCustomers(customersData);
+        } catch (err) {
+            console.error('Error cargando clientes:', err);
+            setCustomers([]);
+        }
+    }
+
     async function fetchReport() {
-        // PREVENIR MÚLTIPLES LLAMADAS
         if (loading) return;
 
         setLoading(true);
         setError(null);
         setData([]);
-        setSummary(null);
+        setCurrentPage(1);
 
         try {
-            // PRIMERO: Intentar endpoint principal de portfolio
+            // Para cotizadores, usar solo su ID
+            const effectiveQuoterId = userRole === 'quotator' ? currentUserId : selectedQuoter;
+
             const params = new URLSearchParams();
-            if (selectedQuoter) params.append('quoterId', selectedQuoter);
             params.append('from', desde);
             params.append('to', hasta);
-            params.append('sortBy', sortBy);
-            params.append('topN', 1000); // Pedir muchos datos
 
-            const url = `${PORTFOLIO_ENDPOINT}?${params.toString()}`;
-            const res = await fetch(url);
-
-            if (res.ok) {
-                const json = await res.json();
-                const clients = (json.Clients && Array.isArray(json.Clients)) ? json.Clients : (Array.isArray(json) ? json : []);
-
-                if (clients.length > 0) {
-                    const normalized = clients.map((c, i) => ({
-                        clienteId: c.ClientId ?? c.clientId ?? c.Id ?? `c${i}`,
-                        clienteNombre: c.ClientName ?? c.clientName ?? c.Client ?? c.Name ?? 'Sin nombre',
-                        mail: c.ClientEmail ?? c.clientEmail ?? c.Email ?? c.Mail ?? '',
-                        totalCotizaciones: Number(c.TotalQuotations ?? c.totalQuotations ?? c.TotalQuotations ?? 0),
-                        totalMonto: Number(c.TotalRevenue ?? c.totalRevenue ?? c.TotalMonto ?? 0),
-                        promedioMonto: Number(c.AverageQuotationValue ?? c.AverageQuotationValue ?? c.averageQuotationValue ?? 0),
-                    }));
-
-                    // Aplicar ordenamiento
-                    if (sortBy === 'activity_desc') normalized.sort((a, b) => b.totalCotizaciones - a.totalCotizaciones);
-                    else if (sortBy === 'revenue_desc') normalized.sort((a, b) => b.totalMonto - a.totalMonto);
-                    else if (sortBy === 'avg_desc') normalized.sort((a, b) => b.promedioMonto - a.promedioMonto);
-
-                    setData(normalized);
-                    if (json.Summary) setSummary(json.Summary);
-                    setLoading(false);
-                    return;
-                }
+            if (effectiveQuoterId) {
+                params.append('quoterId', effectiveQuoterId);
             }
-        } catch (err) {
-            console.warn('Fallo endpoint cartera:', err);
-        }
 
-        try {
-            // SEGUNDO: Intentar con budgets como fallback
-            const params2 = new URLSearchParams();
-            params2.append('from', desde);
-            params2.append('to', hasta);
-            const url2 = `${BUDGETS_ENDPOINT}?${params2.toString()}`;
-            const res2 = await fetch(url2);
+            const url = `${QUOTATIONS_ENDPOINT}?${params.toString()}`;
+            const json = await fetchWithAuth(url);
+            const quotations = json && json.$values ? json.$values : (Array.isArray(json) ? json : []);
 
-            if (res2.ok) {
-                const json2 = await res2.json();
-                const arr = (json2 && json2.$values && Array.isArray(json2.$values)) ? json2.$values : (Array.isArray(json2) ? json2 : []);
+            console.log(`Procesando ${quotations.length} cotizaciones...`);
+            console.log('Mapa de clientes cargado:', Object.keys(customersMap).length);
 
-                console.log(`Procesando ${arr.length} budgets...`);
+            // Procesar cotizaciones para contar por cliente
+            const clientStats = {};
 
-                const clientMap = {};
+            quotations.forEach(quotation => {
+                const customerInfo = getCustomerInfo(quotation, customersMap);
 
-                // Procesar cada budget de forma SEGURA
-                for (let i = 0; i < arr.length; i++) {
-                    const budget = arr[i];
-                    try {
-                        const client = extractClientFromBudget(budget);
-                        const total = extractTotalFromBudget(budget);
-                        const key = (client.dni || client.mail || client.id || client.name || `unknown_${i}`).toString();
-
-                        if (!clientMap[key]) {
-                            clientMap[key] = {
-                                clienteId: client.id ?? key,
-                                clienteNombre: client.name ?? `Cliente ${key}`,
-                                mail: client.mail ?? '',
-                                totalCotizaciones: 0,
-                                totalMonto: 0
-                            };
-                        }
-
-                        clientMap[key].totalCotizaciones += 1;
-                        clientMap[key].totalMonto += Number(total || 0);
-                    } catch (err) {
-                        console.warn(`Error procesando budget ${i}:`, err);
-                        // Continuar con el siguiente budget
-                    }
+                if (!clientStats[customerInfo.id]) {
+                    clientStats[customerInfo.id] = {
+                        clienteId: customerInfo.id,
+                        clienteNombre: customerInfo.nombre,
+                        telefono: customerInfo.telefono,
+                        mail: customerInfo.mail,
+                        totalCotizaciones: 0,
+                        cotizacionesAceptadas: 0,
+                        cotizacionesRechazadas: 0
+                    };
                 }
 
-                const normalized = Object.values(clientMap).map(x => ({
-                    ...x,
-                    promedioMonto: x.totalCotizaciones ? x.totalMonto / x.totalCotizaciones : 0
-                }));
+                clientStats[customerInfo.id].totalCotizaciones += 1;
 
-                // Aplicar ordenamiento
-                if (sortBy === 'activity_desc') normalized.sort((a, b) => b.totalCotizaciones - a.totalCotizaciones);
-                else if (sortBy === 'revenue_desc') normalized.sort((a, b) => b.totalMonto - a.totalMonto);
-                else if (sortBy === 'avg_desc') normalized.sort((a, b) => b.promedioMonto - a.promedioMonto);
+                if (quotation.Status === 'approved') {
+                    clientStats[customerInfo.id].cotizacionesAceptadas += 1;
+                } else if (quotation.Status === 'rejected') {
+                    clientStats[customerInfo.id].cotizacionesRechazadas += 1;
+                }
+            });
 
-                setData(normalized);
-                setLoading(false);
-                return;
-            }
-        } catch (err) {
-            console.error('Error con budgets:', err);
-        }
+            const normalizedData = Object.values(clientStats);
 
-        try {
-            // TERCERO: Fallback clásico
-            const params3 = new URLSearchParams();
-            params3.append('desde', desde);
-            params3.append('hasta', hasta);
-            if (selectedQuoter) params3.append('quoterId', selectedQuoter);
-            params3.append('sortBy', sortBy);
-            params3.append('topN', 1000);
+            // Aplicar ordenamiento inicial
+            const sortedData = sortData(normalizedData, sortConfig);
+            setData(sortedData);
 
-            const url3 = `${FALLBACK_ENDPOINT}?${params3.toString()}`;
-            const res3 = await fetch(url3);
-
-            if (res3.ok) {
-                const json3 = await res3.json();
-                const normalized = (json3 || []).map((r, i) => ({
-                    clienteId: r.clienteId ?? r.ClientId ?? r.clientId ?? r.id ?? `c${i}`,
-                    clienteNombre: r.clienteNombre ?? r.ClientName ?? r.clientName ?? r.nombre ?? r.Name ?? "Sin nombre",
-                    mail: r.mail ?? r.email ?? r.Email ?? r.ClientEmail ?? '',
-                    totalCotizaciones: Number(r.totalCotizaciones ?? r.TotalQuotations ?? r.count ?? 0),
-                    totalMonto: Number(r.totalMonto ?? r.TotalMonto ?? r.totalRevenue ?? 0),
-                    promedioMonto: r.totalCotizaciones ? (Number(r.totalMonto ?? r.TotalMonto ?? r.totalRevenue ?? 0) / Number(r.totalCotizaciones || 1)) : 0
-                }));
-
-                if (sortBy === 'activity_desc') normalized.sort((a, b) => b.totalCotizaciones - a.totalCotizaciones);
-                else if (sortBy === 'revenue_desc') normalized.sort((a, b) => b.totalMonto - a.totalMonto);
-                else if (sortBy === 'avg_desc') normalized.sort((a, b) => b.promedioMonto - a.promedioMonto);
-
-                setData(normalized);
-            } else {
-                throw new Error('Error en fallback');
-            }
         } catch (err) {
             console.error('No se pudo obtener el reporte:', err);
             setError('No se pudo obtener el reporte. Verifica la conexión o la disponibilidad del servicio.');
 
-            // Datos de ejemplo para testing
-            const ejemplo = Array.from({ length: 15 }, (_, i) => ({
-                clienteId: `${i + 1}`,
-                clienteNombre: `Cliente Ejemplo ${i + 1}`,
-                mail: `cliente${i + 1}@ejemplo.com`,
-                totalCotizaciones: Math.floor(Math.random() * 20) + 1,
-                totalMonto: Math.floor(Math.random() * 50000) + 5000,
-                promedioMonto: Math.floor(Math.random() * 5000) + 1000
-            }));
-
-            if (sortBy === 'activity_desc') ejemplo.sort((a, b) => b.totalCotizaciones - a.totalCotizaciones);
-            else if (sortBy === 'revenue_desc') ejemplo.sort((a, b) => b.totalMonto - a.totalMonto);
-            else if (sortBy === 'avg_desc') ejemplo.sort((a, b) => b.promedioMonto - a.promedioMonto);
-
-            setData(ejemplo);
+            // NO mostrar datos de ejemplo - solo mostrar mensaje de error
+            setData([]);
         } finally {
             setLoading(false);
         }
     }
 
-    function downloadCSV() {
-        const rows = data.map(d => ({
-            clienteId: d.clienteId,
-            clienteNombre: d.clienteNombre,
-            mail: d.mail,
-            totalCotizaciones: d.totalCotizaciones,
-            totalMonto: d.totalMonto,
-            promedioMonto: Number(d.promedioMonto).toFixed(2),
-        }));
-        const csv = toCSV(rows);
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        const quoterLabel = selectedQuoter ? `_quoter_${selectedQuoter}` : '';
-        a.href = url;
-        a.download = `clientes_mayor_volumen_${desde}_a_${hasta}${quoterLabel}.csv`;
-        a.click();
-        URL.revokeObjectURL(url);
-    }
+    // Función para ordenar datos
+    const sortData = (dataToSort, config) => {
+        return [...dataToSort].sort((a, b) => {
+            if (config.key === 'clienteNombre') {
+                // Orden alfabético
+                const aValue = a[config.key] || '';
+                const bValue = b[config.key] || '';
+                return config.direction === 'asc'
+                    ? aValue.localeCompare(bValue)
+                    : bValue.localeCompare(aValue);
+            } else {
+                // Orden numérico
+                const aValue = a[config.key] || 0;
+                const bValue = b[config.key] || 0;
+                return config.direction === 'asc'
+                    ? aValue - bValue
+                    : bValue - aValue;
+            }
+        });
+    };
 
-    // KPI derived
+    const handleSort = (key) => {
+        const direction = sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc';
+        const newSortConfig = { key, direction };
+        setSortConfig(newSortConfig);
+
+        const sortedData = sortData(data, newSortConfig);
+        setData(sortedData);
+        setCurrentPage(1);
+    };
+
+    const getSortIcon = (key) => {
+        if (sortConfig.key === key) {
+            return sortConfig.direction === 'asc' ?
+                <ChevronUpIcon size={16} style={{ opacity: 1 }} /> :
+                <ChevronDownIcon size={16} style={{ opacity: 1 }} />;
+        }
+        // Mostrar ambas flechas siempre, pero con opacidad reducida cuando no están activas
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '4px' }}>
+                <ChevronUpIcon size={12} style={{ opacity: 0.3, marginBottom: '-2px' }} />
+                <ChevronDownIcon size={12} style={{ opacity: 0.3, marginTop: '-2px' }} />
+            </div>
+        );
+    };
+
+    // Paginación
+    const totalPages = Math.ceil(data.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentData = data.slice(startIndex, startIndex + itemsPerPage);
+
+    const goToPage = (page) => {
+        setCurrentPage(page);
+    };
+
+    // KPI derived - solo para coordinadores
     const totalClients = data.length;
     const totalQuotations = data.reduce((s, c) => s + (Number(c.totalCotizaciones) || 0), 0);
-    const totalRevenue = data.reduce((s, c) => s + (Number(c.totalMonto) || 0), 0);
-    const avgPerClient = totalClients ? totalRevenue / totalClients : 0;
+    const totalAccepted = data.reduce((s, c) => s + (Number(c.cotizacionesAceptadas) || 0), 0);
+    const totalRejected = data.reduce((s, c) => s + (Number(c.cotizacionesRechazadas) || 0), 0);
 
     // Loading mientras verifica rol
     if (roleLoading) {
@@ -451,7 +386,7 @@ export default function ClienteConMayorVolumen() {
                         No tiene permisos para ver este recurso.
                     </p>
                     <p style={{ marginBottom: '2rem', color: '#6b7280' }}>
-                        Este reporte está disponible para cotizadores, coordinadores y gerentes.
+                        Este reporte está disponible para cotizadores y coordinadores.
                     </p>
                     <button
                         onClick={() => navigate('/reportes')}
@@ -482,7 +417,11 @@ export default function ClienteConMayorVolumen() {
                             <TrendingUp size={32} />
                             <div>
                                 <h1>Clientes con Mayor Volumen de Cotizaciones</h1>
-                                <p>Análisis de cartera por cotizador / período</p>
+                                <p>
+                                    {userRole === 'quotator'
+                                        ? 'Mis clientes - Análisis de cotizaciones propias'
+                                        : 'Análisis de cartera por período'}
+                                </p>
                             </div>
                         </div>
                         <div className="header-actions">
@@ -508,39 +447,20 @@ export default function ClienteConMayorVolumen() {
                                 <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
                                     <label>Desde: <input type="date" value={desde} onChange={e => setDesde(e.target.value)} /></label>
                                     <label>Hasta: <input type="date" value={hasta} onChange={e => setHasta(e.target.value)} /></label>
-                                    <label>
-                                        Cotizador:
-                                        <select value={selectedQuoter} onChange={e => setSelectedQuoter(e.target.value)} style={{ marginLeft: 6 }}>
-                                            <option value="">Todos</option>
-                                            {quoters.map(q => <option key={q.id} value={q.id}>{q.name}</option>)}
-                                        </select>
-                                    </label>
-                                    <label>
-                                        Orden:
-                                        <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={{ marginLeft: 6 }}>
-                                            <option value="activity_desc">Cotizaciones (desc)</option>
-                                            <option value="revenue_desc">Total Monto (desc)</option>
-                                            <option value="avg_desc">Promedio por cotización (desc)</option>
-                                        </select>
-                                    </label>
-                                    <label>
-                                        Mostrar
-                                        <input
-                                            type="number"
-                                            min={1}
-                                            max={500}
-                                            value={topN}
-                                            onChange={e => setTopN(Math.max(1, Number(e.target.value) || 1))}
-                                            style={{ width: 80, marginLeft: 6, marginRight: 6 }}
-                                        />
-                                        clientes
-                                    </label>
+
+                                    {userRole === 'coordinator' && (
+                                        <label>
+                                            Cotizador:
+                                            <select value={selectedQuoter} onChange={e => setSelectedQuoter(e.target.value)} style={{ marginLeft: 6 }}>
+                                                <option value="">Todos</option>
+                                                {quoters.map(q => <option key={q.id} value={q.id}>{q.name}</option>)}
+                                            </select>
+                                        </label>
+                                    )}
+
                                     <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
                                         <button onClick={fetchReport} className="btn-primary" disabled={loading}>
                                             <RefreshCw size={14} /> Actualizar
-                                        </button>
-                                        <button onClick={downloadCSV} className="btn-primary" disabled={data.length === 0}>
-                                            <Download size={14} /> Exportar Excel
                                         </button>
                                     </div>
                                 </div>
@@ -548,60 +468,63 @@ export default function ClienteConMayorVolumen() {
                         )}
                     </div>
 
-                    {/* KPI CARDS */}
-                    <div style={{ marginBottom: 16 }}>
-                        <div className="kpi-grid" style={{ marginBottom: 12 }}>
-                            <div className="kpi-card">
-                                <div className="kpi-icon" style={{ background: '#2196f3' }}>
-                                    <TrendingUp size={20} />
+                    {/* KPI CARDS - Solo para coordinadores */}
+                    {userRole === 'coordinator' && data.length > 0 && (
+                        <div style={{ marginBottom: 16 }}>
+                            <div className="kpi-grid" style={{ marginBottom: 12 }}>
+                                <div className="kpi-card">
+                                    <div className="kpi-icon" style={{ background: '#2196f3' }}>
+                                        <TrendingUp size={20} />
+                                    </div>
+                                    <div className="kpi-content">
+                                        <div className="kpi-value">{totalClients}</div>
+                                        <div className="kpi-label">Total Clientes</div>
+                                    </div>
                                 </div>
-                                <div className="kpi-content">
-                                    <div className="kpi-value">{summary?.TotalClients ?? totalClients}</div>
-                                    <div className="kpi-label">Total Clientes</div>
-                                </div>
-                            </div>
 
-                            <div className="kpi-card">
-                                <div className="kpi-icon" style={{ background: '#4caf50' }}>
-                                    <TrendingUp size={20} />
+                                <div className="kpi-card">
+                                    <div className="kpi-icon" style={{ background: '#4caf50' }}>
+                                        <TrendingUp size={20} />
+                                    </div>
+                                    <div className="kpi-content">
+                                        <div className="kpi-value">{totalQuotations}</div>
+                                        <div className="kpi-label">Total Cotizaciones</div>
+                                    </div>
                                 </div>
-                                <div className="kpi-content">
-                                    <div className="kpi-value">{summary?.TotalPortfolioValue ? `$${formatMoney(summary.TotalPortfolioValue)}` : `$${formatMoney(totalRevenue)}`}</div>
-                                    <div className="kpi-label">Total Monto</div>
-                                </div>
-                            </div>
 
-                            <div className="kpi-card">
-                                <div className="kpi-icon" style={{ background: '#ff9800' }}>
-                                    <RefreshCw size={20} />
+                                <div className="kpi-card">
+                                    <div className="kpi-icon" style={{ background: '#ff9800' }}>
+                                        <RefreshCw size={20} />
+                                    </div>
+                                    <div className="kpi-content">
+                                        <div className="kpi-value">{totalAccepted}</div>
+                                        <div className="kpi-label">Cotizaciones Aceptadas</div>
+                                    </div>
                                 </div>
-                                <div className="kpi-content">
-                                    <div className="kpi-value">{summary?.AverageClientValue ? `$${formatMoney(summary.AverageClientValue)}` : `$${formatMoney(avgPerClient)}`}</div>
-                                    <div className="kpi-label">Promedio por cliente</div>
-                                </div>
-                            </div>
 
-                            <div className="kpi-card">
-                                <div className="kpi-icon" style={{ background: '#f44336' }}>
-                                    <TrendingUp size={20} />
-                                </div>
-                                <div className="kpi-content">
-                                    <div className="kpi-value">{totalQuotations}</div>
-                                    <div className="kpi-label">Total Cotizaciones</div>
+                                <div className="kpi-card">
+                                    <div className="kpi-icon" style={{ background: '#f44336' }}>
+                                        <TrendingUp size={20} />
+                                    </div>
+                                    <div className="kpi-content">
+                                        <div className="kpi-value">{totalRejected}</div>
+                                        <div className="kpi-label">Cotizaciones Rechazadas</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* TABLA */}
                     <div style={{ marginBottom: 16 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                             <div style={{ fontWeight: 700 }}>
-                                Clientes {topN < data.length ? `(Top ${topN} de ${data.length})` : `(${data.length} clientes)`}
+                                {userRole === 'quotator' ? 'Mis Clientes' : 'Clientes'}
+                                {data.length > 0 && ` (${data.length} clientes)`}
                             </div>
-                            {data.length > 0 && (
+                            {data.length > 0 && totalPages > 1 && (
                                 <div style={{ fontSize: '0.9em', color: '#666' }}>
-                                    Mostrando {Math.min(topN, data.length)} de {data.length} clientes
+                                    Página {currentPage} de {totalPages}
                                 </div>
                             )}
                         </div>
@@ -610,18 +533,50 @@ export default function ClienteConMayorVolumen() {
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead style={{ background: '#3b3c3dff', position: 'sticky', top: 0 }}>
                                     <tr>
-                                        <th style={{ padding: 12, borderBottom: '1px solid #e0e0e0' }}>Cliente</th>
-                                        <th style={{ padding: 12, borderBottom: '1px solid #e0e0e0' }}>Legajo</th>
+                                        <th
+                                            style={{ padding: 12, borderBottom: '1px solid #e0e0e0', cursor: 'pointer' }}
+                                            onClick={() => handleSort('clienteNombre')}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                Cliente
+                                                {getSortIcon('clienteNombre')}
+                                            </div>
+                                        </th>
+                                        <th style={{ padding: 12, borderBottom: '1px solid #e0e0e0' }}>Teléfono</th>
                                         <th style={{ padding: 12, borderBottom: '1px solid #e0e0e0' }}>Contacto</th>
-                                        <th style={{ padding: 12, borderBottom: '1px solid #e0e0e0' }}>Cotizaciones</th>
-                                        <th style={{ padding: 12, borderBottom: '1px solid #e0e0e0' }}>Total</th>
-                                        <th style={{ padding: 12, borderBottom: '1px solid #e0e0e0' }}>Promedio</th>
+                                        <th
+                                            style={{ padding: 12, borderBottom: '1px solid #e0e0e0', cursor: 'pointer' }}
+                                            onClick={() => handleSort('totalCotizaciones')}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                Total Cotizaciones
+                                                {getSortIcon('totalCotizaciones')}
+                                            </div>
+                                        </th>
+                                        <th
+                                            style={{ padding: 12, borderBottom: '1px solid #e0e0e0', cursor: 'pointer' }}
+                                            onClick={() => handleSort('cotizacionesAceptadas')}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                Aceptadas
+                                                {getSortIcon('cotizacionesAceptadas')}
+                                            </div>
+                                        </th>
+                                        <th
+                                            style={{ padding: 12, borderBottom: '1px solid #e0e0e0', cursor: 'pointer' }}
+                                            onClick={() => handleSort('cotizacionesRechazadas')}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                Rechazadas
+                                                {getSortIcon('cotizacionesRechazadas')}
+                                            </div>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {loading ? (
                                         <tr>
-                                            <td colSpan={5} style={{ padding: 24, textAlign: 'center' }}>
+                                            <td colSpan={6} style={{ padding: 24, textAlign: 'center' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                                                     <RefreshCw size={16} className="spinner" />
                                                     Cargando clientes...
@@ -630,28 +585,71 @@ export default function ClienteConMayorVolumen() {
                                         </tr>
                                     ) : data.length === 0 ? (
                                         <tr>
-                                            <td colSpan={5} style={{ padding: 24, textAlign: 'center' }}>
-                                                No hay datos para mostrar. Haz clic en "Generar" para cargar los clientes.
+                                            <td colSpan={6} style={{ padding: 24, textAlign: 'center' }}>
+                                                {error ? error : 'No hay datos para mostrar. Haz clic en "Generar" para cargar los clientes.'}
                                             </td>
                                         </tr>
                                     ) : (
-                                        data.slice(0, topN).map((c, index) => (
+                                        currentData.map((c, index) => (
                                             <tr key={c.clienteId} style={{ background: index % 2 === 0 ? '#5f5f5fff' : '#707272ff' }}>
-                                                <td style={{ padding: 12, textAlign: 'Center', borderBottom: '1px solid #f0f0f0' }}>{c.clienteNombre}</td>
-                                                <td style={{ padding: 12, textAlign: 'Center', borderBottom: '1px solid #f0f0f0' }}>{c.clienteId}</td>
-                                                <td style={{ padding: 12, textAlign: 'Center', borderBottom: '1px solid #f0f0f0' }}>{c.mail}</td>
-                                                <td style={{ padding: 12, textAlign: 'Center', borderBottom: '1px solid #f0f0f0' }}>{c.totalCotizaciones}</td>
-                                                <td style={{ padding: 12, textAlign: 'Center', borderBottom: '1px solid #f0f0f0' }}>${formatMoney(c.totalMonto)}</td>
-                                                <td style={{ padding: 12, textAlign: 'Center', borderBottom: '1px solid #f0f0f0' }}>${formatMoney(c.promedioMonto)}</td>
+                                                <td style={{ padding: 12, textAlign: 'left', borderBottom: '1px solid #f0f0f0' }}>
+                                                    {c.clienteNombre || 'Cliente no identificado'}
+                                                </td>
+                                                <td style={{ padding: 12, textAlign: 'center', borderBottom: '1px solid #f0f0f0' }}>
+                                                    {c.telefono || 'Sin teléfono'}
+                                                </td>
+                                                <td style={{ padding: 12, textAlign: 'center', borderBottom: '1px solid #f0f0f0' }}>
+                                                    {c.mail || 'Sin email'}
+                                                </td>
+                                                <td style={{ padding: 12, textAlign: 'center', borderBottom: '1px solid #f0f0f0' }}>{c.totalCotizaciones}</td>
+                                                <td style={{ padding: 12, textAlign: 'center', borderBottom: '1px solid #f0f0f0' }}>{c.cotizacionesAceptadas}</td>
+                                                <td style={{ padding: 12, textAlign: 'center', borderBottom: '1px solid #f0f0f0' }}>{c.cotizacionesRechazadas}</td>
                                             </tr>
                                         ))
                                     )}
                                 </tbody>
                             </table>
                         </div>
+
+                        {/* Paginación */}
+                        {data.length > itemsPerPage && (
+                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 16 }}>
+                                <button
+                                    onClick={() => goToPage(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className="btn-outline"
+                                    style={{ padding: '8px 12px' }}
+                                >
+                                    Anterior
+                                </button>
+
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                    <button
+                                        key={page}
+                                        onClick={() => goToPage(page)}
+                                        className={currentPage === page ? "btn-primary" : "btn-outline"}
+                                        style={{
+                                            padding: '8px 12px',
+                                            minWidth: '40px'
+                                        }}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+
+                                <button
+                                    onClick={() => goToPage(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className="btn-outline"
+                                    style={{ padding: '8px 12px' }}
+                                >
+                                    Siguiente
+                                </button>
+                            </div>
+                        )}
                     </div>
 
-                    {error && (
+                    {error && data.length === 0 && (
                         <div style={{
                             color: 'darkorange',
                             marginTop: 12,
