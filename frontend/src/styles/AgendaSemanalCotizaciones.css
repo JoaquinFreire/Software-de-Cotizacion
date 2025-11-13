@@ -15,7 +15,6 @@
     --agenda-text-muted: #64748b;
 }
 
-/* Estados de carga y vacio */
 .satisfaction-loading {
     display: flex;
     flex-direction: column;

@@ -20,7 +20,6 @@ import {
     Info
 } from 'lucide-react';
 
-// Registrar componentes de Chart.js
 Chart.register(
     CategoryScale,
     LinearScale,
@@ -34,9 +33,7 @@ Chart.register(
 
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT5uVdkf1MHTdCmOK3Lp3A03vrPmKp3H7qyRsbIYRfz8-yNpXlcjtrOIrrL_vS5EZUdH62iF-UL4XB-/pub?output=csv';
 
-// Preguntas y opciones - usando las claves exactas del CSV
 const preguntasConfig = {
-    // Claves exactas del CSV con espacios
     "  ¿Cómo calificaría la amabilidad y predisposición del personal que lo atendió?  ": {
         opciones: ["1", "2", "3", "4", "5"],
         tituloCorto: "Amabilidad del personal",
@@ -94,7 +91,6 @@ const preguntasConfig = {
     }
 };
 
-// Mapeo de significados de puntuaciones
 const significadosPuntuacion = {
     "1": "Muy Malo",
     "2": "Malo",
@@ -103,12 +99,11 @@ const significadosPuntuacion = {
     "5": "Excelente"
 };
 
-// Paleta de colores consistente
 const coloresPorTipo = {
-    calificacion: ['#ef4444', '#f97316', '#eab308', '#84cc16', '#10b981'], // Rojo a Verde (1-5)
-    si_no: ['#10b981', '#ef4444'], // Verde para Sí, Rojo para No
-    opciones: ['#26b7cd', '#2dd4bf', '#8b5cf6'], // Colores neutros
-    recomendacion: ['#ef4444', '#f97316', '#eab308', '#84cc16', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#f97316'] // Escala completa
+    calificacion: ['#ef4444', '#f97316', '#eab308', '#84cc16', '#10b981'],
+    si_no: ['#10b981', '#ef4444'],
+    opciones: ['#26b7cd', '#2dd4bf', '#8b5cf6'],
+    recomendacion: ['#ef4444', '#f97316', '#eab308', '#84cc16', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#f97316']
 };
 
 const getDefaultDates = () => {
@@ -129,11 +124,9 @@ function analizarRespuestas(data) {
         data.forEach(row => {
             let respuesta = row[pregunta];
 
-            // Limpiar y normalizar respuestas
             if (respuesta) {
                 respuesta = respuesta.toString().trim();
 
-                // Normalizar respuestas Sí/No
                 if (config.tipo === 'si_no') {
                     if (respuesta.toLowerCase() === 'si' || respuesta === 'Sí') {
                         respuesta = 'Sí';
@@ -142,7 +135,6 @@ function analizarRespuestas(data) {
                     }
                 }
 
-                // Para recomendación, aceptar números del 1-10
                 if (config.tipo === 'recomendacion') {
                     const num = parseInt(respuesta);
                     if (!isNaN(num) && num >= 1 && num <= 10) {
@@ -180,7 +172,6 @@ function parseFecha(fechaStr) {
     }
 }
 
-// Función para calcular métricas globales
 function calcularMetricasGlobales(respuestas) {
     const totalRespuestas = respuestas.length;
 
@@ -192,7 +183,6 @@ function calcularMetricasGlobales(respuestas) {
         };
     }
 
-    // Calcular satisfacción general (preguntas de 1-5)
     const preguntasCalificacion = [
         "  ¿Cómo calificaría la amabilidad y predisposición del personal que lo atendió?  ",
         "  ¿Qué tan clara y comprensible le resultó la información brindada durante la atención?  ",
@@ -217,7 +207,6 @@ function calcularMetricasGlobales(respuestas) {
 
     const satisfaccionGeneral = totalCalificaciones > 0 ? (sumaCalificaciones / totalCalificaciones) : 0;
 
-    // Calcular promedio de recomendación (1-10)
     let sumaRecomendacion = 0;
     let totalRecomendaciones = 0;
     respuestas.forEach(row => {
@@ -250,14 +239,12 @@ const AnalisisSatisfaccionCliente = () => {
     const [mostrarLeyenda, setMostrarLeyenda] = useState(false);
     const pdfRef = useRef();
 
-    // Estados para control de acceso
     const [userRole, setUserRole] = useState(null);
     const [roleLoading, setRoleLoading] = useState(true);
     const requiredRoles = ['coordinator']; // Solo coordinadores pueden ver este reporte
 
     const navigate = useNavigate();
 
-    // Verificación de rol
     useEffect(() => {
         const checkUserRole = () => {
             const token = localStorage.getItem("token");
@@ -267,7 +254,6 @@ const AnalisisSatisfaccionCliente = () => {
             }
 
             try {
-                // Decodificar el JWT directamente - INSTANTÁNEO
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 const role = payload?.role?.toLowerCase() ||
                     payload?.Role?.toLowerCase() ||
@@ -276,13 +262,12 @@ const AnalisisSatisfaccionCliente = () => {
                 if (role) {
                     setUserRole(role);
                     setRoleLoading(false);
-                    return; // ¡No hace falta llamar a la API!
+                    return;
                 }
             } catch (error) {
                 console.debug('No se pudo decodificar JWT');
             }
 
-            // Fallback: llamar a la API solo si falla el JWT
             const fetchUserRoleFromAPI = async () => {
                 try {
                     const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
@@ -323,7 +308,6 @@ const AnalisisSatisfaccionCliente = () => {
                 header: true,
                 skipEmptyLines: true,
                 complete: (results) => {
-                    // Filtrar por fecha
                     const desde = new Date(fechaDesde);
                     const hasta = new Date(fechaHasta);
                     const filtradasPorFecha = results.data.filter(row => {
@@ -367,7 +351,6 @@ const AnalisisSatisfaccionCliente = () => {
         ));
     };
 
-    // Loading mientras verifica rol
     if (roleLoading) {
         return (
             <div className="dashboard-container">
@@ -395,7 +378,6 @@ const AnalisisSatisfaccionCliente = () => {
         );
     }
 
-    // Usuario no autorizado
     if (userRole && !requiredRoles.includes(userRole)) {
         return (
             <div className="dashboard-container">
@@ -438,20 +420,16 @@ const AnalisisSatisfaccionCliente = () => {
     const graficos = resumen.map((r, idx) => {
         const total = Object.values(r.conteo).reduce((a, b) => a + b, 0);
 
-        // Filtrar opciones que tienen al menos 1 respuesta
         const opcionesConDatos = r.opciones.filter(op => r.conteo[op] > 0);
         const datosConDatos = opcionesConDatos.map(op => r.conteo[op]);
 
-        // Obtener colores según el tipo de pregunta
         let colores = coloresPorTipo[r.tipo] || coloresPorTipo.opciones;
 
-        // Para preguntas Sí/No, asegurar que Sí sea verde y No sea rojo
         if (r.tipo === 'si_no') {
             colores = opcionesConDatos.map(op =>
                 op === 'Sí' ? '#10b981' : '#ef4444'
             );
         } else if (r.tipo === 'calificacion') {
-            // Para calificaciones 1-5, usar escala rojo a verde
             colores = opcionesConDatos.map(op => {
                 const puntuacion = parseInt(op);
                 if (puntuacion === 1) return '#ef4444'; // Rojo
@@ -462,7 +440,6 @@ const AnalisisSatisfaccionCliente = () => {
                 return '#26b7cd'; // Por defecto
             });
         } else if (r.tituloCorto === 'Relación precio/calidad') {
-            // Para relación precio/calidad
             colores = opcionesConDatos.map(op => {
                 if (op === 'Muy Alto') return '#10b981'; // Verde (como 5)
                 if (op === 'Muy bueno') return '#84cc16'; // Verde claro (como 4)
@@ -470,7 +447,6 @@ const AnalisisSatisfaccionCliente = () => {
                 return '#26b7cd'; // Por defecto
             });
         } else if (r.tituloCorto === 'Ajuste a necesidades') {
-            // Para ajuste a necesidades
             colores = opcionesConDatos.map(op => {
                 if (op === 'Sí') return '#10b981'; // Verde (como 5)
                 if (op === 'No') return '#ef4444'; // Rojo (como 1)
@@ -480,7 +456,6 @@ const AnalisisSatisfaccionCliente = () => {
         }
 
 
-        // Filtrar colores para que coincidan con las opciones con datos
         colores = colores.slice(0, opcionesConDatos.length);
 
         return {
@@ -489,7 +464,6 @@ const AnalisisSatisfaccionCliente = () => {
             opciones: opcionesConDatos,
             data: {
                 labels: opcionesConDatos.map(op => {
-                    // Mostrar significado para puntuaciones numéricas
                     if (['1', '2', '3', '4', '5'].includes(op)) {
                         return `${op} (${significadosPuntuacion[op]})`;
                     }
@@ -507,7 +481,6 @@ const AnalisisSatisfaccionCliente = () => {
         };
     });
 
-    // Preparar datos para gráfico de barras - TODAS las preguntas de calificación
     const preguntasCalificacion = graficos.filter(g => g.tipo === 'calificacion' && g.total > 0);
 
     const barData = {
@@ -516,7 +489,6 @@ const AnalisisSatisfaccionCliente = () => {
             {
                 label: 'Promedio de Calificación',
                 data: preguntasCalificacion.map(g => {
-                    // Calcular promedio para preguntas de 1-5
                     const valores = g.opciones.map((op, i) => {
                         const valorNumerico = parseInt(op);
                         return isNaN(valorNumerico) ? 0 : valorNumerico * g.data.datasets[0].data[i];
@@ -548,7 +520,6 @@ const AnalisisSatisfaccionCliente = () => {
                     </div>
                 </div>
 
-                {/* Filtros en línea */}
                 <div className="satisfaction-filters-inline">
                     <div className="filters-left">
                         <div className="filter-group-inline">
@@ -581,7 +552,6 @@ const AnalisisSatisfaccionCliente = () => {
                     </div>
                 </div>
 
-                {/* Leyenda de puntuaciones */}
                 <div className="leyenda-puntuaciones">
                     <button
                         className="leyenda-toggle"
@@ -617,7 +587,7 @@ const AnalisisSatisfaccionCliente = () => {
                     )}
                 </div>
 
-                {/* Contenido principal */}
+                {/* Cuerpo */}
                 <div className="satisfaction-content">
                     {loading && generar ? (
                         <div className="satisfaction-loading">
@@ -632,7 +602,6 @@ const AnalisisSatisfaccionCliente = () => {
                         </div>
                     ) : (
                         <div className="satisfaction-report" ref={pdfRef}>
-                            {/* Métricas Globales - Solo 3 KPI ahora */}
                             <div className="metrics-global">
                                 <div className="metric-card">
                                     <div className="metric-icon">
@@ -668,7 +637,6 @@ const AnalisisSatisfaccionCliente = () => {
                                 </div>
                             </div>
 
-                            {/* Gráfico de barras comparativo - TODAS las preguntas de calificación */}
                             {preguntasCalificacion.length > 0 && (
                                 <div className="chart-section">
                                     <h3>Comparativa de Preguntas de Calificación</h3>
@@ -714,7 +682,6 @@ const AnalisisSatisfaccionCliente = () => {
                                 </div>
                             )}
 
-                            {/* Gráficos individuales por pregunta - Solo mostrar los que tienen datos */}
                             <div className="charts-grid">
                                 {graficos.filter(g => g.total > 0).map((g, idx) => (
                                     <div key={idx} className="chart-card">
@@ -776,7 +743,6 @@ const AnalisisSatisfaccionCliente = () => {
                                 ))}
                             </div>
 
-                            {/* Información del reporte */}
                             <div className="report-info">
                                 <div className="info-section">
                                     <strong>Fuente de datos:</strong> Formulario de Google - Respuestas de satisfacción

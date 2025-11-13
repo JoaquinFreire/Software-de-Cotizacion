@@ -28,19 +28,16 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
     const [usingCustomPrices, setUsingCustomPrices] = useState(true);
     const [loading, setLoading] = useState(true);
 
-    // Estado para pestañas
     const [tabs, setTabs] = useState([]);
     const [activeTab, setActiveTab] = useState(1);
     const [nextTabId, setNextTabId] = useState(2);
     const [formErrors, setFormErrors] = useState({});
 
-    // Estados para control de acceso
     const [roleLoading, setRoleLoading] = useState(true);
-    const requiredRoles = ['manager']; // Todos los roles pueden ver este reporte
+    const requiredRoles = ['manager'];
 
     const navigate = useNavigate();
 
-    // Verificación de rol
     useEffect(() => {
         const checkUserRole = () => {
             const token = localStorage.getItem("token");
@@ -50,7 +47,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
             }
 
             try {
-                // Decodificar el JWT directamente - INSTANTÁNEO
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 const role = payload?.role?.toLowerCase() ||
                     payload?.Role?.toLowerCase() ||
@@ -59,13 +55,12 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                 if (role) {
                     setUserRole(role);
                     setRoleLoading(false);
-                    return; // ¡No hace falta llamar a la API!
+                    return;
                 }
             } catch (error) {
                 console.debug('No se pudo decodificar JWT');
             }
 
-            // Fallback: llamar a la API solo si falla el JWT
             const fetchUserRoleFromAPI = async () => {
                 try {
                     const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
@@ -97,7 +92,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
         navigate("/");
     }
 
-    // Obtener información del usuario
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) return;
@@ -114,7 +108,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
         })();
     }, []);
 
-    // Cargar datos iniciales
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) return;
@@ -144,7 +137,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                     p.name?.toLowerCase().includes("mano de obra")
                 );
 
-                // Precios originales
                 const originalPricesData = {
                     alumPrice: alum ? Number(alum.price) : 0,
                     labourPrice: labour ? Number(labour.price) : 0,
@@ -153,13 +145,11 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                     wasteCost: 10
                 };
 
-                // Cargar precios de vidrios
                 const glassPrices = {};
                 safeArray(glassRes.data).forEach(glass => {
                     glassPrices[`glass_${glass.id}`] = Number(glass.price) || 0;
                 });
 
-                // Cargar precios de tratamientos
                 const treatmentPercentages = {};
                 safeArray(treatmentsRes.data).forEach(treatment => {
                     treatmentPercentages[`treatment_${treatment.id}`] =
@@ -180,7 +170,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                     ...treatmentPercentages
                 });
 
-                // Crear primera pestaña
                 const initialTab = {
                     id: 1,
                     name: 'Abertura 1',
@@ -207,7 +196,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
         })();
     }, []);
 
-    // Helper para configuración sugerida
     const getSuggestedConfig = (typeId, widthCm, heightCm) => {
         const widthMM = widthCm ? Number(widthCm) * 10 : null;
         const heightMM = heightCm ? Number(heightCm) * 10 : null;
@@ -221,7 +209,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
         );
     };
 
-    // Validar formulario
     const validateForm = (form) => {
         const errors = {};
 
@@ -235,7 +222,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
         return errors;
     };
 
-    // Manejar cambios en formularios
     const handleFormChange = (tabId, field, value) => {
         setTabs(prev => prev.map(tab =>
             tab.id === tabId
@@ -243,7 +229,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                 : tab
         ));
 
-        // Limpiar errores del campo modificado
         if (formErrors[tabId]?.[field]) {
             setFormErrors(prev => ({
                 ...prev,
@@ -255,7 +240,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
         }
     };
 
-    // Calcular para una pestaña específica
     const handleCalculate = (tabId) => {
         const tab = tabs.find(t => t.id === tabId);
         if (!tab) return;
@@ -269,7 +253,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
             return;
         }
 
-        // Limpiar errores
         setFormErrors(prev => ({
             ...prev,
             [tabId]: {}
@@ -280,7 +263,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
 
             const { typeId, treatmentId, glassTypeId, widthCm, heightCm, numPanelsWidth, numPanelsHeight, quantity } = tab.form;
 
-            // Usar precios personalizados si están activos
             const currentPrices = usingCustomPrices ? customPrices : originalPrices;
             const currentAlumPrice = currentPrices.alumPrice || alumPrice;
             const currentLabourPrice = currentPrices.labourPrice || labourPrice;
@@ -302,18 +284,15 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                 const anchoPanelMM = widthMM / numW;
                 const altoPanelMM = heightMM / numH;
 
-                // Perimeter per panel (mm)
                 const perimetroPanelMM = 2 * (anchoPanelMM + altoPanelMM);
                 const totalAluminioMM = perimetroPanelMM * totalPanels * (Number(quantity) || 1);
                 const totalAluminioM = totalAluminioMM / 1000;
                 const openingTypeObj = safeArray(openingTypes).find(t => Number(t.id) === Number(typeId));
                 const pesoAluminio = openingTypeObj && openingTypeObj.weight ? totalAluminioM * Number(openingTypeObj.weight) : 0;
 
-                // Aplicar desperdicio
                 const pesoAluminioConDesperdicio = pesoAluminio * (1 + wastePercentage / 100);
                 const costoAluminio = pesoAluminioConDesperdicio * currentAlumPrice;
 
-                // Vidrio
                 const areaPanelM2 = (anchoPanelMM / 1000) * (altoPanelMM / 1000);
                 const areaTotalVidrio = areaPanelM2 * totalPanels * (Number(quantity) || 1);
                 const glassObj = safeArray(glassTypes).find(g => Number(g.id) === Number(glassTypeId));
@@ -321,7 +300,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                 const glassPrice = currentPrices[glassPriceKey] || (glassObj ? Number(glassObj.price || 0) : 0);
                 const costoVidrio = areaTotalVidrio * glassPrice;
 
-                // Tratamiento
                 const treatmentObj = safeArray(treatments).find(t => Number(t.id) === Number(treatmentId));
                 const treatmentPriceKey = `treatment_${treatmentId}`;
                 const tratamientoPorc = currentPrices[treatmentPriceKey] ||
@@ -330,15 +308,12 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                         : 0);
                 const costoTratamiento = costoAluminio * (tratamientoPorc / 100);
 
-                // Mano de obra
                 const costoManoObra = currentLabourPrice * (Number(quantity) || 1);
 
-                // Subtotal y costos adicionales
                 const subtotal = costoAluminio + costoTratamiento + costoVidrio + costoManoObra;
                 const costoFabricacion = subtotal * (fabricationPercentage / 100);
                 const costoAdministrativo = subtotal * (administrativePercentage / 100);
 
-                // Beneficio
                 const beneficio = costoManoObra + costoFabricacion + costoAdministrativo;
                 const beneficioPorcSobreSubtotal = subtotal > 0 ? (beneficio / subtotal) * 100 : 0;
                 const total = subtotal + costoFabricacion + costoAdministrativo;
@@ -379,7 +354,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
         }));
     };
 
-    // Manejar pestañas
     const addNewTab = () => {
         if (tabs.length >= 5) {
             alert('Máximo 5 pestañas permitidas');
@@ -425,29 +399,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
 
     const getActiveTab = () => tabs.find(tab => tab.id === activeTab);
 
-    // Exportar PDF
-    //const handleExportPDF = (tabId = null) => {
-    //    const tabToExport = tabId ? tabs.find(tab => tab.id === tabId) : getActiveTab();
-    //    if (!tabToExport?.result) {
-    //        alert('No hay resultados para exportar');
-    //        return;
-    //    }
-
-    //    const element = document.getElementById(`pdf-content-${tabToExport.id}`);
-    //    if (!element) return;
-
-    //    const opt = {
-    //        margin: [0.5, 0.5],
-    //        filename: `beneficio_abertura_${tabToExport.id}_${Date.now()}.pdf`,
-    //        image: { type: 'jpeg', quality: 0.98 },
-    //        html2canvas: { scale: 2 },
-    //        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-    //    };
-
-    //    html2pdf().set(opt).from(element).save();
-    //};
-
-    // Manejar precios personalizados
     const handlePriceChange = (field, value) => {
         setCustomPrices(prev => ({
             ...prev,
@@ -458,10 +409,8 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
     const saveCustomPrices = () => {
         setShowPriceModal(false);
         setUsingCustomPrices(true);
-        // Recalcular automáticamente todas las pestañas con resultados existentes
         const updatedTabs = tabs.map(tab => {
             if (tab.result) {
-                // Simular el cálculo sin necesidad de hacer click
                 const { typeId, treatmentId, glassTypeId, widthCm, heightCm, numPanelsWidth, numPanelsHeight, quantity } = tab.form;
 
                 if (!typeId || !widthCm || !heightCm || !treatmentId || !glassTypeId) {
@@ -482,7 +431,7 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                     const anchoPanelMM = widthMM / numW;
                     const altoPanelMM = heightMM / numH;
 
-                    // Perimeter per panel (mm)
+                    // Perimetro por panel (mm)
                     const perimetroPanelMM = 2 * (anchoPanelMM + altoPanelMM);
                     const totalAluminioMM = perimetroPanelMM * totalPanels * (Number(quantity) || 1);
                     const totalAluminioM = totalAluminioMM / 1000;
@@ -560,10 +509,8 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
 
     const resetToOriginalPrices = () => {
         setUsingCustomPrices(false);
-        // Recalcular automáticamente todas las pestañas con resultados existentes
         const updatedTabs = tabs.map(tab => {
             if (tab.result) {
-                // Simular el cálculo sin necesidad de hacer click
                 const { typeId, treatmentId, glassTypeId, widthCm, heightCm, numPanelsWidth, numPanelsHeight, quantity } = tab.form;
 
                 if (!typeId || !widthCm || !heightCm || !treatmentId || !glassTypeId) {
@@ -584,7 +531,7 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                     const anchoPanelMM = widthMM / numW;
                     const altoPanelMM = heightMM / numH;
 
-                    // Perimeter per panel (mm)
+                    // Perimetro por panel (mm)
                     const perimetroPanelMM = 2 * (anchoPanelMM + altoPanelMM);
                     const totalAluminioMM = perimetroPanelMM * totalPanels * (Number(quantity) || 1);
                     const totalAluminioM = totalAluminioMM / 1000;
@@ -664,10 +611,8 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
 
     const activateCustomPrices = () => {
         setUsingCustomPrices(true);
-        // Recalcular automáticamente todas las pestañas con resultados existentes
         const updatedTabs = tabs.map(tab => {
             if (tab.result) {
-                // Simular el cálculo sin necesidad de hacer click
                 const { typeId, treatmentId, glassTypeId, widthCm, heightCm, numPanelsWidth, numPanelsHeight, quantity } = tab.form;
 
                 if (!typeId || !widthCm || !heightCm || !treatmentId || !glassTypeId) {
@@ -688,7 +633,7 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                     const anchoPanelMM = widthMM / numW;
                     const altoPanelMM = heightMM / numH;
 
-                    // Perimeter per panel (mm)
+                    // Perimetro per panel (mm)
                     const perimetroPanelMM = 2 * (anchoPanelMM + altoPanelMM);
                     const totalAluminioMM = perimetroPanelMM * totalPanels * (Number(quantity) || 1);
                     const totalAluminioM = totalAluminioMM / 1000;
@@ -764,12 +709,10 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
         setTabs(updatedTabs);
     };
 
-    // Obtener errores para la pestaña activa
     const getActiveTabErrors = () => {
         return formErrors[activeTab] || {};
     };
 
-    // Loading mientras verifica rol
     if (roleLoading) {
         return (
             <div className="dashboard-container">
@@ -797,7 +740,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
         );
     }
 
-    // Usuario no autorizado
     if (userRole && !requiredRoles.includes(userRole)) {
         return (
             <div className="dashboard-container">
@@ -889,14 +831,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                                     </button>
                                 </>
                             )}
-                            {/*<button*/}
-                            {/*    className="btn btn-primary"*/}
-                            {/*    onClick={() => handleExportPDF()}*/}
-                            {/*    disabled={!getActiveTab()?.result}*/}
-                            {/*>*/}
-                            {/*    <Download size={18} />*/}
-                            {/*    Exportar PDF*/}
-                            {/*</button>*/}
                         </div>
                     </div>
 
@@ -927,7 +861,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                             )}
                         </div>
 
-                        {/* CONTENIDO DE PESTAÑA ACTIVA */}
                         {tabs.map(tab => (
                             <div
                                 key={tab.id}
@@ -1081,7 +1014,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                                                     )}
                                                 </div>
 
-                                                {/* Mensaje de error general */}
                                                 {Object.keys(getActiveTabErrors()).length > 0 && (
                                                     <div className="general-error-message">
                                                         <AlertCircle size={16} />
@@ -1235,7 +1167,7 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                                         </div>
                                     </div>
 
-                                    {/* COLUMNA 3 - VISUALIZACIÓN Y KPIs */}
+                                    {/* COLUMNA 3 - VISUALIZACIÓN */}
                                     <div className="visualization-panel">
                                         <div className="panel-header">
                                             <Square size={20} />
@@ -1259,7 +1191,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                                                                     viewBox={`0 0 ${Number(tab.form.widthCm || 120)} ${Number(tab.form.heightCm || 80)}`}
                                                                     preserveAspectRatio="xMidYMid meet"
                                                                 >
-                                                                    {/* Fondo blanco */}
                                                                     <rect
                                                                         x="0" y="0"
                                                                         width={Number(tab.form.widthCm || 120)}
@@ -1269,7 +1200,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                                                                         strokeWidth={1}
                                                                         rx={2}
                                                                     />
-                                                                    {/* Líneas de panel verticales */}
                                                                     {Array.from({ length: Math.max(0, tab.result.numW - 1) }).map((_, i) => (
                                                                         <line
                                                                             key={`v-${i}`}
@@ -1281,7 +1211,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                                                                             strokeWidth={1.5}
                                                                         />
                                                                     ))}
-                                                                    {/* Líneas de panel horizontales */}
                                                                     {Array.from({ length: Math.max(0, tab.result.numH - 1) }).map((_, i) => (
                                                                         <line
                                                                             key={`h-${i}`}
@@ -1316,7 +1245,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                                                         </div>
                                                     </div>
 
-                                                    {/* KPIs PRINCIPALES */}
                                                     <div className="kpis-section">
                                                         <h4>Métricas Principales</h4>
                                                         <div className="kpis-grid">
@@ -1357,7 +1285,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                                     </div>
                                 </div>
 
-                                {/* CONTENIDO PARA PDF (OCULTO) */}
                                 {tab.result && (
                                     <div id={`pdf-content-${tab.id}`} className="pdf-content" style={{ display: 'none' }}>
                                         <div className="pdf-header">
@@ -1397,7 +1324,6 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                 </div>
             </div>
 
-            {/* MODAL DE PRECIOS (SOLO GERENTE) */}
             {showPriceModal && userRole === 'manager' && (
                 <div className="modal-overlay">
                     <div className="modal-content large">
