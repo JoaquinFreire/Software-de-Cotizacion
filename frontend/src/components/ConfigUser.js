@@ -154,7 +154,7 @@ export default function ConfigUser() {
 				{loading ? (
 					<div className="spinner-container-dashboard">
 						<ReactLoading type="spin" color="#26b7cd" height={34} width={34} 
-						display={"flex"} alignItems={"center"} justifyContent={"center"}
+						display={"flex"} alignitems={"center"} justifycontent={"center"}
 						/>
 					</div>
 				) : (

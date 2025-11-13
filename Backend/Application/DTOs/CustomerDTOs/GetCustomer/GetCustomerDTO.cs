@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.BudgetDTOs.GetBudget;
+using Application.DTOs.CustomerAgentDTOs.GetCustomerAgent; // <-- nuevo using
 
 namespace Application.DTOs.CustomerDTOs.GetCustomer
 {
@@ -13,6 +14,8 @@ namespace Application.DTOs.CustomerDTOs.GetCustomer
         public required string dni { get; set; }
         public required DateTime registration_date { get; set; }
 
+        // Nueva propiedad: lista de agentes relacionados (puede ser vacía)
+        public IEnumerable<GetCustomerAgentDTO>? agents { get; set; }
     }
 }
 

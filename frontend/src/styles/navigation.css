@@ -709,6 +709,7 @@ body.light-mode .sidebar-show-btn {
     height: 48px;
     width: auto;
     background: none;
+    margin-bottom: 10px;
 }
 
 .navigation-root .header-right {

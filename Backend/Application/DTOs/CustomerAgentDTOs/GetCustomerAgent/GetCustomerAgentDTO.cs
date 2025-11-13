@@ -9,6 +9,6 @@ namespace Application.DTOs.CustomerAgentDTOs.GetCustomerAgent
         public required string dni { get; set; }
         public required string tel { get; set; }
         public required string mail { get; set; }
-
+        public DateTime registration_date { get; set; } = DateTime.Now;
     }
 }
