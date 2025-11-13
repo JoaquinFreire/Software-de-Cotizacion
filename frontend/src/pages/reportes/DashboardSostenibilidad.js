@@ -34,7 +34,6 @@ import Footer from "../../components/Footer";
 import '../../styles/DashboardSostenibilidad.css';
 import { useNavigate } from "react-router-dom";
 
-
 // Registrar componentes de Chart.js
 ChartJS.register(
     CategoryScale,
@@ -56,7 +55,7 @@ const DashboardSostenibilidad = () => {
 
     const [filters, setFilters] = useState({
         fromDate: getDefaultFromDate(),
-        toDate: getDefaultToDate(), // Usar función para obtener último día del mes
+        toDate: getDefaultToDate(),
         customRange: false
     });
 
@@ -65,28 +64,79 @@ const DashboardSostenibilidad = () => {
         healthDetails: false
     });
 
+    const [userRole, setUserRole] = useState(null);
+    const [roleLoading, setRoleLoading] = useState(true);
+
     const navigate = useNavigate();
-            
-                const handleLogout = () => {
-                    localStorage.removeItem("token");
-                    navigate("/");
-                }
     const chartRef = useRef(null);
     const API_URL = process.env.REACT_APP_API_URL;
 
-    // Helper functions para fechas - CORREGIDO
-    // Helper functions para fechas - MODIFICADO para enero 2024 a enero 2025
-function getDefaultFromDate() {
-    const date = new Date(2024, 0, 1); // 1 de enero 2024
-    return date.toISOString().split('T')[0];
-}
+    const requiredRoles = ['manager']; // Solo gerente puede ver este reporte
 
-function getDefaultToDate() {
-    const date = new Date(2025, 0, 31); // 31 de enero 2025
-    return date.toISOString().split('T')[0];
-}
+    // Verificación de rol
+    useEffect(() => {
+        const checkUserRole = () => {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                navigate("/");
+                return;
+            }
 
-    // Función para formatear fecha a solo mes y año para el backend - CORREGIDO
+            try {
+                // Decodificar el JWT directamente - INSTANTÁNEO
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const role = payload?.role?.toLowerCase() ||
+                    payload?.Role?.toLowerCase() ||
+                    payload?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']?.toLowerCase();
+
+                if (role) {
+                    setUserRole(role);
+                    setRoleLoading(false);
+                    return; // ¡No hace falta llamar a la API!
+                }
+            } catch (error) {
+                console.debug('No se pudo decodificar JWT');
+            }
+
+            // Fallback: llamar a la API solo si falla el JWT
+            const fetchUserRoleFromAPI = async () => {
+                try {
+                    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const role = data?.user?.role?.toLowerCase();
+                        setUserRole(role);
+                    }
+                } catch (error) {
+                    console.error('Error verificando rol:', error);
+                }
+                setRoleLoading(false);
+            };
+
+            fetchUserRoleFromAPI();
+        };
+
+        checkUserRole();
+    }, [navigate]);
+
+    // Helper functions para fechas
+    function getDefaultFromDate() {
+        const date = new Date(2024, 0, 1); // 1 de enero 2024
+        return date.toISOString().split('T')[0];
+    }
+
+    function getDefaultToDate() {
+        const date = new Date(2025, 0, 31); // 31 de enero 2025
+        return date.toISOString().split('T')[0];
+    }
+
+    // Función para formatear fecha a solo mes y año para el backend
     const formatDateForBackend = (dateString, isEndDate = false) => {
         const date = new Date(dateString);
         if (isEndDate) {
@@ -100,7 +150,7 @@ function getDefaultToDate() {
         }
     };
 
-    // Función para obtener texto en español de estacionalidad - AGREGADA
+    // Función para obtener texto en español de estacionalidad
     const getSeasonalityText = (seasonality) => {
         switch (seasonality?.toUpperCase()) {
             case 'HIGH': return 'ALTA';
@@ -122,7 +172,7 @@ function getDefaultToDate() {
         };
     };
 
-    // Función para cargar métricas de sostenibilidad - CORREGIDA
+    // Función para cargar métricas de sostenibilidad
     const fetchSustainabilityMetrics = async () => {
         try {
             setLoading(prev => ({ ...prev, overall: true, metrics: true }));
@@ -132,7 +182,7 @@ function getDefaultToDate() {
             // Parámetros para métricas generales
             const queryParams = new URLSearchParams({
                 fromDate: formatDateForBackend(filters.fromDate, false),
-                toDate: formatDateForBackend(filters.toDate, true) // Último día del mes
+                toDate: formatDateForBackend(filters.toDate, true)
             });
 
             const response = await fetch(`${API_URL}/api/SustainabilityReport/metrics?${queryParams}`, {
@@ -182,7 +232,7 @@ function getDefaultToDate() {
             const queryParams = new URLSearchParams({
                 fromDate: forecastRange.fromDate,
                 toDate: forecastRange.toDate,
-                forecastOnly: 'true' // Parámetro adicional para indicar que solo queremos forecast
+                forecastOnly: 'true'
             });
 
             const response = await fetch(`${API_URL}/api/SustainabilityReport/metrics?${queryParams}`, {
@@ -208,15 +258,90 @@ function getDefaultToDate() {
 
     // Efecto para carga inicial
     useEffect(() => {
-        fetchSustainabilityMetrics();
+        if (userRole && requiredRoles.includes(userRole)) {
+            fetchSustainabilityMetrics();
+        }
     }, []);
 
     // Efecto para actualizar cuando cambian los filtros
     useEffect(() => {
-        if (!loading.overall) {
+        if (userRole && requiredRoles.includes(userRole) && !loading.overall) {
             fetchSustainabilityMetrics();
         }
     }, [filters.fromDate, filters.toDate]);
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        navigate("/");
+    }
+
+    // Loading mientras verifica rol
+    if (roleLoading) {
+        return (
+            <div className="dashboard-container">
+                <Navigation onLogout={handleLogout} />
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '50vh',
+                    flexDirection: 'column',
+                    gap: '1rem'
+                }}>
+                    <div style={{
+                        width: '40px',
+                        height: '40px',
+                        border: '4px solid #f3f3f3',
+                        borderTop: '4px solid #3b82f6',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite'
+                    }}></div>
+                    <p>Verificando acceso...</p>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
+
+    // Usuario no autorizado
+    if (userRole && !requiredRoles.includes(userRole)) {
+        return (
+            <div className="dashboard-container">
+                <Navigation onLogout={handleLogout} />
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '60vh',
+                    flexDirection: 'column',
+                    textAlign: 'center',
+                    padding: '2rem'
+                }}>
+                    <h2 style={{ color: '#ef4444', marginBottom: '1rem' }}>Acceso Denegado</h2>
+                    <p style={{ marginBottom: '1rem' }}>
+                        No tiene permisos para ver este recurso.
+                    </p>
+                    <p style={{ marginBottom: '2rem', color: '#6b7280' }}>
+                        Este reporte está disponible únicamente para el rol de Gerente.
+                    </p>
+                    <button
+                        onClick={() => navigate('/reportes')}
+                        style={{
+                            background: '#3b82f6',
+                            color: 'white',
+                            border: 'none',
+                            padding: '0.75rem 1.5rem',
+                            borderRadius: '6px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Volver a Reportes
+                    </button>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
 
     // Función para calcular crecimiento del período
     const calculateGrowthRate = () => {
@@ -274,7 +399,7 @@ function getDefaultToDate() {
         }));
     };
 
-    // Generar datos para el gráfico con todos los meses - MEJORADO
+    // Generar datos para el gráfico con todos los meses
     const generateChartData = () => {
         if (!metricsData.MonthlyTrends?.$values) {
             return {
@@ -364,7 +489,7 @@ function getDefaultToDate() {
         };
     };
 
-    // Configuración del gráfico (sin cambios)
+    // Configuración del gráfico
     const chartOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -463,7 +588,7 @@ function getDefaultToDate() {
         }
     };
 
-    // Componentes Skeleton Loading (sin cambios)
+    // Componentes Skeleton Loading
     const SkeletonKPI = () => (
         <div className="sustainability-kpi-card skeleton">
             <div className="sustainability-kpi-icon skeleton"></div>

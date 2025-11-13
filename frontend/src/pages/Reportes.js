@@ -109,7 +109,7 @@ const reportCards = [
         className: "reporte-beneficio-proyecto",
         route: "/reportes/beneficio-proyecto",
         color: "#ec4899",
-        roles: ['quotator', 'coordinator', 'manager'] // Todos los roles
+        roles: ['manager'] // Todos los roles
     },
     //Reporte 9
     {
@@ -151,7 +151,7 @@ const reportCards = [
         className: "reporte-metrica-personal",
         route: "/reportes/metrica-personal",
         color: "#84cc16",
-        roles: ['quotator'] // Solo cotizador
+        roles: ['coordinator'] // Solo coordinador
     },
     //Reporte 13
     {
@@ -161,7 +161,7 @@ const reportCards = [
         className: "reporte-clientes-mayor-volumen",
         route: "/reportes/cliente-mayor-volumen",
         color: "#6366f1",
-        roles: ['quotator', 'coordinator', 'manager'] // Todos los roles
+        roles: ['quotator', 'coordinator'] // Todos los roles
     },
     //Reporte 14
     //{
