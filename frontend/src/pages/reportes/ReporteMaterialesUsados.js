@@ -102,194 +102,6 @@ const ReporteMaterialesUsados = () => {
         checkUserRole();
     }, [navigate]);
 
-    useEffect(() => {
-        if (userRole && requiredRoles.includes(userRole)) {
-            fetchData();
-        }
-    }, [userRole]);
-
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        navigate("/");
-    }
-
-    const fetchData = async (desde, hasta) => {
-    setError(null);
-    try {
-        setLoading(true);
-        const base = API_URL || window.location.origin;
-        const token = localStorage.getItem('token');
-        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-
-        // Construir URL con parámetros de fecha
-        const params = new URLSearchParams();
-        if (desde) params.append('desde', desde);
-        if (hasta) params.append('hasta', hasta);
-
-        const candidateUrls = [
-            `${base}/api/Mongo/GetMaterialsUsage?${params}`,
-            `${window.location.origin}/api/Mongo/GetMaterialsUsage?${params}`,
-            `/api/Mongo/GetMaterialsUsage?${params}`
-        ];
-
-        if (base.startsWith('http:')) candidateUrls.push(base.replace('http:', 'https:') + `/api/Mongo/GetMaterialsUsage?${params}`);
-        if (base.startsWith('https:')) candidateUrls.push(base.replace('https:', 'http:') + `/api/Mongo/GetMaterialsUsage?${params}`);
-
-        // El resto del código se mantiene igual...
-        let finalJson = null;
-        const tried = [];
-
-        for (const url of candidateUrls) {
-            try {
-                console.log('Probing URL:', url);
-                const res = await fetch(url, { headers });
-                const text = await res.text();
-                let json = null;
-                try { json = text ? JSON.parse(text) : null; } catch (e) { /* not json */ }
-                tried.push({ url, status: res.status, snippet: (text || '').slice(0, 200) });
-                if (res.ok) { finalJson = json; break; }
-                if (res.status === 404) continue;
-                throw new Error((json && json.message) || text || `HTTP ${res.status}`);
-            } catch (innerErr) {
-                console.warn('Probe failed for', url, innerErr);
-                tried.push({ url, status: 'error', message: innerErr.message });
-            }
-        }
-
-        console.log('Tried endpoints:', tried);
-        if (!finalJson) {
-            const summary = tried.map(t => `${t.url} -> ${t.status}`).join(' | ');
-            throw new Error(`No response from backend. URLs probadas: ${summary}`);
-        }
-
-        // ... el resto del código de normalización se mantiene igual
-        const norm = (resp) => {
-            if (!resp) return {
-                Openings: {},
-                Glass: {},
-                Accessories: {},
-                Treatments: {},
-                Coatings: {},
-                CountBudgets: 0
-            };
-            const get = (k) => resp[k] ?? resp[k.toLowerCase()] ?? resp[k.toUpperCase()] ?? {};
-            return {
-                Openings: get('Openings') || get('openings'),
-                Glass: get('Glass') || get('glass'),
-                Accessories: get('Accessories') || get('accessories'),
-                Treatments: get('Treatments') || get('treatments'),
-                Coatings: get('Coatings') || get('coatings'),
-                CountBudgets: resp.CountBudgets ?? resp.countBudgets ?? resp.countbudgets ?? (Array.isArray(resp) ? resp.length : (resp?.Count ?? 0))
-            };
-        };
-
-        const normalizedData = norm(finalJson);
-
-        const removeInvalidKeys = (obj) => {
-            if (!obj || typeof obj !== 'object') return {};
-            return Object.fromEntries(
-                Object.entries(obj)
-                    .filter(([k, v]) => {
-                        if (!k) return false;
-                        const kl = String(k).trim().toLowerCase();
-                        if (kl === '$id' || kl === 'id' || kl === '') return false;
-                        if (typeof v === 'string' && v.trim().toLowerCase() === '$id') return false;
-                        return true;
-                    })
-            );
-        };
-
-        normalizedData.Glass = removeInvalidKeys(normalizedData.Glass);
-        normalizedData.Treatments = removeInvalidKeys(normalizedData.Treatments);
-        normalizedData.Coatings = removeInvalidKeys(normalizedData.Coatings);
-
-        const enrichedData = {
-            ...normalizedData,
-            SummaryStats: calculateSummaryStats(normalizedData),
-            TopMaterials: getTopMaterials(normalizedData),
-            MaterialTrends: generateMaterialTrends(normalizedData),
-            filterDates: { desde, hasta }
-        };
-
-        setData(enrichedData);
-        setDateFiltersApplied(true);
-    } catch (err) {
-        console.error("Error cargando materiales:", err);
-        setData(null);
-        setError(err.message || 'Error desconocido');
-    } finally {
-        setLoading(false);
-    }
-};
-
-    // Loading mientras verifica rol
-    if (roleLoading) {
-        return (
-            <div className="dashboard-container">
-                <Navigation onLogout={handleLogout} />
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '50vh',
-                    flexDirection: 'column',
-                    gap: '1rem'
-                }}>
-                    <div style={{
-                        width: '40px',
-                        height: '40px',
-                        border: '4px solid #f3f3f3',
-                        borderTop: '4px solid #3b82f6',
-                        borderRadius: '50%',
-                        animation: 'spin 1s linear infinite'
-                    }}></div>
-                    <p>Verificando acceso...</p>
-                </div>
-                <Footer />
-            </div>
-        );
-    }
-
-    // Usuario no autorizado
-    if (userRole && !requiredRoles.includes(userRole)) {
-        return (
-            <div className="dashboard-container">
-                <Navigation onLogout={handleLogout} />
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '60vh',
-                    flexDirection: 'column',
-                    textAlign: 'center',
-                    padding: '2rem'
-                }}>
-                    <h2 style={{ color: '#ef4444', marginBottom: '1rem' }}>Acceso Denegado</h2>
-                    <p style={{ marginBottom: '1rem' }}>
-                        No tiene permisos para ver este recurso.
-                    </p>
-                    <p style={{ marginBottom: '2rem', color: '#6b7280' }}>
-                        Este reporte está disponible únicamente para el rol de Gerente.
-                    </p>
-                    <button
-                        onClick={() => navigate('/reportes')}
-                        style={{
-                            background: '#3b82f6',
-                            color: 'white',
-                            border: 'none',
-                            padding: '0.75rem 1.5rem',
-                            borderRadius: '6px',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        Volver a Reportes
-                    </button>
-                </div>
-                <Footer />
-            </div>
-        );
-    }
-
     // Función para calcular estadísticas resumen
     const calculateSummaryStats = (data) => {
         if (!data) return {};
@@ -361,49 +173,130 @@ const ReporteMaterialesUsados = () => {
         };
     };
 
-    useEffect(() => {
-    fetchData(fechaDesde, fechaHasta);
-}, []);
+    const fetchData = async (desde, hasta) => {
+        setError(null);
+        try {
+            setLoading(true);
+            const base = API_URL || window.location.origin;
+            const token = localStorage.getItem('token');
+            const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
+            // Construir URL con parámetros de fecha
+            const params = new URLSearchParams();
+            if (desde) params.append('desde', desde);
+            if (hasta) params.append('hasta', hasta);
 
-    // Función para renderizar listas con mejor formato
-    const renderMaterialList = (items, unit = "", maxItems = 8) => {
-        if (!items || Object.keys(items).length === 0) {
-            return <div className="no-data-message">No hay datos disponibles</div>;
+            const candidateUrls = [
+                `${base}/api/Mongo/GetMaterialsUsage?${params}`,
+                `${window.location.origin}/api/Mongo/GetMaterialsUsage?${params}`,
+                `/api/Mongo/GetMaterialsUsage?${params}`
+            ];
+
+            if (base.startsWith('http:')) candidateUrls.push(base.replace('http:', 'https:') + `/api/Mongo/GetMaterialsUsage?${params}`);
+            if (base.startsWith('https:')) candidateUrls.push(base.replace('https:', 'http:') + `/api/Mongo/GetMaterialsUsage?${params}`);
+
+            // El resto del código se mantiene igual...
+            let finalJson = null;
+            const tried = [];
+
+            for (const url of candidateUrls) {
+                try {
+                    console.log('Probing URL:', url);
+                    const res = await fetch(url, { headers });
+                    const text = await res.text();
+                    let json = null;
+                    try { json = text ? JSON.parse(text) : null; } catch (e) { /* not json */ }
+                    tried.push({ url, status: res.status, snippet: (text || '').slice(0, 200) });
+                    if (res.ok) { finalJson = json; break; }
+                    if (res.status === 404) continue;
+                    throw new Error((json && json.message) || text || `HTTP ${res.status}`);
+                } catch (innerErr) {
+                    console.warn('Probe failed for', url, innerErr);
+                    tried.push({ url, status: 'error', message: innerErr.message });
+                }
+            }
+
+            console.log('Tried endpoints:', tried);
+            if (!finalJson) {
+                const summary = tried.map(t => `${t.url} -> ${t.status}`).join(' | ');
+                throw new Error(`No response from backend. URLs probadas: ${summary}`);
+            }
+
+            // ... el resto del código de normalización se mantiene igual
+            const norm = (resp) => {
+                if (!resp) return {
+                    Openings: {},
+                    Glass: {},
+                    Accessories: {},
+                    Treatments: {},
+                    Coatings: {},
+                    CountBudgets: 0
+                };
+                const get = (k) => resp[k] ?? resp[k.toLowerCase()] ?? resp[k.toUpperCase()] ?? {};
+                return {
+                    Openings: get('Openings') || get('openings'),
+                    Glass: get('Glass') || get('glass'),
+                    Accessories: get('Accessories') || get('accessories'),
+                    Treatments: get('Treatments') || get('treatments'),
+                    Coatings: get('Coatings') || get('coatings'),
+                    CountBudgets: resp.CountBudgets ?? resp.countBudgets ?? resp.countbudgets ?? (Array.isArray(resp) ? resp.length : (resp?.Count ?? 0))
+                };
+            };
+
+            const normalizedData = norm(finalJson);
+
+            const removeInvalidKeys = (obj) => {
+                if (!obj || typeof obj !== 'object') return {};
+                return Object.fromEntries(
+                    Object.entries(obj)
+                        .filter(([k, v]) => {
+                            if (!k) return false;
+                            const kl = String(k).trim().toLowerCase();
+                            if (kl === '$id' || kl === 'id' || kl === '') return false;
+                            if (typeof v === 'string' && v.trim().toLowerCase() === '$id') return false;
+                            return true;
+                        })
+                );
+            };
+
+            normalizedData.Glass = removeInvalidKeys(normalizedData.Glass);
+            normalizedData.Treatments = removeInvalidKeys(normalizedData.Treatments);
+            normalizedData.Coatings = removeInvalidKeys(normalizedData.Coatings);
+
+            const enrichedData = {
+                ...normalizedData,
+                SummaryStats: calculateSummaryStats(normalizedData),
+                TopMaterials: getTopMaterials(normalizedData),
+                MaterialTrends: generateMaterialTrends(normalizedData),
+                filterDates: { desde, hasta }
+            };
+
+            setData(enrichedData);
+            setDateFiltersApplied(true);
+        } catch (err) {
+            console.error("Error cargando materiales:", err);
+            setData(null);
+            setError(err.message || 'Error desconocido');
+        } finally {
+            setLoading(false);
         }
-
-        const entries = Object.entries(items)
-            .sort(([, a], [, b]) => (b || 0) - (a || 0))
-            .slice(0, maxItems);
-
-        return (
-            <div className="material-list">
-                {entries.map(([name, value], index) => (
-                    <div key={name} className="material-item">
-                        <div className="material-rank">#{index + 1}</div>
-                        <div className="material-info">
-                            <div className="material-name">{name}</div>
-                            <div className="material-usage">
-                                {value} {unit}
-                            </div>
-                        </div>
-                        <div className="material-bar">
-                            <div
-                                className="material-bar-fill"
-                                style={{
-                                    width: `${Math.min(100, (value / entries[0][1]) * 100)}%`
-                                }}
-                            ></div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
     };
 
+    // useEffect para cargar datos - MOVIDO ANTES DE LOS RETURNS
+    useEffect(() => {
+        if (userRole && requiredRoles.includes(userRole)) {
+            fetchData(fechaDesde, fechaHasta);
+        }
+    }, [userRole, fechaDesde, fechaHasta]);
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        navigate("/");
+    }
+
     const handleRefresh = () => {
-    fetchData(fechaDesde, fechaHasta);
-};
+        fetchData(fechaDesde, fechaHasta);
+    };
 
     // Helper: devuelve entries ordenadas y recortadas (útil para gráficos)
     const getTopEntries = (obj, maxItems = 10) => {
@@ -414,6 +307,86 @@ const ReporteMaterialesUsados = () => {
             .slice(0, maxItems);
         return entries;
     };
+
+    const applyFilters = () => {
+        if (fechaDesde && fechaHasta) {
+            if (fechaDesde > fechaHasta) {
+                setError('La fecha "Desde" no puede ser mayor que la fecha "Hasta"');
+                return;
+            }
+            fetchData(fechaDesde, fechaHasta);
+        } else {
+            setError('Ambas fechas son requeridas');
+        }
+    };
+
+    // Loading mientras verifica rol
+    if (roleLoading) {
+        return (
+            <div className="dashboard-container">
+                <Navigation onLogout={handleLogout} />
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '50vh',
+                    flexDirection: 'column',
+                    gap: '1rem'
+                }}>
+                    <div style={{
+                        width: '40px',
+                        height: '40px',
+                        border: '4px solid #f3f3f3',
+                        borderTop: '4px solid #3b82f6',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite'
+                    }}></div>
+                    <p>Verificando acceso...</p>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
+
+    // Usuario no autorizado
+    if (userRole && !requiredRoles.includes(userRole)) {
+        return (
+            <div className="dashboard-container">
+                <Navigation onLogout={handleLogout} />
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '60vh',
+                    flexDirection: 'column',
+                    textAlign: 'center',
+                    padding: '2rem'
+                }}>
+                    <h2 style={{ color: '#ef4444', marginBottom: '1rem' }}>Acceso Denegado</h2>
+                    <p style={{ marginBottom: '1rem' }}>
+                        No tiene permisos para ver este recurso.
+                    </p>
+                    <p style={{ marginBottom: '2rem', color: '#6b7280' }}>
+                        Este reporte está disponible únicamente para el rol de Gerente.
+                    </p>
+                    <button
+                        onClick={() => navigate('/reportes')}
+                        style={{
+                            background: '#3b82f6',
+                            color: 'white',
+                            border: 'none',
+                            padding: '0.75rem 1.5rem',
+                            borderRadius: '6px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Volver a Reportes
+                    </button>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
 
     if (loading) {
         return (
@@ -450,17 +423,41 @@ const ReporteMaterialesUsados = () => {
         );
     }
 
-    const applyFilters = () => {
-    if (fechaDesde && fechaHasta) {
-        if (fechaDesde > fechaHasta) {
-            setError('La fecha "Desde" no puede ser mayor que la fecha "Hasta"');
-            return;
+    // Función para renderizar listas con mejor formato
+    const renderMaterialList = (items, unit = "", maxItems = 8) => {
+        if (!items || Object.keys(items).length === 0) {
+            return <div className="no-data-message">No hay datos disponibles</div>;
         }
-        fetchData(fechaDesde, fechaHasta);
-    } else {
-        setError('Ambas fechas son requeridas');
-    }
-};
+
+        const entries = Object.entries(items)
+            .sort(([, a], [, b]) => (b || 0) - (a || 0))
+            .slice(0, maxItems);
+
+        return (
+            <div className="material-list">
+                {entries.map(([name, value], index) => (
+                    <div key={name} className="material-item">
+                        <div className="material-rank">#{index + 1}</div>
+                        <div className="material-info">
+                            <div className="material-name">{name}</div>
+                            <div className="material-usage">
+                                {value} {unit}
+                            </div>
+                        </div>
+                        <div className="material-bar">
+                            <div
+                                className="material-bar-fill"
+                                style={{
+                                    width: `${Math.min(100, (value / entries[0][1]) * 100)}%`
+                                }}
+                            ></div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
@@ -486,14 +483,14 @@ const ReporteMaterialesUsados = () => {
                     </div>
 
                     {/* FILTROS POR FECHA */}
-                    <div style={{ 
+                    <div style={{
                         background: 'var(--beneficio-bg-lighter)',
-                        padding: '16px', 
-                        borderRadius: '8px', 
+                        padding: '16px',
+                        borderRadius: '8px',
                         marginBottom: '20px',
                         boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
                     }}>
-                        <div 
+                        <div
                             style={{
                                 display: 'flex',
                                 justifyContent: 'space-between',
@@ -511,9 +508,9 @@ const ReporteMaterialesUsados = () => {
                         </div>
 
                         {filtersVisible && (
-                            <div style={{ 
-                                marginTop: '16px', 
-                                paddingTop: '16px', 
+                            <div style={{
+                                marginTop: '16px',
+                                paddingTop: '16px',
                                 borderTop: '1px solid #e0e0e0',
                                 display: 'grid',
                                 gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -521,9 +518,9 @@ const ReporteMaterialesUsados = () => {
                                 alignItems: 'end'
                             }}>
                                 <div>
-                                    <label style={{ 
-                                        display: 'flex', 
-                                        alignItems: 'center', 
+                                    <label style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
                                         gap: '8px',
                                         marginBottom: '8px',
                                         fontWeight: '500',
@@ -546,9 +543,9 @@ const ReporteMaterialesUsados = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label style={{ 
-                                        display: 'flex', 
-                                        alignItems: 'center', 
+                                    <label style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
                                         gap: '8px',
                                         marginBottom: '8px',
                                         fontWeight: '500',
@@ -628,20 +625,20 @@ const ReporteMaterialesUsados = () => {
                             </div>
 
                             <div className="kpi-card">
-    <div className="kpi-icon" style={{ background: '#9c27b0' }}>
-        <Users size={24} />
-    </div>
-    <div className="kpi-content">
-        <div className="kpi-value">
-            {Number(Object.values(data?.Glass || {}).reduce((sum, val) => sum + (Number(val) || 0), 0)).toFixed(2)}
-            <span>m²</span>
-        </div>
-        <div className="kpi-label">Vidrio Utilizado</div>
-        <div className="kpi-subtext">
-            Metros cuadrados totales
-        </div>
-    </div>
-</div>
+                                <div className="kpi-icon" style={{ background: '#9c27b0' }}>
+                                    <Users size={24} />
+                                </div>
+                                <div className="kpi-content">
+                                    <div className="kpi-value">
+                                        {Number(Object.values(data?.Glass || {}).reduce((sum, val) => sum + (Number(val) || 0), 0)).toFixed(2)}
+                                        <span>m²</span>
+                                    </div>
+                                    <div className="kpi-label">Vidrio Utilizado</div>
+                                    <div className="kpi-subtext">
+                                        Metros cuadrados totales
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -686,8 +683,6 @@ const ReporteMaterialesUsados = () => {
                                 </div>
                             </div>
 
-
-
                             <div className="panel workload-panel">
                                 <div className="panel-header">
                                     <Eye size={20} />
@@ -700,7 +695,7 @@ const ReporteMaterialesUsados = () => {
                                     <div className="workload-table-container">
 
                                         {/* Gráfico para Vidrios */}
-                                        <div  style={{ marginTop: '20px' }}>
+                                        <div style={{ marginTop: '20px' }}>
                                             <div className="chart-title">Distribución de Vidrios</div>
                                             <div className="bar-chart">
                                                 {
@@ -743,7 +738,7 @@ const ReporteMaterialesUsados = () => {
                                 <div className="panel-content">
                                     <div className="workload-table-container">
                                         {/* Gráfico para Revestimientos */}
-                                        <div  style={{ marginTop: '20px' }}>
+                                        <div style={{ marginTop: '20px' }}>
                                             <div className="chart-title">Distribución de Revestimientos</div>
                                             <div className="bar-chart">
                                                 {Object.entries(data?.Coatings || {})

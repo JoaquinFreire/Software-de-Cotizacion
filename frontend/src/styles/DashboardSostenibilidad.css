@@ -1,5 +1,3 @@
-/* DashboardSostenibilidad.css - CORRECCIONES COMPLETAS */
-
 :root {
     --sustainability-primary: #26b7cd;
     --sustainability-primary-dark: #1fa5b9;
@@ -17,7 +15,6 @@
     --sustainability-text-muted: #888;
 }
 
-/* CONTENEDOR PRINCIPAL CON MÁRGENES AMPLIADOS */
 .sustainability-dashboard-container {
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
     min-height: 100vh;
@@ -31,30 +28,32 @@
 }
 
 .sustainability-dashboard-content-container {
-    max-width: 1600px; /* Ampliado de 1400px */
+    max-width: 1800px;
     margin: 0 auto;
     padding: 20px;
     background: transparent;
 }
 
-/* CONTENEDOR PRINCIPAL EXPANDIDO */
 .sustainability-main-container.expanded {
     background: var(--sustainability-bg-primary);
     border-radius: 20px;
     border: 1px solid var(--sustainability-border);
-    padding: 40px; /* Aumentado padding */
+    padding: 50px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     margin: 0 auto;
+    min-width: 0;
+    overflow: hidden;
 }
 
-/* HEADER PRINCIPAL */
 .sustainability-dashboard-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
+    margin-bottom: 40px;
+    padding-bottom: 25px;
     border-bottom: 1px solid var(--sustainability-border);
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
 .sustainability-header-title {
@@ -82,10 +81,9 @@
 .sustainability-header-controls {
     display: flex;
     align-items: center;
-    gap: 24px; /* Aumentado gap */
+    gap: 24px;
 }
 
-/* FILTROS DE FECHA PERSONALIZADOS */
 .sustainability-date-filters {
     display: flex;
     align-items: center;
@@ -111,7 +109,7 @@
     background: var(--sustainability-bg-secondary);
     color: var(--sustainability-text-primary);
     font-size: 14px;
-    min-width: 150px;
+    min-width: 160px;
 }
 
     .date-filter-input:focus {
@@ -149,32 +147,32 @@
         cursor: not-allowed;
     }
 
-/* LAYOUT PRINCIPAL CON SIDEBAR */
 .sustainability-main-layout {
     display: grid;
-    grid-template-columns: 1fr 420px; /* Aumentado ancho del sidebar */
-    gap: 30px; /* Aumentado gap */
+    grid-template-columns: 1fr 450px;
+    gap: 35px;
     align-items: start;
+    min-width: 0;
 }
 
 .sustainability-main-content {
     display: flex;
     flex-direction: column;
-    gap: 30px; /* Aumentado gap */
+    gap: 35px;
+    min-width: 0;
 }
 
 .sustainability-sidebar {
     display: flex;
     flex-direction: column;
-    gap: 30px; /* Aumentado gap */
+    gap: 30px;
 }
 
-/* KPIs PRINCIPALES */
 .sustainability-main-kpis {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px; /* Aumentado gap */
-    margin-bottom: 24px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-bottom: 30px;
 }
 
 .sustainability-kpi-card {
@@ -243,7 +241,6 @@
     font-weight: 500;
 }
 
-/* SECCIONES CON MÁS ESPACIO INTERNO */
 .sustainability-section {
     background: var(--sustainability-bg-secondary);
     border-radius: 16px;
@@ -255,7 +252,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 24px 28px; /* Aumentado padding */
+    padding: 24px 28px;
     background: var(--sustainability-bg-secondary);
     border-bottom: 1px solid var(--sustainability-border);
 }
@@ -286,7 +283,7 @@
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    padding: 8px 14px; /* Aumentado padding */
+    padding: 8px 14px;
     border-radius: 6px;
     transition: all 0.3s ease;
 }
@@ -301,10 +298,9 @@
     }
 
 .sustainability-section-content {
-    padding: 28px; /* Aumentado padding */
+    padding: 28px;
 }
 
-/* CONTENEDOR DEL GRÁFICO CHART.JS */
 .sustainability-chart-container {
     background: var(--sustainability-bg-primary);
     border-radius: 12px;
@@ -315,11 +311,10 @@
     position: relative;
 }
 
-/* TARJETAS DE PRONÓSTICO */
 .sustainability-forecast-cards {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px; /* Aumentado gap */
+    gap: 20px;
     margin-bottom: 20px;
 }
 
@@ -327,7 +322,7 @@
     background: var(--sustainability-bg-primary);
     border-radius: 12px;
     border: 1px solid var(--sustainability-border);
-    padding: 24px; /* Aumentado padding */
+    padding: 24px;
     text-align: center;
     transition: all 0.3s ease;
 }
@@ -353,13 +348,13 @@
     }
 
 .forecast-card-header {
-    margin-bottom: 16px; /* Aumentado margin */
+    margin-bottom: 16px;
 }
 
 .probability-badge {
-    padding: 8px 16px; /* Aumentado padding */
+    padding: 8px 16px;
     border-radius: 20px;
-    font-size: 12px; /* Aumentado tamaño */
+    font-size: 12px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -382,7 +377,7 @@
     font-size: 24px;
     font-weight: 800;
     color: var(--sustainability-text-primary);
-    margin-bottom: 12px; /* Aumentado margin */
+    margin-bottom: 12px;
 }
 
 .forecast-card-details {
@@ -392,9 +387,8 @@
     color: var(--sustainability-text-primary);
 }
 
-/* TABLA DE PRONÓSTICOS EXPANDIDA MEJORADA */
 .sustainability-forecast-table {
-    margin-top: 24px; /* Aumentado margin */
+    margin-top: 24px;
     background: var(--sustainability-bg-primary);
     border-radius: 12px;
     border: 1px solid var(--sustainability-border);
@@ -405,8 +399,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 24px; /* Aumentado padding */
-    background: rgba(0, 0, 0, 0.3); /* Fondo más oscuro */
+    padding: 20px 24px;
+    background: rgba(0, 0, 0, 0.3);
     border-bottom: 1px solid var(--sustainability-border);
 }
 
@@ -421,25 +415,27 @@
     max-height: 500px;
     overflow: hidden;
     position: relative;
+    width: 100%;
 }
 
 .table-container {
     overflow-x: auto;
     max-height: 450px;
     overflow-y: auto;
+    width: 100%;
 }
 
 .sustainability-detail-table {
     width: 100%;
     border-collapse: collapse;
     background: var(--sustainability-bg-primary);
-    min-width: 1200px; /* Ancho mínimo para evitar compresión */
+    min-width: 1300px;
 }
 
     .sustainability-detail-table th {
         text-align: left;
-        padding: 18px 20px; /* Aumentado padding */
-        background: rgba(0, 0, 0, 0.4); /* Fondo más oscuro para headers */
+        padding: 18px 20px;
+        background: rgba(0, 0, 0, 0.4);
         font-weight: 700;
         color: var(--sustainability-text-primary);
         border-bottom: 2px solid var(--sustainability-border);
@@ -453,19 +449,18 @@
     }
 
     .sustainability-detail-table td {
-        padding: 16px 20px; /* Aumentado padding */
+        padding: 16px 20px;
         border-bottom: 1px solid var(--sustainability-border);
         color: var(--sustainability-text-primary);
         font-size: 14px;
         white-space: nowrap;
-        background: var(--sustainability-bg-primary); /* Fondo sólido para celdas */
+        background: var(--sustainability-bg-primary);
     }
 
     .sustainability-detail-table tr:hover {
-        background: rgba(255, 255, 255, 0.08); /* Hover más suave */
+        background: rgba(255, 255, 255, 0.08);
     }
 
-/* CELDAS ESPECIALES DE TABLA */
 .client-cell {
     display: flex;
     align-items: center;
@@ -581,7 +576,6 @@
         border: 1px solid var(--sustainability-success);
     }
 
-/* COMPOSICIÓN Y CONCENTRACIÓN */
 .sustainability-composition,
 .sustainability-concentration {
     display: flex;
@@ -645,21 +639,20 @@
     flex-shrink: 0;
 }
 
-/* MÉTRICAS DE SALUD CON MÁS ESPACIO */
 .sustainability-health-metrics {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Aumentado gap */
+    gap: 20px;
 }
 
 .health-metric-card {
     background: var(--sustainability-bg-primary);
     border-radius: 12px;
     border: 1px solid var(--sustainability-border);
-    padding: 24px; /* Aumentado padding */
+    padding: 24px;
     display: flex;
     align-items: center;
-    gap: 20px; /* Aumentado gap */
+    gap: 20px;
     transition: all 0.3s ease;
     position: relative;
 }
@@ -673,9 +666,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 52px; /* Aumentado tamaño */
+    width: 52px;
     height: 52px;
-    border-radius: 12px; /* Aumentado borderRadius */
+    border-radius: 12px;
     background: rgba(38, 183, 205, 0.1);
     flex-shrink: 0;
 }
@@ -688,25 +681,25 @@
     font-size: 24px;
     font-weight: 800;
     color: var(--sustainability-text-primary);
-    margin-bottom: 6px; /* Aumentado margin */
+    margin-bottom: 6px;
 }
 
 .health-metric-label {
     font-size: 14px;
     color: var(--sustainability-text-primary);
     font-weight: 600;
-    margin-bottom: 6px; /* Aumentado margin */
+    margin-bottom: 6px;
 }
 
 .health-metric-subtext {
     font-size: 12px;
     color: var(--sustainability-text-secondary);
-    margin-bottom: 0; /* Eliminado margin-bottom extra */
+    margin-bottom: 0;
 }
 
 .health-details-expanded {
     margin-top: 16px;
-    padding: 20px; /* Aumentado padding */
+    padding: 20px;
     background: var(--sustainability-bg-primary);
     border-radius: 8px;
     border: 1px solid var(--sustainability-border);
@@ -725,7 +718,7 @@
 
 .health-explanation {
     background: rgba(255, 255, 255, 0.05);
-    padding: 12px; /* Aumentado padding */
+    padding: 12px;
     border-radius: 6px;
     margin-bottom: 8px;
     font-size: 13px;
@@ -766,18 +759,17 @@
         border-left: 4px solid var(--sustainability-info);
     }
 
-/* ALERTAS CON MÁS ESPACIO */
 .sustainability-alerts {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Aumentado gap */
+    gap: 20px;
 }
 
 .sustainability-alert {
     display: flex;
     align-items: flex-start;
-    gap: 20px; /* Aumentado gap */
-    padding: 24px; /* Aumentado padding */
+    gap: 20px;
+    padding: 24px;
     border-radius: 12px;
     border-left: 4px solid transparent;
 }
@@ -831,7 +823,6 @@
     font-weight: 600;
 }
 
-/* SKELETON LOADING */
 .skeleton {
     background: linear-gradient(90deg, #2d2d2d 25%, #3a3a3a 50%, #2d2d2d 75%);
     background-size: 200% 100%;
@@ -985,7 +976,6 @@
     overflow: hidden;
 }
 
-/* SKELETON LOADING PARA NUEVOS COMPONENTES */
 .health-metric-card.skeleton {
     display: flex;
     align-items: center;
@@ -1013,45 +1003,69 @@
     border: 1px dashed var(--sustainability-border);
 }
 
-/* RESPONSIVE MEJORADO */
+.no-data-cell {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--sustainability-text-secondary);
+    font-style: italic;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.chart-info-note,
+.forecast-info-note {
+    text-align: center;
+    margin-top: 10px;
+    color: var(--sustainability-text-secondary);
+    font-size: 12px;
+}
+
 @media (max-width: 1400px) {
     .sustainability-dashboard-content-container {
-        max-width: 95%;
+        max-width: 98%;
         padding: 15px;
     }
 
     .sustainability-main-container.expanded {
-        padding: 30px;
+        padding: 40px;
+    }
+
+    .sustainability-main-layout {
+        grid-template-columns: 1fr 400px;
+        gap: 30px;
     }
 }
 
 @media (max-width: 1200px) {
     .sustainability-main-layout {
         grid-template-columns: 1fr;
-        gap: 24px;
+        gap: 30px;
     }
 
     .sustainability-main-kpis {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .sustainability-forecast-cards {
-        grid-template-columns: 1fr;
-    }
-
-    .sustainability-header-controls {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
-    }
-
-    .sustainability-date-filters {
-        width: 100%;
-        justify-content: space-between;
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
 @media (max-width: 768px) {
+    .sustainability-main-kpis {
+        grid-template-columns: 1fr;
+    }
+
+    .sustainability-dashboard-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sustainability-header-controls {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .sustainability-date-filters {
+        justify-content: space-between;
+        width: 100%;
+    }
+
     .sustainability-dashboard-content-container {
         padding: 10px;
     }
@@ -1064,10 +1078,6 @@
         flex-direction: column;
         gap: 16px;
         align-items: flex-start;
-    }
-
-    .sustainability-main-kpis {
-        grid-template-columns: 1fr;
     }
 
     .sustainability-chart-container {
@@ -1159,179 +1169,4 @@
         gap: 16px;
         text-align: center;
     }
-}
-/* DashboardSostenibilidad.css - CORRECCIONES AMPLIADAS */
-
-/* CONTENEDOR PRINCIPAL CON MÁRGENES AMPLIADOS */
-.sustainability-dashboard-content-container {
-    max-width: 1800px; /* Ampliado de 1600px */
-    margin: 0 auto;
-    padding: 20px;
-    background: transparent;
-}
-
-/* CONTENEDOR PRINCIPAL EXPANDIDO */
-.sustainability-main-container.expanded {
-    background: var(--sustainability-bg-primary);
-    border-radius: 20px;
-    border: 1px solid var(--sustainability-border);
-    padding: 50px; /* Aumentado de 40px */
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    margin: 0 auto;
-    min-width: 0; /* Previene desbordamiento */
-    overflow: hidden; /* Contiene elementos hijos */
-}
-
-/* HEADER PRINCIPAL CON MÁS ESPACIO */
-.sustainability-dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 40px; /* Aumentado */
-    padding-bottom: 25px; /* Aumentado */
-    border-bottom: 1px solid var(--sustainability-border);
-    flex-wrap: wrap; /* Permite wrap en pantallas pequeñas */
-    gap: 20px;
-}
-
-/* FILTROS DE FECHA - AHORA CON INPUT TYPE MONTH */
-.date-filter-input {
-    padding: 10px 12px;
-    border: 1px solid var(--sustainability-border);
-    border-radius: 8px;
-    background: var(--sustainability-bg-secondary);
-    color: var(--sustainability-text-primary);
-    font-size: 14px;
-    min-width: 160px; /* Un poco más ancho para mes/año */
-}
-
-/* LAYOUT PRINCIPAL CON SIDEBAR MÁS AMPLIO */
-.sustainability-main-layout {
-    display: grid;
-    grid-template-columns: 1fr 450px; /* Aumentado ancho del sidebar */
-    gap: 35px; /* Aumentado gap */
-    align-items: start;
-    min-width: 0; /* Previene desbordamiento */
-}
-
-.sustainability-main-content {
-    display: flex;
-    flex-direction: column;
-    gap: 35px; /* Aumentado gap */
-    min-width: 0; /* Previene desbordamiento */
-}
-
-/* KPIs PRINCIPALES - AHORA 3 COLUMNAS */
-.sustainability-main-kpis {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Cambiado de 4 a 3 columnas */
-    gap: 25px; /* Aumentado gap */
-    margin-bottom: 30px;
-}
-
-/* TABLA CON MÁS ESPACIO Y SIN DESBORDAMIENTO */
-.table-container-wrapper {
-    max-height: 500px;
-    overflow: hidden;
-    position: relative;
-    width: 100%;
-}
-
-.table-container {
-    overflow-x: auto;
-    max-height: 450px;
-    overflow-y: auto;
-    width: 100%;
-}
-
-.sustainability-detail-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--sustainability-bg-primary);
-    min-width: 1300px; /* Aumentado ancho mínimo */
-}
-
-/* CELDA PARA CUANDO NO HAY DATOS */
-.no-data-cell {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--sustainability-text-secondary);
-    font-style: italic;
-    background: rgba(255, 255, 255, 0.05);
-}
-
-/* RESPONSIVE MEJORADO PARA PANTALLAS GRANDES */
-@media (min-width: 1600px) {
-    .sustainability-dashboard-content-container {
-        max-width: 95vw; /* Usa casi todo el ancho de la pantalla */
-    }
-
-    .sustainability-main-container.expanded {
-        padding: 60px; /* Aún más padding en pantallas grandes */
-    }
-}
-
-@media (max-width: 1400px) {
-    .sustainability-dashboard-content-container {
-        max-width: 98%;
-        padding: 15px;
-    }
-
-    .sustainability-main-container.expanded {
-        padding: 40px;
-    }
-
-    .sustainability-main-layout {
-        grid-template-columns: 1fr 400px;
-        gap: 30px;
-    }
-}
-
-@media (max-width: 1200px) {
-    .sustainability-main-layout {
-        grid-template-columns: 1fr;
-        gap: 30px;
-    }
-
-    .sustainability-main-kpis {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .sustainability-main-kpis {
-        grid-template-columns: 1fr;
-    }
-
-    .sustainability-dashboard-header {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .sustainability-header-controls {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .sustainability-date-filters {
-        justify-content: space-between;
-        width: 100%;
-    }
-}
-
-/* Agregar al CSS existente */
-
-.chart-info-note,
-.forecast-info-note {
-    text-align: center;
-    margin-top: 10px;
-    color: var(--sustainability-text-secondary);
-    font-size: 12px;
-}
-
-/* Mejorar el manejo de fechas en los inputs */
-.date-filter-input:focus {
-    outline: none;
-    border-color: var(--sustainability-primary);
-    box-shadow: 0 0 0 2px rgba(38, 183, 205, 0.1);
 }

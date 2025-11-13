@@ -31,7 +31,7 @@ const API_URL = process.env.REACT_APP_API_URL;
 const monthsShort = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
 // Estados para validación de roles
-const requiredRoles = ['coordinator', 'manager']; // Roles permitidos según la página de reportes
+const requiredRoles = ['manager']; // Roles permitidos según la página de reportes
 
 // Función para categorizar motivos automáticamente
 const categorizarMotivo = (comentario) => {
