@@ -32,7 +32,20 @@ public class AuthController : ControllerBase
 
         if (user == null) return Unauthorized(new { error = "User not found" });
         var token = GenerateJwtToken(user);
-        return Ok(new { message = "Login exitoso", userIdw = user.id, token });
+
+        // Devolver también los datos esenciales del usuario para que el frontend tenga name/lastName/legajo/mail/role
+        return Ok(new {
+            message = "Login exitoso",
+            user = new {
+                id = user.id,
+                name = user.name,
+                lastName = user.lastName,
+                legajo = user.legajo,
+                mail = user.mail,
+                role = user.role
+            },
+            token
+        });
     }
 
     private string GenerateJwtToken(Domain.Entities.User user)
@@ -81,11 +94,12 @@ public class AuthController : ControllerBase
         var query = new GetUserQuery { id = int.Parse(userId) };
         var userDto = await _mediator.Send(query);
 
-        // Dividir el nombre completo en firstName y lastName para el frontend
+        // Dividir el nombre completo en firstName y lastName para el frontend,
+        // pero preferir el lastName explícito si viene en el DTO
         var fullName = userDto.name ?? "";
         var parts = fullName.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-        var firstName = parts.Length > 0 ? parts[0] : "";
-        var lastName = parts.Length > 1 ? string.Join(" ", parts.Skip(1)) : "";
+        var derivedFirstName = parts.Length > 0 ? parts[0] : "";
+        var derivedLastName = parts.Length > 1 ? string.Join(" ", parts.Skip(1)) : "";
 
         return Ok(new
         {
@@ -93,10 +107,13 @@ public class AuthController : ControllerBase
             {
                 id = userDto.id,
                 name = userDto.name,
-                firstName = firstName,
-                lastName = lastName,
+                firstName = derivedFirstName,
+                // preferir lastName del DTO si existe, sino usar la derivación
+                lastName = string.IsNullOrWhiteSpace(userDto.lastName) ? derivedLastName : userDto.lastName,
                 mail = userDto.mail,
                 role = userDto.role,
+                // incluir legajo para que el frontend pueda mostrarlo
+                legajo = userDto.legajo
                 // incluir otras propiedades que necesites
             },
             userId = userDto.id
