@@ -19,10 +19,23 @@ import Footer from "../../components/Footer";
 import '../../styles/DashboardEficienciaOperativa.css';
 import { useNavigate } from "react-router-dom";
 
+const getDefaultDates = () => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    return {
+        desde: `${currentYear}-01-01`,
+        hasta: `${currentYear}-12-31`
+    };
+};
+
 const ReporteMaterialesUsados = () => {
+    const defaultDates = getDefaultDates();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState(null);
     const [error, setError] = useState(null);
+    const [fechaDesde, setFechaDesde] = useState(defaultDates.desde);
+    const [fechaHasta, setFechaHasta] = useState(defaultDates.hasta);
+    const [dateFiltersApplied, setDateFiltersApplied] = useState(false);
     const [filters, setFilters] = useState({
         timeRange: '90d',
         materialType: 'all'
@@ -100,110 +113,114 @@ const ReporteMaterialesUsados = () => {
         navigate("/");
     }
 
-    const fetchData = async () => {
-        setError(null);
-        try {
-            setLoading(true);
-            const base = API_URL || window.location.origin;
-            const token = localStorage.getItem('token');
-            const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+    const fetchData = async (desde, hasta) => {
+    setError(null);
+    try {
+        setLoading(true);
+        const base = API_URL || window.location.origin;
+        const token = localStorage.getItem('token');
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
-            const candidateUrls = [
-                `${base}/api/Mongo/GetMaterialsUsage`,
-                `${window.location.origin}/api/Mongo/GetMaterialsUsage`,
-                `/api/Mongo/GetMaterialsUsage`
-            ];
+        // Construir URL con parámetros de fecha
+        const params = new URLSearchParams();
+        if (desde) params.append('desde', desde);
+        if (hasta) params.append('hasta', hasta);
 
-            if (base.startsWith('http:')) candidateUrls.push(base.replace('http:', 'https:') + '/api/Mongo/GetMaterialsUsage');
-            if (base.startsWith('https:')) candidateUrls.push(base.replace('https:', 'http:') + '/api/Mongo/GetMaterialsUsage');
+        const candidateUrls = [
+            `${base}/api/Mongo/GetMaterialsUsage?${params}`,
+            `${window.location.origin}/api/Mongo/GetMaterialsUsage?${params}`,
+            `/api/Mongo/GetMaterialsUsage?${params}`
+        ];
 
-            let finalJson = null;
-            const tried = [];
+        if (base.startsWith('http:')) candidateUrls.push(base.replace('http:', 'https:') + `/api/Mongo/GetMaterialsUsage?${params}`);
+        if (base.startsWith('https:')) candidateUrls.push(base.replace('https:', 'http:') + `/api/Mongo/GetMaterialsUsage?${params}`);
 
-            for (const url of candidateUrls) {
-                try {
-                    console.log('Probing URL:', url);
-                    const res = await fetch(url, { headers });
-                    const text = await res.text();
-                    let json = null;
-                    try { json = text ? JSON.parse(text) : null; } catch (e) { /* not json */ }
-                    tried.push({ url, status: res.status, snippet: (text || '').slice(0, 200) });
-                    if (res.ok) { finalJson = json; break; }
-                    if (res.status === 404) continue;
-                    throw new Error((json && json.message) || text || `HTTP ${res.status}`);
-                } catch (innerErr) {
-                    console.warn('Probe failed for', url, innerErr);
-                    tried.push({ url, status: 'error', message: innerErr.message });
-                }
+        // El resto del código se mantiene igual...
+        let finalJson = null;
+        const tried = [];
+
+        for (const url of candidateUrls) {
+            try {
+                console.log('Probing URL:', url);
+                const res = await fetch(url, { headers });
+                const text = await res.text();
+                let json = null;
+                try { json = text ? JSON.parse(text) : null; } catch (e) { /* not json */ }
+                tried.push({ url, status: res.status, snippet: (text || '').slice(0, 200) });
+                if (res.ok) { finalJson = json; break; }
+                if (res.status === 404) continue;
+                throw new Error((json && json.message) || text || `HTTP ${res.status}`);
+            } catch (innerErr) {
+                console.warn('Probe failed for', url, innerErr);
+                tried.push({ url, status: 'error', message: innerErr.message });
             }
-
-            console.log('Tried endpoints:', tried);
-            if (!finalJson) {
-                const summary = tried.map(t => `${t.url} -> ${t.status}`).join(' | ');
-                throw new Error(`No response from backend. URLs probadas: ${summary}`);
-            }
-
-            // Normalizar claves
-            const norm = (resp) => {
-                if (!resp) return {
-                    Openings: {},
-                    Glass: {},
-                    Accessories: {},
-                    Treatments: {},
-                    Coatings: {},
-                    CountBudgets: 0
-                };
-                const get = (k) => resp[k] ?? resp[k.toLowerCase()] ?? resp[k.toUpperCase()] ?? {};
-                return {
-                    Openings: get('Openings') || get('openings'),
-                    Glass: get('Glass') || get('glass'),
-                    Accessories: get('Accessories') || get('accessories'),
-                    Treatments: get('Treatments') || get('treatments'),
-                    Coatings: get('Coatings') || get('coatings'),
-                    CountBudgets: resp.CountBudgets ?? resp.countBudgets ?? resp.countbudgets ?? (Array.isArray(resp) ? resp.length : (resp?.Count ?? 0))
-                };
-            };
-
-            const normalizedData = norm(finalJson);
-
-            // FILTER: eliminar keys inválidas como "$id" o claves vacías en las 3 categorías prioritarias
-            const removeInvalidKeys = (obj) => {
-                if (!obj || typeof obj !== 'object') return {};
-                return Object.fromEntries(
-                    Object.entries(obj)
-                        .filter(([k, v]) => {
-                            if (!k) return false;
-                            const kl = String(k).trim().toLowerCase();
-                            if (kl === '$id' || kl === 'id' || kl === '') return false;
-                            // si el nombre es "$id" dentro del payload como valor en lugar de key
-                            if (typeof v === 'string' && v.trim().toLowerCase() === '$id') return false;
-                            return true;
-                        })
-                );
-            };
-
-            // Aplicar a las categorías prioritarias
-            normalizedData.Glass = removeInvalidKeys(normalizedData.Glass);
-            normalizedData.Treatments = removeInvalidKeys(normalizedData.Treatments);
-            normalizedData.Coatings = removeInvalidKeys(normalizedData.Coatings);
-
-            // Enriquecer datos con información adicional
-            const enrichedData = {
-                ...normalizedData,
-                SummaryStats: calculateSummaryStats(normalizedData),
-                TopMaterials: getTopMaterials(normalizedData),
-                MaterialTrends: generateMaterialTrends(normalizedData)
-            };
-
-            setData(enrichedData);
-        } catch (err) {
-            console.error("Error cargando materiales:", err);
-            setData(null);
-            setError(err.message || 'Error desconocido');
-        } finally {
-            setLoading(false);
         }
-    };
+
+        console.log('Tried endpoints:', tried);
+        if (!finalJson) {
+            const summary = tried.map(t => `${t.url} -> ${t.status}`).join(' | ');
+            throw new Error(`No response from backend. URLs probadas: ${summary}`);
+        }
+
+        // ... el resto del código de normalización se mantiene igual
+        const norm = (resp) => {
+            if (!resp) return {
+                Openings: {},
+                Glass: {},
+                Accessories: {},
+                Treatments: {},
+                Coatings: {},
+                CountBudgets: 0
+            };
+            const get = (k) => resp[k] ?? resp[k.toLowerCase()] ?? resp[k.toUpperCase()] ?? {};
+            return {
+                Openings: get('Openings') || get('openings'),
+                Glass: get('Glass') || get('glass'),
+                Accessories: get('Accessories') || get('accessories'),
+                Treatments: get('Treatments') || get('treatments'),
+                Coatings: get('Coatings') || get('coatings'),
+                CountBudgets: resp.CountBudgets ?? resp.countBudgets ?? resp.countbudgets ?? (Array.isArray(resp) ? resp.length : (resp?.Count ?? 0))
+            };
+        };
+
+        const normalizedData = norm(finalJson);
+
+        const removeInvalidKeys = (obj) => {
+            if (!obj || typeof obj !== 'object') return {};
+            return Object.fromEntries(
+                Object.entries(obj)
+                    .filter(([k, v]) => {
+                        if (!k) return false;
+                        const kl = String(k).trim().toLowerCase();
+                        if (kl === '$id' || kl === 'id' || kl === '') return false;
+                        if (typeof v === 'string' && v.trim().toLowerCase() === '$id') return false;
+                        return true;
+                    })
+            );
+        };
+
+        normalizedData.Glass = removeInvalidKeys(normalizedData.Glass);
+        normalizedData.Treatments = removeInvalidKeys(normalizedData.Treatments);
+        normalizedData.Coatings = removeInvalidKeys(normalizedData.Coatings);
+
+        const enrichedData = {
+            ...normalizedData,
+            SummaryStats: calculateSummaryStats(normalizedData),
+            TopMaterials: getTopMaterials(normalizedData),
+            MaterialTrends: generateMaterialTrends(normalizedData),
+            filterDates: { desde, hasta }
+        };
+
+        setData(enrichedData);
+        setDateFiltersApplied(true);
+    } catch (err) {
+        console.error("Error cargando materiales:", err);
+        setData(null);
+        setError(err.message || 'Error desconocido');
+    } finally {
+        setLoading(false);
+    }
+};
 
     // Loading mientras verifica rol
     if (roleLoading) {
@@ -344,6 +361,11 @@ const ReporteMaterialesUsados = () => {
         };
     };
 
+    useEffect(() => {
+    fetchData(fechaDesde, fechaHasta);
+}, []);
+
+
     // Función para renderizar listas con mejor formato
     const renderMaterialList = (items, unit = "", maxItems = 8) => {
         if (!items || Object.keys(items).length === 0) {
@@ -380,13 +402,8 @@ const ReporteMaterialesUsados = () => {
     };
 
     const handleRefresh = () => {
-        fetchData();
-    };
-
-    const handleExport = () => {
-        // Función para exportar datos (simulada)
-        alert('Función de exportación en desarrollo');
-    };
+    fetchData(fechaDesde, fechaHasta);
+};
 
     // Helper: devuelve entries ordenadas y recortadas (útil para gráficos)
     const getTopEntries = (obj, maxItems = 10) => {
@@ -433,6 +450,17 @@ const ReporteMaterialesUsados = () => {
         );
     }
 
+    const applyFilters = () => {
+    if (fechaDesde && fechaHasta) {
+        if (fechaDesde > fechaHasta) {
+            setError('La fecha "Desde" no puede ser mayor que la fecha "Hasta"');
+            return;
+        }
+        fetchData(fechaDesde, fechaHasta);
+    } else {
+        setError('Ambas fechas son requeridas');
+    }
+};
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
@@ -450,14 +478,112 @@ const ReporteMaterialesUsados = () => {
                             </div>
                         </div>
                         <div className="header-actions">
-                            <button className="btn-primary" onClick={handleRefresh}>
+                            <button className="btn-primary" onClick={handleRefresh} disabled={!dateFiltersApplied}>
                                 <RefreshCw size={18} />
                                 Actualizar
                             </button>
                         </div>
                     </div>
 
+                    {/* FILTROS POR FECHA */}
+                    <div style={{ 
+                        background: 'var(--beneficio-bg-lighter)',
+                        padding: '16px', 
+                        borderRadius: '8px', 
+                        marginBottom: '20px',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
+                    }}>
+                        <div 
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                cursor: 'pointer',
+                                userSelect: 'none'
+                            }}
+                            onClick={() => setFiltersVisible(!filtersVisible)}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <Filter size={18} />
+                                <span style={{ fontWeight: '600' }}>Filtros del Reporte</span>
+                            </div>
+                            {filtersVisible ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                        </div>
 
+                        {filtersVisible && (
+                            <div style={{ 
+                                marginTop: '16px', 
+                                paddingTop: '16px', 
+                                borderTop: '1px solid #e0e0e0',
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                                gap: '16px',
+                                alignItems: 'end'
+                            }}>
+                                <div>
+                                    <label style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: '8px',
+                                        marginBottom: '8px',
+                                        fontWeight: '500',
+                                        fontSize: '14px'
+                                    }}>
+                                        <Calendar size={16} />
+                                        Desde:
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={fechaDesde}
+                                        onChange={e => setFechaDesde(e.target.value)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '8px',
+                                            border: '1px solid #d0d0d0',
+                                            borderRadius: '4px',
+                                            fontSize: '14px'
+                                        }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: '8px',
+                                        marginBottom: '8px',
+                                        fontWeight: '500',
+                                        fontSize: '14px'
+                                    }}>
+                                        <Calendar size={16} />
+                                        Hasta:
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={fechaHasta}
+                                        onChange={e => setFechaHasta(e.target.value)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '8px',
+                                            border: '1px solid #d0d0d0',
+                                            borderRadius: '4px',
+                                            fontSize: '14px'
+                                        }}
+                                    />
+                                </div>
+                                <button
+                                    className="btn-primary"
+                                    onClick={applyFilters}
+                                    disabled={loading || !fechaDesde || !fechaHasta}
+                                    style={{
+                                        marginBottom: '10'
+                                    }}
+                                >
+                                    <Filter size={16} />
+                                    Aplicar Filtro
+                                </button>
+                            </div>
+                        )}
+                    </div>
 
                     {/* KPI CARDS */}
                     <div className="kpi-section">
@@ -502,19 +628,20 @@ const ReporteMaterialesUsados = () => {
                             </div>
 
                             <div className="kpi-card">
-                                <div className="kpi-icon" style={{ background: '#9c27b0' }}>
-                                    <Users size={24} />
-                                </div>
-                                <div className="kpi-content">
-                                    <div className="kpi-value">
-                                        {Object.values(data?.Glass || {}).reduce((sum, val) => sum + (Number(val) || 0), 0)} m²
-                                    </div>
-                                    <div className="kpi-label">Vidrio Utilizado</div>
-                                    <div className="kpi-subtext">
-                                        Metros cuadrados totales
-                                    </div>
-                                </div>
-                            </div>
+    <div className="kpi-icon" style={{ background: '#9c27b0' }}>
+        <Users size={24} />
+    </div>
+    <div className="kpi-content">
+        <div className="kpi-value">
+            {Number(Object.values(data?.Glass || {}).reduce((sum, val) => sum + (Number(val) || 0), 0)).toFixed(2)}
+            <span>m²</span>
+        </div>
+        <div className="kpi-label">Vidrio Utilizado</div>
+        <div className="kpi-subtext">
+            Metros cuadrados totales
+        </div>
+    </div>
+</div>
                         </div>
                     </div>
 
@@ -531,7 +658,7 @@ const ReporteMaterialesUsados = () => {
                                 <div className="panel-content">
                                     <div className="workload-table-container">
                                         {/* Gráfico para Tratamientos */}
-                                        <div className="chart-container" style={{ marginTop: '20px' }}>
+                                        <div style={{ marginTop: '20px' }}>
                                             <div className="chart-title">Distribución de Tratamientos</div>
                                             <div className="bar-chart">
                                                 {Object.entries(data?.Treatments || {})
@@ -573,7 +700,7 @@ const ReporteMaterialesUsados = () => {
                                     <div className="workload-table-container">
 
                                         {/* Gráfico para Vidrios */}
-                                        <div className="chart-container" style={{ marginTop: '20px' }}>
+                                        <div  style={{ marginTop: '20px' }}>
                                             <div className="chart-title">Distribución de Vidrios</div>
                                             <div className="bar-chart">
                                                 {
@@ -616,7 +743,7 @@ const ReporteMaterialesUsados = () => {
                                 <div className="panel-content">
                                     <div className="workload-table-container">
                                         {/* Gráfico para Revestimientos */}
-                                        <div className="chart-container" style={{ marginTop: '20px' }}>
+                                        <div  style={{ marginTop: '20px' }}>
                                             <div className="chart-title">Distribución de Revestimientos</div>
                                             <div className="bar-chart">
                                                 {Object.entries(data?.Coatings || {})

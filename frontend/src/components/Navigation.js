@@ -355,7 +355,7 @@ const Navigation = ({ onLogout }) => {
                                     {userRole === "manager"
                                         ? "Gerente"
                                         : userRole === "coordinator"
-                                            ? "Supervisor"
+                                            ? "Coordinador"
                                             : userRole === "quotator"
                                                 ? "Cotizador"
                                                 : userRole}

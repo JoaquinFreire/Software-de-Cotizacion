@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import Footer from "../../../components/Footer";
 import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
+import ConfirmationModal from "../../../components/ConfirmationModal";
 const API_URL = process.env.REACT_APP_API_URL || "";
 
 export default function AdminComplements() {
@@ -47,13 +48,43 @@ export default function AdminComplements() {
     // modal visibility for Railing
     const [showModalRailing, setShowModalRailing] = useState(false);
 
+    // Modals / delete confirmation
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [pendingDeleteSource, setPendingDeleteSource] = useState(null);
+    const [pendingDeleteItem, setPendingDeleteItem] = useState(null);
+
     const normalizeItems = (items) => { if (!items || !Array.isArray(items)) return []; return items.map(it => { if (!it) return it; if (it.id === undefined && it._id) it.id = it._id; if (typeof it.id === "string" && /^[0-9]+$/.test(it.id)) it.id = Number(it.id); return it; }); };
 
     const navigate = useNavigate();
-	const handleLogout = () => {
-			localStorage.removeItem("token");
-			navigate("/");
-	}
+    const handleLogout = () => {
+            localStorage.removeItem("token");
+            navigate("/");
+    }
+
+    const openDeleteModal = (source, item) => {
+        setPendingDeleteSource(source);
+        setPendingDeleteItem(item);
+        setShowDeleteModal(true);
+    };
+
+    const closeDeleteModal = () => {
+        setShowDeleteModal(false);
+        setPendingDeleteSource(null);
+        setPendingDeleteItem(null);
+    };
+
+    const confirmDelete = async () => {
+        if (!pendingDeleteSource || !pendingDeleteItem) return;
+        closeDeleteModal();
+        if (pendingDeleteSource === "door") {
+            await handleDeleteDoor(pendingDeleteItem);
+        } else if (pendingDeleteSource === "partition") {
+            await handleDeletePartition(pendingDeleteItem);
+        } else if (pendingDeleteSource === "railing") {
+            await handleDeleteRailing(pendingDeleteItem);
+        }
+    };
+
     // Door functions
     const fetchDoorResults = async (searchQuery = "") => {
         setIsLoadingDoor(true);
@@ -313,7 +344,7 @@ export default function AdminComplements() {
                                                 <div className="col percent">{t.Material}</div>
                                                 <div className="col actions">
                                                     <button className="btn update" onClick={() => { setSelectedDoor(t); setFormDoor({ name: t.name || "", price: t.price || 0, Material: t.Material || "" }); setShowModalDoor(true); }}>Actualizar</button>
-                                                    <button className="btn delete" onClick={() => handleDeleteDoor(t)} disabled={isDeleting}>{isDeleting ? <ReactLoading type="spin" color="#fcd1d1" height={14} width={14} /> : "Eliminar"}</button>
+                                                    <button className="btn delete" onClick={() => openDeleteModal("door", t)} disabled={isDeleting}>{isDeleting ? <ReactLoading type="spin" color="#fcd1d1" height={14} width={14} /> : "Eliminar"}</button>
                                                 </div>
                                             </div>
                                         );
@@ -350,7 +381,7 @@ export default function AdminComplements() {
                                                 <div className="col percent">{t.price}</div>
                                                 <div className="col actions">
                                                     <button className="btn update" onClick={() => { setSelectedPartition(t); setFormPartition({ name: t.name || "", price: t.price || 0 }); setShowModalPartition(true); }}>Actualizar</button>
-                                                    <button className="btn delete" onClick={() => handleDeletePartition(t)} disabled={isDeleting}>{isDeleting ? <ReactLoading type="spin" color="#fcd1d1" height={14} width={14} /> : "Eliminar"}</button>
+                                                    <button className="btn delete" onClick={() => openDeleteModal("partition", t)} disabled={isDeleting}>{isDeleting ? <ReactLoading type="spin" color="#fcd1d1" height={14} width={14} /> : "Eliminar"}</button>
                                                 </div>
                                             </div>
                                         );
@@ -386,7 +417,7 @@ export default function AdminComplements() {
                                                 <div className="col percent">{t.price}</div>
                                                 <div className="col actions">
                                                     <button className="btn update" onClick={() => { setSelectedRailing(t); setFormRailing({ name: t.name || "", price: t.price || 0 }); setShowModalRailing(true); }}>Actualizar</button>
-                                                    <button className="btn delete" onClick={() => handleDeleteRailing(t)} disabled={isDeleting}>{isDeleting ? <ReactLoading type="spin" color="#fcd1d1" height={14} width={14} /> : "Eliminar"}</button>
+                                                    <button className="btn delete" onClick={() => openDeleteModal("railing", t)} disabled={isDeleting}>{isDeleting ? <ReactLoading type="spin" color="#fcd1d1" height={14} width={14} /> : "Eliminar"}</button>
                                                 </div>
                                             </div>
                                         );
@@ -447,6 +478,7 @@ export default function AdminComplements() {
                     </div>
                 </div>
             )}
+            <ConfirmationModal show={showDeleteModal} onClose={closeDeleteModal} onConfirm={confirmDelete} />
         </div>
     );
 }
