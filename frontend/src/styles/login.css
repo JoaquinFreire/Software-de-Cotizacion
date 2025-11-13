@@ -98,6 +98,7 @@ input {
 .error-message {
     color: red;
     margin-top: 10px;
+    width: 100%;
 }
 
 /* Enlace para recuperar contraseña */

@@ -11,6 +11,49 @@ import { Link } from "react-router-dom";
 import ConfirmationModal from "../../../components/ConfirmationModal";
 const API_URL = process.env.REACT_APP_API_URL || "";
 
+// Función mejorada que maneja diferentes formatos de respuesta
+const normalizeCreatedItem = (resp, formData = {}, source = "") => {
+	// resp can be axios response or plain object/number
+	const raw = resp?.data ?? resp;
+	// unwrap common wrappers
+	const unwrap = (d) => {
+		if (!d) return d;
+		if (typeof d === "object") {
+			if (d.result) return d.result;
+			if (d.data) return d.data;
+			if (d.item) return d.item;
+		}
+		return d;
+	};
+	const payload = unwrap(raw);
+
+	if (payload === undefined || payload === null) return null;
+
+	// primitive id (number or numeric string)
+	if (typeof payload === "number" || (typeof payload === "string" && /^[0-9]+$/.test(payload))) {
+		return {
+			id: Number(payload),
+			name: formData.name ?? "",
+			price: formData.price ?? 0,
+			Material: formData.Material ?? undefined
+		};
+	}
+
+	// object payload
+	if (typeof payload === "object") {
+		const idRaw = payload.id ?? payload._id ?? payload.Id ?? payload.ID ?? payload.partitionId ?? payload.railingId ?? payload.doorId;
+		const id = (typeof idRaw === "string" && /^[0-9]+$/.test(idRaw)) ? Number(idRaw) : idRaw;
+		return {
+			id: id ?? undefined,
+			name: payload.name ?? formData.name ?? "",
+			price: payload.price ?? formData.price ?? 0,
+			Material: payload.Material ?? formData.Material ?? undefined
+		};
+	}
+
+	return null;
+};
+
 export default function AdminComplements() {
     // Door
     const [queryDoor, setQueryDoor] = useState("");
@@ -21,7 +64,6 @@ export default function AdminComplements() {
     const [viewingAllDoor, setViewingAllDoor] = useState(false);
     const [deletingIdsDoor, setDeletingIdsDoor] = useState({});
     const [modalSubmittingDoor, setModalSubmittingDoor] = useState(false);
-    // modal visibility for Door
     const [showModalDoor, setShowModalDoor] = useState(false);
 
     // Partition
@@ -33,7 +75,6 @@ export default function AdminComplements() {
     const [viewingAllPartition, setViewingAllPartition] = useState(false);
     const [deletingIdsPartition, setDeletingIdsPartition] = useState({});
     const [modalSubmittingPartition, setModalSubmittingPartition] = useState(false);
-    // modal visibility for Partition
     const [showModalPartition, setShowModalPartition] = useState(false);
 
     // Railing
@@ -45,7 +86,6 @@ export default function AdminComplements() {
     const [viewingAllRailing, setViewingAllRailing] = useState(false);
     const [deletingIdsRailing, setDeletingIdsRailing] = useState({});
     const [modalSubmittingRailing, setModalSubmittingRailing] = useState(false);
-    // modal visibility for Railing
     const [showModalRailing, setShowModalRailing] = useState(false);
 
     // Modals / delete confirmation
@@ -53,15 +93,37 @@ export default function AdminComplements() {
     const [pendingDeleteSource, setPendingDeleteSource] = useState(null);
     const [pendingDeleteItem, setPendingDeleteItem] = useState(null);
 
-    const normalizeItems = (items) => { if (!items || !Array.isArray(items)) return []; return items.map(it => { if (!it) return it; if (it.id === undefined && it._id) it.id = it._id; if (typeof it.id === "string" && /^[0-9]+$/.test(it.id)) it.id = Number(it.id); return it; }); };
+    const normalizeItems = (items) => { 
+        if (!items || !Array.isArray(items)) return []; 
+        return items.map(it => { 
+            if (!it) return it; 
+            // Buscar ID en diferentes formatos
+            if (it.id === undefined) {
+                if (it._id) it.id = it._id;
+                else if (it.Id) it.id = it.Id;
+                else if (it.ID) it.id = it.ID;
+                else if (it.partitionId) it.id = it.partitionId;
+                else if (it.doorId) it.id = it.doorId;
+                else if (it.railingId) it.id = it.railingId;
+            }
+            if (typeof it.id === "string" && /^[0-9]+$/.test(it.id)) it.id = Number(it.id); 
+            return it; 
+        }); 
+    };
 
     const navigate = useNavigate();
     const handleLogout = () => {
-            localStorage.removeItem("token");
-            navigate("/");
+        localStorage.removeItem("token");
+        navigate("/");
     }
 
     const openDeleteModal = (source, item) => {
+        const itemId = getItemId(item);
+        if (!itemId) {
+            toast.error("No se puede eliminar: elemento sin ID válido");
+            console.error("Item sin ID:", item);
+            return;
+        }
         setPendingDeleteSource(source);
         setPendingDeleteItem(item);
         setShowDeleteModal(true);
@@ -75,6 +137,14 @@ export default function AdminComplements() {
 
     const confirmDelete = async () => {
         if (!pendingDeleteSource || !pendingDeleteItem) return;
+        
+        const itemId = getItemId(pendingDeleteItem);
+        if (!itemId) {
+            toast.error("Error: No se puede eliminar sin un ID válido");
+            closeDeleteModal();
+            return;
+        }
+        
         closeDeleteModal();
         if (pendingDeleteSource === "door") {
             await handleDeleteDoor(pendingDeleteItem);
@@ -85,7 +155,12 @@ export default function AdminComplements() {
         }
     };
 
-    // Door functions
+    // Función auxiliar para obtener ID de cualquier item
+    const getItemId = (item) => {
+        return item?.id || item?.Id || item?._id || item?.ID;
+    };
+
+    // Door functions - MEJORADAS
     const fetchDoorResults = async (searchQuery = "") => {
         setIsLoadingDoor(true);
         const token = localStorage.getItem("token");
@@ -98,6 +173,7 @@ export default function AdminComplements() {
             return data;
         } catch (err) { console.error("Error fetching Door:", err); setResultsDoor([]); return []; } finally { setIsLoadingDoor(false); }
     };
+    
     const fetchAllDoors = async () => {
         setIsLoadingDoor(true);
         const token = localStorage.getItem("token");
@@ -111,8 +187,11 @@ export default function AdminComplements() {
             return data;
         } catch (err) { console.error("[fetchAllDoors] Error:", err); setResultsDoor([]); return []; } finally { setIsLoadingDoor(false); }
     };
+    
     const handleSearchDoor = async (e) => { e?.preventDefault(); setViewingAllDoor(false); await fetchDoorResults(queryDoor); };
+    
     const openCreateModalDoor = () => { setSelectedDoor(null); setFormDoor({ name: "", price: 0, Material: "" }); setShowModalDoor(true); };
+    
     const closeModalDoor = () => setShowModalDoor(false);
 
     const handleCreateDoor = async () => {
@@ -120,46 +199,94 @@ export default function AdminComplements() {
         try {
             const token = localStorage.getItem("token");
             const resp = await axios.post(`${API_URL}/api/door`, formDoor, { headers: { Authorization: `Bearer ${token}` } });
+
+            const created = normalizeCreatedItem(resp, formDoor, "door");
+
             toast.success("Complemento puerta creado correctamente.");
-            const createdId = resp?.data?.result ?? resp?.data?.id ?? null;
-            const newItem = { id: createdId ?? undefined, name: formDoor.name, price: formDoor.price, Material: formDoor.Material };
-            if (viewingAllDoor) setResultsDoor(prev => { const next = [...(prev || []), newItem]; next.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""))); return next; });
-            else await fetchDoorResults(queryDoor);
-            // close modal after success
+            if (created && created.id !== undefined) {
+                if (viewingAllDoor) {
+                    setResultsDoor(prev => { const next = [...(prev || []), created]; next.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""))); return next; });
+                } else {
+                    await fetchDoorResults(queryDoor);
+                }
+            } else {
+                // fallback: refresh from server to obtain authoritative item with id
+                if (viewingAllDoor) await fetchAllDoors();
+                else await fetchDoorResults(queryDoor);
+            }
             setShowModalDoor(false);
         } catch (err) { console.error(err); toast.error("Error al crear complemento de puerta."); } finally { setModalSubmittingDoor(false); }
     };
+    
     const handleUpdateDoor = async () => {
         if (!selectedDoor) return;
+        
+        const doorId = getItemId(selectedDoor);
+        if (!doorId) {
+            toast.error("Error: No se puede actualizar sin un ID válido");
+            return;
+        }
+        
         setModalSubmittingDoor(true);
         try {
             const token = localStorage.getItem("token");
-            await axios.put(`${API_URL}/api/door/${selectedDoor.id}`, { name: formDoor.name, price: formDoor.price, Material: formDoor.Material }, { headers: { Authorization: `Bearer ${token}` } });
-            setResultsDoor(prev => (prev || []).map(r => ((r.id ?? r.name) === (selectedDoor.id ?? selectedDoor.name) ? { ...r, name: formDoor.name, price: formDoor.price, Material: formDoor.Material } : r)));
+            await axios.put(`${API_URL}/api/door/${doorId}`, { 
+                name: formDoor.name, 
+                price: formDoor.price, 
+                Material: formDoor.Material 
+            }, { headers: { Authorization: `Bearer ${token}` } });
+            
+            setResultsDoor(prev => (prev || []).map(r => 
+                (getItemId(r) === doorId ? { ...r, name: formDoor.name, price: formDoor.price, Material: formDoor.Material } : r)
+            ));
             toast.success("Complemento puerta actualizado correctamente.");
-            // close modal after success
             setShowModalDoor(false);
-        } catch (err) { console.error(err); toast.error("Error al actualizar complemento de puerta."); } finally { setModalSubmittingDoor(false); }
+        } catch (err) { 
+            console.error("Error updating door:", err); 
+            toast.error("Error al actualizar complemento de puerta."); 
+        } finally { 
+            setModalSubmittingDoor(false); 
+        }
     };
+    
     const handleDeleteDoor = async (t) => {
-        const key = t.id ?? t.name ?? Math.random().toString(36).slice(2);
+        const itemId = getItemId(t);
+        if (!itemId) {
+            toast.error("Error: No se puede eliminar sin un ID válido");
+            return;
+        }
+        
+        const key = itemId;
         setDeletingIdsDoor(prev => ({ ...prev, [key]: true }));
         try {
             const token = localStorage.getItem("token");
-            await axios.delete(`${API_URL}/api/door/${t.id}`, { headers: { Authorization: `Bearer ${token}` } });
-            if (viewingAllDoor) setResultsDoor(prev => (prev || []).filter(r => (r.id ?? r.name) !== (t.id ?? t.name)));
-            else await fetchDoorResults(queryDoor);
+            console.log("Eliminando door con ID:", itemId);
+            await axios.delete(`${API_URL}/api/door/${itemId}`, { headers: { Authorization: `Bearer ${token}` } });
+            
+            if (viewingAllDoor) {
+                setResultsDoor(prev => (prev || []).filter(r => getItemId(r) !== itemId));
+            } else {
+                await fetchDoorResults(queryDoor);
+            }
             toast.success("Complemento puerta eliminado correctamente.");
-        } catch (err) { console.error(err); toast.error("Error al eliminar complemento de puerta."); } finally { setDeletingIdsDoor(prev => ({ ...prev, [key]: false })); }
+        } catch (err) { 
+            console.error("Error deleting door:", err); 
+            if (err.response?.status === 400) {
+                toast.error("Error: ID no válido. Recargue la página.");
+            } else {
+                toast.error("Error al eliminar complemento de puerta.");
+            }
+        } finally { 
+            setDeletingIdsDoor(prev => ({ ...prev, [key]: false })); 
+        }
     };
 
-    // handle input change for door
     const handleChangeDoor = (e) => {
         const { name, value } = e.target;
         setFormDoor(f => ({ ...f, [name]: name === "price" ? Number(value) : value }));
     };
 
-    // Partition functions
+    // Partition functions - MEJORADAS
     const fetchPartitionResults = async (searchQuery = "") => {
         setIsLoadingPartition(true);
         const token = localStorage.getItem("token");
@@ -172,6 +299,7 @@ export default function AdminComplements() {
             return data;
         } catch (err) { console.error("Error fetching Partition:", err); setResultsPartition([]); return []; } finally { setIsLoadingPartition(false); }
     };
+    
     const fetchAllPartitions = async () => {
         setIsLoadingPartition(true);
         const token = localStorage.getItem("token");
@@ -185,8 +313,11 @@ export default function AdminComplements() {
             return data;
         } catch (err) { console.error("[fetchAllPartitions] Error:", err); setResultsPartition([]); return []; } finally { setIsLoadingPartition(false); }
     };
+    
     const handleSearchPartition = async (e) => { e?.preventDefault(); setViewingAllPartition(false); await fetchPartitionResults(queryPartition); };
+    
     const openCreateModalPartition = () => { setSelectedPartition(null); setFormPartition({ name: "", price: 0 }); setShowModalPartition(true); };
+    
     const closeModalPartition = () => setShowModalPartition(false);
 
     const handleCreatePartition = async () => {
@@ -194,44 +325,93 @@ export default function AdminComplements() {
         try {
             const token = localStorage.getItem("token");
             const resp = await axios.post(`${API_URL}/api/partition`, formPartition, { headers: { Authorization: `Bearer ${token}` } });
+
+            const created = normalizeCreatedItem(resp, formPartition, "partition");
+
             toast.success("Partición creada correctamente.");
-            const createdId = resp?.data?.result ?? resp?.data?.id ?? null;
-            const newItem = { id: createdId ?? undefined, name: formPartition.name, price: formPartition.price };
-            if (viewingAllPartition) setResultsPartition(prev => { const next = [...(prev || []), newItem]; next.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""))); return next; });
-            else await fetchPartitionResults(queryPartition);
+            if (created && created.id !== undefined) {
+                if (viewingAllPartition) {
+                    setResultsPartition(prev => { const next = [...(prev || []), created]; next.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""))); return next; });
+                } else {
+                    await fetchPartitionResults(queryPartition);
+                }
+            } else {
+                // fallback: refresh from server so item shows with id (no error to user)
+                if (viewingAllPartition) await fetchAllPartitions();
+                else await fetchPartitionResults(queryPartition);
+            }
             setShowModalPartition(false);
         } catch (err) { console.error(err); toast.error("Error al crear partición."); } finally { setModalSubmittingPartition(false); }
     };
+    
     const handleUpdatePartition = async () => {
         if (!selectedPartition) return;
+        
+        const partitionId = getItemId(selectedPartition);
+        if (!partitionId) {
+            toast.error("Error: No se puede actualizar sin un ID válido");
+            return;
+        }
+        
         setModalSubmittingPartition(true);
         try {
             const token = localStorage.getItem("token");
-            await axios.put(`${API_URL}/api/partition/${selectedPartition.id}`, { name: formPartition.name, price: formPartition.price }, { headers: { Authorization: `Bearer ${token}` } });
-            setResultsPartition(prev => (prev || []).map(r => ((r.id ?? r.name) === (selectedPartition.id ?? selectedPartition.name) ? { ...r, name: formPartition.name, price: formPartition.price } : r)));
+            await axios.put(`${API_URL}/api/partition/${partitionId}`, { 
+                name: formPartition.name, 
+                price: formPartition.price 
+            }, { headers: { Authorization: `Bearer ${token}` } });
+            
+            setResultsPartition(prev => (prev || []).map(r => 
+                (getItemId(r) === partitionId ? { ...r, name: formPartition.name, price: formPartition.price } : r)
+            ));
             toast.success("Partición actualizada correctamente.");
             setShowModalPartition(false);
-        } catch (err) { console.error(err); toast.error("Error al actualizar partición."); } finally { setModalSubmittingPartition(false); }
+        } catch (err) { 
+            console.error("Error updating partition:", err); 
+            toast.error("Error al actualizar partición."); 
+        } finally { 
+            setModalSubmittingPartition(false); 
+        }
     };
+    
     const handleDeletePartition = async (t) => {
-        const key = t.id ?? t.name ?? Math.random().toString(36).slice(2);
+        const itemId = getItemId(t);
+        if (!itemId) {
+            toast.error("Error: No se puede eliminar sin un ID válido");
+            return;
+        }
+        
+        const key = itemId;
         setDeletingIdsPartition(prev => ({ ...prev, [key]: true }));
         try {
             const token = localStorage.getItem("token");
-            await axios.delete(`${API_URL}/api/partition/${t.id}`, { headers: { Authorization: `Bearer ${token}` } });
-            if (viewingAllPartition) setResultsPartition(prev => (prev || []).filter(r => (r.id ?? r.name) !== (t.id ?? t.name)));
-            else await fetchPartitionResults(queryPartition);
+            console.log("Eliminando partition con ID:", itemId);
+            await axios.delete(`${API_URL}/api/partition/${itemId}`, { headers: { Authorization: `Bearer ${token}` } });
+            
+            if (viewingAllPartition) {
+                setResultsPartition(prev => (prev || []).filter(r => getItemId(r) !== itemId));
+            } else {
+                await fetchPartitionResults(queryPartition);
+            }
             toast.success("Partición eliminada correctamente.");
-        } catch (err) { console.error(err); toast.error("Error al eliminar partición."); } finally { setDeletingIdsPartition(prev => ({ ...prev, [key]: false })); }
+        } catch (err) { 
+            console.error("Error deleting partition:", err); 
+            if (err.response?.status === 400) {
+                toast.error("Error: ID no válido. Recargue la página.");
+            } else {
+                toast.error("Error al eliminar partición.");
+            }
+        } finally { 
+            setDeletingIdsPartition(prev => ({ ...prev, [key]: false })); 
+        }
     };
 
-    // handle input change for partition
     const handleChangePartition = (e) => {
         const { name, value } = e.target;
         setFormPartition(f => ({ ...f, [name]: name === "price" ? Number(value) : value }));
     };
 
-    // Railing functions
+    // Railing functions - MEJORADAS
     const fetchRailingResults = async (searchQuery = "") => {
         setIsLoadingRailing(true);
         const token = localStorage.getItem("token");
@@ -244,6 +424,7 @@ export default function AdminComplements() {
             return data;
         } catch (err) { console.error("Error fetching Railing:", err); setResultsRailing([]); return []; } finally { setIsLoadingRailing(false); }
     };
+    
     const fetchAllRailings = async () => {
         setIsLoadingRailing(true);
         const token = localStorage.getItem("token");
@@ -257,8 +438,11 @@ export default function AdminComplements() {
             return data;
         } catch (err) { console.error("[fetchAllRailings] Error:", err); setResultsRailing([]); return []; } finally { setIsLoadingRailing(false); }
     };
+    
     const handleSearchRailing = async (e) => { e?.preventDefault(); setViewingAllRailing(false); await fetchRailingResults(queryRailing); };
+    
     const openCreateModalRailing = () => { setSelectedRailing(null); setFormRailing({ name: "", price: 0 }); setShowModalRailing(true); };
+    
     const closeModalRailing = () => setShowModalRailing(false);
 
     const handleCreateRailing = async () => {
@@ -266,44 +450,93 @@ export default function AdminComplements() {
         try {
             const token = localStorage.getItem("token");
             const resp = await axios.post(`${API_URL}/api/railing`, formRailing, { headers: { Authorization: `Bearer ${token}` } });
+
+            const created = normalizeCreatedItem(resp, formRailing, "railing");
+
             toast.success("Baranda creada correctamente.");
-            const createdId = resp?.data?.result ?? resp?.data?.id ?? null;
-            const newItem = { id: createdId ?? undefined, name: formRailing.name, price: formRailing.price };
-            if (viewingAllRailing) setResultsRailing(prev => { const next = [...(prev || []), newItem]; next.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""))); return next; });
-            else await fetchRailingResults(queryRailing);
+            if (created && created.id !== undefined) {
+                if (viewingAllRailing) {
+                    setResultsRailing(prev => { const next = [...(prev || []), created]; next.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""))); return next; });
+                } else {
+                    await fetchRailingResults(queryRailing);
+                }
+            } else {
+                // fallback: refresh from server so item shows with id (no error to user)
+                if (viewingAllRailing) await fetchAllRailings();
+                else await fetchRailingResults(queryRailing);
+            }
             setShowModalRailing(false);
         } catch (err) { console.error(err); toast.error("Error al crear baranda."); } finally { setModalSubmittingRailing(false); }
     };
+    
     const handleUpdateRailing = async () => {
         if (!selectedRailing) return;
+        
+        const railingId = getItemId(selectedRailing);
+        if (!railingId) {
+            toast.error("Error: No se puede actualizar sin un ID válido");
+            return;
+        }
+        
         setModalSubmittingRailing(true);
         try {
             const token = localStorage.getItem("token");
-            await axios.put(`${API_URL}/api/railing/${selectedRailing.id}`, { name: formRailing.name, price: formRailing.price }, { headers: { Authorization: `Bearer ${token}` } });
-            setResultsRailing(prev => (prev || []).map(r => ((r.id ?? r.name) === (selectedRailing.id ?? selectedRailing.name) ? { ...r, name: formRailing.name, price: formRailing.price } : r)));
+            await axios.put(`${API_URL}/api/railing/${railingId}`, { 
+                name: formRailing.name, 
+                price: formRailing.price 
+            }, { headers: { Authorization: `Bearer ${token}` } });
+            
+            setResultsRailing(prev => (prev || []).map(r => 
+                (getItemId(r) === railingId ? { ...r, name: formRailing.name, price: formRailing.price } : r)
+            ));
             toast.success("Baranda actualizada correctamente.");
             setShowModalRailing(false);
-        } catch (err) { console.error(err); toast.error("Error al actualizar baranda."); } finally { setModalSubmittingRailing(false); }
+        } catch (err) { 
+            console.error("Error updating railing:", err); 
+            toast.error("Error al actualizar baranda."); 
+        } finally { 
+            setModalSubmittingRailing(false); 
+        }
     };
+    
     const handleDeleteRailing = async (t) => {
-        const key = t.id ?? t.name ?? Math.random().toString(36).slice(2);
+        const itemId = getItemId(t);
+        if (!itemId) {
+            toast.error("Error: No se puede eliminar sin un ID válido");
+            return;
+        }
+        
+        const key = itemId;
         setDeletingIdsRailing(prev => ({ ...prev, [key]: true }));
         try {
             const token = localStorage.getItem("token");
-            await axios.delete(`${API_URL}/api/railing/${t.id}`, { headers: { Authorization: `Bearer ${token}` } });
-            if (viewingAllRailing) setResultsRailing(prev => (prev || []).filter(r => (r.id ?? r.name) !== (t.id ?? t.name)));
-            else await fetchRailingResults(queryRailing);
+            console.log("Eliminando railing con ID:", itemId);
+            await axios.delete(`${API_URL}/api/railing/${itemId}`, { headers: { Authorization: `Bearer ${token}` } });
+            
+            if (viewingAllRailing) {
+                setResultsRailing(prev => (prev || []).filter(r => getItemId(r) !== itemId));
+            } else {
+                await fetchRailingResults(queryRailing);
+            }
             toast.success("Baranda eliminada correctamente.");
-        } catch (err) { console.error(err); toast.error("Error al eliminar baranda."); } finally { setDeletingIdsRailing(prev => ({ ...prev, [key]: false })); }
+        } catch (err) { 
+            console.error("Error deleting railing:", err); 
+            if (err.response?.status === 400) {
+                toast.error("Error: ID no válido. Recargue la página.");
+            } else {
+                toast.error("Error al eliminar baranda.");
+            }
+        } finally { 
+            setDeletingIdsRailing(prev => ({ ...prev, [key]: false })); 
+        }
     };
 
-    // handle input change for railing
     const handleChangeRailing = (e) => {
         const { name, value } = e.target;
         setFormRailing(f => ({ ...f, [name]: name === "price" ? Number(value) : value }));
     };
 
-    // The UI renders three small sections similar to the original AdminMaterials layout
+    // El JSX permanece igual...
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
@@ -314,7 +547,8 @@ export default function AdminComplements() {
                         <Link to="/admin/materiales" className="btn update" style={{ display: "inline-block" }}>← Volver</Link>
                     </div>
                     <div className="admin-materials-header">
-                        <h3  className="materials-title">Complementos - Puerta</h3></div>
+                        <h3 className="materials-title">Complementos - Puerta</h3>
+                    </div>
                     <form className="search-form" onSubmit={handleSearchDoor}>
                         <input type="text" placeholder="Buscar complemento..." value={queryDoor} onChange={(e) => setQueryDoor(e.target.value)} disabled={isLoadingDoor} />
                         <div className="search-actions">
@@ -334,8 +568,9 @@ export default function AdminComplements() {
                             {isLoadingDoor ? <div style={{ padding: 28, display: "flex", justifyContent: "center" }}><ReactLoading type="spin" color="#26b7cd" height={36} width={36} /></div>
                                 : resultsDoor.length === 0 ? <div className="no-results">Sin resultados</div>
                                     : resultsDoor.map((t, i) => {
-                                        const itemKey = `${t.id ?? t.name ?? "d"}-${i}`;
-                                        const deleteKey = t.id ?? t.name ?? itemKey;
+                                        const itemId = t.id || t._id;
+                                        const itemKey = `${itemId ?? t.name ?? "d"}-${i}`;
+                                        const deleteKey = itemId ?? t.name ?? itemKey;
                                         const isDeleting = !!deletingIdsDoor[deleteKey];
                                         return (
                                             <div key={itemKey} className="results-row">
@@ -357,7 +592,8 @@ export default function AdminComplements() {
                 {/* Partition */}
                 <div style={{ marginTop: 28 }}>
                     <div className="admin-materials-header">
-                        <h3  className="materials-title">Complementos - Tabique</h3></div>
+                        <h3 className="materials-title">Complementos - Tabique</h3>
+                    </div>
                     <form className="search-form" onSubmit={handleSearchPartition}>
                         <input type="text" placeholder="Buscar tabique..." value={queryPartition} onChange={(e) => setQueryPartition(e.target.value)} disabled={isLoadingPartition} />
                         <div className="search-actions">
@@ -372,8 +608,9 @@ export default function AdminComplements() {
                             {isLoadingPartition ? <div style={{ padding: 28, display: "flex", justifyContent: "center" }}><ReactLoading type="spin" color="#26b7cd" height={36} width={36} /></div>
                                 : resultsPartition.length === 0 ? <div className="no-results">Sin resultados</div>
                                     : resultsPartition.map((t, i) => {
-                                        const itemKey = `${t.id ?? t.name ?? "p"}-${i}`;
-                                        const deleteKey = t.id ?? t.name ?? itemKey;
+                                        const itemId = t.id || t._id;
+                                        const itemKey = `${itemId ?? t.name ?? "p"}-${i}`;
+                                        const deleteKey = itemId ?? t.name ?? itemKey;
                                         const isDeleting = !!deletingIdsPartition[deleteKey];
                                         return (
                                             <div key={itemKey} className="results-row">
@@ -393,7 +630,8 @@ export default function AdminComplements() {
                 {/* Railing */}
                 <div style={{ marginTop: 28 }}>
                     <div className="admin-materials-header">
-                        <h3  className="materials-title">Complementos - Baranda</h3></div>
+                        <h3 className="materials-title">Complementos - Baranda</h3>
+                    </div>
                     <form className="search-form" onSubmit={handleSearchRailing}>
                         <input type="text" placeholder="Buscar baranda..." value={queryRailing} onChange={(e) => setQueryRailing(e.target.value)} disabled={isLoadingRailing} />
                         <div className="search-actions">
@@ -408,8 +646,9 @@ export default function AdminComplements() {
                             {isLoadingRailing ? <div style={{ padding: 28, display: "flex", justifyContent: "center" }}><ReactLoading type="spin" color="#26b7cd" height={36} width={36} /></div>
                                 : resultsRailing.length === 0 ? <div className="no-results">Sin resultados</div>
                                     : resultsRailing.map((t, i) => {
-                                        const itemKey = `${t.id ?? t.name ?? "r"}-${i}`;
-                                        const deleteKey = t.id ?? t.name ?? itemKey;
+                                        const itemId = t.id || t._id;
+                                        const itemKey = `${itemId ?? t.name ?? "r"}-${i}`;
+                                        const deleteKey = itemId ?? t.name ?? itemKey;
                                         const isDeleting = !!deletingIdsRailing[deleteKey];
                                         return (
                                             <div key={itemKey} className="results-row">
@@ -427,6 +666,7 @@ export default function AdminComplements() {
                 </div>
             </div>
             <Footer />
+            
             {/* Modales: Door */}
             {showModalDoor && (
                 <div className="modal-overlay" onClick={closeModalDoor}>
@@ -449,7 +689,7 @@ export default function AdminComplements() {
             {showModalPartition && (
                 <div className="modal-overlay" onClick={closeModalPartition}>
                     <div className="modal" onClick={(e) => e.stopPropagation()}>
-                        <h3>{selectedPartition ? "Actualizar partición" : "Crear partición"}</h3>
+                        <h3>{selectedPartition ? "Actualizar Tabique" : "Crear Tabique"}</h3>
                         <div className="modal-form">
                             <label>Nombre<input name="name" value={formPartition.name} onChange={handleChangePartition} /></label>
                             <label>Precio<input name="price" type="number" value={formPartition.price} onChange={handleChangePartition} /></label>

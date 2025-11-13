@@ -85,7 +85,7 @@ namespace Infrastructure.Services
             if (!response.IsSuccessStatusCode)
                 throw new Exception("Error enviando mail: " + response.StatusCode);
         }
-        private string GenerateLink(string token)
+        private string GenerateLink(string   token)
         {
             var host = _config["HOST"];
             return $"{host}/crear-password?token={token}";
