@@ -1,3 +1,4 @@
+using System.Linq;
 using Application.DTOs.CustomerDTOs.CreateCustomer;
 using Application.DTOs.CustomerDTOs.GetCustomer;
 using Application.DTOs.CustomerDTOs.UpdateCustomer;
@@ -6,6 +7,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore; // <-- nuevo using
 
 
 [ApiController]
@@ -16,12 +18,14 @@ public class CustomerController : ControllerBase
     private readonly CustomerServices _customerServices;
     private readonly IMediator _mediator;
     private readonly IMapper _mapper;
+    private readonly AppDbContext _dbContext; // <-- nuevo campo
 
-    public CustomerController(CustomerServices customerServices, IMediator mediator, IMapper mapper)
+    public CustomerController(CustomerServices customerServices, IMediator mediator, IMapper mapper, AppDbContext dbContext)
     {
         _customerServices = customerServices;
         _mediator = mediator;
         _mapper = mapper;
+        _dbContext = dbContext; // <-- asignación
     }
 
     [HttpGet]
@@ -34,18 +38,73 @@ public class CustomerController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
+        Console.WriteLine($"[CustomerController] GET /api/customers/{id} called");
         var customer = await _customerServices.GetByIdAsync(id);
-        if (customer == null) return NotFound();
+        if (customer == null)
+        {
+            Console.WriteLine($"[CustomerController] Customer id={id} not found");
+            return NotFound();
+        }
+
+        // Intento cargar agentes explícitamente si no vienen en la entidad
+        try
+        {
+            var agents = await _dbContext.CustomerAgents
+                .FromSqlRaw(@"SELECT ca.* FROM customeragent ca
+                              JOIN customer_agent_relation car ON ca.id = car.id_agent
+                              WHERE car.id_customer = {0}", customer.id)
+                .ToListAsync();
+
+            if (agents != null && agents.Count > 0)
+            {
+                customer.Agents = agents;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[CustomerController] Warning loading agents for id={id}: {ex.Message}");
+        }
+
         var customerDTO = _mapper.Map<GetCustomerDTO>(customer);
-        return Ok(customer);
+        Console.WriteLine($"[CustomerController] Returning customer DTO id={customerDTO.id}, agentsCount={(customerDTO.agents?.Count() ?? 0)}");
+        return Ok(customerDTO); // <-- devolver DTO con agents
     }
 
     [HttpGet("dni/{dni}")]
     public async Task<IActionResult> GetByDni(string dni)
     {
-        var query = new GetCustomerQuery(dni);
-        var result = await _mediator.Send(query);
-        return Ok(result);
+        Console.WriteLine($"[CustomerController] GET /api/customers/dni/{dni} called");
+
+        // Busco el cliente primero
+        var customerEntity = await _dbContext.Customers
+            .FirstOrDefaultAsync(c => c.dni == dni);
+
+        if (customerEntity == null)
+        {
+            Console.WriteLine($"[CustomerController] No customer found for dni={dni}");
+            return NotFound(new { Message = $"Cliente con DNI {dni} no encontrado." });
+        }
+
+        // Cargo explícitamente los agentes relacionados usando la tabla de relación
+        try
+        {
+            var agents = await _dbContext.CustomerAgents
+                .FromSqlRaw(@"SELECT ca.* FROM customeragent ca
+                              JOIN customer_agent_relation car ON ca.id = car.id_agent
+                              WHERE car.id_customer = {0}", customerEntity.id)
+                .ToListAsync();
+
+            customerEntity.Agents = agents ?? new List<Domain.Entities.CustomerAgent>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[CustomerController] Error loading agents for dni={dni}: {ex.Message}");
+            customerEntity.Agents = new List<Domain.Entities.CustomerAgent>();
+        }
+
+        var customerDto = _mapper.Map<GetCustomerDTO>(customerEntity);
+        Console.WriteLine($"[CustomerController] Returning customer for dni={dni}, agentsCount={(customerDto.agents?.Count() ?? 0)}");
+        return Ok(customerDto);
     }
 
     [HttpPost]

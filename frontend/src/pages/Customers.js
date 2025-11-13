@@ -38,6 +38,11 @@ const Customers = () => {
   const [viewQuotesMenu, setViewQuotesMenu] = useState({ visible: false, cliente: null, x: 0, y: 0 });
   const viewQuotesMenuRef = useRef(null);
 
+  // Nuevo estado para mostrar modal de agentes
+  const [showAgentsModal, setShowAgentsModal] = useState(false);
+  const [selectedAgents, setSelectedAgents] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -82,8 +87,33 @@ const Customers = () => {
     setShowForm(true);
   };
 
-  const handleDetails = (id) => {
-    navigate(`/customers/${id}/detalle`);
+  // Reemplazo: en vez de navegar, consulto al backend por DNI y muestro modal con agentes
+  const handleDetails = async (cliente) => {
+    if (!cliente) return;
+    const dni = cliente.dni ?? cliente.DNI ?? cliente.id ?? "";
+    try {
+      console.log("[Customers.js] handleDetails calling fetchCustomerByDni with dni:", dni);
+      const res = await fetchCustomerByDni(dni);
+      console.log("[Customers.js] fetchCustomerByDni response:", res);
+      // fetchCustomerByDni en el context debe devolver el objeto cliente (o null)
+      if (!res) {
+        console.error(`[Customers.js] No se encontró cliente con DNI ${dni}`);
+        toast.error(`No se encontró cliente con DNI ${dni}`);
+        return;
+      }
+      setSelectedCustomer(res);
+      // <-- cambio: usar safeArray para convertir { $values: [...] } en un array real
+      const agents = safeArray(res.agents ?? res.Agents);
+      console.log("[Customers.js] agents resolved:", agents, "count:", (agents?.length ?? 0));
+      setSelectedAgents(agents);
+      setShowAgentsModal(true);
+      if (!agents || agents.length === 0) {
+        toast.info("Este cliente no tiene agentes relacionados.");
+      }
+    } catch (err) {
+      console.error("[Customers.js] Error al obtener detalles:", err);
+      toast.error("Error al obtener detalles del cliente.");
+    }
   };
 
   const navigateToHistorialWithFilter = (cliente, status) => {
@@ -195,7 +225,13 @@ const Customers = () => {
       await fetchCustomers(1);
       return;
     }
+    console.log("[Customers.js] Searching DNI:", searchDni.trim());
     const res = await fetchCustomerByDni(searchDni.trim());
+    console.log("[Customers.js] Search result:", res);
+    // Normalizar agents en el objeto de búsqueda para facilitar uso posterior
+    if (res) {
+      res.agents = safeArray(res.agents ?? res.Agents);
+    }
     setSearchResult(res);
   };
 
@@ -290,20 +326,16 @@ const Customers = () => {
                     </div>
                   </div>
                   <div className="cliente-actions">
-                    <button className="btn-action btn-detalle" onClick={() => handleDetails(searchResult.id)}>
-                      <i className="action-icon">👁️</i>
+                    <button className="btn-action btn-detalle" onClick={() => handleDetails(searchResult)}>
                       <span>Detalles</span>
                     </button>
                     <button className="btn-action btn-actualizar" onClick={() => handleUpdate(searchResult)}>
-                      <i className="action-icon">✏️</i>
                       <span>Actualizar</span>
                     </button>
                     <button className="btn-action btn-agente" onClick={(e) => handleAgent(searchResult, e)}>
-                      <i className="action-icon">📊</i>
                       <span>Cotizaciones</span>
                     </button>
                     <button className="btn-action btn-contactar" onClick={(e) => handleContact(searchResult, e)}>
-                      <i className="action-icon">💬</i>
                       <span>Contactar</span>
                     </button>
                   </div>
@@ -343,7 +375,7 @@ const Customers = () => {
                       </div>
                     </div>
                     <div className="cliente-actions">
-                      <button className="btn-action btn-detalle" onClick={() => handleDetails(cliente.id)}>
+                      <button className="btn-action btn-detalle" onClick={() => handleDetails(cliente)}>
                         <span>Detalles</span>
                       </button>
                       <button className="btn-action btn-actualizar" onClick={() => handleUpdate(cliente)}>
@@ -538,6 +570,71 @@ const Customers = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal agentes relacionados y detalles del cliente */}
+      {showAgentsModal && (
+        <div className="modal-overlay" onClick={() => setShowAgentsModal(false)}>
+          <div className="modern-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Detalles de {selectedCustomer?.name} {selectedCustomer?.lastname}</h3>
+              <button className="modal-close" onClick={() => setShowAgentsModal(false)}>✕</button>
+            </div>
+
+            <div className="modal-body">
+              {/* Sección: Datos completos del cliente */}
+              <div className="client-full-info">
+                <h4>Información del cliente</h4>
+                <div className="info-row"><strong>DNI:</strong> {selectedCustomer?.dni}</div>
+                <div className="info-row"><strong>Teléfono:</strong> {selectedCustomer?.tel || 'No especificado'}</div>
+                <div className="info-row"><strong>Email:</strong> {selectedCustomer?.mail || 'No especificado'}</div>
+                <div className="info-row"><strong>Dirección:</strong> {selectedCustomer?.address || 'No especificado'}</div>
+                <div className="info-row">
+                  <strong>Fecha de registro:</strong>{" "}
+                  {selectedCustomer?.registration_date ? new Date(selectedCustomer.registration_date).toLocaleString() : 'No disponible'}
+                </div>
+              </div>
+
+              <hr />
+
+              {/* Sección: Lista de agentes relacionados */}
+              <div className="agents-section">
+                <h4>Agentes relacionados ({selectedAgents?.length ?? 0})</h4>
+                {selectedAgents && selectedAgents.length > 0 ? (
+                  <ul className="agents-list">
+                    {selectedAgents.map((a, idx) => (
+                      <li key={a.id ?? idx} className="agent-item">
+                        <div className="agent-header">
+                          <strong>{a.name} {a.lastname}</strong>
+                        </div>
+                        <div className="agent-meta">
+                          <div><strong>DNI:</strong> {a.dni}</div>
+                          <div><strong>Tel:</strong> {a.tel || 'No especificado'}</div>
+                          <div><strong>Email:</strong> {a.mail || 'No especificado'}</div>
+                          <div>
+                            <strong>Fecha de registro:</strong>{" "}
+                            {a.registration_date ? new Date(a.registration_date).toLocaleString() : 'No disponible'}
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="no-clientes">
+                    <i className="no-data-icon">👤</i>
+                    <p>No hay agentes relacionados con este cliente.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <button className='modal-btn modal-cancel-btn' type="button" onClick={() => setShowAgentsModal(false)}>
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}

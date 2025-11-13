@@ -1,6 +1,7 @@
-﻿using Application.DTOs.CustomerDTOs.GetCustomer;
-using AutoMapper;
+﻿using AutoMapper;
 using Domain.Entities;
+using Application.DTOs.CustomerDTOs.GetCustomer;
+using Application.DTOs.CustomerAgentDTOs.GetCustomerAgent;
 
 namespace Application.Mapping.CustomerProfile
 {
@@ -8,8 +9,9 @@ namespace Application.Mapping.CustomerProfile
     {
         public GetCustomerProfile()
         {
-            // Mapeo Customer a GetCustomerDTO
-            CreateMap<Customer, GetCustomerDTO>();
+            // Asume que existe el CreateMap<CustomerAgent, GetCustomerAgentDTO> (ya definido).
+            CreateMap<Customer, GetCustomerDTO>()
+                .ForMember(dest => dest.agents, opt => opt.MapFrom(src => src.Agents));
         }
     }
 }
