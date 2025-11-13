@@ -3,20 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\ReporteOportunidadesPerdidas.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\pages\\reportes\\ReporteOportunidadesPerdidas.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\ClienteConMayorVolumen.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\pages\\reportes\\ClienteConMayorVolumen.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\Reportes.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\pages\\Reportes.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\ReporteMaterialesUsados.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\pages\\reportes\\ReporteMaterialesUsados.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\AnalisisDeProyectoPorUbicacionGeografica.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\pages\\reportes\\AnalisisDeProyectoPorUbicacionGeografica.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,7 +18,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 13,
+          "SelectedChildIndex": 14,
           "Children": [
             {
               "$type": "Bookmark",
@@ -82,54 +74,28 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "ReporteOportunidadesPerdidas.js",
-              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\ReporteOportunidadesPerdidas.js",
-              "RelativeDocumentMoniker": "src\\pages\\reportes\\ReporteOportunidadesPerdidas.js",
-              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\ReporteOportunidadesPerdidas.js",
-              "RelativeToolTip": "src\\pages\\reportes\\ReporteOportunidadesPerdidas.js",
-              "ViewState": "AgIAAEgDAAAAAAAAAAAswHADAAAsAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-11-13T01:26:43.466Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ReporteMaterialesUsados.js",
-              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\ReporteMaterialesUsados.js",
-              "RelativeDocumentMoniker": "src\\pages\\reportes\\ReporteMaterialesUsados.js",
-              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\ReporteMaterialesUsados.js",
-              "RelativeToolTip": "src\\pages\\reportes\\ReporteMaterialesUsados.js",
-              "ViewState": "AgIAAJcCAAAAAAAAAAAswKsCAAA2AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-11-13T01:15:46.876Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "AnalisisDeProyectoPorUbicacionGeografica.js",
-              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\AnalisisDeProyectoPorUbicacionGeografica.js",
-              "RelativeDocumentMoniker": "src\\pages\\reportes\\AnalisisDeProyectoPorUbicacionGeografica.js",
-              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\AnalisisDeProyectoPorUbicacionGeografica.js",
-              "RelativeToolTip": "src\\pages\\reportes\\AnalisisDeProyectoPorUbicacionGeografica.js",
-              "ViewState": "AgIAAKQCAAAAAAAAAAAkwKkCAAA5AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-11-12T20:06:25.889Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 1,
               "Title": "Reportes.js",
               "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\Reportes.js",
               "RelativeDocumentMoniker": "src\\pages\\Reportes.js",
               "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\Reportes.js",
               "RelativeToolTip": "src\\pages\\Reportes.js",
-              "ViewState": "AgIAACsBAAAAAAAAAAAswDcBAAA1AAAAAAAAAA==",
+              "ViewState": "AgIAAIQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-11-12T04:14:17.461Z",
+              "WhenOpened": "2025-11-13T02:35:30.55Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ClienteConMayorVolumen.js",
+              "DocumentMoniker": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\ClienteConMayorVolumen.js",
+              "RelativeDocumentMoniker": "src\\pages\\reportes\\ClienteConMayorVolumen.js",
+              "ToolTip": "C:\\Users\\leona\\source\\repos\\Software-de-Cotizacion\\frontend\\src\\pages\\reportes\\ClienteConMayorVolumen.js",
+              "RelativeToolTip": "src\\pages\\reportes\\ClienteConMayorVolumen.js",
+              "ViewState": "AgIAAHUCAAAAAAAAAAAswJ0CAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-11-13T02:33:43.815Z",
               "EditorCaption": ""
             }
           ]
