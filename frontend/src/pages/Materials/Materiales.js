@@ -43,9 +43,9 @@ const Materiales = () => {
             <Navigation onLogout={handleLogout} />
             
             <div className="materials-header">
-                <h2 className="materials-title">Panel de Materiales</h2>
+                <h2 className="materials-title">Panel de Acabados</h2>
                 <p className="materials-subtitle">
-                    Descubra los diferentes tipos de materiales disponibles para cotizaciones
+                    Descubra los diferentes tipos de acabados disponibles para cotizaciones
                 </p>
             </div>
             

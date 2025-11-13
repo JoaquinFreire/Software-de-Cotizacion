@@ -17,57 +17,112 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
     const [quotationToReject, setQuotationToReject] = useState(null);
     const [pendingStatus, setPendingStatus] = useState(null);
     const [changingId, setChangingId] = useState(null);
-    const [versionsMap, setVersionsMap] = useState({}); // { quotationId: versions[] }
+    const [versionsMap, setVersionsMap] = useState({});
+    const [loadingVersions, setLoadingVersions] = useState({});
+    const [versionErrors, setVersionErrors] = useState({});
 
-    // Función para obtener las versiones de cada cotización
+    // Función mejorada para obtener las versiones
     const fetchQuotationVersions = async (quotationId) => {
         try {
+            setLoadingVersions(prev => ({ ...prev, [quotationId]: true }));
+            setVersionErrors(prev => ({ ...prev, [quotationId]: null }));
+
             const token = localStorage.getItem('token');
             const res = await axios.get(`${API_URL}/api/Mongo/GetBudgetVersions/${quotationId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            // Procesar la respuesta igual que en BudgetDetail
-            const rawList = Array.isArray(res.data)
-                ? res.data
-                : (res.data && Array.isArray(res.data.$values) ? res.data.$values : []);
+            let versions = [];
+            
+            // Manejar diferentes estructuras de respuesta
+            if (Array.isArray(res.data)) {
+                versions = res.data;
+            } else if (res.data && Array.isArray(res.data.$values)) {
+                versions = res.data.$values;
+            } else if (res.data && typeof res.data === 'object') {
+                // Si es un objeto único, convertirlo en array
+                versions = [res.data];
+            }
 
-            return rawList;
+            console.log(`Versiones para cotización ${quotationId}:`, versions);
+            
+            return versions;
         } catch (error) {
             console.error(`Error fetching versions for quotation ${quotationId}:`, error);
+            setVersionErrors(prev => ({ ...prev, [quotationId]: error.message }));
             return [];
+        } finally {
+            setLoadingVersions(prev => ({ ...prev, [quotationId]: false }));
         }
     };
 
-    // Cargar versiones para todas las cotizaciones
+    // Cargar versiones de manera más eficiente
     useEffect(() => {
         const loadAllVersions = async () => {
             const newVersionsMap = {};
+            const quotationIds = safeArray(quotations).map(q => q.Id);
             
-            for (const quotation of safeArray(quotations)) {
-                const versions = await fetchQuotationVersions(quotation.Id);
-                newVersionsMap[quotation.Id] = versions;
-            }
+            // Cargar versiones en paralelo
+            const versionPromises = quotationIds.map(async (id) => {
+                const versions = await fetchQuotationVersions(id);
+                newVersionsMap[id] = versions;
+            });
             
+            await Promise.all(versionPromises);
             setVersionsMap(newVersionsMap);
         };
 
         if (quotations && quotations.length > 0) {
             loadAllVersions();
         }
-    }, [quotations]);
+    }, [quotations]); // Solo dependencia de quotations
 
-    // Función para obtener la última versión de una cotización
+    // Función mejorada para obtener la última versión
     const getLatestVersion = (quotationId) => {
-        const versions = versionsMap[quotationId] || [];
-        if (versions.length === 0) return "1"; // Valor por defecto
+        // Si está cargando, mostrar indicador
+        if (loadingVersions[quotationId]) {
+            return "Cargando...";
+        }
         
-        const latestVersion = versions[0]; // La primera es la más reciente
-        return latestVersion.version || latestVersion.Version || "1";
+        // Si hay error, mostrar mensaje
+        if (versionErrors[quotationId]) {
+            return "Error";
+        }
+
+        const versions = versionsMap[quotationId] || [];
+        
+        if (versions.length === 0) {
+            return "1"; // Valor por defecto si no hay versiones
+        }
+
+        // Ordenar versiones por fecha o número de versión para asegurar que tenemos la última
+        const sortedVersions = [...versions].sort((a, b) => {
+            // Intentar ordenar por fecha de creación descendente
+            const dateA = new Date(a.CreationDate || a.creationDate || a.fechaCreacion || 0);
+            const dateB = new Date(b.CreationDate || b.creationDate || b.fechaCreacion || 0);
+            return dateB - dateA;
+        });
+
+        const latestVersion = sortedVersions[0];
+        
+        // Buscar la versión en diferentes propiedades posibles
+        const version = latestVersion.version || latestVersion.Version || latestVersion.versionNumber || "1";
+        
+        console.log(`Última versión para ${quotationId}:`, version, latestVersion);
+        
+        return version;
     };
 
-    
+    // Función para forzar recarga de versiones de una cotización específica
+    const refreshQuotationVersion = async (quotationId) => {
+        const versions = await fetchQuotationVersions(quotationId);
+        setVersionsMap(prev => ({
+            ...prev,
+            [quotationId]: versions
+        }));
+    };
 
+    // Resto del código permanece igual...
     const handleShowModal = (id) => {
         setQuotationToDelete(id);
         setShowModal(true);
@@ -143,8 +198,18 @@ const QuotationList = ({ quotations, onDelete, onStatusChange, showModal, setSho
                         <p><b><u>Precio</u>:  </b>${quotation.TotalPrice}</p>
                         <p><b><u>Creación</u>:  </b>{new Date(quotation.CreationDate).toLocaleDateString()}</p>
                         <p><b><u>Dirección</u>:  </b>{quotation.WorkPlace.address}</p>
-                        <p><b><u>Versión actual</u>:  </b>v{getLatestVersion(quotation.Id)}</p>
-
+                        <p>
+                            <b><u>Versión actual</u>:  </b>
+                            v{getLatestVersion(quotation.Id)}
+                            {versionErrors[quotation.Id] && (
+                                <button 
+                                    onClick={() => refreshQuotationVersion(quotation.Id)}
+                                    style={{ marginLeft: '10px', fontSize: '12px' }}
+                                >
+                                    Reintentar
+                                </button>
+                            )}
+                        </p>
                     </div>
                     <div className="quote-actions">
                         <button className="go-button" onClick={() => window.open(`/quotation/${quotation.Id}`)}>Ver Detalles</button>

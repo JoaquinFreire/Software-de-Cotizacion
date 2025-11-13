@@ -540,7 +540,7 @@ function getDefaultToDate() {
     const chartData = generateChartData();
 
     return (
-        <div className="sustainability-dashboard-container">
+        <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
 
             <div className="sustainability-dashboard-main-wrapper">

@@ -96,7 +96,7 @@ body.light-mode {
 	height: 120px;
 	border-radius: 50%;
 	background: linear-gradient(135deg, var(--primary), #758491);
-	border: 2px solid var(--border);
+	border: 2px solid #16d0d6;
 	overflow: hidden;
 	position: relative;
 	display: flex;
@@ -126,10 +126,7 @@ body.light-mode {
 	color: var(--muted-color);
 }
 
-/* Hover border accent */
-.profile-image-circle:hover {
-	border-color: var(--accent);
-}
+
 
 .profile-image {
 	width: 100%;
@@ -204,7 +201,7 @@ body.light-mode {
 	margin: 0 0 8px 0;
 	font-size: 30px;
 	font-weight: 400;
-	color: #000000;
+	color: #ffffff;
 }
 
 .profile-image-info p {
@@ -373,7 +370,7 @@ body.light-mode {
 .secondary-btn {
 	padding: 12px 24px;
 	background: var(--card-bg);
-	color: var(--accent);
+	color: #62888a;
 	border: 1px solid var(--border);
 	border-radius: 4px;
 	font-size: 14px;
