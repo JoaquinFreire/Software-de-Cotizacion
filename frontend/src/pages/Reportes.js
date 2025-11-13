@@ -60,7 +60,7 @@ const reportCards = [
         className: "reporte-tendencias-mensuales",
         route: "/reportes/tendencias-mensuales",
         color: "#8b5cf6",
-        roles: ['coordinator', 'manager'] // Solo coordinador y gerente
+        roles: ['coordinator'] // Solo coordinador y gerente
     },
     //Reporte 5
     //{
@@ -89,7 +89,7 @@ const reportCards = [
         className: "reporte-Oportunidades-Perdidas",
         route: "/reportes/Oportunidades-Perdidas",
         color: "#64748b",
-        roles: ['coordinator', 'manager'] // Todos los roles
+        roles: ['manager'] // Solo gerente
     },
     //Reporte 7
     {

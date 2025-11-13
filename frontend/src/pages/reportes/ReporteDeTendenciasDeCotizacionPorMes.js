@@ -112,7 +112,7 @@ const ReporteDeTendenciasDeCotizacionPorMes = () => {
     // Estados para validación de roles
     const [userRole, setUserRole] = useState(null);
     const [roleLoading, setRoleLoading] = useState(true);
-    const requiredRoles = ['coordinator', 'manager']; // Coordinador y gerente pueden ver este reporte
+    const requiredRoles = ['coordinator']; // Coordinador y gerente pueden ver este reporte
 
     const navigate = useNavigate();
     const pdfRef = useRef();
