@@ -809,10 +809,11 @@ const LineaDeTiempoCotizaciones = () => {
             <ToastContainer position="bottom-right" autoClose={3000} />
 
             <div className="timeline-report-container">
-                <h2 className="title timeline-title">
+                <div className="timeline-header">
+                <h3 className="title timeline-title">
                     <FileText size={32} />
                     Trazabilidad de cotizaciones
-                </h2>
+                </h3>
 
                 <div className="timeline-layout">
                     {/* Panel lateral - Lista de clientes */}
@@ -1079,6 +1080,7 @@ const LineaDeTiempoCotizaciones = () => {
                             </div>
                         )}
                     </div>
+                </div>
                 </div>
             </div>
 

@@ -68,7 +68,7 @@
         margin: 0;
         font-size: 2.2rem;
         font-weight: 700;
-        background: linear-gradient(135deg, var(--oportunidades-primary), var(--oportunidades-secondary));
+        background: linear-gradient(135deg, var(--cc-primary-color), var(--cc-secondary-color));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -96,7 +96,7 @@
 }
 
 .oportunidades-btn-primary {
-    background: linear-gradient(135deg, var(--oportunidades-primary), var(--oportunidades-secondary));
+        background: linear-gradient(135deg, var(--oportunidades-primary), #1bc1df);
     color: white;
 }
 
@@ -121,11 +121,7 @@
     font-size: 12px;
 }
 
-.oportunidades-btn-primary:hover {
-    background: linear-gradient(135deg, var(--oportunidades-primary-dark), #eab308);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
-}
+
 
 .oportunidades-btn-secondary:hover {
     background: rgba(255, 255, 255, 0.15);
