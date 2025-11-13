@@ -41,7 +41,7 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
     const [fechaDesde, setFechaDesde] = useState(defaultDates.desde);
     const [fechaHasta, setFechaHasta] = useState(defaultDates.hasta);
     const [ciudad, setCiudad] = useState('');
-    const [status, setStatus] = useState('all'); // Nuevo estado para filtro
+    const [status, setStatus] = useState('all');
     const [generar, setGenerar] = useState(false);
     const [loading, setLoading] = useState(false);
     const [resultados, setResultados] = useState([]);
@@ -53,9 +53,8 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
 
     const [userRole, setUserRole] = useState(null);
     const [roleLoading, setRoleLoading] = useState(true);
-    const requiredRoles = ['coordinator', 'manager']; // Roles que pueden ver este reporte
+    const requiredRoles = ['coordinator', 'manager'];
 
-    // Verificación de rol
     useEffect(() => {
         const checkUserRole = () => {
             const token = localStorage.getItem("token");
@@ -65,7 +64,6 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
             }
 
             try {
-                // Decodificar el JWT directamente - INSTANTÁNEO
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 const role = payload?.role?.toLowerCase() ||
                     payload?.Role?.toLowerCase() ||
@@ -74,13 +72,12 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
                 if (role) {
                     setUserRole(role);
                     setRoleLoading(false);
-                    return; // ¡No hace falta llamar a la API!
+                    return;
                 }
             } catch (error) {
                 console.debug('No se pudo decodificar JWT');
             }
 
-            // Fallback: llamar a la API solo si falla el JWT
             const fetchUserRoleFromAPI = async () => {
                 try {
                     const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
@@ -107,7 +104,6 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
         checkUserRole();
     }, [navigate]);
 
-    // Loading mientras verifica rol
     if (roleLoading) {
         return (
             <div className="dashboard-container">
@@ -135,7 +131,6 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
         );
     }
 
-    // Usuario no autorizado
     if (userRole && !requiredRoles.includes(userRole)) {
         return (
             <div className="dashboard-container">
@@ -179,10 +174,9 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
         navigate("/");
     }
 
-    // Obtiene lista de ciudades del JSON
+    //Ciudades json
     const ciudades = ciudadesBarrios.Cordoba.ciudades.map(c => c.nombre);
 
-    // Consulta cotizaciones filtradas por fechas y ciudad
     const fetchData = async () => {
         if (!fechaDesde || !fechaHasta || !ciudad) return;
         setLoading(true);
@@ -195,17 +189,14 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
 
             const data = safeArray(res.data) || [];
 
-            // Filtrar por status si no es "all"
             let filteredData = data;
             if (status !== 'all') {
                 filteredData = data.filter(q => q.Status === status);
             }
 
-            // Agrupa por barrio
             const barriosMap = {};
             let total = filteredData.length;
             filteredData.forEach(q => {
-                // Extrae barrio de location: "Villa Carlos Paz - Centro" => "Centro"
                 let barrio = '';
                 if (q.WorkPlace && q.WorkPlace.Location) {
                     const parts = q.WorkPlace.Location.split(' - ');
@@ -214,7 +205,6 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
                     barrio = '(Sin barrio)';
                 }
 
-                // Si no viene el nombre, mapea el número a texto
                 let tipoObra = q.WorkPlace?.WorkTypeName || q.WorkPlace?.workTypeName || '';
                 if (!tipoObra) {
                     const workTypeId = q.WorkPlace?.WorkTypeId || q.WorkPlace?.workTypeId;
@@ -232,7 +222,6 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
                 barriosMap[barrio].cotizaciones.push(q);
             });
 
-            // Convierte a array y calcula porcentaje
             const resultadosTabla = Object.entries(barriosMap).map(([barrio, info]) => ({
                 barrio,
                 count: info.count,
@@ -255,7 +244,6 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
         fetchData();
     };
 
-    // Muestra/oculta tabla de cotizaciones por barrio
     const toggleBarrio = (barrio) => {
         setMostrarBarrio(prev => ({
             ...prev,
@@ -263,29 +251,24 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
         }));
     };
 
-    // Muestra/oculta todas las tablas
     const toggleTodos = () => {
         if (!mostrarTodos) {
-            // Mostrar todos
             const nuevoMostrar = {};
             resultados.forEach(r => { nuevoMostrar[r.barrio] = true; });
             setMostrarBarrio(nuevoMostrar);
             setMostrarTodos(true);
         } else {
-            // Ocultar todos  
             setMostrarBarrio({});
             setMostrarTodos(false);
         }
     };
 
-    // Navegar al PDF de la cotización en nueva pestaña
     const handleVerCotizacion = (cotizacionId) => {
         if (cotizacionId) {
             window.open(`/quotation/${cotizacionId}`, '_blank');
         }
     };
 
-    // Función para obtener el icono y color según el estado
     const getEstadoInfo = (status) => {
         switch (status) {
             case 'approved':
@@ -301,7 +284,6 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
         }
     };
 
-    // Total general
     const totalProyectos = resultados.reduce((acc, r) => acc + r.count, 0);
     const totalBarrios = resultados.length;
     const tipoObraPredominante = resultados.length > 0
@@ -310,7 +292,6 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
         ).tipoObra
         : 'N/A';
 
-    // Función para obtener el ID de la cotización
     const getQuotationId = (q) => q?.Id || q?.id || null;
 
     return (
@@ -319,7 +300,7 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
 
             <div className="analisis-ubicacion-content">
 
-                {/* HEADER MODERNO */}
+                {/* HEADER */}
                 <div className="analisis-ubicacion-header">
                     <div className="header-title-moderno">
                         <TrendingUp size={32} />
@@ -340,7 +321,7 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
                     </div>
                 </div>
 
-                {/* FILTROS MODERNOS */}
+                {/* FILTROS */}
                 <div className="filtros-ubicacion-modernos">
                     <div
                         className="filtros-header-moderno"
@@ -420,7 +401,7 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
                     )}
                 </div>
 
-                {/* KPI CARDS */}
+                {/* KPI's */}
                 {generar && !loading && (
                     <div className="kpi-section-moderno">
                         <div className="kpi-grid-moderno">
@@ -471,7 +452,6 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
                     </div>
                 )}
 
-                {/* LOADING */}
                 {loading && (
                     <div className="loading-moderno">
                         <div className="loading-spinner-moderno"></div>
@@ -479,7 +459,7 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
                     </div>
                 )}
 
-                {/* CONTENIDO PRINCIPAL */}
+                {/* CUERPO */}
                 {!generar && !loading && (
                     <div className="estado-vacio-moderno">
                         <BarChart3 size={64} />
@@ -573,7 +553,6 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
                                             </tr>
                                         ))}
 
-                                        {/* Fila de total */}
                                         <tr style={{ background: 'var(--background-light)', fontWeight: 'bold' }}>
                                             <td className="texto-acentuado">TOTAL</td>
                                             <td className="texto-acentuado">{totalProyectos}</td>
@@ -605,7 +584,6 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
                     </div>
                 )}
 
-                {/* TABLAS DE DETALLE POR BARRIO */}
                 {generar && !loading && resultados.map((r, idx) =>
                     mostrarBarrio[r.barrio] ? (
                         <div key={'tabla-' + r.barrio + idx} className="detalle-barrio-moderno">
@@ -690,7 +668,6 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
                     ) : null
                 )}
 
-                {/* ESTADO VACÍO CUANDO NO HAY RESULTADOS */}
                 {generar && !loading && resultados.length === 0 && (
                     <div className="estado-vacio-moderno">
                         <MapPin size={64} />
@@ -705,7 +682,6 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
     );
 };
 
-// Utilidad para formato corto de fecha
 function formatFechaCorta(fecha) {
     if (!fecha) return '';
     const [datePart] = fecha.split('T');

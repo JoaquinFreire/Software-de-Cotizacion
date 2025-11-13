@@ -26,18 +26,17 @@ import {
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-// Configurar axios para usar UTF-8
 axios.defaults.headers.post['Content-Type'] = 'application/json; charset=utf-8';
 axios.defaults.headers.get['Content-Type'] = 'application/json; charset=utf-8';
 
-// Funcion para formatear fecha
+// Formateo fecha
 const formatFecha = (fecha) => {
     if (!fecha) return '';
     const date = new Date(fecha);
     return date.toLocaleDateString('es-AR');
 };
 
-// Funcion para formatear hora
+// Formateo hora
 const formatHora = (fecha) => {
     if (!fecha) return '';
     const date = new Date(fecha);
@@ -48,14 +47,13 @@ const formatHora = (fecha) => {
     });
 };
 
-// Funcion para obtener el nombre del dia
+// Nombres de los dias
 const getNombreDia = (fecha) => {
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const date = new Date(fecha);
     return dias[date.getDay()];
 };
 
-// Funcion para agrupar eventos por dia
 const agruparEventosPorDia = (eventos) => {
     const agrupados = {};
 
@@ -69,7 +67,6 @@ const agruparEventosPorDia = (eventos) => {
         agrupados[fechaStr].push(evento);
     });
 
-    // Ordenar eventos por hora dentro de cada dia
     Object.keys(agrupados).forEach(fecha => {
         agrupados[fecha].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
     });
@@ -77,21 +74,20 @@ const agruparEventosPorDia = (eventos) => {
     return agrupados;
 };
 
-// Funcion para obtener semanas del mes
+// Obtener semanas del mes
 const getSemanasDelMes = (ano, mes) => {
     const semanas = [];
     const primerDia = new Date(ano, mes, 1);
     const ultimoDia = new Date(ano, mes + 1, 0);
 
     let fechaInicio = new Date(primerDia);
-    // Ajustar al lunes de la semana
+    // Empezar desde el lunes
     fechaInicio.setDate(fechaInicio.getDate() - fechaInicio.getDay() + 1);
 
     while (fechaInicio <= ultimoDia) {
         const fechaFin = new Date(fechaInicio);
         fechaFin.setDate(fechaFin.getDate() + 6);
 
-        // Solo incluir semanas que tengan dias del mes actual
         if (fechaFin >= primerDia) {
             semanas.push({
                 inicio: new Date(fechaInicio),
@@ -106,7 +102,7 @@ const getSemanasDelMes = (ano, mes) => {
     return semanas;
 };
 
-// Funcion para obtener numero de semana
+// Obtener número de semana
 const getNumeroSemana = (fecha) => {
     const date = new Date(fecha);
     date.setHours(0, 0, 0, 0);
@@ -115,7 +111,7 @@ const getNumeroSemana = (fecha) => {
     return 1 + Math.round(((date.getTime() - semana1.getTime()) / 86400000 - 3 + (semana1.getDay() + 6) % 7) / 7);
 };
 
-// Funcion para obtener la semana actual
+// Semana actual
 const getSemanaActual = () => {
     const hoy = new Date();
     const ano = hoy.getFullYear();
@@ -143,13 +139,9 @@ const AgendaSemanalCotizaciones = () => {
     const [clientes, setClientes] = useState([]);
     const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
     const [generar, setGenerar] = useState(false);
-
-    // Nuevos estados para navegación
     const [anoSeleccionado, setAnoSeleccionado] = useState(new Date().getFullYear());
     const [mesSeleccionado, setMesSeleccionado] = useState(new Date().getMonth());
     const [semanasDelMes, setSemanasDelMes] = useState([]);
-
-    // Estados para control de acceso
     const [userRole, setUserRole] = useState(null);
     const [roleLoading, setRoleLoading] = useState(true);
     const requiredRoles = ['quotator']; // Solo cotizadores pueden ver este reporte
@@ -157,7 +149,6 @@ const AgendaSemanalCotizaciones = () => {
     const navigate = useNavigate();
     const initialized = useRef(false);
 
-    // Verificación de rol - DEBE IR PRIMERO
     useEffect(() => {
         const checkUserRole = () => {
             const token = localStorage.getItem("token");
@@ -167,7 +158,6 @@ const AgendaSemanalCotizaciones = () => {
             }
 
             try {
-                // Decodificar el JWT directamente - INSTANTÁNEO
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 const role = payload?.role?.toLowerCase() ||
                     payload?.Role?.toLowerCase() ||
@@ -176,13 +166,12 @@ const AgendaSemanalCotizaciones = () => {
                 if (role) {
                     setUserRole(role);
                     setRoleLoading(false);
-                    return; // ¡No hace falta llamar a la API!
+                    return;
                 }
             } catch (error) {
                 console.debug('No se pudo decodificar JWT');
             }
 
-            // Fallback: llamar a la API solo si falla el JWT
             const fetchUserRoleFromAPI = async () => {
                 try {
                     const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
@@ -214,18 +203,15 @@ const AgendaSemanalCotizaciones = () => {
         navigate("/");
     };
 
-    // FUNCIONES EXISTENTES - MANTENIENDO EL ORDEN ORIGINAL
     const aplicarFiltros = () => {
         let eventosFiltrados = [...eventos];
 
-        // Filtrar por tipo de evento
         if (filtros.tiposEvento.length > 0) {
             eventosFiltrados = eventosFiltrados.filter(evento =>
                 filtros.tiposEvento.includes(evento.tipo)
             );
         }
 
-        // Filtrar por cliente
         if (filtros.cliente !== 'todos') {
             eventosFiltrados = eventosFiltrados.filter(evento =>
                 evento.cliente === filtros.cliente
@@ -235,13 +221,11 @@ const AgendaSemanalCotizaciones = () => {
         setEventosFiltrados(eventosFiltrados);
     };
 
-    // Obtener años disponibles
     const obtenerAnosDisponibles = () => {
         const anoActual = new Date().getFullYear();
         return Array.from({ length: anoActual - 2021 }, (_, i) => anoActual - i);
     };
 
-    // Obtener meses del año
     const obtenerMesesDelAno = () => {
         return [
             { nombre: 'Enero', valor: 0 },
@@ -259,7 +243,6 @@ const AgendaSemanalCotizaciones = () => {
         ];
     };
 
-    // Actualizar semanas cuando cambia año o mes
     useEffect(() => {
         const semanas = getSemanasDelMes(anoSeleccionado, mesSeleccionado);
         setSemanasDelMes(semanas);
@@ -271,7 +254,6 @@ const AgendaSemanalCotizaciones = () => {
         }
     }, [anoSeleccionado, mesSeleccionado]);
 
-    // Cargar datos del usuario y eventos iniciales
     useEffect(() => {
         const cargarInicial = async () => {
             if (initialized.current) return;
@@ -297,13 +279,11 @@ const AgendaSemanalCotizaciones = () => {
                     setUserId(userIdFromMe);
                 }
 
-                // Establecer semana actual
                 const semanaActual = getSemanaActual();
                 setSemanaSeleccionada(semanaActual);
                 setAnoSeleccionado(semanaActual.inicio.getFullYear());
                 setMesSeleccionado(semanaActual.inicio.getMonth());
 
-                // Cargar eventos solo si tenemos userId
                 if (userIdFromMe) {
                     await cargarEventosSemana(semanaActual, userIdFromMe);
                 }
@@ -318,19 +298,16 @@ const AgendaSemanalCotizaciones = () => {
         cargarInicial();
     }, []);
 
-    // Cargar eventos cuando se selecciona una semana
     useEffect(() => {
         if (semanaSeleccionada && userId && initialized.current) {
             cargarEventosSemana(semanaSeleccionada, userId);
         }
     }, [semanaSeleccionada, userId]);
 
-    // Aplicar filtros cuando cambian
     useEffect(() => {
         aplicarFiltros();
     }, [eventos, filtros]);
 
-    // Navegación rápida
     const semanaAnterior = () => {
         const indexActual = semanasDelMes.findIndex(s =>
             s.inicio.getTime() === semanaSeleccionada?.inicio.getTime()
@@ -339,7 +316,6 @@ const AgendaSemanalCotizaciones = () => {
         if (indexActual > 0) {
             setSemanaSeleccionada(semanasDelMes[indexActual - 1]);
         } else {
-            // Ir al último día del mes anterior
             const mesAnterior = mesSeleccionado === 0 ? 11 : mesSeleccionado - 1;
             const anoAnterior = mesSeleccionado === 0 ? anoSeleccionado - 1 : anoSeleccionado;
 
@@ -360,7 +336,6 @@ const AgendaSemanalCotizaciones = () => {
         if (indexActual < semanasDelMes.length - 1) {
             setSemanaSeleccionada(semanasDelMes[indexActual + 1]);
         } else {
-            // Ir al primer día del mes siguiente
             const mesSiguiente = mesSeleccionado === 11 ? 0 : mesSeleccionado + 1;
             const anoSiguiente = mesSeleccionado === 11 ? anoSeleccionado + 1 : anoSeleccionado;
 
@@ -381,7 +356,6 @@ const AgendaSemanalCotizaciones = () => {
         setMesSeleccionado(hoy.getMonth());
     };
 
-    // Cambios en selectores jerárquicos
     const cambiarAno = (e) => {
         const nuevoAno = parseInt(e.target.value);
         setAnoSeleccionado(nuevoAno);
@@ -409,7 +383,6 @@ const AgendaSemanalCotizaciones = () => {
             const desde = semana.inicio.toISOString().split('T')[0];
             const hasta = semana.fin.toISOString().split('T')[0];
 
-            // OBTENER COTIZACIONES DEL USUARIO EN EL PERIODO
             const responseSQL = await axios.get(
                 `${API_URL}/api/quotations/by-period?from=${desde}&to=${hasta}&userId=${userIdParam}`,
                 {
@@ -422,7 +395,6 @@ const AgendaSemanalCotizaciones = () => {
 
             let cotizacionesSQL = [];
 
-            // Manejar diferentes formatos de respuesta
             if (Array.isArray(responseSQL.data)) {
                 cotizacionesSQL = responseSQL.data;
             } else if (responseSQL.data && responseSQL.data.$values) {
@@ -433,7 +405,6 @@ const AgendaSemanalCotizaciones = () => {
 
             const eventosCombinados = [];
 
-            // Procesar cada cotización
             for (const cotizacionSQL of cotizacionesSQL) {
                 try {
                     const budgetId = cotizacionSQL.Id || cotizacionSQL.id;
@@ -443,7 +414,6 @@ const AgendaSemanalCotizaciones = () => {
                         continue;
                     }
 
-                    // OBTENER TODAS LAS VERSIONES usando el nuevo endpoint
                     const responseVersiones = await axios.get(
                         `${API_URL}/api/Mongo/GetBudgetVersions/${budgetId}`,
                         {
@@ -456,7 +426,6 @@ const AgendaSemanalCotizaciones = () => {
 
                     let versiones = [];
 
-                    // Manejar diferentes formatos de respuesta
                     if (Array.isArray(responseVersiones.data)) {
                         versiones = responseVersiones.data;
                     } else if (responseVersiones.data && responseVersiones.data.$values) {
@@ -465,7 +434,6 @@ const AgendaSemanalCotizaciones = () => {
                         versiones = [responseVersiones.data];
                     }
 
-                    // Procesar cada versión
                     for (const versionData of versiones) {
                         const eventosVersion = transformarVersionAEventos(versionData, cotizacionSQL);
                         eventosCombinados.push(...eventosVersion);
@@ -482,7 +450,6 @@ const AgendaSemanalCotizaciones = () => {
 
             setEventos(eventosCombinados);
 
-            // Extraer lista de clientes únicos
             const clientesUnicos = [...new Set(eventosCombinados
                 .map(evento => evento.cliente)
                 .filter(cliente => cliente && cliente.trim() !== '')
@@ -532,18 +499,17 @@ const AgendaSemanalCotizaciones = () => {
         const creationDate = versionData.creationDate;
         const status = (versionData.status || '').toLowerCase();
 
-        // Función para mantener caracteres especiales
+        // Función para mantener tildes
         const decodeText = (text) => {
             if (!text) return '';
             return String(text).trim();
         };
 
-        // Obtener nombre del cliente manteniendo caracteres especiales
         const nombreCliente = decodeText(versionData.customer?.name || cotizacionSQL.Customer?.Customer?.name || '');
         const apellidoCliente = decodeText(versionData.customer?.lastname || cotizacionSQL.Customer?.Customer?.lastname || '');
         const cliente = `${nombreCliente} ${apellidoCliente}`.trim();
 
-        // EVENTO DE CREACIÓN (solo para versión 1)
+        // EVENTO DE CREACIÓN
         if (version === 1 && creationDate) {
             eventos.push({
                 id: `${budgetId}-v${version}-creacion`,
@@ -559,7 +525,7 @@ const AgendaSemanalCotizaciones = () => {
             });
         }
 
-        // EVENTO DE MODIFICACIÓN (para versiones > 1)
+        // EVENTO DE MODIFICACIÓN
         if (version > 1 && creationDate) {
             eventos.push({
                 id: `${budgetId}-v${version}-modificacion`,
@@ -575,7 +541,7 @@ const AgendaSemanalCotizaciones = () => {
             });
         }
 
-        // EVENTOS DE CIERRE (basado en el status)
+        // EVENTO DE CIERRE
         if (['accepted', 'rejected', 'finished', 'approved', 'pending'].includes(status)) {
             let tipoCierre = '';
             switch (status) {
@@ -676,7 +642,6 @@ const AgendaSemanalCotizaciones = () => {
 
     const eventosAgrupados = agruparEventosPorDia(eventosFiltrados);
 
-    // Obtener todos los dias de la semana seleccionada (Lunes a Sábado) - EXCLUIR DOMINGO
     const diasSemana = [];
     if (semanaSeleccionada) {
         const fecha = new Date(semanaSeleccionada.inicio);
@@ -687,7 +652,6 @@ const AgendaSemanalCotizaciones = () => {
         }
     }
 
-    // Loading mientras verifica rol
     if (roleLoading) {
         return (
             <div className="dashboard-container">
@@ -715,7 +679,6 @@ const AgendaSemanalCotizaciones = () => {
         );
     }
 
-    // Usuario no autorizado
     if (userRole && !requiredRoles.includes(userRole)) {
         return (
             <div className="dashboard-container">
@@ -755,7 +718,6 @@ const AgendaSemanalCotizaciones = () => {
         );
     }
 
-    // RENDER PRINCIPAL - SOLO SI EL USUARIO ESTÁ AUTORIZADO
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
@@ -816,7 +778,6 @@ const AgendaSemanalCotizaciones = () => {
                                     </div>
                                 </div>
 
-                                {/* Selector jerárquico */}
                                 <div className="filtro-group">
                                     <label>Ir a fecha:</label>
                                     <div className="hierarchical-selector">
@@ -889,7 +850,6 @@ const AgendaSemanalCotizaciones = () => {
 
                                 {filtrosAbiertos && (
                                     <div className="filtros-desplegable-content">
-                                        {/* Filtros por tipo de evento */}
                                         <div className="filtro-grupo-avanzado">
                                             <label>Tipos de Evento:</label>
                                             <div className="filtros-checkbox-grid">
@@ -906,7 +866,6 @@ const AgendaSemanalCotizaciones = () => {
                                             </div>
                                         </div>
 
-                                        {/* Filtro por cliente */}
                                         <div className="filtro-grupo-avanzado">
                                             <label>Cliente:</label>
                                             <select
@@ -923,7 +882,6 @@ const AgendaSemanalCotizaciones = () => {
                                             </select>
                                         </div>
 
-                                        {/* Botones de acción */}
                                         <div className="filtro-acciones-avanzadas">
                                             <div style={{ flex: 1 }}></div>
                                             <button
@@ -938,7 +896,7 @@ const AgendaSemanalCotizaciones = () => {
                             </div>
                         </div>
 
-                        {/* Contenido */}
+                        {/* Cuerpo */}
                         <div className="satisfaction-content">
                             {loading ? (
                                 <div className="satisfaction-loading">
@@ -953,7 +911,6 @@ const AgendaSemanalCotizaciones = () => {
                                 </div>
                             ) : (
                                 <div className="agenda-semanal-content">
-                                    {/* Días de la semana - SOLO LUNES A SÁBADO */}
                                     <div className="dias-semana-grid">
                                         {diasSemana.map((dia, index) => {
                                             const fechaStr = dia.toISOString().split('T')[0];

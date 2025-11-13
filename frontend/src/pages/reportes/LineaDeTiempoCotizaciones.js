@@ -16,8 +16,7 @@ import {
     MapPin,
     User,
     Briefcase,
-    Package,
-    DollarSign
+    Package
 } from 'lucide-react';
 import ReactLoading from 'react-loading';
 import html2pdf from 'html2pdf.js';
@@ -25,7 +24,6 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";
 
-// Importar el JSON de ubicaciones
 import ciudadesBarriosCordoba from '../../json/ciudadesBarriosCordoba.json';
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -33,6 +31,7 @@ const API_URL = process.env.REACT_APP_API_URL;
 const estadoColor = (status) => {
     switch (status?.toLowerCase()) {
         case 'accepted': return '#4caf50';
+        case 'approved': return '#4caf50';
         case 'rejected': return '#f44336';
         case 'pending': return '#ff9800';
         default: return '#9e9e9e';
@@ -42,6 +41,7 @@ const estadoColor = (status) => {
 const estadoTexto = (status) => {
     switch (status?.toLowerCase()) {
         case 'accepted': return 'Aceptada';
+        case 'approved': return 'Aprobada';
         case 'rejected': return 'Rechazada';
         case 'pending': return 'Pendiente';
         default: return status || 'Desconocido';
@@ -56,18 +56,6 @@ const safeArray = (data) => {
     return [];
 };
 
-// Funciones para formatear números
-const formatearNumero = (numero) => {
-    if (!numero && numero !== 0) return '';
-    return numero.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-};
-
-const parsearNumeroFormateado = (valor) => {
-    if (!valor) return '';
-    return valor.toString().replace(/\./g, '');
-};
-
-// Componente para flechas de ordenamiento
 const OrdenamientoFlecha = ({ campo, ordenActual, onOrdenar, tieneDatos = true }) => {
     if (!tieneDatos) return null;
 
@@ -85,7 +73,6 @@ const OrdenamientoFlecha = ({ campo, ordenActual, onOrdenar, tieneDatos = true }
     );
 };
 
-// Componente de Filtros Avanzados
 const FiltrosAvanzados = ({
     filtros,
     onFiltrosChange,
@@ -100,10 +87,12 @@ const FiltrosAvanzados = ({
         agentes: [],
         productos: []
     },
-    loadingOpciones = false
+    loadingOpciones = false,
+    userRole
 }) => {
-    return (
+    const esCotizador = userRole === 'quotator';
 
+    return (
         <div className={`filtros-avanzados ${isOpen ? 'open' : ''}`}>
             <div className="filtros-header" onClick={onToggle}>
                 <Filter size={18} />
@@ -113,7 +102,6 @@ const FiltrosAvanzados = ({
 
             {isOpen && (
                 <div className="filtros-content">
-                    {/* Filtros de Fecha */}
                     <div className="filtro-grupo">
                         <label className="filtro-label">
                             <Calendar size={16} />
@@ -141,50 +129,6 @@ const FiltrosAvanzados = ({
                         </div>
                     </div>
 
-                    {/* Filtro de Monto */}
-                    <div className="filtro-grupo">
-                        <div className="filtro-header">
-                            <label className="filtro-label">
-                                <DollarSign size={16} />
-                                Monto Total
-                            </label>
-                            <OrdenamientoFlecha
-                                campo="monto"
-                                ordenActual={filtros.ordenamientos.monto}
-                                onOrdenar={onOrdenar}
-                                tieneDatos={true}
-                            />
-                        </div>
-                        <div className="rango-monto">
-                            <div className="rango-input">
-                                <input
-                                    type="text"
-                                    placeholder="Mínimo"
-                                    value={filtros.montoMin ? formatearNumero(filtros.montoMin) : ''}
-                                    onChange={(e) => {
-                                        const valorLimpio = parsearNumeroFormateado(e.target.value);
-                                        onFiltrosChange('montoMin', valorLimpio);
-                                    }}
-                                    className="rango-min"
-                                />
-                            </div>
-                            <span className="rango-separador">-</span>
-                            <div className="rango-input">
-                                <input
-                                    type="text"
-                                    placeholder="Máximo"
-                                    value={filtros.montoMax ? formatearNumero(filtros.montoMax) : ''}
-                                    onChange={(e) => {
-                                        const valorLimpio = parsearNumeroFormateado(e.target.value);
-                                        onFiltrosChange('montoMax', valorLimpio);
-                                    }}
-                                    className="rango-max"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Filtro de Ubicación */}
                     <div className="filtro-grupo">
                         <div className="filtro-header">
                             <label className="filtro-label">
@@ -213,33 +157,33 @@ const FiltrosAvanzados = ({
                         </select>
                     </div>
 
-                    {/* Filtro de Usuario Generador */}
-                    <div className="filtro-grupo">
-                        <label className="filtro-label">
-                            <User size={16} />
-                            Usuario Generador
-                        </label>
-                        <select
-                            value={filtros.usuarioGenerador || ''}
-                            onChange={(e) => onFiltrosChange('usuarioGenerador', e.target.value)}
-                            className="filtro-select"
-                            disabled={loadingOpciones || opciones.usuarios.length === 0}
-                        >
-                            <option value="">Todos los usuarios</option>
-                            {opciones.usuarios.map((usuario, index) => (
-                                <option key={index} value={usuario.nombre}>  {/* ← CAMBIADO: value={usuario.nombre} */}
-                                    {usuario.nombre || `Usuario ${usuario.id}`}
-                                </option>
-                            ))}
-                        </select>
-                        {opciones.usuarios.length === 0 && !loadingOpciones && (
-                            <div style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>
-                                No hay usuarios disponibles
-                            </div>
-                        )}
-                    </div>
+                    {!esCotizador && (
+                        <div className="filtro-grupo">
+                            <label className="filtro-label">
+                                <User size={16} />
+                                Usuario Generador
+                            </label>
+                            <select
+                                value={filtros.usuarioGenerador || ''}
+                                onChange={(e) => onFiltrosChange('usuarioGenerador', e.target.value)}
+                                className="filtro-select"
+                                disabled={loadingOpciones || opciones.usuarios.length === 0}
+                            >
+                                <option value="">Todos los usuarios</option>
+                                {opciones.usuarios.map((usuario, index) => (
+                                    <option key={index} value={usuario.nombre}>
+                                        {usuario.nombre || `Usuario ${usuario.id}`}
+                                    </option>
+                                ))}
+                            </select>
+                            {opciones.usuarios.length === 0 && !loadingOpciones && (
+                                <div style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>
+                                    No hay usuarios disponibles
+                                </div>
+                            )}
+                        </div>
+                    )}
 
-                    {/* Filtro de Agente */}
                     <div className="filtro-grupo">
                         <label className="filtro-label">
                             <Briefcase size={16} />
@@ -260,7 +204,6 @@ const FiltrosAvanzados = ({
                         </select>
                     </div>
 
-                    {/* Filtro de Tipo de Producto */}
                     <div className="filtro-grupo">
                         <label className="filtro-label">
                             <Package size={16} />
@@ -281,7 +224,6 @@ const FiltrosAvanzados = ({
                         </select>
                     </div>
 
-                    {/* Acciones de Filtros */}
                     <div className="filtro-acciones">
                         <button
                             className="btn-limpiar-avanzado"
@@ -320,16 +262,32 @@ const LineaDeTiempoCotizaciones = () => {
         productos: []
     });
     const [loadingOpciones, setLoadingOpciones] = useState(false);
-
-    // Estados para validación de roles
     const [userRole, setUserRole] = useState(null);
     const [roleLoading, setRoleLoading] = useState(true);
-    const requiredRoles = ['quotator', 'coordinator', 'manager']; // Todos los roles pueden ver este reporte
+    const [currentUserId, setCurrentUserId] = useState(null);
+    const requiredRoles = ['quotator', 'coordinator', 'manager'];
 
     const navigate = useNavigate();
     const pdfRef = useRef();
 
-    // Verificación de rol
+    const filtrosIniciales = {
+        search: '',
+        fromDate: '',
+        toDate: '',
+        avanzados: {
+            ubicacion: '',
+            usuarioGenerador: '',
+            agenteId: '',
+            tipoProducto: '',
+            ordenamientos: {
+                fecha: 'desc',
+                ubicacion: 'asc'
+            }
+        }
+    };
+
+    const [filtros, setFiltros] = useState(filtrosIniciales);
+
     useEffect(() => {
         const checkUserRole = () => {
             const token = localStorage.getItem("token");
@@ -339,22 +297,23 @@ const LineaDeTiempoCotizaciones = () => {
             }
 
             try {
-                // Decodificar el JWT directamente - INSTANTÁNEO
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 const role = payload?.role?.toLowerCase() ||
                     payload?.Role?.toLowerCase() ||
                     payload?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']?.toLowerCase();
 
+                const userId = payload?.userId || payload?.userid || payload?.sub;
+
                 if (role) {
                     setUserRole(role);
+                    setCurrentUserId(userId);
                     setRoleLoading(false);
-                    return; // ¡No hace falta llamar a la API!
+                    return;
                 }
             } catch (error) {
                 console.debug('No se pudo decodificar JWT');
             }
 
-            // Fallback: llamar a la API solo si falla el JWT
             const fetchUserRoleFromAPI = async () => {
                 try {
                     const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
@@ -367,7 +326,9 @@ const LineaDeTiempoCotizaciones = () => {
                     if (response.ok) {
                         const data = await response.json();
                         const role = data?.user?.role?.toLowerCase();
+                        const userId = data?.user?.id || data?.userId;
                         setUserRole(role);
+                        setCurrentUserId(userId);
                     }
                 } catch (error) {
                     console.error('Error verificando rol:', error);
@@ -381,28 +342,6 @@ const LineaDeTiempoCotizaciones = () => {
         checkUserRole();
     }, [navigate]);
 
-    // Estado inicial de los filtros (para reset)
-    const filtrosIniciales = {
-        search: '',
-        fromDate: '',
-        toDate: '',
-        avanzados: {
-            montoMin: '',
-            montoMax: '',
-            ubicacion: '',
-            usuarioGenerador: '',
-            agenteId: '',
-            tipoProducto: '',
-            ordenamientos: {
-                monto: 'desc',
-                fecha: 'desc',
-                ubicacion: 'asc'
-            }
-        }
-    };
-
-    const [filtros, setFiltros] = useState(filtrosIniciales);
-
     useEffect(() => {
         if (userRole && requiredRoles.includes(userRole)) {
             cargarClientes();
@@ -415,7 +354,6 @@ const LineaDeTiempoCotizaciones = () => {
         navigate("/");
     }
 
-    // Loading mientras verifica rol
     if (roleLoading) {
         return (
             <div className="dashboard-container">
@@ -443,7 +381,6 @@ const LineaDeTiempoCotizaciones = () => {
         );
     }
 
-    // Usuario no autorizado
     if (userRole && !requiredRoles.includes(userRole)) {
         return (
             <div className="dashboard-container">
@@ -487,7 +424,13 @@ const LineaDeTiempoCotizaciones = () => {
         setLoadingClientes(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_URL}/api/TimeLineBudgetReport/customers`, {
+            let url = `${API_URL}/api/TimeLineBudgetReport/customers`;
+
+            if (userRole === 'quotator' && currentUserId) {
+                url = `${API_URL}/api/TimeLineBudgetReport/customers/by-user/${currentUserId}`;
+            }
+
+            const response = await axios.get(url, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -503,49 +446,38 @@ const LineaDeTiempoCotizaciones = () => {
         }
     };
 
-    // Función para cargar todas las opciones de filtros desde los endpoints SQL
     const cargarOpcionesFiltros = async () => {
         setLoadingOpciones(true);
         try {
             const token = localStorage.getItem('token');
-            console.log('🔑 Token disponible:', !!token);
 
-            // Cargar todas las opciones en paralelo con mejor manejo de errores
             const [usuariosResponse, agentesResponse, productosResponse] = await Promise.all([
-                // Usuarios - con manejo específico de errores
                 axios.get(`${API_URL}/api/users`, {
                     headers: { Authorization: `Bearer ${token}` }
                 }).catch(error => {
-                    console.error('❌ Error cargando usuarios:', error.response?.status, error.message);
-                    // Si falla, intentar con un endpoint alternativo o datos de prueba
-                    return { data: generarUsuariosDePrueba() };
+                    console.error('Error cargando usuarios:', error);
+                    return { data: [] };
                 }),
-
-                // Agentes
                 axios.get(`${API_URL}/api/customer-agents`, {
                     headers: { Authorization: `Bearer ${token}` }
                 }).catch(error => {
-                    console.error('❌ Error cargando agentes:', error.response?.status, error.message);
+                    console.error('Error cargando agentes:', error);
                     return { data: [] };
                 }),
-
-                // Productos (opening types)
                 axios.get(`${API_URL}/api/opening-types`, {
                     headers: { Authorization: `Bearer ${token}` }
                 }).catch(error => {
-                    console.error('❌ Error cargando productos:', error.response?.status, error.message);
+                    console.error('Error cargando productos:', error);
                     return { data: [] };
                 })
             ]);
 
-            // Procesar usuarios con estructura más flexible
             const usuariosData = safeArray(usuariosResponse.data);
             const usuarios = usuariosData.map(user => ({
                 id: user.id || user.userId || user.UserId || Math.random(),
                 nombre: `${user.name || user.firstName || ''} ${user.lastName || user.lastname || ''}`.trim() || `Usuario ${user.id || ''}`
-            })).filter(user => user.nombre); // Filtrar usuarios sin nombre
+            })).filter(user => user.nombre);
 
-            // Procesar agentes
             const agentesData = safeArray(agentesResponse.data);
             const agentes = agentesData.map(agente => ({
                 id: agente.id,
@@ -553,14 +485,12 @@ const LineaDeTiempoCotizaciones = () => {
                 nombre: `${agente.name || ''} ${agente.lastName || agente.lastname || ''}`.trim()
             })).filter(agente => agente.nombre && agente.dni !== 'N/A');
 
-            // Procesar productos (opening types)
             const productosData = safeArray(productosResponse.data);
             const productos = productosData.map(producto => ({
                 id: producto.id,
                 nombre: producto.name || producto.nombre || 'Producto sin nombre'
             })).filter(producto => producto.nombre);
 
-            // Generar ubicaciones desde el JSON
             const ubicaciones = generarUbicacionesDesdeJSON();
 
             setOpcionesFiltros({
@@ -570,25 +500,12 @@ const LineaDeTiempoCotizaciones = () => {
                 productos: productos
             });
 
-            console.log('✅ Opciones cargadas:', {
-                ubicaciones: ubicaciones.length,
-                usuarios: usuarios.length,
-                agentes: agentes.length,
-                productos: productos.length
-            });
-
-            if (usuarios.length === 0) {
-                console.warn('⚠️ No se pudieron cargar usuarios, usando datos de prueba');
-            }
-
         } catch (error) {
             console.error('Error general al cargar opciones de filtros:', error);
             toast.error('Error al cargar algunas opciones de filtros');
-
-            // Fallback con datos básicos
             setOpcionesFiltros({
                 ubicaciones: generarUbicacionesDesdeJSON(),
-                usuarios: generarUsuariosDePrueba(),
+                usuarios: [],
                 agentes: [],
                 productos: []
             });
@@ -597,16 +514,6 @@ const LineaDeTiempoCotizaciones = () => {
         }
     };
 
-    // Función para generar usuarios de prueba si el endpoint falla
-    const generarUsuariosDePrueba = () => {
-        return [
-            { id: 1, nombre: 'Leonardo Morales' },
-            { id: 2, nombre: 'Usuario Coordinador' },
-            { id: 3, nombre: 'Usuario Manager' }
-        ];
-    };
-
-    // Función para generar ubicaciones desde el JSON
     const generarUbicacionesDesdeJSON = () => {
         const ubicaciones = new Set();
 
@@ -629,7 +536,6 @@ const LineaDeTiempoCotizaciones = () => {
             console.error('Error al procesar JSON de ubicaciones:', error);
         }
 
-        // Agregar ubicaciones comunes que pueden no estar en el JSON
         const ubicacionesComunes = [
             'Córdoba - Bella Vista',
             'Villa Carlos Paz - Centro',
@@ -652,31 +558,20 @@ const LineaDeTiempoCotizaciones = () => {
             const token = localStorage.getItem('token');
             const params = new URLSearchParams();
 
-            // Filtros básicos
             if (filtros.fromDate) params.append('fromDate', filtros.fromDate);
             if (filtros.toDate) params.append('toDate', filtros.toDate);
-
-            // Filtros avanzados - SOLO si tienen valor
-            if (filtros.avanzados.montoMin) params.append('montoMin', filtros.avanzados.montoMin);
-            if (filtros.avanzados.montoMax) params.append('montoMax', filtros.avanzados.montoMax);
             if (filtros.avanzados.ubicacion) params.append('ubicacion', filtros.avanzados.ubicacion);
 
-            // ✅ CORREGIDO: Enviar el ID del usuario (no el nombre)
             if (filtros.avanzados.usuarioGenerador) {
                 params.append('usuarioGenerador', filtros.avanzados.usuarioGenerador);
-                console.log('👤 Filtrando por usuario ID:', filtros.avanzados.usuarioGenerador);
             }
 
             if (filtros.avanzados.agenteId) params.append('agenteDni', filtros.avanzados.agenteId);
             if (filtros.avanzados.tipoProducto) params.append('tipoProducto', filtros.avanzados.tipoProducto);
 
-            // Ordenamientos
-            params.append('ordenMonto', filtros.avanzados.ordenamientos.monto);
             params.append('ordenFecha', filtros.avanzados.ordenamientos.fecha);
 
             const url = `${API_URL}/api/TimeLineBudgetReport/${cliente.dni}?${params}`;
-            console.log('📡 URL de consulta con filtros:', url);
-
             const response = await axios.get(url, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -716,17 +611,10 @@ const LineaDeTiempoCotizaciones = () => {
     };
 
     const limpiarFiltros = () => {
-        console.log('🧹 Limpiando TODOS los filtros...');
-
-        // Resetear a estado inicial
         setFiltros(JSON.parse(JSON.stringify(filtrosIniciales)));
 
-        console.log('✅ Filtros reseteados a estado inicial');
-
-        // Recargar los datos con filtros limpios si hay un cliente seleccionado
         if (clienteSeleccionado) {
             setTimeout(() => {
-                console.log('🔄 Recargando datos después de limpiar filtros');
                 cargarTimelineCliente(clienteSeleccionado);
             }, 100);
         }
@@ -810,13 +698,13 @@ const LineaDeTiempoCotizaciones = () => {
 
             <div className="timeline-report-container">
                 <div className="timeline-header">
-                <h3 className="title timeline-title">
-                    <FileText size={32} />
-                    Trazabilidad de cotizaciones
-                </h3>
+                    <h3 className="title timeline-title">
+                        <FileText size={32} />
+                        Trazabilidad de cotizaciones
+                    </h3>
+                </div>
 
                 <div className="timeline-layout">
-                    {/* Panel lateral - Lista de clientes */}
                     <div className="timeline-sidebar">
                         <FiltrosAvanzados
                             filtros={filtros.avanzados}
@@ -833,6 +721,7 @@ const LineaDeTiempoCotizaciones = () => {
                             onAplicarFiltros={aplicarFiltros}
                             opciones={opcionesFiltros}
                             loadingOpciones={loadingOpciones}
+                            userRole={userRole}
                         />
 
                         <div className="sidebar-header">
@@ -850,54 +739,7 @@ const LineaDeTiempoCotizaciones = () => {
                             />
                         </div>
 
-                        <div className="filters-section">
-                            <div className="filter-group">
-                                <label>Desde:</label>
-                                <input
-                                    type="date"
-                                    value={filtros.fromDate}
-                                    onChange={(e) => setFiltros({ ...filtros, fromDate: e.target.value })}
-                                />
-                            </div>
-                            <div className="filter-group">
-                                <label>Hasta:</label>
-                                <input
-                                    type="date"
-                                    value={filtros.toDate}
-                                    onChange={(e) => setFiltros({ ...filtros, toDate: e.target.value })}
-                                />
-                            </div>
-                            <div className="filter-group">
-                                <label>Estado:</label>
-                                <select
-                                    value={filtros.status}
-                                    onChange={(e) => setFiltros({ ...filtros, status: e.target.value })}
-                                >
-                                    <option value="">Todos</option>
-                                    <option value="accepted">Aprobadas</option>
-                                    <option value="pending">Pendientes</option>
-                                    <option value="rejected">Rechazadas</option>
-                                </select>
-                            </div>
-                            <div className="filter-actions">
-                                <button
-                                    className="btn-apply-filters"
-                                    onClick={aplicarFiltros}
-                                >
-                                    <Filter size={16} />
-                                    Aplicar
-                                </button>
-                                <button
-                                    className="btn-clear-filters"
-                                    onClick={limpiarFiltros}
-                                >
-                                    Limpiar
-                                </button>
-                            </div>
-                        </div>
-
                         <div className="clientes-list-report">
-
                             {loadingClientes ? (
                                 <div className="loading-clientes">
                                     <ReactLoading type="spin" color="#1976d2" height={30} width={30} />
@@ -938,7 +780,6 @@ const LineaDeTiempoCotizaciones = () => {
                         </div>
                     </div>
 
-                    {/* Panel principal - Timeline */}
                     <div className="timeline-main">
                         {loading ? (
                             <div className="timeline-loading">
@@ -950,7 +791,10 @@ const LineaDeTiempoCotizaciones = () => {
                                 <div className="report-header">
                                     <div className="report-title">
                                         <h2>Cotizaciones - {getClienteProp(clienteSeleccionado, 'name')} {getClienteProp(clienteSeleccionado, 'lastname')}</h2>
-
+                                        <button className="btn-download-pdf" onClick={handleDescargarPDF}>
+                                            <Download size={16} />
+                                            Descargar PDF
+                                        </button>
                                     </div>
                                     <div className="report-info">
                                         <div><strong>DNI:</strong> {getClienteProp(clienteSeleccionado, 'dni')}</div>
@@ -958,112 +802,114 @@ const LineaDeTiempoCotizaciones = () => {
                                     </div>
                                 </div>
 
-                                <div className="cotizaciones-sidebar">
-                                    <h4>Series de Cotizaciones</h4>
-                                    {safeArray(timelineData).map((item) => (
-                                        <div
-                                            key={item.BudgetId}
-                                            className={`cotizacion-item ${cotizacionSeleccionada?.BudgetId === item.BudgetId ? 'selected' : ''}`}
-                                            onClick={() => setCotizacionSeleccionada(item)}
-                                        >
-                                            <div className="cotizacion-header">
-                                                <div className="budget-id">{item.BudgetId || 'N/A'}</div>
-                                                <div
-                                                    className="status-badge"
-                                                    style={{ backgroundColor: estadoColor(item.Status) }}
-                                                >
-                                                    {estadoTexto(item.Status)}
+                                <div className="timeline-detalle-container">
+                                    <div className="cotizaciones-sidebar">
+                                        <h4>Series de Cotizaciones</h4>
+                                        {safeArray(timelineData).map((item) => (
+                                            <div
+                                                key={item.BudgetId}
+                                                className={`cotizacion-item ${cotizacionSeleccionada?.BudgetId === item.BudgetId ? 'selected' : ''}`}
+                                                onClick={() => setCotizacionSeleccionada(item)}
+                                            >
+                                                <div className="cotizacion-header">
+                                                    <div className="budget-id">{item.BudgetId || 'N/A'}</div>
+                                                    <div
+                                                        className="status-badge"
+                                                        style={{ backgroundColor: estadoColor(item.Status) }}
+                                                    >
+                                                        {estadoTexto(item.Status)}
+                                                    </div>
+                                                </div>
+                                                <div className="cotizacion-details">
+                                                    <div className="workplace">{item.WorkPlaceName || 'Sin obra'}</div>
+                                                    <div className="version-count">
+                                                        {safeArray(item.Versions).length} versiones
+                                                    </div>
+                                                    <div className="creation-date">
+                                                        {item.CreationDate ? new Date(item.CreationDate).toLocaleDateString() : 'Fecha desconocida'}
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className="cotizacion-details">
-                                                <div className="workplace">{item.WorkPlaceName || 'Sin obra'}</div>
-                                                <div className="version-count">
-                                                    {safeArray(item.Versions).length} versiones
-                                                </div>
-                                                <div className="creation-date">
-                                                    {item.CreationDate ? new Date(item.CreationDate).toLocaleDateString() : 'Fecha desconocida'}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+                                        ))}
+                                    </div>
 
-                                <div className="timeline-detalle">
-                                    {cotizacionSeleccionada && (
-                                        <>
-                                            <div className="timeline-header">
-                                                <h3>Cotización N° {cotizacionSeleccionada.BudgetId || 'N/A'}</h3>
-                                                <div className="timeline-summary">
-                                                    <span><strong>Obra:</strong> {cotizacionSeleccionada.WorkPlaceName || 'Sin obra'}</span>
-                                                    <span><strong>Estado actual:</strong>
-                                                        <span style={{ color: estadoColor(cotizacionSeleccionada.Status) }}>
-                                                            {estadoTexto(cotizacionSeleccionada.Status)}
+                                    <div className="timeline-detalle">
+                                        {cotizacionSeleccionada && (
+                                            <>
+                                                <div className="timeline-header-detalle">
+                                                    <h3>Cotización N° {cotizacionSeleccionada.BudgetId || 'N/A'}</h3>
+                                                    <div className="timeline-summary">
+                                                        <span><strong>Obra:</strong> {cotizacionSeleccionada.WorkPlaceName || 'Sin obra'}</span>
+                                                        <span><strong>Estado actual:</strong>
+                                                            <span style={{ color: estadoColor(cotizacionSeleccionada.Status) }}>
+                                                                {estadoTexto(cotizacionSeleccionada.Status)}
+                                                            </span>
                                                         </span>
-                                                    </span>
-                                                    <span><strong>Total versiones:</strong> {safeArray(cotizacionSeleccionada.Versions).length}</span>
+                                                        <span><strong>Total versiones:</strong> {safeArray(cotizacionSeleccionada.Versions).length}</span>
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            <div className="vertical-timeline">
-                                                {safeArray(cotizacionSeleccionada.Versions).map((version, index) => {
-                                                    return (
-                                                        <div key={`${version.BudgetId}-v${version.Version}-${index}`} className="timeline-item">
-                                                            <div className="timeline-point" style={{ backgroundColor: estadoColor(version.Status) }}>
-                                                                <div className="version-number">v{version.Version || '?'}</div>
-                                                            </div>
-                                                            <div className="timeline-content-version">
-                                                                <div className="version-header-centered">
-                                                                    <h4 className="version-title">Versión {version.Version || '?'}</h4>
-                                                                    <div
-                                                                        className="version-status-badge"
-                                                                        style={{ backgroundColor: estadoColor(version.Status) }}
-                                                                    >
-                                                                        {estadoTexto(version.Status)}
-                                                                    </div>
+                                                <div className="vertical-timeline">
+                                                    {safeArray(cotizacionSeleccionada.Versions).map((version, index) => {
+                                                        return (
+                                                            <div key={`${version.BudgetId}-v${version.Version}-${index}`} className="timeline-item">
+                                                                <div className="timeline-point" style={{ backgroundColor: estadoColor(version.Status) }}>
+                                                                    <div className="version-number">v{version.Version || '?'}</div>
                                                                 </div>
-
-                                                                <div className="version-main-content">
-                                                                    <div className="version-details-left">
-                                                                        <div className="detail-item">
-                                                                            <strong>Fecha creación:</strong>
-                                                                            <span>{version.CreationDate ? new Date(version.CreationDate).toLocaleDateString() : 'No especificada'}</span>
-                                                                        </div>
-                                                                        <div className="detail-item">
-                                                                            <strong>Presupuesto ID:</strong>
-                                                                            <span>{version.BudgetId || 'N/A'}</span>
-                                                                        </div>
-                                                                        <div className="detail-item">
-                                                                            <strong>Total:</strong>
-                                                                            <span className="total-amount">${(version.Total || 0)?.toFixed(2)}</span>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="version-actions-right">
-                                                                        <button
-                                                                            className="btn-ver-pdf"
-                                                                            onClick={() => window.open(`/quotation/${version.BudgetId}`, '_blank')}
-                                                                            title="Ver PDF detallado de esta cotización"
+                                                                <div className="timeline-content-version">
+                                                                    <div className="version-header-centered">
+                                                                        <h4 className="version-title">Versión {version.Version || '?'}</h4>
+                                                                        <div
+                                                                            className="version-status-badge"
+                                                                            style={{ backgroundColor: estadoColor(version.Status) }}
                                                                         >
-                                                                            📄 Ver PDF
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-
-                                                                {version.Comment && (
-                                                                    <div className="comment-section-full">
-                                                                        <strong>Comentario:</strong>
-                                                                        <div className="comment-text">
-                                                                            {version.Comment.split('Validez de la cotización')[0]?.trim() || version.Comment}
+                                                                            {estadoTexto(version.Status)}
                                                                         </div>
                                                                     </div>
-                                                                )}
+
+                                                                    <div className="version-main-content">
+                                                                        <div className="version-details-left">
+                                                                            <div className="detail-item">
+                                                                                <strong>Fecha creación:</strong>
+                                                                                <span>{version.CreationDate ? new Date(version.CreationDate).toLocaleDateString() : 'No especificada'}</span>
+                                                                            </div>
+                                                                            <div className="detail-item">
+                                                                                <strong>Presupuesto ID:</strong>
+                                                                                <span>{version.BudgetId || 'N/A'}</span>
+                                                                            </div>
+                                                                            <div className="detail-item">
+                                                                                <strong>Total:</strong>
+                                                                                <span className="total-amount">${(version.Total || 0)?.toFixed(2)}</span>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="version-actions-right">
+                                                                            <button
+                                                                                className="btn-ver-pdf"
+                                                                                onClick={() => window.open(`/quotation/${version.BudgetId}`, '_blank')}
+                                                                                title="Ver PDF detallado de esta cotización"
+                                                                            >
+                                                                                📄 Ver PDF
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {version.Comment && (
+                                                                        <div className="comment-section-full">
+                                                                            <strong>Comentario:</strong>
+                                                                            <div className="comment-text">
+                                                                                {version.Comment.split('Validez de la cotización')[0]?.trim() || version.Comment}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        </>
-                                    )}
+                                                        );
+                                                    })}
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         ) : clienteSeleccionado ? (
@@ -1080,7 +926,6 @@ const LineaDeTiempoCotizaciones = () => {
                             </div>
                         )}
                     </div>
-                </div>
                 </div>
             </div>
 
