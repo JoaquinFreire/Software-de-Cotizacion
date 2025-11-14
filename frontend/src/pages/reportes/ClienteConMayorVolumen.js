@@ -416,7 +416,7 @@ export default function ClienteConMayorVolumen() {
                         <div className="header-title">
                             <TrendingUp size={32} />
                             <div>
-                                <h1>Clientes con Mayor Volumen de Cotizaciones</h1>
+                                <h1 className="estado-header-title">Clientes con Mayor Volumen de Cotizaciones</h1>
                                 <p>
                                     {userRole === 'quotator'
                                         ? 'Mis clientes - Análisis de cotizaciones propias'

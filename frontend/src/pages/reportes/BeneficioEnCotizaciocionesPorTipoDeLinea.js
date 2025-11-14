@@ -807,7 +807,7 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                         <div className="header-title">
                             <TrendingUp size={32} />
                             <div>
-                                <h1>Beneficio en Cotizaciones por Tipo de Línea</h1>
+                                <h1 className="estado-header-title">Beneficio en Cotizaciones por Tipo de Línea</h1>
                                 <p>Análisis de márgenes y costos por configuración</p>
                             </div>
                         </div>

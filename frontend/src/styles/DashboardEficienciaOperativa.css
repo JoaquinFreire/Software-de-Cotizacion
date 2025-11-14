@@ -61,7 +61,7 @@ body.dark-mode {
     background: var(--report-container-bg);
     min-height: calc(100vh - 120px);
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
-    border-radius: 0;
+    border-radius: 18px;
     border: 1px solid var(--border);
 }
 

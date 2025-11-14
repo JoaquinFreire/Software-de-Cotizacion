@@ -154,7 +154,7 @@ export default function ConfigUser() {
 				{loading ? (
 					<div className="spinner-container-dashboard">
 						<ReactLoading type="spin" color="#26b7cd" height={34} width={34} 
-						display={"flex"} alignitems={"center"} justifycontent={"center"}
+						display={"flex"} alignItems={"center"} justifyContent={"center"}
 						/>
 					</div>
 				) : (
@@ -227,7 +227,7 @@ export default function ConfigUser() {
 									<div className="form-group">
 										<label className="form-label">Rol</label>
 										<input
-											value={form.role.role_name || form.role}
+											value={form.role === 'manager' ? 'Gerente' : form.role === 'coordinator' ? 'Coordinador' : form.role === 'qoutator' ? 'Cotizadores' : form.role.role_name || ''}
 											readOnly
 											className="form-input readonly"
 										/>

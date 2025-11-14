@@ -470,7 +470,7 @@ const ReporteMaterialesUsados = () => {
                         <div className="header-title">
                             <Package size={32} />
                             <div>
-                                <h1>Reporte de Materiales Más Usados</h1>
+                                <h1 className="estado-header-title">Reporte de Materiales Más Usados</h1>
                                 <p>Análisis de tendencias y consumo de materiales en proyectos</p>
                             </div>
                         </div>

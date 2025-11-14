@@ -305,7 +305,7 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
                     <div className="header-title-moderno">
                         <TrendingUp size={32} />
                         <div>
-                            <h1>Análisis de Proyectos por Ubicación Geográfica</h1>
+                            <h1 className="estado-header-title">Análisis de Proyectos por Ubicación Geográfica</h1>
                             <p>Monitoreo de distribución de proyectos por barrios</p>
                         </div>
                     </div>

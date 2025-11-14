@@ -26,10 +26,11 @@
 /* CONTENEDOR PRINCIPAL - M�RGEN SUPERIOR AGREGADO */
 .analisis-ubicacion-content {
 	max-width: 1400px;
-	margin: 40px auto 0 auto; /* 40px de margen superior */
+	margin: 51px 140px 40px 220px; /* 40px de margen superior */
 	padding: 20px 24px;
 	background: var(--report-container-bg);
 	min-height: calc(100vh - 160px);
+	border-radius: 18px;
 }
 
 /* HEADER MODERNO */

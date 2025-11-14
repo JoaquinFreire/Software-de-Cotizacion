@@ -1068,10 +1068,9 @@ const BudgetDetail = () => {
 
   return (
     
-    <>
+    <div className="dashboard-container">
     
-      <Navbar />
-
+      <Navigation onLogout={handleLogout} />
       <div className="content-bottom">
         <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
 
@@ -1140,7 +1139,7 @@ const BudgetDetail = () => {
           <div>No se encontró la cotización.</div>
         )}
       </div>
-    </>  );
+    </div>  );
 };
 
 export default BudgetDetail;

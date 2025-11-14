@@ -22,9 +22,11 @@
 }
 
 .consumo-complementos-content {
-    max-width: 1400px;
-    margin: 0 auto;
+    max-width: 1600px;
+    margin: 20px 190px 20px 190px ;
     padding: 20px;
+    background: #2d2d2d;
+    border-radius: 16px;
 }
 
 /* Header */
@@ -34,10 +36,7 @@
     align-items: center;
     margin-bottom: 30px;
     padding: 30px;
-    background: var(--cc-card-bg);
-    border-radius: 20px;
-    border: 1px solid var(--cc-card-border);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
 }
 
 .consumo-complementos-title {
@@ -80,6 +79,7 @@
 .cc-btn-primary {
     background: linear-gradient(135deg, var(--cc-primary-color), var(--cc-secondary-color));
     color: white;
+    margin: 20px;
 }
 
 .cc-btn-secondary {
@@ -258,7 +258,7 @@
         color: var(--cc-error);
     }
 
-/* Sección de Evolución Temporal */
+/* Secciï¿½n de Evoluciï¿½n Temporal */
 .cc-evolucion-section {
     background: var(--cc-card-bg);
     border-radius: 16px;
@@ -336,7 +336,7 @@
         color: var(--cc-warning);
     }
 
-/* Sección de Análisis Monetario */
+/* Secciï¿½n de Anï¿½lisis Monetario */
 .cc-analisis-section {
     background: var(--cc-card-bg);
     border-radius: 16px;
@@ -420,7 +420,7 @@
     border-radius: 6px;
 }
 
-/* Gráfico */
+/* Grï¿½fico */
 .cc-grafico-section {
     background: var(--cc-card-bg);
     border-radius: 16px;
@@ -515,7 +515,7 @@
         background: rgba(255, 255, 255, 0.05);
     }
 
-/* Columnas específicas de la tabla */
+/* Columnas especï¿½ficas de la tabla */
 .cc-id {
     font-weight: 600;
     color: var(--cc-primary-color);
@@ -573,7 +573,7 @@
     text-align: center;
 }
 
-/* Paginación */
+/* Paginaciï¿½n */
 .cc-paginacion {
     display: flex;
     justify-content: space-between;
@@ -668,7 +668,7 @@
     border: 1px dashed var(--cc-card-border);
 }
 
-/* Acciones de exportación */
+/* Acciones de exportaciï¿½n */
 .cc-acciones-export {
     display: flex;
     gap: 16px;

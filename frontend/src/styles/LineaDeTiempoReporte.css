@@ -1,16 +1,11 @@
 ﻿.timeline-report-container {
     max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 20px;
+    margin: 30px auto;
+    padding: 20px 20px 10px 20px;
+    background: rgb(54, 54, 54);
+    border-radius: 19px;
 }
 
-.timeline-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 24px;
-    color: #1976d2;
-}
 
 .timeline-layout {
     display: grid;
@@ -82,7 +77,8 @@ body.light-mode .search-input {
 .clientes-list-report {
     flex: 1;
     overflow-y: auto;
-    min-height: 350px;
+    max-height: 550px;
+
 }
 
 .loading-clientes {
@@ -1079,11 +1075,6 @@ body.light-mode .fecha-input-field {
     min-height: 400px;
 }
 
-.clientes-list-report {
-    flex: 1;
-    overflow-y: auto;
-    min-height: 300px;
-}
 
 .timeline-content {
     display: flex;
