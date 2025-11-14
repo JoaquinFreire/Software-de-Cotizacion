@@ -428,7 +428,7 @@ const DashboardEficienciaOperativa = () => {
                         <div className="header-title">
                             <TrendingUp size={32} />
                             <div>
-                                <h1>Carga de trabajo del equipo de cotización</h1>
+                                <h1 className="estado-header-title">Carga de trabajo del equipo de cotización</h1>
                                 <p>Monitoreo del rendimiento del equipo</p>
                             </div>
                         </div>

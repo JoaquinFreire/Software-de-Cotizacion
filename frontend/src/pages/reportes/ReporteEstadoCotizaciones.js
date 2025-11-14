@@ -511,13 +511,11 @@ const ReporteEstadoCotizaciones = () => {
 
                         {/* Header con badge que carga inmediatamente */}
                         <div className="estado-header">
-                            <div className="estado-header-title">
                                 <BarChart3 size={32} />
                                 <div>
-                                    <h1>Reporte de Estado de Cotizaciones</h1>
+                                    <h1 className="estado-header-title">Reporte de Estado de Cotizaciones</h1>
                                     <p>Análisis detallado por estados y períodos</p>
                                 </div>
-                            </div>
                         </div>
 
                         {/* Filtros unificados */}

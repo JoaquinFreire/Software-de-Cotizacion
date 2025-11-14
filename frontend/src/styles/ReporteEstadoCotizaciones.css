@@ -42,7 +42,6 @@
 /* Header */
 .estado-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
     padding-bottom: 20px;
@@ -53,17 +52,16 @@
     display: flex;
     align-items: center;
     gap: 16px;
-}
-
-    .estado-header-title h1 {
-        margin: 0;
+    margin: 0;
         font-size: 2.2rem;
         font-weight: 700;
         background: linear-gradient(135deg, var(--estado-primary), var(--estado-secondary));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-    }
+}
+
+    
 
     .estado-header-title p {
         margin: 4px 0 0 0;

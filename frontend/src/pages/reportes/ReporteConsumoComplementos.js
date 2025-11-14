@@ -703,7 +703,7 @@ const ReporteConsumoComplementos = () => {
                     <div className="consumo-complementos-title">
                         <BarChart3 size={32} />
                         <div>
-                            <h1>Reporte de Consumo de Complementos</h1>
+                            <h2 className="estado-header-title">Reporte de Consumo de Complementos</h2>
                             <p>Análisis integral del uso y rentabilidad de complementos en proyectos</p>
                         </div>
                     </div>

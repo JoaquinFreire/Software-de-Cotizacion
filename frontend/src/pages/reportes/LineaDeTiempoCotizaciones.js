@@ -698,10 +698,10 @@ const LineaDeTiempoCotizaciones = () => {
 
             <div className="timeline-report-container">
                 <div className="timeline-header">
-                    <h3 className="title timeline-title">
+                    <h1 className="estado-header-title">
                         <FileText size={32} />
                         Trazabilidad de cotizaciones
-                    </h3>
+                    </h1>
                 </div>
 
                 <div className="timeline-layout">

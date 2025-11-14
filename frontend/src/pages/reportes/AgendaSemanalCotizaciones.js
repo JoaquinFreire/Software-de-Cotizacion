@@ -728,13 +728,12 @@ const AgendaSemanalCotizaciones = () => {
 
                         {/* Header */}
                         <div className="estado-header">
-                            <div className="estado-header-title">
                                 <Calendar size={32} />
                                 <div>
-                                    <h1>Agenda Semanal de Cotizaciones</h1>
+                                    <h1 className="estado-header-title">Agenda Semanal de Cotizaciones</h1>
                                     <p>Seguimiento cronológico de tus actividades</p>
                                 </div>
-                            </div>
+                            
                         </div>
 
                         {/* Filtros y Navegación */}
