@@ -113,7 +113,7 @@ const Home = () => {
             path: "/admin",
             className: "admin",
             icon: MonitorCog,
-            title: "Administrar",
+            title: "Gestión",
             description: "Panel de administración"
         }
     ];
