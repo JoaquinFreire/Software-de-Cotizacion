@@ -227,7 +227,7 @@ export default function ConfigUser() {
 									<div className="form-group">
 										<label className="form-label">Rol</label>
 										<input
-											value={form.role === 'manager' ? 'Gerente' : form.role === 'coordinator' ? 'Coordinador' : form.role === 'qoutator' ? 'Cotizadores' : form.role.role_name || ''}
+											value={form.role === 'manager' ? 'Gerente' : form.role === 'coordinator' ? 'Coordinador' : form.role === 'quotator' ? 'Cotizadores' : form.role.role_name || ''}
 											readOnly
 											className="form-input readonly"
 										/>

@@ -176,7 +176,7 @@ const Login = () => {
                     </form>
                 ) : (
                     <form onSubmit={handleRecover}>
-                        <label htmlFor="recover-dni">Ingrese su DNI</label>
+                        <label htmlFor="recover-dni">Ingrese su Legajo</label>
                         <input
                             type="text"
                             id="recover-dni"
@@ -184,6 +184,7 @@ const Login = () => {
                             onChange={e => setRecoverDni(e.target.value)}
                             required
                             disabled={isRecovering}
+                            placeholder='Ingrese su Legajo'
                         />
 
                         {isRecovering ? (

@@ -1029,7 +1029,7 @@ const CreateBudgetVersion = () => {
             <div className="dashboard-container">
                 <Navigation onLogout={handleLogout} />
                 <div className="materials-header">
-                    <h2 className="materials-title">Cargando datos maestros...</h2>
+                    <h2 className="materials-title">Cargando datos</h2>
                     <p>Preparando el formulario, por favor espere.</p>
                 </div>
                 <Footer />

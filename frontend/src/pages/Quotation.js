@@ -9,6 +9,7 @@ import WorkPlace from "../components/quotationComponents/WorkPlace";
 import OpeningType from "../components/quotationComponents/Opening";
 import Complements from "../components/quotationComponents/Complements";
 import Extras from "../components/quotationComponents/Extras";
+import ConfirmQuotationModal from "../components/ConfirmQuotationModal";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import { QuotationContext } from "../context/QuotationContext";
@@ -92,6 +93,7 @@ const Quotation = () => {
     const [submitError, setSubmitError] = useState(null);
     const [validationErrors, setValidationErrors] = useState({});
     const [stepErrors, setStepErrors] = useState({});
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     const [userId] = useState(() => getUserIdFromToken());
 
@@ -346,7 +348,40 @@ const Quotation = () => {
     };
 
     // Enviar cotización (solo un POST a quotations)
-    const handleSubmitQuotation = async () => {
+    const handleSubmitQuotationClick = () => {
+        // LIMPIAR EL AGENTE: Solo considerar si tiene datos completos
+        const cleanedAgent = (newAgent.name?.trim() &&
+            newAgent.lastname?.trim() &&
+            newAgent.tel?.trim() &&
+            newAgent.mail?.trim())
+            ? newAgent
+            : null;
+
+        // Validar todo el formulario antes de enviar
+        const validation = validateQuotation({
+            customer: newCustomer,
+            agent: cleanedAgent,
+            agents,
+            workPlace,
+            openings: selectedOpenings,
+            complements: selectedComplements,
+            comment
+        });
+
+        if (!validation.valid) {
+            setValidationErrors(validation.errors);
+            setSubmitError("Hay errores en el formulario. Corríjalos antes de continuar.");
+            return;
+        } else {
+            setValidationErrors({});
+        }
+
+        // Si la validación pasó, abrir el modal
+        setShowConfirmModal(true);
+    };
+
+    // Nueva función para confirmar y enviar la cotización
+    const handleConfirmSubmitQuotation = async () => {
         setSubmitting(true);
         setSubmitError(null);
 
@@ -693,7 +728,6 @@ const Quotation = () => {
                         : { name: "" },
                     Quantity: quantity,
                     AlumTreatment: treatmentObj ? { name: treatmentObj.name } : { name: "" },
-                    // enviar precio como "price" (minúscula) para coincidir con el schema backend/frontend
                     GlassType: glassObj ? { name: glassObj.name, price: Number(glassObj.price || 0) } : { name: "", price: 0 },
                     Mosquito: mosquitoSelected ? { selected: true, price: Number(mosquitoPrice || 0) } : { selected: false },
                     width: Number(widthCm),
@@ -791,6 +825,7 @@ const Quotation = () => {
             }
 
             setSubmitting(false);
+            setShowConfirmModal(false);
             navigate(`/quotation/${sqlId}`);
         } catch (err) {
             setSubmitError(err.message || 'Error al crear la cotización');
@@ -1267,6 +1302,22 @@ const hasStepData = (stepIndex) => {
 
         <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
 
+        {/* Modal de confirmación */}
+        <ConfirmQuotationModal
+            isOpen={showConfirmModal}
+            onConfirm={handleConfirmSubmitQuotation}
+            onCancel={() => {
+                setShowConfirmModal(false);
+                setSubmitError(null);
+            }}
+            summary={generalTotal}
+            customer={newCustomer}
+            agents={agents}
+            workPlace={workPlace}
+            comment={comment}
+            isSubmitting={submitting}
+        />
+
         <div className="quotation-layout">
             {/* NUEVO: Contenedor unificado para índice y datos informativos */}
             <div className="quotation-info-container">
@@ -1628,7 +1679,7 @@ const hasStepData = (stepIndex) => {
                                     type="button"
                                     className="submit-button"
                                     disabled={submitting}
-                                    onClick={handleSubmitQuotation}
+                                    onClick={handleSubmitQuotationClick}
                                 >
                                     {submitting ? "Enviando..." : "Cotizar"}
                                 </button>
@@ -1647,6 +1698,7 @@ const hasStepData = (stepIndex) => {
                     </Swiper>
                 </form>
             </main>
+
 
             {/* Resumen de cálculos */}
             <aside className="quotation-summary">
