@@ -7,7 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ReactLoading from "react-loading";
 import { safeArray } from "../../utils/safeArray";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import ConfirmationModal from "../../components/ConfirmationModal";
 
 
@@ -30,6 +30,32 @@ export default function AdminPrices() {
 			localStorage.removeItem("token");
 			navigate("/");
 	}
+	// --- Hooks: también declarar useEffect temprano para evitar hooks después de returns ---
+	useEffect(() => {
+		fetchPrices();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	// helper para decodificar payload JWT (base64url)
+	const decodeJwtPayload = (token) => {
+		try {
+			const parts = token.split('.');
+			if (parts.length < 2) return null;
+			const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+			const json = decodeURIComponent(atob(payload).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+			return JSON.parse(json);
+		} catch (e) { return null; }
+	};
+	// comprobación síncrona del rol (evita que la UI parpadee)
+	const _token = localStorage.getItem("token");
+	if (!_token) return <Navigate to="/" replace />;
+	const _payload = decodeJwtPayload(_token);
+	if (!_payload) return <Navigate to="/" replace />;
+	let _role = _payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || _payload["role"] || _payload["role_name"] || _payload["roles"] || _payload["userRole"] || _payload["roleName"] || "";
+	if (typeof _role === "object") _role = _role.role_name || _role.name || "";
+	_role = String(_role || "").toLowerCase();
+	if (_role !== "coordinator" && _role !== "manager") return <Navigate to="/" replace />;
+
 	// Helper: convierte distintos formatos de id en Number o null
 	const getId = (p) => {
 		if (p == null) return null;
@@ -68,10 +94,6 @@ export default function AdminPrices() {
 			return copy;
 		});
 	};
-
-	useEffect(() => {
-		fetchPrices();
-	}, []);
 
 	const fetchPrices = async () => {
 		setLoading(true);
@@ -186,7 +208,7 @@ export default function AdminPrices() {
 			<ToastContainer autoClose={4000} theme="dark" position="bottom-right" />
 			<div className="admin-prices-wrapper">
 				<div className="admin-prices-header">
-					<h2 className="materials-title">Administrar Precios</h2>
+					<h2 className="materials-title">Gestionar Precios</h2>
 					<p className="materials-subtitle">Crear, actualizar y eliminar precios de productos o servicios.</p>
 					
 				</div>

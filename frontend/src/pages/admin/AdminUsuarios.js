@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import axios from "axios";
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
@@ -13,6 +13,7 @@ import logo_busqueda from "../../images/logo_busqueda.webp";
 const API_URL = process.env.REACT_APP_API_URL;
 
 const AdminUsuarios = () => {
+    // --- HOOKS: declarar todos los hooks primero ---
     const [users, setUsers] = useState([]);
     const [roles, setRoles] = useState([]);
     const [showModal, setShowModal] = useState(false);
@@ -20,11 +21,11 @@ const AdminUsuarios = () => {
     const [loading, setLoading] = useState(true);
     const [notificationMessage, setNotificationMessage] = useState(null);
     const [notificationType, setNotificationType] = useState("success");
-    const [currentUserRole, setCurrentUserRole] = useState(null); // <-- added
-    const [unauthorized, setUnauthorized] = useState(false); // <-- added
+    const [currentUserRole, setCurrentUserRole] = useState(null);
+    const [unauthorized, setUnauthorized] = useState(false);
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState("");
-
+    
     const [formData, setFormData] = useState({
         name: "",
         lastName: "",
@@ -38,9 +39,7 @@ const AdminUsuarios = () => {
     const [buttonLoading, setButtonLoading] = useState({}); // nuevo estado para cargas por botón
 
     // Helper para setear loading por key
-    const setButtonLoadingKey = (key, value) => {
-        setButtonLoading((prev) => ({ ...prev, [key]: value }));
-    };
+    const setButtonLoadingKey = (key, value) => { setButtonLoading(prev => ({ ...prev, [key]: value })); };
 
     useEffect(() => {
         fetchCurrentUser();
@@ -193,7 +192,7 @@ const AdminUsuarios = () => {
             handleCloseModal();
         } catch (error) {
             setValidationErrors({
-                general: "Error al guardar el usuario. Verifique los datos o contacte al administrador.",
+                general: "Error al guardar el usuario. Verifique los datos o contacte al coordinador.",
             });
             toast.error("Error al guardar el usuario.");
             console.error("Error saving user:", error);
@@ -274,7 +273,7 @@ const filteredUsers = safeArray(users).filter(user => {
                 <Navigation onLogout={handleLogout} />
                 <ToastContainer autoClose={4000} theme="dark" transition={Slide} position="bottom-right" />
                 <div className="admin-usuarios-header">
-                    <h2 className="materials-title">Administrar Usuarios</h2>
+                    <h2 className="materials-title">Gestionar Usuarios</h2>
                     <p className="materials-subtitle">Gestione los usuarios: actualice su información, actívelos o desactívelos, envíe invitaciones y consulte sus detalles.</p>
                     {/* Solo mostrar filtro y botón cuando no está cargando y autorizado */}
                     {!loading && !unauthorized && (

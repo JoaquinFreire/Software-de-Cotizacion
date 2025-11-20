@@ -11,7 +11,7 @@ Este sistema permite a los usuarios realizar cotizaciones de aberturas de alumin
 Se enfoca en la gestión de clientes, materiales y precios, asegurando **precisión en los cálculos** y **seguridad en los datos**.  
 
 ### 🎯 **Objetivos**
-✅ Facilitar la creación y administración de cotizaciones.  
+✅ Facilitar la creación y Gestión de cotizaciones.  
 ✅ Implementar un **login seguro** con **legajo y contraseña**.  
 ✅ Aplicar **principios de DDD (Domain-Driven Design)** en la arquitectura.  
 ✅ Integrar **MySQL** como base de datos principal y, en el futuro, **MongoDB** para formularios dinámicos.  

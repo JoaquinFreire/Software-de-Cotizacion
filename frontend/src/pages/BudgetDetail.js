@@ -967,7 +967,7 @@ const BudgetDetail = () => {
             return;
           } else {
             console.warn("Upload fallback failed", upRes.status, upRes.data);
-            alert("El servidor no pudo enviar el correo y no se pudo generar el link público. Contactá al administrador.");
+            alert("El servidor no pudo enviar el correo y no se pudo generar el link público. Contactá al Coordinador.");
           }
         } catch (upErr) {
           console.error("Error en upload fallback:", upErr);

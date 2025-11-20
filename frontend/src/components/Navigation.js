@@ -17,7 +17,6 @@ const Navigation = ({ onLogout }) => {
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const userMenuRef = useRef(null);
 
-    // Sidebar admin submenu
     const [adminMenuOpen, setAdminMenuOpen] = useState(false);
     const adminMenuRef = useRef(null);
 
@@ -122,7 +121,6 @@ const Navigation = ({ onLogout }) => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // Cerrar admin sidebar submenu al hacer click fuera
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (adminMenuRef.current && !adminMenuRef.current.contains(event.target)) {
@@ -251,8 +249,7 @@ const Navigation = ({ onLogout }) => {
         : (user?.role?.role_name ? String(user.role.role_name).toLowerCase() : (user?.role ? String(user.role).toLowerCase() : null));
 
     useEffect(() => {
-        // Abre el menú admin si la ruta comienza con /admin
-        if (location.pathname.startsWith("/admin")) {
+        if (location.pathname.startsWith("/gestion")) {
             setAdminMenuOpen(true);
         }
     }, [location.pathname]);
@@ -533,26 +530,26 @@ const Navigation = ({ onLogout }) => {
                     Gama completa
                 </NavLink>
 
-                {/* Solo mostrar sección "Administrar" si NO es quotator */}
+                {/* Solo mostrar sección "Gestionar" si NO es quotator */}
                 {userRole !== "quotator" && (
                     <div className="sidebar-admin-menu" ref={adminMenuRef}>
                         <button
                             className="sidebar-link sidebar-admin-btn"
                             onClick={() => {
                                 setAdminMenuOpen(true); // Siempre deja abierto
-                                navigate("/admin");
+                                navigate("/gestion");
                             }}
                         >
-                            Administrar
+                            Gestionar
                             <span style={{ marginLeft: 6, fontSize: 14 }}>{adminMenuOpen ? "▲" : "▼"}</span>
                         </button>
                         {adminMenuOpen && (
                             <div className={`sidebar-admin-dropdown${theme === "light" ? "adminopciones" : ""}`}>
                                 <NavLink
-                                 to="/admin/usuarios" className="sidebar-link">Administrar Usuarios</NavLink>
-                                <NavLink to="/admin/materiales" className="sidebar-link">Administrar Materiales</NavLink>
-                                <NavLink to="/admin/prices" className="sidebar-link">Administrar Precios</NavLink>
-                                <NavLink to="/admin/aberturas" className="sidebar-link">Administrar Aberturas</NavLink>
+                                 to="/gestion/usuarios" className="sidebar-link">Gestionar Usuarios</NavLink>
+                                <NavLink to="/gestion/materiales" className="sidebar-link">Gestionar Materiales</NavLink>
+                                <NavLink to="/gestion/prices" className="sidebar-link">Gestionar Precios</NavLink>
+                                <NavLink to="/gestion/aberturas" className="sidebar-link">Gestionar Aberturas</NavLink>
                             </div>
                         )}
                     </div>
@@ -566,7 +563,6 @@ const Navigation = ({ onLogout }) => {
                     onClick={() => setSidebarOpen(true)}
                     style={mobile ? { top: 18, left: 0, zIndex: 210 } : undefined}
                 >
-                    {/* Flecha derecha SVG */}
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                         <path d="M9 6l6 6-6 6" stroke="#00FFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>

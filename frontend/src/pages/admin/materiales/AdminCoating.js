@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Navigate } from "react-router-dom";
 import axios from "axios";
 import ReactLoading from "react-loading";
 import { toast, ToastContainer } from "react-toastify";
@@ -12,6 +13,25 @@ import ConfirmationModal from "../../../components/ConfirmationModal";
 const API_URL = process.env.REACT_APP_API_URL || "";
 
 export default function AdminCoating() {
+	// helper para decodificar payload JWT (base64url)
+	const decodeJwtPayload = (token) => {
+		try {
+			const parts = token.split('.');
+			if (parts.length < 2) return null;
+			const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+			const json = decodeURIComponent(
+				atob(payload)
+					.split('')
+					.map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+					.join('')
+			);
+			return JSON.parse(json);
+		} catch (e) {
+			return null;
+		}
+	};
+
+	// --- HOOKS (declarados siempre) ---
 	const [query, setQuery] = useState("");
 	const [results, setResults] = useState([]);
 	const [selected, setSelected] = useState(null);
@@ -24,12 +44,29 @@ export default function AdminCoating() {
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [pendingDeleteItem, setPendingDeleteItem] = useState(null);
 	const [modalSubmitting, setModalSubmitting] = useState(false);
-
 	const navigate = useNavigate();
-	const handleLogout = () => {
-		localStorage.removeItem("token");
-		navigate("/");
-	}
+	const handleLogout = () => { localStorage.removeItem("token"); navigate("/"); };
+
+	// Verificación rápida de rol en mount (declarada junto a los hooks para respetar reglas)
+	useEffect(() => {
+		const token = localStorage.getItem("token");
+		if (!token) { navigate("/"); return; }
+		const payload = decodeJwtPayload(token);
+		if (!payload) { navigate("/"); return; }
+		let role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
+			|| payload["role"]
+			|| payload["role_name"]
+			|| payload["roles"]
+			|| payload["userRole"]
+			|| payload["roleName"];
+		if (role && typeof role === "object") role = role.role_name || role.name || "";
+		role = String(role || "").toLowerCase();
+		if (role !== "coordinator" && role !== "manager") {
+			toast.error("No tiene permisos para acceder a esta sección.");
+			navigate("/");
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const normalizeItems = (items) => {
 		if (!items || !Array.isArray(items)) return [];
@@ -132,7 +169,7 @@ export default function AdminCoating() {
 			<div className="admin-materials-content">
 				<div style={{ marginTop: 8 }}>
 					<div style={{ marginTop: 2 }}>
-						<Link to="/admin/materiales" className="btn update" style={{ display: "inline-block" }}>← Volver</Link>
+						<Link to="/gestion/materiales" className="btn update" style={{ display: "inline-block" }}>← Volver</Link>
 					</div>
 					<div className="admin-materials-header">
 						<h3 className="materials-title">Revestimientos</h3></div>

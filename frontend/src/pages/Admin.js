@@ -15,34 +15,34 @@ const Admin = () => {
 
     const adminItems = [
         {
-            path: "/admin/usuarios",
+            path: "/gestion/usuarios",
             className: "AdminUser",
             icon: <Users size={32} />,
-            title: "Administrar Usuarios",
+            title: "Gestionar Usuarios",
             description: "Gestión de usuarios y permisos",
             color: "#3b82f6"
         },
         {
-            path: "/admin/materiales",
+            path: "/gestion/materiales",
             className: "AdminMaterials",
             icon: <Layers size={32} />,
-            title: "Administrar Materiales",
+            title: "Gestionar Materiales",
             description: "Configuración de materiales",
             color: "#10b981"
         },
         {
-            path: "/admin/prices",
+            path: "/gestion/prices",
             className: "AdminDescuent",
             icon: <Clock3 size={32} />,
-            title: "Administrar Precios",
+            title: "Gestionar Precios",
             description: "Gestión de promociones",
             color: "#f59e0b"
         },
         {
-            path: "/admin/aberturas",
+            path: "/gestion/aberturas",
             className: "AdminLine",
             icon: <PieChart size={32} />,
-            title: "Administrar Aberturas",
+            title: "Gestionar Aberturas",
             description: "Configuración de líneas",
             color: "#ef4444"
         }
@@ -53,7 +53,7 @@ const Admin = () => {
             <Navigation onLogout={handleLogout} />
             
             <div className="materials-header">
-                <h2 className="materials-title">Panel de Administración</h2>
+                <h2 className="materials-title">Panel de Gestión</h2>
                 <p className="materials-subtitle">
                     Gestione y configure todos los aspectos del sistema desde un solo lugar
                 </p>

@@ -59,7 +59,45 @@ const Home = () => {
         navigate("/");
     };
 
-    const menuItems = [
+    // nuevo estado para rol del usuario (en minúsculas)
+    const [userRole, setUserRole] = useState(null);
+
+    // helper para decodificar payload JWT (base64url)
+    const decodeJwtPayload = (token) => {
+        try {
+            const parts = token.split('.');
+            if (parts.length < 2) return null;
+            const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+            const json = decodeURIComponent(
+                atob(payload)
+                    .split('')
+                    .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                    .join('')
+            );
+            return JSON.parse(json);
+        } catch (e) {
+            return null;
+        }
+    };
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const payload = decodeJwtPayload(token);
+        if (!payload) return;
+        // Intentar leer rol desde varias keys comunes
+        let role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
+            || payload["role"]
+            || payload["role_name"]
+            || payload["roles"];
+        if (role && typeof role === "object") {
+            role = role.role_name || role.name || null;
+        }
+        if (role) setUserRole(String(role).toLowerCase());
+    }, []);
+
+    // construir items base y añadir "Gestión" solo si corresponde
+    const baseMenuItems = [
         {
             path: "/quotation",
             className: "newqoutation",
@@ -108,15 +146,19 @@ const Home = () => {
             icon: BrickWall,
             title: "Aberturas",
             description: "Tipos de aberturas"
-        },
-        {
-            path: "/admin",
+        }
+    ];
+
+    const menuItems = [...baseMenuItems];
+    if (userRole === "coordinator" || userRole === "manager") {
+        menuItems.push({
+            path: "/gestion",
             className: "admin",
             icon: MonitorCog,
             title: "Gestión",
-            description: "Panel de administración"
-        }
-    ];
+            description: "Panel de gestión"
+        });
+    }
 
     return (
         <div className="dashboard-container">

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Navigate } from "react-router-dom";
 import axios from "axios";
 import ReactLoading from "react-loading";
 import { toast, ToastContainer } from "react-toastify";
@@ -12,6 +13,26 @@ import ConfirmationModal from "../../../components/ConfirmationModal";
 const API_URL = process.env.REACT_APP_API_URL || "";
 
 export default function AdminGlass() {
+	// helper para decodificar payload JWT (base64url)
+	const decodeJwtPayload = (token) => {
+		try {
+			const parts = token.split('.');
+			if (parts.length < 2) return null;
+			const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+			const json = decodeURIComponent(
+				atob(payload)
+					.split('')
+					.map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+					.join('')
+			);
+			return JSON.parse(json);
+		} catch (e) {
+			return null;
+		}
+	};
+
+	// --- HOOKS (declarados siempre) ---
+	const navigate = useNavigate();
 	const [query, setQuery] = useState("");
 	const [results, setResults] = useState([]);
 	const [selected, setSelected] = useState(null);
@@ -24,23 +45,17 @@ export default function AdminGlass() {
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [pendingDeleteItem, setPendingDeleteItem] = useState(null);
 	const [modalSubmitting, setModalSubmitting] = useState(false);
+	const handleLogout = () => { localStorage.removeItem("token"); navigate("/"); };
 
-	const normalizeItems = (items) => {
-		if (!items || !Array.isArray(items)) return [];
-		return items.map(it => {
-			if (!it) return it;
-			if (it.id === undefined && it._id) it.id = it._id;
-			if (typeof it.id === "string" && /^[0-9]+$/.test(it.id)) it.id = Number(it.id);
-			if (it.description === undefined) it.description = it.description ?? "";
-			return it;
-		});
-	};
-
-	const navigate = useNavigate();
-		const handleLogout = () => {
-				localStorage.removeItem("token");
-				navigate("/");
-		}
+	// --- comprobación SÍNCRONA después de declarar hooks ---
+	const _token = localStorage.getItem("token");
+	if (!_token) return <Navigate to="/" replace />;
+	const _payload = decodeJwtPayload(_token);
+	if (!_payload) return <Navigate to="/" replace />;
+	let _role = _payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || _payload["role"] || _payload["role_name"] || _payload["roles"] || _payload["userRole"] || _payload["roleName"] || "";
+	if (typeof _role === "object") _role = _role.role_name || _role.name || "";
+	_role = String(_role || "").toLowerCase();
+	if (_role !== "coordinator" && _role !== "manager") return <Navigate to="/" replace />;
 
 	const fetchResults = async (searchQuery = "") => {
 		setIsLoading(true);
@@ -124,16 +139,27 @@ export default function AdminGlass() {
 		closeDeleteModal();
 	};
 
+	const normalizeItems = (items) => {
+		if (!items || !Array.isArray(items)) return [];
+		return items.map(it => {
+			if (!it) return it;
+			if (it.id === undefined && it._id) it.id = it._id;
+			if (typeof it.id === "string" && /^[0-9]+$/.test(it.id)) it.id = Number(it.id);
+			if (it.description === undefined) it.description = it.description ?? "";
+			return it;
+		});
+	};
+
 	return (
 		<div className="dashboard-container">
 			<Navigation onLogout={handleLogout} />
 			<ToastContainer autoClose={4000} theme="dark" position="bottom-right" />
 			<div className="admin-materials-content">
-				{/* Botón volver a Admin Materials */}
+				{/* Botón volver a Gestión Materials */}
 
 				<div style={{ marginTop: 8 }}>
 					<div style={{ marginTop: 2 }}>
-						<Link to="/admin/materiales" className="btn update" style={{ display: "inline-block" }}>← Volver</Link>
+						<Link to="/gestion/materiales" className="btn update" style={{ display: "inline-block" }}>← Volver</Link>
 					</div>
 					<div className="admin-materials-header">
 						<h3 className="materials-title">Tipos de Vidrio</h3></div>
