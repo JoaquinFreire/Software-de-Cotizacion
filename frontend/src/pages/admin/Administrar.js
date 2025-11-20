@@ -7,9 +7,9 @@ const Administrar = () => (
     <div className="dashboard-container">
         <Navigation />
         <div className="admin-general-header">
-            <h2>Administrar General</h2>
+            <h2>Gestión General</h2>
         </div>
-        {/* ...contenido de administración general... */}
+        {/* ...contenido de gestión general... */}
         <Footer />
     </div>
 );

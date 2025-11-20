@@ -124,10 +124,10 @@ const Login = () => {
             if (res.data?.maskedMail) {
                 setRecoverMsg(`Se enviaron los pasos para la recuperación al mail ${res.data.maskedMail}`);
             } else {
-                setRecoverError("Este dni no existe, pida al administrador que genere su usuario.");
+                setRecoverError("Este dni no existe, pida al Coordinador que genere su usuario.");
             }
         } catch (err) {
-            setRecoverError("Este dni no existe, pida al administrador que genere su usuario.");
+            setRecoverError("Este dni no existe, pida al Coordinador que genere su usuario.");
         } finally {
             setIsRecovering(false); // ⬅️ Ocultar spinner
         }

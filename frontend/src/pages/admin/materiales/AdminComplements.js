@@ -1,10 +1,10 @@
 import React, { useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
 import ReactLoading from "react-loading";
 import { toast, ToastContainer } from "react-toastify";
 import { safeArray } from "../../../utils/safeArray";
 import Navigation from "../../../components/Navigation";
-import { useNavigate } from "react-router-dom";
 import Footer from "../../../components/Footer";
 import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
@@ -55,43 +55,73 @@ const normalizeCreatedItem = (resp, formData = {}, source = "") => {
 };
 
 export default function AdminComplements() {
-    // Door
-    const [queryDoor, setQueryDoor] = useState("");
-    const [resultsDoor, setResultsDoor] = useState([]);
-    const [selectedDoor, setSelectedDoor] = useState(null);
-    const [formDoor, setFormDoor] = useState({ name: "", price: 0, Material: "" });
-    const [isLoadingDoor, setIsLoadingDoor] = useState(false);
-    const [viewingAllDoor, setViewingAllDoor] = useState(false);
-    const [deletingIdsDoor, setDeletingIdsDoor] = useState({});
-    const [modalSubmittingDoor, setModalSubmittingDoor] = useState(false);
-    const [showModalDoor, setShowModalDoor] = useState(false);
+	// helper para decodificar payload JWT (base64url)
+	const decodeJwtPayload = (token) => {
+		try {
+			const parts = token.split('.');
+			if (parts.length < 2) return null;
+			const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+			const json = decodeURIComponent(
+				atob(payload)
+					.split('')
+					.map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+					.join('')
+			);
+			return JSON.parse(json);
+		} catch (e) {
+			return null;
+		}
+	};
 
-    // Partition
-    const [queryPartition, setQueryPartition] = useState("");
-    const [resultsPartition, setResultsPartition] = useState([]);
-    const [selectedPartition, setSelectedPartition] = useState(null);
-    const [formPartition, setFormPartition] = useState({ name: "", price: 0 });
-    const [isLoadingPartition, setIsLoadingPartition] = useState(false);
-    const [viewingAllPartition, setViewingAllPartition] = useState(false);
-    const [deletingIdsPartition, setDeletingIdsPartition] = useState({});
-    const [modalSubmittingPartition, setModalSubmittingPartition] = useState(false);
-    const [showModalPartition, setShowModalPartition] = useState(false);
+	// --- HOOKS: siempre declarados primero (moved here to avoid conditional hooks) ---
+	const navigate = useNavigate();
+	// Door
+	const [queryDoor, setQueryDoor] = useState("");
+	const [resultsDoor, setResultsDoor] = useState([]);
+	const [selectedDoor, setSelectedDoor] = useState(null);
+	const [formDoor, setFormDoor] = useState({ name: "", price: 0, Material: "" });
+	const [isLoadingDoor, setIsLoadingDoor] = useState(false);
+	const [viewingAllDoor, setViewingAllDoor] = useState(false);
+	const [deletingIdsDoor, setDeletingIdsDoor] = useState({});
+	const [modalSubmittingDoor, setModalSubmittingDoor] = useState(false);
+	const [showModalDoor, setShowModalDoor] = useState(false);
 
-    // Railing
-    const [queryRailing, setQueryRailing] = useState("");
-    const [resultsRailing, setResultsRailing] = useState([]);
-    const [selectedRailing, setSelectedRailing] = useState(null);
-    const [formRailing, setFormRailing] = useState({ name: "", price: 0 });
-    const [isLoadingRailing, setIsLoadingRailing] = useState(false);
-    const [viewingAllRailing, setViewingAllRailing] = useState(false);
-    const [deletingIdsRailing, setDeletingIdsRailing] = useState({});
-    const [modalSubmittingRailing, setModalSubmittingRailing] = useState(false);
-    const [showModalRailing, setShowModalRailing] = useState(false);
+	// Partition
+	const [queryPartition, setQueryPartition] = useState("");
+	const [resultsPartition, setResultsPartition] = useState([]);
+	const [selectedPartition, setSelectedPartition] = useState(null);
+	const [formPartition, setFormPartition] = useState({ name: "", price: 0 });
+	const [isLoadingPartition, setIsLoadingPartition] = useState(false);
+	const [viewingAllPartition, setViewingAllPartition] = useState(false);
+	const [deletingIdsPartition, setDeletingIdsPartition] = useState({});
+	const [modalSubmittingPartition, setModalSubmittingPartition] = useState(false);
+	const [showModalPartition, setShowModalPartition] = useState(false);
 
-    // Modals / delete confirmation
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [pendingDeleteSource, setPendingDeleteSource] = useState(null);
-    const [pendingDeleteItem, setPendingDeleteItem] = useState(null);
+	// Railing
+	const [queryRailing, setQueryRailing] = useState("");
+	const [resultsRailing, setResultsRailing] = useState([]);
+	const [selectedRailing, setSelectedRailing] = useState(null);
+	const [formRailing, setFormRailing] = useState({ name: "", price: 0 });
+	const [isLoadingRailing, setIsLoadingRailing] = useState(false);
+	const [viewingAllRailing, setViewingAllRailing] = useState(false);
+	const [deletingIdsRailing, setDeletingIdsRailing] = useState({});
+	const [modalSubmittingRailing, setModalSubmittingRailing] = useState(false);
+	const [showModalRailing, setShowModalRailing] = useState(false);
+
+	// Modals / delete confirmation
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
+	const [pendingDeleteSource, setPendingDeleteSource] = useState(null);
+	const [pendingDeleteItem, setPendingDeleteItem] = useState(null);
+
+	// --- comprobación SÍNCRONA después de declarar hooks para evitar el flash y errores de Rules of Hooks ---
+	const _token = localStorage.getItem("token");
+	if (!_token) return <Navigate to="/" replace />;
+	const _payload = decodeJwtPayload(_token);
+	if (!_payload) return <Navigate to="/" replace />;
+	let _role = _payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || _payload["role"] || _payload["role_name"] || _payload["roles"] || _payload["userRole"] || _payload["roleName"] || "";
+	if (typeof _role === "object") _role = _role.role_name || _role.name || "";
+	_role = String(_role || "").toLowerCase();
+	if (_role !== "coordinator" && _role !== "manager") return <Navigate to="/" replace />;
 
     const normalizeItems = (items) => { 
         if (!items || !Array.isArray(items)) return []; 
@@ -111,7 +141,6 @@ export default function AdminComplements() {
         }); 
     };
 
-    const navigate = useNavigate();
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/");
@@ -544,7 +573,7 @@ export default function AdminComplements() {
             <div className="admin-materials-content">
                 <div style={{ marginTop: 8 }}>
                     <div style={{ marginTop: 2 }}>
-                        <Link to="/admin/materiales" className="btn update" style={{ display: "inline-block" }}>← Volver</Link>
+                        <Link to="/gestion/materiales" className="btn update" style={{ display: "inline-block" }}>← Volver</Link>
                     </div>
                     <div className="admin-materials-header">
                         <h3 className="materials-title">Complementos - Puerta</h3>

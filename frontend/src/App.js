@@ -191,17 +191,17 @@ function App() {
                         <Route path="/historial" element={<PrivateRoute element={<Historial />} />} />
                         <Route path="/new-quotation" element={<PrivateRoute element={<Quotation />} />} />
                         <Route path="/update-quotation/:id" element={<PrivateRoute element={<UpdateQuotation />} />} />
-                        <Route path="/admin" element={<PrivateRoute element={<Admin />} />} />
-                        <Route path="/admin/usuarios" element={<PrivateRoute element={<AdminUsuarios />} />} />
-                        <Route path="/admin/materiales" element={<PrivateRoute element={<AdminMaterials />} />} />
-                        <Route path="/admin/materiales/tratamientos" element={<PrivateRoute element={<AdminTreatment />} />} />
-                        <Route path="/admin/materiales/revestimientos" element={<PrivateRoute element={<AdminCoating />} />} />
-                        <Route path="/admin/materiales/complementos" element={<PrivateRoute element={<AdminComplements />} />} />
-                        <Route path="/admin/materiales/tipos-vidrio" element={<PrivateRoute element={<AdminGlass />} />} />
-                        <Route path="/admin/materiales/accesorios" element={<PrivateRoute element={<AdminAccesory />} />} />
-                        <Route path="/admin/prices" element={<PrivateRoute element={<AdminPrices />} />} />
-                        <Route path="/admin/aberturas" element={<PrivateRoute element={<AdminOpening />} />} />
-                        <Route path="/admin/Administrar" element={<PrivateRoute element={<Administrar />} />} />
+                        <Route path="/gestion" element={<PrivateRoute element={<Admin />} />} />
+                        <Route path="/gestion/usuarios" element={<PrivateRoute element={<AdminUsuarios />} />} />
+                        <Route path="/gestion/materiales" element={<PrivateRoute element={<AdminMaterials />} />} />
+                        <Route path="/gestion/materiales/tratamientos" element={<PrivateRoute element={<AdminTreatment />} />} />
+                        <Route path="/gestion/materiales/revestimientos" element={<PrivateRoute element={<AdminCoating />} />} />
+                        <Route path="/gestion/materiales/complementos" element={<PrivateRoute element={<AdminComplements />} />} />
+                        <Route path="/gestion/materiales/tipos-vidrio" element={<PrivateRoute element={<AdminGlass />} />} />
+                        <Route path="/gestion/materiales/accesorios" element={<PrivateRoute element={<AdminAccesory />} />} />
+                        <Route path="/gestion/prices" element={<PrivateRoute element={<AdminPrices />} />} />
+                        <Route path="/gestion/aberturas" element={<PrivateRoute element={<AdminOpening />} />} />
+                        <Route path="/gestion/Gestionar" element={<PrivateRoute element={<Administrar />} />} />
                         <Route path="/reportes" element={<PrivateRoute element={<Reportes />} />} />
                         <Route path="/reportes/estado-cotizaciones" element={<PrivateRoute element={<ReporteEstadoCotizaciones />} />} />
                         <Route path="/reportes/agenda-semanal-cotizaciones" element={<PrivateRoute element={<AgendaSemanalCotizaciones />} />} />

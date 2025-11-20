@@ -109,7 +109,7 @@ export default function ConfigUser() {
 
 			// Manejo específico para permisos
 			if (err.response?.status === 403 || err.response?.status === 401) {
-				toast.error("No tienes permisos para modificar esos campos. Contacta al administrador.");
+				toast.error("No tienes permisos para modificar esos campos. Contacta al Coordinador.");
 			} else if (err.response?.status === 400 && err.response.data?.errors) {
 				// ProblemDetails errors: combinar mensajes de cada campo
 				const errors = err.response.data.errors;
@@ -236,7 +236,7 @@ export default function ConfigUser() {
 							</div>
 							{/* Nota sobre permisos */}
 							<p style={{ marginTop: 12, color: "var(--muted-color)" }}>
-								Solo el email puede modificarse desde aquí. Cambios de rol o estado solo están permitidos para coordinadores/administradores.
+								Solo el email puede modificarse desde aquí. Cambios de rol o estado solo están permitidos para coordinadores/gerentes.
 							</p>
 						</section>
 

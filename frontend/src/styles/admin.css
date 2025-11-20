@@ -70,7 +70,7 @@ body.light-mode .materials-subtitle {
     opacity: 0.15;
 }
 
-/* Fondos específicos para cada tarjeta de administración */
+/* Fondos específicos para cada tarjeta de gestión */
 .AdminUser .card-background {
     background-image: url('../images/AdministrarGeneral.webp');
 }
