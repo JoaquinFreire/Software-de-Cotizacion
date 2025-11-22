@@ -230,7 +230,7 @@
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 798px) {
     .home-buttons-container {
         grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
@@ -252,6 +252,13 @@
     
     .title {
         font-size: 2.2rem;
+    }
+
+    .dashboard-header {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        flex-direction: row;
     }
 }
 
@@ -282,6 +289,7 @@
     }
     
     .home-logo {
-        max-height: 150px;
+        max-height: 190px;        
+        
     }
 }

@@ -135,9 +135,7 @@ input, select {
     }
 }
 @media (max-width: 768px) {
-    .dashboard-container {
-        padding: 0 2vw;
-    }
+    
     .title {
         font-size: 22px;
         margin-top: 1rem;
