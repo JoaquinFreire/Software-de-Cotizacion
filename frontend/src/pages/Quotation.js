@@ -1408,7 +1408,8 @@ const hasStepData = (stepIndex) => {
                          hasStepData(5) ? ' ○' : ''}
                     </p>
                 </div>
-                <h3>Informacion General</h3>
+                <div className="quotation-general-info">
+                <h3 >Informacion General</h3>
                 {/* Datos informativos (clientes, agentes, espacios) */}
                 <div className="info-section">
                     <h4>Clientes seleccionados:</h4>
@@ -1419,6 +1420,7 @@ const hasStepData = (stepIndex) => {
                         </div>
                     ))}
                 </div>
+
 
                 <div className="info-section">
                     <h4>Agentes seleccionados:</h4>
@@ -1440,7 +1442,7 @@ const hasStepData = (stepIndex) => {
                     ))}
                 </div>
             </div>
-
+          </div>
             {/* Formulario principal */}
             <main className="quotation-main">
                 <form className="quotation-form" onKeyDown={handleFormKeyDown}>

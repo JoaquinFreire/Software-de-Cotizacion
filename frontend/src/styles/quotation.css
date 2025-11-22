@@ -141,6 +141,7 @@
         max-width: 100%;
         margin: 0;
         border-radius: 0;
+
     }
 }
 
@@ -1376,13 +1377,19 @@ body.light-mode .total-row span {
 
 /* Para móviles */
 @media (max-width: 767px) {
-    .quotation-layout {
-        flex-direction: column;
-        gap: 0;
-        padding: 0;
-        margin: 10px;
+    @media (max-width: 767px) {
+        
+    .quotation-indice,
+    .quotation-info-container ,
+    .quotation-summary {
+        display: none;
     }
     
+    .quotation-summary {
+        order: 4;
+    }
+}
+
     .quotation-info-container,
     .quotation-main,
     .quotation-summary {
@@ -1392,10 +1399,21 @@ body.light-mode .total-row span {
         position: static;
         padding: 16px;
     }
+    .swiper-wrapper{
+        margin-bottom: auto   ;
+    }
     
     .quotation-info-container {
         border-bottom: 1px solid #2a3b3d;
     }
+    .quotation-layout {
+        flex-direction: column;
+        gap: 0;
+        padding: 0;
+        margin: 10px;
+    }
+    
+    
     
     .quotation-main {
         border-bottom: 1px solid #2a3b3d;

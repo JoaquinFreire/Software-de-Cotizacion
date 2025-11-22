@@ -248,3 +248,309 @@ body.light-mode .modal-input {
     margin: 20px 10px 30px 355px;
     max-width: 240px;
 }
+
+/* Media Queries para Admin Opening Responsive */
+@media (max-width: 1200px) {
+    .openings-row {
+        width: 70%;
+    }
+    
+    .AdminOpeningCard {
+        max-width: 380px;
+        padding: 16px 20px;
+    }
+}
+
+@media (max-width: 992px) {
+    .admin-opening h2 {
+        font-size: 28px;
+        margin-top: 30px;
+        margin-bottom: 15px;
+    }
+    
+    .openings-row {
+        width: 80%;
+        gap: 15px;
+    }
+    
+    .AdminOpeningCard {
+        max-width: 350px;
+        padding: 14px 18px;
+    }
+    
+    .opening-name {
+        font-size: 20px;
+    }
+    
+    .create-opeinig-button {
+        margin: 20px auto 30px;
+        display: block;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-opening {
+        margin-bottom: 20px;
+        margin-top: 30px;
+        padding: 0 15px;
+    }
+    
+    .admin-opening h2 {
+        font-size: 24px;
+        margin-top: 25px;
+        margin-bottom: 10px;
+    }
+    
+    .openings-list {
+        gap: 20px;
+    }
+    
+    .openings-row {
+        width: 100%;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .AdminOpeningCard {
+        max-width: 100%;
+        width: 100%;
+        padding: 16px 20px;
+    }
+    
+    .opening-name {
+        font-size: 18px;
+        text-align: center;
+    }
+    
+    .opening-actions {
+        gap: 10px;
+    }
+    
+    .update-button,
+    .delete-button {
+        padding: 8px 16px;
+        font-size: 14px;
+        flex: 1;
+        max-width: 120px;
+    }
+    
+    .create-opeinig-button {
+        margin: 15px auto 25px;
+        width: 90%;
+        max-width: 200px;
+        padding: 10px 20px;
+        font-size: 1rem;
+    }
+    
+    /* Modal responsive */
+    .modal-content.modal-opening-form {
+        width: 90%;
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 24px 20px;
+    }
+    
+    .modal-input-textarea {
+        width: 100% !important;
+        height: 80px;
+    }
+}
+
+@media (max-width: 576px) {
+    .admin-opening {
+        margin-top: 20px;
+        padding: 0 10px;
+    }
+    
+    .admin-opening h2 {
+        font-size: 22px;
+        margin-top: 20px;
+        margin-bottom: 8px;
+    }
+    
+    .openings-list {
+        gap: 15px;
+    }
+    
+    .AdminOpeningCard {
+        padding: 14px 16px;
+        gap: 10px;
+    }
+    
+    .opening-name {
+        font-size: 17px;
+    }
+    
+    .opening-weight,
+    .opening-size {
+        font-size: 14px;
+    }
+    
+    .opening-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .update-button,
+    .delete-button {
+        width: 100%;
+        max-width: none;
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    .create-opeinig-button {
+        margin: 10px auto 20px;
+        width: 100%;
+        max-width: 180px;
+        padding: 9px 18px;
+        font-size: 0.95rem;
+    }
+    
+    .modal-content.modal-opening-form {
+        width: 95%;
+        padding: 20px 16px;
+        min-width: unset;
+    }
+    
+    .modal-title {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .modal-label {
+        font-size: 14px;
+    }
+    
+    .modal-input {
+        font-size: 14px;
+        padding: 8px;
+    }
+    
+    .modal-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .modal-submit-btn,
+    .modal-cancel-btn {
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-opening h2 {
+        font-size: 20px;
+    }
+    
+    .AdminOpeningCard {
+        padding: 12px 14px;
+    }
+    
+    .opening-name {
+        font-size: 16px;
+    }
+    
+    .opening-weight,
+    .opening-size {
+        font-size: 13px;
+    }
+    
+    .create-opeinig-button {
+        font-size: 0.9rem;
+        padding: 8px 16px;
+        max-width: 160px;
+    }
+    
+    .modal-content.modal-opening-form {
+        padding: 18px 14px;
+    }
+    
+    .modal-title {
+        font-size: 18px;
+    }
+    
+    /* Asegurar que los botones sean tappables */
+    button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .update-button,
+    .delete-button,
+    .modal-submit-btn,
+    .modal-cancel-btn {
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 360px) {
+    .admin-opening h2 {
+        font-size: 18px;
+    }
+    
+    .AdminOpeningCard {
+        padding: 10px 12px;
+    }
+    
+    .opening-name {
+        font-size: 15px;
+    }
+    
+    .create-opeinig-button {
+        max-width: 140px;
+        font-size: 0.85rem;
+        padding: 7px 14px;
+    }
+    
+    .modal-content.modal-opening-form {
+        padding: 16px 12px;
+    }
+}
+
+/* Para tablets en modo landscape */
+@media (max-width: 1024px) and (orientation: landscape) {
+    .openings-row {
+        width: 85%;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .AdminOpeningCard {
+        flex: 1;
+        min-width: 280px;
+        max-width: calc(50% - 10px);
+    }
+}
+
+/* Ajustes para prevenir desbordamiento */
+@media (max-width: 768px) {
+    .admin-opening,
+    .openings-list,
+    .openings-row {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .modal.modal-opening {
+        padding: 10px;
+    }
+}
+
+/* Corrección del botón crear opening */
+.create-opeinig-button {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (min-width: 769px) {
+    .create-opeinig-button {
+        margin: 20px 10px 30px auto;
+        display: block;
+        width: fit-content;
+    }
+}

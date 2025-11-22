@@ -317,3 +317,244 @@ body.light-mode .users-table td {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
+/* Media Queries para Admin Usuarios Responsive */
+@media (max-width: 1200px) {
+    .users-table {
+        width: 95%;
+    }
+    
+    .Admin-filter-create {
+        width: 95%;
+    }
+    
+    .search-bar-input {
+        width: 250px;
+    }
+}
+
+@media (max-width: 992px) {
+    .admin-usuarios-header h2 {
+        font-size: 28px;
+        margin-top: 40px;
+        margin-bottom: 15px;
+    }
+    
+    .Admin-filter-create {
+        flex-direction: column;
+        gap: 15px;
+        width: 95%;
+    }
+    
+    .search-bar-wrapper {
+        width: 100%;
+        max-width: 400px;
+        justify-content: center;
+    }
+    
+    .search-bar-input {
+        width: 100%;
+        height: auto;
+        padding: 8px 0;
+    }
+    
+    .create-user-button {
+        width: 100%;
+        max-width: 200px;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-usuarios-header {
+        margin-bottom: 20px;
+        padding: 0 15px;
+    }
+    
+    .admin-usuarios-header h2 {
+        font-size: 24px;
+        margin-top: 30px;
+        margin-bottom: 10px;
+    }
+    
+    .users-table-wrapper {
+        margin: 0 10px;
+        overflow-x: auto;
+    }
+    
+    .users-table {
+        width: 100%;
+        min-width: 600px; /* Para permitir scroll horizontal en tablas muy anchas */
+    }
+    
+    .users-table th,
+    .users-table td {
+        padding: 10px 8px;
+        font-size: 0.9rem;
+    }
+    
+    .actions-group {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .actions-group button {
+        min-width: 120px;
+        width: 100%;
+        padding: 6px 8px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .admin-usuarios-header h2 {
+        font-size: 22px;
+        margin-top: 25px;
+        margin-bottom: 8px;
+    }
+    
+    .Admin-filter-create {
+        gap: 12px;
+        width: 100%;
+    }
+    
+    .search-bar-wrapper {
+        padding: 3px 12px;
+    }
+    
+    .search-bar-input {
+        font-size: 0.9rem;
+    }
+    
+    .create-user-button {
+        padding: 8px 16px;
+        font-size: 0.95rem;
+        max-width: 180px;
+    }
+    
+    .users-table {
+        min-width: 500px;
+    }
+    
+    .users-table th,
+    .users-table td {
+        padding: 8px 6px;
+        font-size: 0.85rem;
+    }
+    
+    .actions-group button {
+        min-width: 100px;
+        font-size: 0.8rem;
+        height: 36px;
+    }
+    
+    .search-icon {
+        font-size: 1rem;
+        margin-right: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-usuarios-header {
+        padding: 0 10px;
+    }
+    
+    .admin-usuarios-header h2 {
+        font-size: 20px;
+        margin-top: 20px;
+    }
+    
+    .search-bar-input {
+        font-size: 16px; /* Previene zoom en iOS */
+    }
+    
+    .create-user-button {
+        max-width: 160px;
+        padding: 7px 14px;
+        font-size: 0.9rem;
+    }
+    
+    .users-table th {
+        font-size: 0.9rem;
+        padding: 6px 4px;
+    }
+    
+    .users-table td {
+        font-size: 0.8rem;
+        padding: 6px 4px;
+    }
+    
+    .actions-group {
+        gap: 4px;
+    }
+    
+    .actions-group button {
+        min-width: 90px;
+        height: 34px;
+        font-size: 0.75rem;
+        padding: 5px 6px;
+    }
+    
+    /* Asegurar que los botones sean tappables */
+    button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* Para tablets en modo landscape */
+@media (max-width: 1024px) and (orientation: landscape) {
+    .admin-usuarios-header h2 {
+        margin-top: 25px;
+        font-size: 26px;
+    }
+    
+    .Admin-filter-create {
+        flex-direction: row;
+        width: 95%;
+    }
+    
+    .search-bar-wrapper {
+        flex: 1;
+        max-width: none;
+    }
+    
+    .create-user-button {
+        width: auto;
+        max-width: 200px;
+    }
+}
+
+/* Ajustes para pantallas muy pequeñas */
+@media (max-width: 360px) {
+    .admin-usuarios-header h2 {
+        font-size: 18px;
+    }
+    
+    .search-bar-input {
+        width: 100%;
+    }
+    
+    .create-user-button {
+        max-width: 140px;
+        font-size: 0.85rem;
+        padding: 6px 12px;
+    }
+    
+    .actions-group button {
+        min-width: 80px;
+        font-size: 0.7rem;
+    }
+}
+
+/* Prevenir desbordamiento en contenedores */
+@media (max-width: 768px) {
+    .admin-usuarios-header,
+    .Admin-filter-create,
+    .users-table-wrapper {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    
+    * {
+        max-width: 100%;
+    }
+}

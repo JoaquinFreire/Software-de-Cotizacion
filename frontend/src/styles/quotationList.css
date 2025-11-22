@@ -189,14 +189,13 @@ body.light-mode .dropdown {
     color: #000000;
 }
 /* Igualar altura de botones y select en responsive */
-@media (max-width: 768px) {
+@media (max-width: 728px) {
     .quote-card {
         flex-direction: column;
-        width: 98%;
+        width: 94%;
         padding: 12px;
         font-size: 15px;
-        align-items: stretch;
-        background: rgba(0,0,0,0.85);
+
         margin-left: 2rem;
         margin-right: 2rem;
     }
@@ -210,10 +209,15 @@ body.light-mode .dropdown {
     .go-button, .update-button, .delete-button, .status-select, .status-button {
         width: 100%;
         font-size: 15px;
-        height: 44px;
+        height: 74px;
         padding: 8px 0;
         border-radius: 2px;
         box-shadow: none;
+    }
+    .quote-details {
+        align-items: center;
+        text-align: center;
+
     }
 }
 

@@ -1036,9 +1036,7 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
         align-items: center;
     }
 
-    .logo-centered {
-        margin-bottom: 0;
-    }
+
 }
 
 /* Mejor distribución en móvil para logo y botones */
@@ -1056,17 +1054,17 @@ body.light-mode .navigation-root .sidebar-admin-btn.active {
         max-width: 160px;
         width: 80vw;
         height: auto;
-        margin-bottom: 10px;
-        margin-top: 0;
         display: block;
+        margin-left: 60px;
+
     }
 
     .header-mobile-actions {
         display: flex;
         flex-direction: row;
-        justify-content: center;
+        justify-content: flex-end;
         align-items: center;
-        gap: 10px;
+        gap: 1px;
         width: 100%;
         margin: 0 auto 8px auto;
         flex-wrap: wrap;
