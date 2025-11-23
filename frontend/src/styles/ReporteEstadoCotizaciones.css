@@ -16,6 +16,125 @@
     --estado-text-secondary: #94a3b8;
     --estado-text-muted: #64748b;
 }
+/* ================================
+   🌞 MODO CLARO PARA ReporteEstadoCotizaciones
+=================================*/
+
+body.light-mode {
+    --estado-primary: #0087a0;
+    --estado-primary-dark: #006f85;
+    --estado-secondary: #00bfa5;
+
+    --estado-success: #0f835f;
+    --estado-warning: #d98400;
+    --estado-error: #d13a3a;
+    --estado-info: #0aa2c9;
+
+    /* Fondos claros */
+    --estado-bg-dark: #e9ecef;
+    --estado-bg-medium: #f3f5f7;
+    --estado-bg-light: #ffffff;
+
+    /* Bordes */
+    --estado-border: #cfd6dd;
+
+    /* Texto */
+    --estado-text-primary: #1a1a1a;
+    --estado-text-secondary: #4d5b6a;
+    --estado-text-muted: #7b8a9b;
+}
+
+/* Contenedores claros */
+body.light-mode .estado-main-container {
+    background: var(--estado-bg-light);
+    border-color: var(--estado-border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    color: #000;
+}
+
+body.light-mode .grafico-container,
+body.light-mode .analisis-container,
+body.light-mode .tabla-container {
+    background: var(--estado-bg-light);
+    border-color: var(--estado-border);
+}
+
+/* Header */
+body.light-mode .estado-header {
+    border-bottom: 1px solid var(--estado-border);
+}
+
+body.light-mode .estado-header-title p {
+    color: var(--estado-text-secondary);
+}
+
+/* Inputs y filtros */
+body.light-mode .filtro-input {
+    background: var(--estado-bg-light);
+    border-color: var(--estado-border);
+    color: var(--estado-text-primary);
+}
+
+body.light-mode .filtro-input:focus {
+    border-color: var(--estado-primary);
+    box-shadow: 0 0 0 3px rgba(0, 135, 160, 0.15);
+}
+
+body.light-mode .control-checkbox {
+    color: var(--estado-text-secondary);
+}
+
+body.light-mode .control-checkbox:hover {
+    color: var(--estado-text-primary);
+}
+
+body.light-mode .control-checkbox input[type="checkbox"] {
+    accent-color: var(--estado-primary);
+}
+
+/* Tablas */
+body.light-mode .estado-tabla {
+    background: var(--estado-bg-light);
+}
+
+body.light-mode .estado-tabla th {
+    background: #f0f2f4;
+    color: var(--estado-text-primary);
+    border-bottom-color: var(--estado-border);
+}
+
+body.light-mode .estado-tabla td {
+    color: var(--estado-text-primary);
+    border-bottom-color: var(--estado-border);
+}
+
+body.light-mode .estado-tabla tr:hover {
+    background: rgba(0, 135, 160, 0.06);
+}
+
+/* Hover filas */
+body.light-mode .clickable-row:hover {
+    background: rgba(0, 135, 160, 0.12) !important;
+}
+
+/* Análisis estratégico */
+body.light-mode .analisis-content {
+    color: var(--estado-text-primary);
+}
+
+body.light-mode .analisis-texto {
+    color: var(--estado-text-secondary);
+}
+
+/* Loading & empty */
+body.light-mode .satisfaction-loading,
+body.light-mode .satisfaction-empty {
+    color: var(--estado-text-secondary);
+}
+
+body.light-mode .satisfaction-empty h3 {
+    color: var(--estado-text-primary);
+}
 
 /* Contenedor principal */
 .estado-main-wrapper {
@@ -65,8 +184,11 @@
 
     .estado-header-title p {
         margin: 4px 0 0 0;
-        color: var(--estado-text-secondary);
+        
         font-size: 14px;
+    } 
+    body.light-mode .estado-header-title p {
+        color: var(--oportunidades-text-primary);
     }
 
 /* Botones */
@@ -215,7 +337,10 @@
         margin: 0;
         font-size: 1.5rem;
         font-weight: 700;
-        color: var(--estado-text-primary);
+        color: var(--tendencias-bg-light);
+    }
+    body.light-mode .section-header h2 {
+        color: var(--oportunidades-text-primary);
     }
 
 .estado-count {
@@ -437,6 +562,18 @@
     .estado-content-container {
         padding: 16px;
     }
+
+@media (max-width: 768px) {
+    .tabla-container {
+        overflow-x: auto !important;
+        overflow-y: hidden;
+    }
+
+    .estado-tabla {
+        min-width: 600px; /* o más si tu tabla es grande */
+    }
+}
+
 
     .estado-main-container {
         padding: 20px;

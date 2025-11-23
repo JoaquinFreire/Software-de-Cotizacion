@@ -232,10 +232,10 @@
         font-size: 14px;
     }
 
-    .dropdown-menu {
-        right: -10px;
-        min-width: 180px;
-    }
+    .navigation-root .user-dropdown {
+        min-width: 150px;
+        }
+    
 }
 
 .menu-button {

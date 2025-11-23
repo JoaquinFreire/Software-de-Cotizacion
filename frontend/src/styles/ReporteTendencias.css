@@ -16,6 +16,133 @@
     --tendencias-text-secondary: #94a3b8;
     --tendencias-text-muted: #64748b;
 }
+/* ============================
+   MODO CLARO
+   ============================ */
+
+body.light-mode {
+    --tendencias-primary: #0ea5e9;
+    --tendencias-primary-dark: #0284c7;
+    --tendencias-secondary: #14b8a6;
+
+    --tendencias-success: #059669;
+    --tendencias-warning: #d97706;
+    --tendencias-error: #dc2626;
+
+    --tendencias-bg-dark: #f1f5f9;        /* fondo general */
+    --tendencias-bg-medium: #ffffff;      /* tarjetas */
+    --tendencias-bg-light: #f8fafc;       /* bordes y inputs */
+
+    --tendencias-border: #cbd5e1;         /* bordes suaves */
+    --tendencias-text-primary: #0f172a;   /* texto principal */
+    --tendencias-text-secondary: #475569; /* texto secundario */
+    --tendencias-text-muted: #64748b;     /* texto apagado */
+}
+
+/* Fondo principal degradado en claro */
+body.light-mode .tendencias-dashboard-container {
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+}
+
+/* Contenedor principal */
+body.light-mode .tendencias-main-container {
+    background: var(--tendencias-bg-medium);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    border: 1px solid var(--tendencias-border);
+}
+
+/* Header */
+body.light-mode .tendencias-header {
+    border-bottom: 1px solid var(--tendencias-border);
+}
+
+/* Subtítulos */
+body.light-mode .tendencias-header-title p {
+    color: var(--tendencias-text-secondary);
+}
+
+/* Botón secundario claro */
+body.light-mode .tendencias-btn-secondary {
+    background: rgba(0,0,0,0.04);
+    color: var(--tendencias-text-primary);
+    border: 1px solid var(--tendencias-border);
+}
+
+/* Hover secundarios */
+body.light-mode .tendencias-btn-secondary:hover {
+    background: rgba(0,0,0,0.07);
+    border-color: var(--tendencias-primary);
+}
+
+/* FILTROS CONTENEDOR */
+body.light-mode .tendencias-filtros-comparativa,
+body.light-mode .tendencias-comparar-filtros {
+    background: var(--tendencias-bg-medium);
+    border-color: var(--tendencias-border);
+}
+
+/* Inputs */
+body.light-mode .filtro-input {
+    background: var(--tendencias-bg-light);
+    border: 1px solid var(--tendencias-border);
+    color: var(--tendencias-text-primary);
+}
+
+/* KPI CARDS */
+body.light-mode .kpi-card {
+    background: var(--tendencias-bg-medium);
+    border: 1px solid var(--tendencias-border);
+}
+
+/* TITULOS DE SECCION */
+body.light-mode .section-header h2 {
+    color: var(--tendencias-text-primary);
+}
+
+/* Comparativa tarjetas */
+body.light-mode .comparativa-periodo {
+    background: var(--tendencias-bg-medium);
+    border-color: var(--tendencias-border);
+}
+
+/* Variação */
+body.light-mode .variacion-subtext {
+    color: var(--tendencias-text-muted);
+}
+
+/* Gráfico */
+body.light-mode .grafico-container {
+    background: var(--tendencias-bg-medium);
+    border-color: var(--tendencias-border);
+}
+
+/* Tabla */
+body.light-mode .tabla-container {
+    background: var(--tendencias-bg-medium);
+    border-color: var(--tendencias-border);
+}
+
+body.light-mode .tendencias-tabla th {
+    background: #f1f5f9;
+    color: var(--tendencias-text-primary);
+}
+
+body.light-mode .tendencias-tabla tr:hover {
+    background: #f8fafc;
+}
+
+body.light-mode .tendencias-tabla td {
+    color: var(--tendencias-text-primary);
+}
+
+/* Estados vacíos */
+body.light-mode .tendencias-loading,
+body.light-mode .tendencias-empty,
+body.light-mode .grafico-vacio {
+    color: var(--tendencias-text-secondary);
+}
+
+
 
 /* Contenedor principal */
 .tendencias-dashboard-container {
@@ -263,13 +390,7 @@
     text-align: left;
 }
 
-.kpi-value {
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--tendencias-text-primary);
-    margin-bottom: 4px;
-    line-height: 1;
-}
+
 
 .kpi-label {
     font-size: 14px;
@@ -298,6 +419,9 @@
         font-size: 1.5rem;
         font-weight: 700;
         color: var(--tendencias-text-primary);
+    }
+    body.light-mode .section-header h2 {
+        color: black;
     }
 
 /* Comparativa Section */
@@ -590,9 +714,7 @@
         font-size: 1.8rem;
     }
 
-    .kpi-value {
-        font-size: 24px;
-    }
+   
 
     .section-header h2 {
         font-size: 1.3rem;

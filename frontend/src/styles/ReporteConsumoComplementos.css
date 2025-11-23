@@ -676,15 +676,113 @@
     margin-top: 30px;
     padding: 20px;
 }
+/* Modo Claro */
+body.light-mode {
+    --cc-primary-color: #0ea5e9;
+    --cc-primary-dark: #0284c7;
+    --cc-secondary-color: #22d3ee;
+    --cc-background: #f8fafc;
+    --cc-card-bg: #ffffff;
+    --cc-card-border: #e2e8f0;
+    --cc-text-primary: #0f172a;
+    --cc-text-secondary: #475569;
+    --cc-text-muted: #64748b;
+    --cc-success: #059669;
+    --cc-warning: #d97706;
+    --cc-error: #dc2626;
+    --cc-info: #2563eb;
+}
+
+body.light-mode .consumo-complementos-container {
+    background: linear-gradient(135deg, #f1f5f9 0%, #f8fafc 50%, #e2e8f0 100%);
+}
+
+body.light-mode .consumo-complementos-content {
+    background: #ffffff;
+}
+
+/* Ajustes de tarjetas, tablas y contenedores */
+body.light-mode .cc-kpi-card,
+body.light-mode .cc-evolucion-section,
+body.light-mode .cc-analisis-section,
+body.light-mode .cc-grafico-section,
+body.light-mode .cc-tabla-section,
+body.light-mode .cc-filtros-group,
+body.light-mode .cc-tabla-container {
+    background: #ffffff;
+    border-color: #e2e8f0;
+}
+
+body.light-mode .cc-complemento-tag {
+    background: rgba(14, 165, 233, 0.1);
+    color: var(--cc-primary-color);
+    border-color: rgba(14, 165, 233, 0.3);
+}
+
+/* Tabla */
+body.light-mode .cc-tabla th {
+    background: #f1f5f9;
+    color: var(--cc-text-primary);
+    border-bottom: 2px solid #e2e8f0;
+}
+
+body.light-mode .cc-tabla td {
+    border-bottom: 1px solid #e2e8f0;
+    color: var(--cc-text-primary);
+}
+
+body.light-mode .cc-tabla tr:hover {
+    background: #f8fafc;
+}
+
+/* Inputs & selects */
+body.light-mode .cc-filtro input,
+body.light-mode .cc-select {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: var(--cc-text-primary);
+}
+
+/* Botones */
+body.light-mode .cc-btn-secondary {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--cc-text-primary);
+    border: 1px solid #cbd5e1;
+}
+
+body.light-mode .cc-paginacion-btn,
+body.light-mode .cc-paginacion-numero {
+    background: #ffffff;
+    color: var(--cc-text-primary);
+    border: 1px solid #cbd5e1;
+}
+
+body.light-mode .cc-paginacion-btn:hover,
+body.light-mode .cc-paginacion-numero:hover {
+    background: #f1f5f9;
+}
+
+/* No data */
+body.light-mode .cc-no-data {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: var(--cc-text-secondary);
+}
+
 
 /* Responsive */
+/* ============================
+   1200px
+=============================== */
 @media (max-width: 1200px) {
     .consumo-complementos-content {
         padding: 16px;
+        margin: 20px;
     }
 
     .cc-kpis-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
     }
 
     .cc-evolucion-content,
@@ -694,63 +792,99 @@
     }
 }
 
+/* ============================
+   768px
+=============================== */
 @media (max-width: 768px) {
     .consumo-complementos-header {
         flex-direction: column;
-        gap: 20px;
+        gap: 16px;
         text-align: center;
+        padding: 20px 10px;
+    }
+
+    .consumo-complementos-content {
+        margin: 12px;
+        padding: 14px;
     }
 
     .consumo-complementos-title {
         flex-direction: column;
         text-align: center;
+        gap: 6px;
     }
 
     .cc-kpis-grid {
         grid-template-columns: 1fr;
+        gap: 16px;
     }
 
     .cc-filtros-group {
         grid-template-columns: 1fr;
+        gap: 16px;
     }
 
     .cc-tabla-header {
         flex-direction: column;
-        gap: 12px;
-        align-items: flex-start;
+        gap: 10px;
+        text-align: left;
+        width: 100%;
+    }
+
+    .cc-tabla-container {
+        overflow-x: auto;
     }
 
     .cc-paginacion {
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
     }
 
     .cc-acciones-export {
         flex-direction: column;
+        gap: 12px;
+        width: 100%;
     }
 
     .cc-tipo-item {
         flex-direction: column;
         align-items: flex-start;
-        gap: 8px;
+        gap: 6px;
     }
 }
 
+/* ============================
+   480px
+=============================== */
 @media (max-width: 480px) {
     .consumo-complementos-title h1 {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
+        line-height: 1.3;
+    }
+
+    .consumo-complementos-content {
+        padding: 12px;
+        margin: 8px;
     }
 
     .cc-tabla {
-        font-size: 12px;
+        font-size: 11px;
     }
 
-        .cc-tabla th,
-        .cc-tabla td {
-            padding: 12px 8px;
-        }
+    .cc-tabla th,
+    .cc-tabla td {
+        padding: 10px 6px;
+    }
 
     .cc-analisis-valor {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
+    }
+
+    .cc-kpi-value {
+        font-size: 22px;
+    }
+
+    .cc-kpi-card {
+        padding: 18px;
     }
 }

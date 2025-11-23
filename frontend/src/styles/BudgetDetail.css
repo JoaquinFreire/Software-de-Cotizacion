@@ -305,3 +305,337 @@
   border-bottom: 1px solid #e6e6e6;
   padding: 8px 6px;
 }
+
+/* Media Queries para Content Bottom Responsive */
+@media (max-width: 1200px) {
+  .pdf-container {
+    width: 95%;
+    max-width: 900px;
+    min-width: unset;
+  }
+  
+  .controls-wrapper {
+    max-width: 900px;
+    min-width: unset;
+  }
+}
+
+@media (max-width: 992px) {
+  .content-bottom {
+    padding: 12px 15px;
+  }
+  
+  .controls-wrapper {
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .pdf-container {
+    width: 98%;
+    padding: 20px;
+    min-height: 1200px;
+  }
+  
+  .pdf-title {
+    font-size: 24px;
+    margin-left: 20px;
+  }
+  
+  .pdf-logo {
+    height: 70px;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-bottom {
+    padding: 10px;
+  }
+  
+  .controls-wrapper {
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+  }
+  
+  .button-group {
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .version-select {
+    margin-left: 0;
+    margin-top: 10px;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .version-select-input {
+    min-width: 200px;
+  }
+  
+  /* Botones responsivos */
+  .only-screen button,
+  .reporte-cotizaciones-btn-pdf,
+  .reporte-cotizaciones-btn-email,
+  .reporte-cotizaciones-btn-whatsapp {
+    min-width: 140px;
+    max-width: 200px;
+    margin-left: 0;
+    margin-bottom: 5px;
+    padding: 10px 15px;
+    font-size: 14px;
+  }
+  
+  /* PDF Container responsive */
+  .pdf-container {
+    padding: 15px;
+    min-height: 1000px;
+    min-width: unset;
+  }
+  
+  .pdf-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .pdf-logo {
+    height: 60px;
+    margin-left: 0;
+  }
+  
+  .pdf-title {
+    font-size: 22px;
+    margin-left: 0;
+    order: -1;
+  }
+  
+  .pdf-company-info {
+    text-align: center;
+  }
+  
+  .pdf-main-data {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+  
+  .pdf-date-info {
+    text-align: center;
+  }
+  
+  .pdf-sections {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .pdf-table {
+    font-size: 12px;
+  }
+  
+  .pdf-table td,
+  .pdf-table th {
+    padding: 4px;
+  }
+}
+
+@media (max-width: 576px) {
+  .content-bottom {
+    padding: 8px;
+  }
+  
+  .controls-wrapper {
+    gap: 12px;
+  }
+  
+  .button-group {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+  
+  .only-screen button,
+  .reporte-cotizaciones-btn-pdf,
+  .reporte-cotizaciones-btn-email,
+  .reporte-cotizaciones-btn-whatsapp {
+    width: 100%;
+    max-width: 250px;
+    margin: 0;
+    padding: 12px;
+  }
+  
+  .version-select {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .version-label {
+    font-size: 1.1rem;
+  }
+  
+  .version-select-input {
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  /* PDF más compacto para móviles */
+  .pdf-container {
+    padding: 10px;
+    min-height: 900px;
+  }
+  
+  .pdf-title {
+    font-size: 20px;
+  }
+  
+  .pdf-logo {
+    height: 50px;
+  }
+  
+  .pdf-budget-id {
+    font-size: 16px;
+  }
+  
+  .pdf-subtitle {
+    font-size: 16px;
+  }
+  
+  .pdf-table {
+    font-size: 11px;
+  }
+  
+  .pdf-total {
+    font-size: 20px;
+  }
+  
+  .pdf-survey h3 {
+    font-size: 16px;
+  }
+  
+  .pdf-survey div {
+    font-size: 13px;
+  }
+  
+  .pdf-survey-btn {
+    padding: 8px 20px;
+    font-size: 14px;
+  }
+  
+  .pdf-qr-code {
+    height: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-bottom {
+    padding: 5px;
+  }
+  
+  .version-label {
+    font-size: 1rem;
+  }
+  
+  .version-select-input {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+  
+  .only-screen button,
+  .reporte-cotizaciones-btn-pdf,
+  .reporte-cotizaciones-btn-email,
+  .reporte-cotizaciones-btn-whatsapp {
+    font-size: 13px;
+    padding: 10px;
+  }
+  
+  .pdf-container {
+    padding: 8px;
+    min-height: 800px;
+  }
+  
+  .pdf-title {
+    font-size: 18px;
+  }
+  
+  .pdf-table {
+    font-size: 10px;
+  }
+  
+  .pdf-table td,
+  .pdf-table th {
+    padding: 3px 2px;
+  }
+  
+  /* Asegurar que los botones sean tappables */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+@media (max-width: 360px) {
+  .pdf-container {
+    padding: 5px;
+    min-height: 700px;
+  }
+  
+  .pdf-title {
+    font-size: 16px;
+  }
+  
+  .pdf-logo {
+    height: 40px;
+  }
+  
+  .version-select-input {
+    min-width: 160px;
+  }
+  
+  .only-screen button,
+  .reporte-cotizaciones-btn-pdf,
+  .reporte-cotizaciones-btn-email,
+  .reporte-cotizaciones-btn-whatsapp {
+    min-width: 120px;
+    font-size: 12px;
+  }
+}
+
+/* Para tablets en modo landscape */
+@media (max-width: 1024px) and (orientation: landscape) {
+  .controls-wrapper {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .button-group {
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .version-select {
+    flex: 0 0 auto;
+    margin-top: 0;
+  }
+}
+
+/* Ajustes para iframe en dispositivos móviles */
+@media (max-width: 768px) {
+  .pdf-container iframe {
+    min-height: 800px;
+  }
+}
+
+/* Prevenir desbordamiento en todos los elementos */
+@media (max-width: 768px) {
+  .content-bottom,
+  .controls-wrapper,
+  .pdf-container {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  * {
+    max-width: 100%;
+  }
+}

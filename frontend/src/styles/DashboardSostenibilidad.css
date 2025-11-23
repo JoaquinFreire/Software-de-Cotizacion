@@ -14,6 +14,28 @@
     --sustainability-text-secondary: #b0b0b0;
     --sustainability-text-muted: #888;
 }
+body.light-mode {
+    
+    --sustainability-primary: #0ea5e9; /* Celeste más vibrante */
+    --sustainability-primary-dark: #0284c7;
+
+    --sustainability-success: #059669;
+    --sustainability-warning: #d97706;
+    --sustainability-error: #dc2626;
+    --sustainability-info: #2563eb;
+
+    --sustainability-bg-primary: #ffffff;   /* Fondo principal blanco */
+    --sustainability-bg-secondary: #f4f7fa; /* Tarjetas y secciones claras */
+    --sustainability-bg-tertiary: #e5e7eb;  /* Barras, fondos suaves */
+
+    --sustainability-border: #d1d5db;       /* Borde suave */
+    --sustainability-border-light: #e5e7eb; /* Borde más claro */
+
+    --sustainability-text-primary: #1e293b;    /* Texto principal gris oscuro */
+    --sustainability-text-secondary: #475569;  /* Texto secundario */
+    --sustainability-text-muted: #94a3b8;      /* Texto suave */
+}
+
 
 .sustainability-dashboard-container {
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
@@ -1032,6 +1054,9 @@
     .sustainability-main-layout {
         grid-template-columns: 1fr 400px;
         gap: 30px;
+    }
+    .sustainability-forecast-cards {
+        grid-template-columns: repeat(1, 1fr);
     }
 }
 
