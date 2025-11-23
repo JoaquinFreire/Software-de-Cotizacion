@@ -458,77 +458,295 @@
 	font-weight: 600;
 }
 
-/* RESPONSIVE */
+/* Modo claro para AnalisisUbicacionGeografica */
+body.light-mode .analisis-ubicacion-content {
+    background: #ffffff;
+    border: 1px solid #e1e5e9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .analisis-ubicacion-header {
+    border-bottom: 2px solid #f0f0f0;
+}
+
+body.light-mode .header-title-moderno h1 {
+    color: #1e88e5;
+}
+
+body.light-mode .header-title-moderno p {
+    color: #666;
+}
+
+/* KPI Cards en modo claro */
+body.light-mode .kpi-card-moderno {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .kpi-card-moderno:hover {
+    border-color: #1e88e5;
+    box-shadow: 0 4px 12px rgba(30, 136, 229, 0.15);
+}
+
+body.light-mode .kpi-value-moderno {
+    color: #2c3e50;
+}
+
+body.light-mode .kpi-label-moderno {
+    color: #6c757d;
+}
+
+/* Filtros en modo claro */
+body.light-mode .filtros-ubicacion-modernos {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+body.light-mode .filtros-header-moderno {
+    background: #f8f9fa;
+    color: #2c3e50;
+}
+
+body.light-mode .filtros-header-moderno:hover {
+    background: #e9ecef;
+}
+
+body.light-mode .filtros-content-moderno {
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+body.light-mode .filtro-group-moderno label {
+    color: #495057;
+}
+
+body.light-mode .filtro-input-moderno,
+body.light-mode .filtro-select-moderno {
+    background: #ffffff;
+    border: 1px solid #ced4da;
+    color: #495057;
+}
+
+body.light-mode .filtro-input-moderno:focus,
+body.light-mode .filtro-select-moderno:focus {
+    border-color: #1e88e5;
+    box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.2);
+}
+
+/* Botones en modo claro */
+body.light-mode .btn-primary-moderno {
+    background: #1e88e5;
+    color: white;
+}
+
+body.light-mode .btn-primary-moderno:hover:not(:disabled) {
+    background: #1976d2;
+}
+
+/* Tabla en modo claro */
+body.light-mode .tabla-ubicacion-moderna {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+}
+
+body.light-mode .tabla-header-moderno {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+body.light-mode .tabla-header-moderno h3 {
+    color: #1e88e5;
+}
+
+body.light-mode .panel-badge-moderno {
+    background: #1e88e5;
+    color: white;
+}
+
+body.light-mode .tabla-moderna {
+    background: #ffffff;
+}
+
+body.light-mode .tabla-moderna th {
+    background: #f8f9fa;
+    color: #495057;
+    border-bottom: 2px solid #e9ecef;
+}
+
+body.light-mode .tabla-moderna td {
+    color: #495057;
+    border-bottom: 1px solid #e9ecef;
+}
+
+body.light-mode .tabla-moderna tr:hover {
+    background: #f8f9fa;
+}
+
+/* Detalle de barrio en modo claro */
+body.light-mode .detalle-barrio-moderno {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+body.light-mode .detalle-barrio-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e9ecef;
+}
+
+body.light-mode .detalle-barrio-header h4 {
+    color: #495057;
+}
+
+/* Loading en modo claro */
+body.light-mode .loading-spinner-moderno {
+    border: 4px solid #e9ecef;
+    border-top: 4px solid #1e88e5;
+}
+
+body.light-mode .loading-moderno p {
+    color: #6c757d;
+}
+
+/* Estado vacío en modo claro */
+body.light-mode .estado-vacio-moderno {
+    color: #6c757d;
+}
+
+body.light-mode .estado-vacio-moderno h3 {
+    color: #495057;
+}
+
+body.light-mode .estado-vacio-moderno p {
+    color: #6c757d;
+}
+
+/* Textos utilitarios en modo claro */
+body.light-mode .texto-primario {
+    color: #2c3e50;
+}
+
+body.light-mode .texto-secundario {
+    color: #6c757d;
+}
+
+body.light-mode .texto-acentuado {
+    color: #1e88e5;
+}
+
+/* Media Queries Responsive para modo claro */
 @media (max-width: 1200px) {
+    body.light-mode .analisis-ubicacion-content {
+        margin: 40px 20px;
+    }
+	.analisis-ubicacion-content {
+		margin: 40px 20px;
+	}
 	.kpi-grid-moderno {
 		grid-template-columns: repeat(2, 1fr);
+		gap: 15px;
 	}
-
+	.kpi-content-moderno {
+		font-size: 10px;
+	}
 	.filtros-grid-moderno {
-		grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets */
+		grid-template-columns: repeat(2, 1fr);
+		gap: 15px;
 	}
 }
 
 @media (max-width: 768px) {
-	.analisis-ubicacion-content {
-		padding: 20px 16px;
-		margin: 20px auto 0 auto; /* Menos margen en m�viles */
+    body.light-mode .analisis-ubicacion-content {
+        margin: 20px 10px;
+        padding: 15px;
+        border-radius: 12px;
+    }
+	.analisis-ubicacion-content{
+		margin: 20px 10px;
+		padding: 15px;
+		border-radius: 12px;
 	}
-
-	.analisis-ubicacion-header {
-		flex-direction: column;
-		gap: 16px;
-		align-items: flex-start;
+    
+    body.light-mode .kpi-card-moderno {
+        padding: 12px;
+    }
+	.kpi-card-moderno{
+		padding: 12px;
 	}
-
-	.header-actions-moderno {
-		width: 100%;
-		justify-content: space-between;
+    
+    body.light-mode .filtros-content-moderno {
+        padding: 15px;
+    }
+	.filtros-content-moderno{
+		padding: 15px;
 	}
-
-	.kpi-grid-moderno {
-		grid-template-columns: 1fr;
-	}
-
-	.kpi-card-moderno {
-		height: auto;
-		padding: 16px;
-	}
-
-	.filtros-grid-moderno {
-		grid-template-columns: 1fr; /* 1 columna en m�viles */
-	}
-
-	.tabla-moderna {
-		font-size: 12px;
-	}
-
-		.tabla-moderna th,
-		.tabla-moderna td {
-			padding: 12px 8px;
-		}
 }
 
 @media (max-width: 480px) {
-	.header-title-moderno h1 {
-		font-size: 24px;
+    body.light-mode .analisis-ubicacion-content {
+        margin: 10px 5px;
+        padding: 12px;
+    }
+	.analisis-ubicacion-content{
+		margin: 10px 5px;
+		padding: 12px;
 	}
-
+    
+    body.light-mode .header-title-moderno h1 {
+        font-size: 20px;
+    }
+    .header-title-moderno h1 {
+		font-size: 20px;
+	}
+    body.light-mode .kpi-value-moderno {
+        font-size: 20px;
+    }
 	.kpi-value-moderno {
-		font-size: 24px;
+		font-size: 20px;
 	}
-
-	.tabla-header-moderno {
-		padding: 12px 16px;
-	}
-
-	.btn-moderno {
-		padding: 10px 16px;
+    
+    /* Mejorar legibilidad en móviles */
+    body.light-mode .tabla-moderna th,
+    body.light-mode .tabla-moderna td {
+        padding: 10px 6px;
+        font-size: 13px;
+    }
+	.tabla-moderna th,
+	.tabla-moderna td {
+		padding: 10px 6px;
 		font-size: 13px;
 	}
+}
 
-	.btn-accion-tabla {
-		padding: 6px 10px;
-		font-size: 11px;
-	}
+/* Mejoras específicas de contraste para modo claro */
+body.light-mode .filtro-input-moderno::placeholder {
+    color: #6c757d;
+}
+
+body.light-mode .btn-accion-tabla {
+    background: #1e88e5;
+    color: white;
+}
+
+body.light-mode .btn-accion-tabla:hover {
+    background: #1976d2;
+}
+
+body.light-mode .btn-accion-tabla.secundario {
+    background: #6c757d;
+}
+
+body.light-mode .btn-accion-tabla.secundario:hover {
+    background: #5a6268;
+}
+
+/* Sombras más sutiles en modo claro */
+body.light-mode .kpi-card-moderno,
+body.light-mode .filtros-ubicacion-modernos,
+body.light-mode .tabla-ubicacion-moderna {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .kpi-card-moderno:hover {
+    box-shadow: 0 4px 12px rgba(30, 136, 229, 0.15);
 }

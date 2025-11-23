@@ -725,6 +725,5 @@ body.light-mode .pagination-info {
     
     .dashboard-container > * {
         max-width: 100%;
-        overflow-x: hidden;
     }
 }

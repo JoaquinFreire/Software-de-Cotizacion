@@ -5,6 +5,9 @@
     background: rgb(54, 54, 54);
     border-radius: 19px;
 }
+body.light-mode .timeline-report-container {
+    background: #d1d0d0;
+}
 
 
 .timeline-layout {
@@ -873,145 +876,6 @@ body.light-mode .fecha-input-field {
     box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
 }
 
-@media (max-width: 1024px) {
-    .timeline-sidebar {
-        width: 350px;
-    }
-
-    .timeline-layout {
-        grid-template-columns: 350px 1fr;
-    }
-
-    .timeline-detalle-container {
-        grid-template-columns: 250px 1fr;
-    }
-}
-
-@media (max-width: 768px) {
-    .timeline-layout {
-        grid-template-columns: 1fr;
-        gap: 16px;
-        height: auto;
-        max-height: none;
-    }
-
-    .timeline-sidebar {
-        width: 100%;
-        height: 400px;
-    }
-
-    .timeline-detalle-container {
-        grid-template-columns: 1fr;
-        height: auto;
-    }
-
-    .cotizaciones-sidebar {
-        border-right: none;
-        border-bottom: 1px solid #333;
-        max-height: 250px;
-    }
-
-    .report-title {
-        flex-direction: column;
-        gap: 12px;
-        align-items: flex-start;
-    }
-
-    .report-info {
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .vertical-timeline {
-        padding-left: 30px;
-    }
-
-    .timeline-point {
-        left: -30px;
-        width: 28px;
-        height: 28px;
-    }
-
-    .version-header-centered {
-        flex-direction: column;
-        gap: 12px;
-        text-align: center;
-    }
-
-        .version-header-centered .version-title {
-            text-align: center;
-            margin-bottom: 8px;
-            font-size: 16px;
-        }
-
-    .version-main-content {
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .version-actions-right {
-        align-self: center;
-        width: 100%;
-        text-align: center;
-    }
-
-    .btn-ver-pdf {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .detail-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-        padding: 10px 0;
-    }
-
-        .detail-item strong {
-            min-width: auto;
-            margin-bottom: 2px;
-        }
-
-        .detail-item span {
-            width: 100%;
-            text-align: left;
-        }
-
-    .comment-section-full {
-        padding: 12px;
-    }
-
-    .fechas-container {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-}
-
-@media (max-width: 480px) {
-    .timeline-report-container {
-        padding: 0 12px;
-    }
-
-    .version-header-centered .version-title {
-        font-size: 16px;
-    }
-
-    .detail-item strong,
-    .detail-item span {
-        font-size: 13px;
-    }
-
-    .btn-ver-pdf {
-        padding: 12px 16px;
-        font-size: 12px;
-    }
-
-    .timeline-content-version {
-        padding: 16px;
-    }
-}
-
-
 .cotizaciones-sidebar {
     max-height: none;
 }
@@ -1095,4 +959,153 @@ body.light-mode .fecha-input-field {
     height: auto;
     min-height: 300px;
     overflow-y: auto;
+}
+/* ===========================
+   📱 RESPONSIVE MEJORADO
+   =========================== */
+
+/* Tablets grandes */
+@media (max-width: 1200px) {
+    .timeline-layout {
+        grid-template-columns: 320px 1fr;
+        gap: 20px;
+    }
+
+    .timeline-detalle-container {
+        grid-template-columns: 250px 1fr;
+    }
+}
+
+/* Tablets y pantallas medianas */
+@media (max-width: 992px) {
+    .timeline-layout {
+        grid-template-columns: 280px 1fr;
+    }
+
+    .timeline-sidebar {
+        max-height: 500px;
+    }
+
+    .timeline-detalle-container {
+        grid-template-columns: 230px 1fr;
+    }
+}
+
+
+@media (max-width: 768px) {
+
+    /* Layout pasa a una sola columna */
+    .timeline-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    /* Sidebar arriba con scroll */
+    .timeline-sidebar {
+        width: 100%;
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #333;
+    }
+
+    .clientes-list-report {
+        max-height: 220px;
+    }
+
+    /* Contenido principal debajo */
+    .timeline-main {
+        min-height: unset;
+    }
+
+    /* Detalle de cotizaciones también en una sola columna */
+    .timeline-detalle-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    /* Sidebar de cotizaciones pasa abajo del cliente */
+    .cotizaciones-sidebar {
+        border-right: none;
+        border-bottom: 1px solid #333;
+        max-height: 240px;
+        overflow-y: auto;
+    }
+
+    /* Header del reporte */
+    .report-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        text-align: left;
+    }
+
+    .report-info {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    /* Timeline visual */
+    .vertical-timeline {
+        padding-left: 28px;
+    }
+
+    .timeline-point {
+        left: -28px;
+        width: 26px;
+        height: 26px;
+    }
+
+    /* Ajustes en detalle */
+    .version-main-content {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .detail-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .btn-ver-pdf {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .timeline-report-container {
+        padding: 10px;
+    }
+
+    .timeline-sidebar {
+        max-height: 260px;
+    }
+
+    .clientes-list-report {
+        max-height: 200px;
+    }
+
+    .cotizaciones-sidebar {
+        max-height: 200px;
+    }
+
+    .version-header-centered .version-title {
+        font-size: 15px;
+    }
+
+    .timeline-content-version {
+        padding: 14px;
+    }
+
+    .btn-ver-pdf {
+        font-size: 12px;
+        padding: 10px 12px;
+    }
+
+    .detail-item strong,
+    .detail-item span {
+        font-size: 13px;
+    }
 }

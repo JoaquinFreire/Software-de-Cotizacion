@@ -33,7 +33,10 @@
     padding: 0;
     margin-top: 50px;
 }
-
+body.light-mode .beneficio-content-container {
+    background: #d6d6d6;
+    color: #1a1a1a;
+}
 .beneficio-content-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -52,16 +55,10 @@
     color: var(--beneficio-text-primary);
     text-align: center;
 }
-
-    .loading-fullscreen h3 {
-        margin: 20px 0 8px 0;
-        color: var(--beneficio-text-primary);
-    }
-
-    .loading-fullscreen p {
-        margin: 0;
-        color: var(--beneficio-text-muted);
-    }
+body.light-mode .loading-fullscreen {
+    background: #d6d6d6;
+    color: #1a1a1a;
+}
 
 .loading-spinner-large {
     display: flex;
@@ -112,7 +109,10 @@
         color: var(--beneficio-text-secondary);
         font-size: 16px;
     }
-
+body.light-mode .header-title p {
+    color: #4b5563;
+    
+}
 .header-actions {
     display: flex;
     gap: 12px;
@@ -192,6 +192,14 @@
     display: flex;
     align-items: center;
     background: var(--beneficio-bg-light);
+    border-bottom: 1px solid var(--beneficio-border);
+    padding: 0 16px;
+    gap: 4px;
+}
+body.light-mode .tabs-header{
+    display: flex;
+    align-items: center;
+    background: rgb(255, 255, 255);
     border-bottom: 1px solid var(--beneficio-border);
     padding: 0 16px;
     gap: 4px;
@@ -319,6 +327,14 @@
     flex: 1;
     padding: 20px;
     overflow-y: auto;
+}
+body.light-mode .panel-content {
+    background: #d6d6d6;
+    color: #1a1a1a;
+}
+body.light-mode .beneficio-content-container {
+    background: #d6d6d6;
+    color: #1a1a1a;
 }
 
 /* FORMULARIO COMPACTO */
@@ -489,6 +505,9 @@
     font-size: 16px;
     font-weight: 600;
 }
+body.light-mode .breakdown-title {
+    color: #1a1a1a;
+}
 
 .breakdown-subtitle {
     color: var(--beneficio-text-muted);
@@ -502,6 +521,9 @@
     font-size: 16px;
     text-align: right;
     min-width: 120px;
+}
+body.light-mode .breakdown-amount-large {
+    color: #1a1a1a;
 }
 
 .breakdown-divider {
@@ -572,6 +594,9 @@
         font-size: 16px;
         font-weight: 600;
     }
+    body.light-mode .preview-section h4 {
+        color: #1a1a1a;
+    }
 
 .preview-container-enhanced {
     background: var(--beneficio-bg-light);
@@ -616,6 +641,9 @@
         color: var(--beneficio-text-primary);
         font-size: 16px;
         font-weight: 600;
+    }
+    body.light-mode .kpis-section h4 {
+        color: #1a1a1a;
     }
 
 .kpis-grid {

@@ -553,7 +553,7 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
                                             </tr>
                                         ))}
 
-                                        <tr style={{ background: 'var(--background-light)', fontWeight: 'bold' }}>
+                                        <tr style={{ fontWeight: 'bold' }}>
                                             <td className="texto-acentuado">TOTAL</td>
                                             <td className="texto-acentuado">{totalProyectos}</td>
                                             <td className="texto-acentuado">100%</td>

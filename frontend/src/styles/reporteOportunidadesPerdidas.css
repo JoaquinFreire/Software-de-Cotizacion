@@ -1,6 +1,6 @@
 /* frontend/src/styles/reporteOportunidadesPerdidas.css */
 
-/* Variables espec�ficas para este reporte */
+/* Variables para modo oscuro (por defecto) */
 :root {
     --oportunidades-primary: #44efb6;
     --oportunidades-primary-dark: #2657dc;
@@ -18,11 +18,33 @@
     --oportunidades-text-muted: #64748b;
 }
 
+/* Variables para modo claro */
+body.light-mode {
+    --oportunidades-primary: #1e88e5;
+    --oportunidades-primary-dark: #1565c0;
+    --oportunidades-secondary: #0d47a1;
+    --oportunidades-success: #2e7d32;
+    --oportunidades-info: #0288d1;
+    --oportunidades-warning: #f57c00;
+    --oportunidades-error: #d32f2f;
+    --oportunidades-bg-dark: #f8f9fa;
+    --oportunidades-bg-medium: #ffffff;
+    --oportunidades-bg-light: #ffffff;
+    --oportunidades-border: #e0e0e0;
+    --oportunidades-text-primary: #2c3e50;
+    --oportunidades-text-secondary: #6c757d;
+    --oportunidades-text-muted: #95a5a6;
+}
+
 /* Contenedor principal */
 .oportunidades-dashboard-container {
-    background: linear-gradient(135deg, var(--oportunidades-bg-dark) 0%, var(--oportunidades-bg-medium) 50%, #334155 100%);
+    background: linear-gradient(135deg, var(--oportunidades-bg-dark) 0%, var(--oportunidades-bg-medium) 50%, var(--oportunidades-border) 100%);
     min-height: 100vh;
     padding: 0;
+}
+
+body.light-mode .oportunidades-dashboard-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 50%, #e9ecef 100%);
 }
 
 .oportunidades-main-wrapper {
@@ -44,8 +66,13 @@
     border-radius: 20px;
     border: 1px solid var(--oportunidades-border);
     padding: 30px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
+}
+
+body.light-mode .oportunidades-main-container {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e1e5e9;
 }
 
 /* Header */
@@ -64,21 +91,21 @@
     gap: 16px;
 }
 
-    .oportunidades-header-title h1 {
-        margin: 0;
-        font-size: 2.2rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, var(--cc-primary-color), var(--cc-secondary-color));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
+.oportunidades-header-title h1 {
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--oportunidades-primary), var(--oportunidades-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
 
-    .oportunidades-header-title p {
-        margin: 4px 0 0 0;
-        color: var(--oportunidades-text-secondary);
-        font-size: 14px;
-    }
+.oportunidades-header-title p {
+    margin: 4px 0 0 0;
+    color: var(--oportunidades-text-secondary);
+    font-size: 14px;
+}
 
 /* Botones */
 .oportunidades-btn {
@@ -96,7 +123,7 @@
 }
 
 .oportunidades-btn-primary {
-        background: linear-gradient(135deg, var(--oportunidades-primary), #1bc1df);
+    background: linear-gradient(135deg, var(--oportunidades-primary), var(--oportunidades-info));
     color: white;
 }
 
@@ -107,36 +134,39 @@
     backdrop-filter: blur(10px);
 }
 
+body.light-mode .oportunidades-btn-secondary {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--oportunidades-text-primary);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
 .oportunidades-btn-detalle {
-    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    background: linear-gradient(135deg, var(--oportunidades-info), #6366f1);
     color: white;
     padding: 8px 16px;
     font-size: 12px;
 }
 
 .oportunidades-btn-pdf {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: linear-gradient(135deg, var(--oportunidades-success), #059669);
     color: white;
     padding: 8px 16px;
     font-size: 12px;
 }
 
-
+.oportunidades-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
 
 .oportunidades-btn-secondary:hover {
     background: rgba(255, 255, 255, 0.15);
     border-color: var(--oportunidades-primary);
-    transform: translateY(-2px);
 }
 
-.oportunidades-btn-detalle:hover {
-    background: linear-gradient(135deg, #2563eb, #4f46e5);
-    transform: translateY(-2px);
-}
-
-.oportunidades-btn-pdf:hover {
-    background: linear-gradient(135deg, #059669, #047857);
-    transform: translateY(-2px);
+body.light-mode .oportunidades-btn-secondary:hover {
+    background: rgba(0, 0, 0, 0.08);
+    border-color: var(--oportunidades-primary);
 }
 
 .oportunidades-btn:disabled {
@@ -163,11 +193,11 @@
     gap: 8px;
 }
 
-    .filtro-group label {
-        font-weight: 600;
-        color: var(--oportunidades-text-secondary);
-        font-size: 13px;
-    }
+.filtro-group label {
+    font-weight: 600;
+    color: var(--oportunidades-text-secondary);
+    font-size: 13px;
+}
 
 .filtro-input {
     padding: 10px 12px;
@@ -179,11 +209,17 @@
     transition: all 0.3s ease;
 }
 
-    .filtro-input:focus {
-        outline: none;
-        border-color: var(--oportunidades-primary);
-        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-    }
+body.light-mode .filtro-input {
+    background: #ffffff;
+    border: 1px solid #ced4da;
+    color: #495057;
+}
+
+.filtro-input:focus {
+    outline: none;
+    border-color: var(--oportunidades-primary);
+    box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+}
 
 .filtro-actions {
     display: flex;
@@ -210,21 +246,27 @@
     overflow: hidden;
 }
 
-    .kpi-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, var(--oportunidades-primary), var(--oportunidades-secondary));
-    }
+body.light-mode .kpi-card {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
 
-    .kpi-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-        border-color: var(--oportunidades-primary);
-    }
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--oportunidades-primary), var(--oportunidades-secondary));
+}
+
+.kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    border-color: var(--oportunidades-primary);
+}
 
 .kpi-icon {
     display: flex;
@@ -244,9 +286,12 @@
 .kpi-value {
     font-size: 28px;
     font-weight: 800;
-    color: var(--oportunidades-text-primary);
+    color: rgb(216, 216, 216);
     margin-bottom: 4px;
     line-height: 1;
+}
+body.light-mode .kpi-value {
+    color: var(--oportunidades-text-primary);
 }
 
 .kpi-label {
@@ -265,14 +310,17 @@
     padding: 0 8px;
 }
 
-    .section-header h2 {
-        margin: 0;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--oportunidades-text-primary);
-    }
+.section-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--oportunidades-text-primary);
+}
+body.light-mode .section-header h2 {
+    color: var(--oportunidades-text-primary);
+}
 
-/* Gr�ficos */
+/* Gráficos */
 .oportunidades-grafico-section {
     margin-bottom: 30px;
 }
@@ -283,6 +331,11 @@
     border: 1px solid var(--oportunidades-border);
     padding: 24px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .grafico-container {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
 }
 
 /* Motivos de rechazo */
@@ -298,6 +351,11 @@
     border-radius: 16px;
     border: 1px solid var(--oportunidades-border);
     padding: 24px;
+}
+
+body.light-mode .motivos-grid {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
 }
 
 .motivo-item {
@@ -331,10 +389,15 @@
     overflow: hidden;
 }
 
+body.light-mode .motivo-bar {
+    background: #e9ecef;
+}
+
 .motivo-bar-fill {
     height: 100%;
     border-radius: 3px;
     transition: width 0.3s ease;
+    background: linear-gradient(90deg, var(--oportunidades-primary), var(--oportunidades-secondary));
 }
 
 .motivo-monto {
@@ -362,11 +425,16 @@
     transition: all 0.3s ease;
 }
 
-    .mes-card:hover {
-        border-color: var(--oportunidades-primary);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.1);
-    }
+body.light-mode .mes-card {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+}
+
+.mes-card:hover {
+    border-color: var(--oportunidades-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(30, 136, 229, 0.1);
+}
 
 .mes-header {
     display: flex;
@@ -375,11 +443,11 @@
     margin-bottom: 16px;
 }
 
-    .mes-header h3 {
-        margin: 0;
-        color: var(--oportunidades-text-primary);
-        font-size: 1.1rem;
-    }
+.mes-header h3 {
+    margin: 0;
+    color: var(--oportunidades-text-primary);
+    font-size: 1.1rem;
+}
 
 .mes-stats {
     display: flex;
@@ -398,11 +466,6 @@
     font-size: 18px;
     font-weight: 800;
     color: var(--oportunidades-primary);
-}
-
-.mes-actions {
-    display: flex;
-    justify-content: flex-end;
 }
 
 /* Vista detalle */
@@ -429,11 +492,16 @@
     transition: all 0.3s ease;
 }
 
-    .cotizacion-card:hover {
-        border-color: var(--oportunidades-primary);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 20px rgba(239, 68, 68, 0.1);
-    }
+body.light-mode .cotizacion-card {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+}
+
+.cotizacion-card:hover {
+    border-color: var(--oportunidades-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(30, 136, 229, 0.1);
+}
 
 .cotizacion-header {
     display: flex;
@@ -456,6 +524,7 @@
     color: white;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    background: var(--oportunidades-info);
 }
 
 .cotizacion-monto {
@@ -474,10 +543,10 @@
     margin-bottom: 8px;
 }
 
-    .cotizacion-cliente strong {
-        color: var(--oportunidades-text-primary);
-        font-size: 16px;
-    }
+.cotizacion-cliente strong {
+    color: var(--oportunidades-text-primary);
+    font-size: 16px;
+}
 
 .cotizacion-contacto {
     display: flex;
@@ -494,9 +563,9 @@
     color: var(--oportunidades-text-primary);
 }
 
-    .cotizacion-motivo strong {
-        color: var(--oportunidades-text-secondary);
-    }
+.cotizacion-motivo strong {
+    color: var(--oportunidades-text-secondary);
+}
 
 .cotizacion-actions {
     display: flex;
@@ -516,6 +585,11 @@
     border: 1px solid var(--oportunidades-border);
 }
 
+body.light-mode .oportunidades-breadcrumb {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
 .breadcrumb-btn {
     display: flex;
     align-items: center;
@@ -529,9 +603,9 @@
     transition: all 0.3s ease;
 }
 
-    .breadcrumb-btn:hover {
-        color: var(--oportunidades-primary-dark);
-    }
+.breadcrumb-btn:hover {
+    color: var(--oportunidades-primary-dark);
+}
 
 .breadcrumb-separator {
     color: var(--oportunidades-text-secondary);
@@ -542,7 +616,7 @@
     font-weight: 600;
 }
 
-/* Estados de carga y vac�o */
+/* Estados de carga y vacío */
 .oportunidades-loading {
     display: flex;
     flex-direction: column;
@@ -562,14 +636,14 @@
     margin-bottom: 16px;
 }
 
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
+body.light-mode .loading-spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left: 4px solid var(--oportunidades-primary);
+}
 
-    100% {
-        transform: rotate(360deg);
-    }
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .oportunidades-empty {
@@ -582,16 +656,16 @@
     color: var(--oportunidades-text-secondary);
 }
 
-    .oportunidades-empty h3 {
-        margin: 16px 0 8px 0;
-        color: var(--oportunidades-text-primary);
-        font-size: 1.5rem;
-    }
+.oportunidades-empty h3 {
+    margin: 16px 0 8px 0;
+    color: var(--oportunidades-text-primary);
+    font-size: 1.5rem;
+}
 
-    .oportunidades-empty p {
-        margin: 0;
-        font-size: 14px;
-    }
+.oportunidades-empty p {
+    margin: 0;
+    font-size: 14px;
+}
 
 /* Responsive */
 @media (max-width: 1200px) {
@@ -616,6 +690,7 @@
 
     .oportunidades-main-container {
         padding: 20px;
+        border-radius: 16px;
     }
 
     .oportunidades-header {
@@ -624,8 +699,17 @@
         align-items: flex-start;
     }
 
+    .oportunidades-header-title h1 {
+        font-size: 1.8rem;
+    }
+
     .oportunidades-kpis {
         grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .kpi-card {
+        padding: 20px;
     }
 
     .meses-grid {
@@ -644,12 +728,31 @@
 
     .cotizacion-actions {
         justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .filtro-actions {
+        flex-direction: column;
+    }
+
+    .oportunidades-btn {
+        width: 100%;
+        justify-content: center;
     }
 }
 
 @media (max-width: 480px) {
+    .oportunidades-content-container {
+        padding: 12px;
+    }
+
+    .oportunidades-main-container {
+        padding: 16px;
+        border-radius: 12px;
+    }
+
     .oportunidades-header-title h1 {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
     }
 
     .kpi-value {
@@ -664,133 +767,44 @@
         padding: 10px 16px;
         font-size: 13px;
     }
-}
 
-/* Estilos para impresi�n y PDF */
-@media print {
-    .oportunidades-header-actions,
-    .oportunidades-filtros,
-    .oportunidades-btn {
-        display: none !important;
-    }
-
-    .oportunidades-main-container {
-        box-shadow: none;
-        border: 1px solid #ccc;
-    }
-}
-
-/* Clase para ocultar elementos durante exportaci�n PDF */
-.pdf-exporting .oportunidades-header-actions,
-.pdf-exporting .oportunidades-filtros,
-.pdf-exporting .oportunidades-btn {
-    display: none !important;
-}
-
-/* Mejoras para el gr�fico */
-.grafico-container {
-    position: relative;
-}
-
-/* Estilos para la vista expandible de meses */
-.mes-card.expanded {
-    border-color: var(--oportunidades-primary);
-    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.2);
-}
-
-.mes-detalle-expandido {
-    grid-column: 1 / -1;
-    background: var(--oportunidades-bg-medium);
-    border-radius: 12px;
-    border: 1px solid var(--oportunidades-border);
-    margin-top: 16px;
-    padding: 20px;
-    animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.detalle-expandido-header {
-    display: flex;
-    justify-content: between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--oportunidades-border);
-}
-
-    .detalle-expandido-header h4 {
-        margin: 0;
-        color: var(--oportunidades-text-primary);
-        font-size: 1.2rem;
-    }
-
-.btn-cerrar-detalle {
-    background: var(--oportunidades-primary);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 16px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-    .btn-cerrar-detalle:hover {
-        background: var(--oportunidades-primary-dark);
-    }
-
-/* Ajustes responsive para la vista expandida */
-@media (max-width: 768px) {
-    .mes-detalle-expandido {
-        margin-top: 12px;
+    .grafico-container,
+    .motivos-grid {
         padding: 16px;
     }
 
-    .detalle-expandido-header {
-        flex-direction: column;
-        gap: 12px;
-        align-items: flex-start;
+    .cotizacion-card {
+        padding: 16px;
+    }
+}
+
+/* Mejoras específicas para modo claro en móviles */
+@media (max-width: 768px) {
+    body.light-mode .oportunidades-main-container {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     }
 
-        .detalle-expandido-header h4 {
-            font-size: 1.1rem;
-        }
-}
-
-/* Mejoras para las cards de cotizaci�n en vista detalle */
-.cotizacion-card {
-    transition: all 0.3s ease;
-}
-
-    .cotizacion-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 20px rgba(239, 68, 68, 0.1);
+    body.light-mode .kpi-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     }
-
-.cotizacion-info-extra {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
 }
 
-.cotizacion-version {
-    background: rgba(59, 130, 246, 0.2);
-    color: #3b82f6;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 700;
+/* Asegurar buena legibilidad en modo claro */
+body.light-mode {
+    color: #2c3e50;
+}
+
+body.light-mode .oportunidades-header-title p,
+body.light-mode .filtro-group label,
+body.light-mode .motivo-cantidad,
+body.light-mode .motivo-monto,
+body.light-mode .mes-cantidad,
+body.light-mode .cotizacion-fecha,
+body.light-mode .cotizacion-contacto,
+body.light-mode .breadcrumb-separator {
+    color: #6c757d;
+}
+
+body.light-mode .cotizacion-motivo strong {
+    color: #495057;
 }

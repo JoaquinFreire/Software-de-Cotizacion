@@ -445,13 +445,13 @@ export default function ClienteConMayorVolumen() {
                         {filtersVisible && (
                             <div className="filters-content-expanded" style={{ marginTop: 8 }}>
                                 <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-                                    <label>Desde: <input type="date" value={desde} onChange={e => setDesde(e.target.value)} /></label>
-                                    <label>Hasta: <input type="date" value={hasta} onChange={e => setHasta(e.target.value)} /></label>
+                                    <label >Desde: <input className="Desde-hasta-body" type="date" value={desde} onChange={e => setDesde(e.target.value)} /></label>
+                                    <label >Hasta: <input className="Desde-hasta-body" type="date" value={hasta} onChange={e => setHasta(e.target.value)} /></label>
 
                                     {userRole === 'coordinator' && (
-                                        <label>
+                                        <label >
                                             Cotizador:
-                                            <select value={selectedQuoter} onChange={e => setSelectedQuoter(e.target.value)} style={{ marginLeft: 6 }}>
+                                            <select className="Desde-hasta-body" value={selectedQuoter} onChange={e => setSelectedQuoter(e.target.value)} style={{ marginLeft: 6 }}>
                                                 <option value="">Todos</option>
                                                 {quoters.map(q => <option key={q.id} value={q.id}>{q.name}</option>)}
                                             </select>
@@ -529,9 +529,9 @@ export default function ClienteConMayorVolumen() {
                             )}
                         </div>
 
-                        <div style={{ border: '1px solid #e0e0e0', borderRadius: 8, overflow: 'hidden', maxHeight: '600px', overflowY: 'auto' }}>
+                        <div style={{ border: "1px solid #e0e0e0",borderRadius: 8, overflow: "hidden", maxHeight: "600px", overflowX: "auto",overflowY: "hidden",}}>
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                <thead style={{ background: '#3b3c3dff', position: 'sticky', top: 0 }}>
+                                <thead style={{ background: '#3b3c3dff', position: 'sticky', top: 0}}>
                                     <tr>
                                         <th
                                             style={{ padding: 12, borderBottom: '1px solid #e0e0e0', cursor: 'pointer' }}
