@@ -370,9 +370,6 @@ const filteredUsers = safeArray(users).filter(user => {
                                                             user.status === 1 ? "Desactivar" : "Activar"
                                                         )}
                                                     </button>
-
-                                                    <button className="details-button">Detalles</button>
-
                                                     <button
                                                         className="invite-button"
                                                         onClick={() => handleInvite(user)}

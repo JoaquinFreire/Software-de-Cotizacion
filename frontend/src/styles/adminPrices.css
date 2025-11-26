@@ -20,7 +20,7 @@
 
 .botton-create-price {
     padding: 1rem 2rem;
-    border-radius: 6px;
+    border-radius: 3px;
     background: linear-gradient(135deg, #26b7cd 0%, #2098aa 100%);
     color: #fff;
     border: none;
@@ -52,8 +52,8 @@
 
 /* Table Styles */
 .prices-table-container {
-    background: #1a1a1a;
-    border-radius: 8px;
+    background: #cc0000;
+    border-radius: 4px;
     overflow: hidden;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     border: 1px solid #2d3748;
@@ -65,7 +65,7 @@
     grid-template-columns: 3fr 1fr 1.5fr 200px; /* Más espacio para nombre, menos para precio */
     align-items: center;
     padding: 1.25rem 1.5rem;
-    background: linear-gradient(135deg, #289ca09f 0%, #197c8d70 100%);
+    background: #289ca0;
     color: #f8fafc;
     font-weight: 600;
     font-size: 0.9rem;
@@ -87,7 +87,7 @@
     border-bottom: 2px solid #000000;
     transition: all 0.2s ease;
     position: relative;
-    background: #363636a2;
+    background: #161515a2;
 }
 
 .prices-row:hover {
@@ -135,7 +135,7 @@
 /* Button Styles */
 .btn {
     padding: 0.75rem 1.25rem;
-    border-radius: 4px;
+    border-radius: 2px;
     border: none;
     cursor: pointer;
     font-weight: 600;
@@ -256,7 +256,7 @@
 .modal-form input {
     width: 100%;
     padding: 0.875rem 1rem;
-    border-radius: 10px;
+    border-radius: 5px;
     border: 1px solid #4b5563;
     margin-top: 0.5rem;
     background: #2d3748;
@@ -277,7 +277,7 @@
     width: 100%;
     height: 135px;
     padding: 0.875rem 1rem;
-    border-radius: 10px;
+    border-radius: 5px;
     border: 1px solid #4b5563;
     margin-top: 0.5rem;
     background: #2d3748;
