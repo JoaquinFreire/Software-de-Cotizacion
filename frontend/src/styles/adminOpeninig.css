@@ -549,8 +549,7 @@ body.light-mode .modal-input {
 
 @media (min-width: 769px) {
     .create-opeinig-button {
-        margin: 20px 10px 30px auto;
         display: block;
-        width: fit-content;
+        width: fit-content;  
     }
 }

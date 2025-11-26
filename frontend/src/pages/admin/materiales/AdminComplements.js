@@ -582,7 +582,7 @@ export default function AdminComplements() {
                         <input type="text" placeholder="Buscar complemento..." value={queryDoor} onChange={(e) => setQueryDoor(e.target.value)} disabled={isLoadingDoor} />
                         <div className="search-actions">
                             <button type="submit" disabled={isLoadingDoor}>{isLoadingDoor ? <ReactLoading type="spin" color="#fff" height={18} width={18} /> : "🔍"}</button>
-                            <button type="button" onClick={() => { openCreateModalDoor(); }} disabled={isLoadingDoor}>Cargar complemento</button>
+                            <button type="button" onClick={() => { openCreateModalDoor(); }} disabled={isLoadingDoor}>Cargar Puerta</button>
                             <button type="button" className="btn show-all" onClick={fetchAllDoors} disabled={isLoadingDoor}>{isLoadingDoor ? <ReactLoading type="spin" color="#fff" height={18} width={18} /> : "Mostrar todos"}</button>
                         </div>
                     </form>
@@ -627,7 +627,7 @@ export default function AdminComplements() {
                         <input type="text" placeholder="Buscar tabique..." value={queryPartition} onChange={(e) => setQueryPartition(e.target.value)} disabled={isLoadingPartition} />
                         <div className="search-actions">
                             <button type="submit" disabled={isLoadingPartition}>{isLoadingPartition ? <ReactLoading type="spin" color="#fff" height={18} width={18} /> : "🔍"}</button>
-                            <button type="button" onClick={() => openCreateModalPartition()} disabled={isLoadingPartition}>Cargar partición</button>
+                            <button type="button" onClick={() => openCreateModalPartition()} disabled={isLoadingPartition}>Cargar Tabique</button>
                             <button type="button" className="btn show-all" onClick={fetchAllPartitions} disabled={isLoadingPartition}>{isLoadingPartition ? <ReactLoading type="spin" color="#fff" height={18} width={18} /> : "Mostrar todos"}</button>
                         </div>
                     </form>
@@ -665,7 +665,7 @@ export default function AdminComplements() {
                         <input type="text" placeholder="Buscar baranda..." value={queryRailing} onChange={(e) => setQueryRailing(e.target.value)} disabled={isLoadingRailing} />
                         <div className="search-actions">
                             <button type="submit" disabled={isLoadingRailing}>{isLoadingRailing ? <ReactLoading type="spin" color="#fff" height={18} width={18} /> : "🔍"}</button>
-                            <button type="button" onClick={() => openCreateModalRailing()} disabled={isLoadingRailing}>Cargar baranda</button>
+                            <button type="button" onClick={() => openCreateModalRailing()} disabled={isLoadingRailing}>Cargar Baranda</button>
                             <button type="button" className="btn show-all" onClick={fetchAllRailings} disabled={isLoadingRailing}>{isLoadingRailing ? <ReactLoading type="spin" color="#fff" height={18} width={18} /> : "Mostrar todos"}</button>
                         </div>
                     </form>
