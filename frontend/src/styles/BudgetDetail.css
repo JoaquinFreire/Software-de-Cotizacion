@@ -639,3 +639,106 @@
     max-width: 100%;
   }
 }
+/* Estilos para la vista móvil de PDF */
+.pdf-mobile-fallback {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 20px;
+  background: #f8f9fa;
+}
+
+.pdf-mobile-card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+.pdf-mobile-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.pdf-mobile-card h3 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+  font-size: 1.4em;
+}
+
+.pdf-mobile-card p {
+  color: #7f8c8d;
+  margin-bottom: 25px;
+  font-size: 1em;
+}
+
+.pdf-mobile-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.pdf-mobile-btn {
+  padding: 14px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: block;
+  width: 100%;
+}
+
+.pdf-mobile-btn.primary {
+  background: #1976d2;
+  color: white;
+}
+
+.pdf-mobile-btn.primary:hover {
+  background: #1565c0;
+}
+
+.pdf-mobile-btn.secondary {
+  background: #f8f9fa;
+  color: #2c3e50;
+  border: 2px solid #e9ecef;
+}
+
+.pdf-mobile-btn.secondary:hover {
+  background: #e9ecef;
+}
+
+.pdf-mobile-info {
+  background: #e3f2fd;
+  padding: 12px;
+  border-radius: 6px;
+  border-left: 4px solid #1976d2;
+}
+
+.pdf-mobile-info small {
+  color: #455a64;
+  line-height: 1.4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .pdf-mobile-card {
+    padding: 20px;
+    margin: 10px;
+  }
+  
+  .pdf-mobile-icon {
+    font-size: 40px;
+  }
+  
+  .pdf-mobile-card h3 {
+    font-size: 1.2em;
+  }
+}

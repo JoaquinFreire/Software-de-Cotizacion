@@ -34,8 +34,27 @@ const BudgetDetail = () => {
   const [mailLoading, setMailLoading] = useState(false);
   const [whatsAppLoading, setWhatsAppLoading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [pdfBlob, setPdfBlob] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [useFallbackView, setUseFallbackView] = useState(false);
 
   const handleLogout = () => { localStorage.removeItem("token"); navigate("/"); };
+
+  // Detectar si es dispositivo móvil
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobile(mobile);
+      
+      // Detectar específicamente Chrome móvil que tiene problemas con PDF en iframes
+      const isChromeMobile = /Chrome/.test(navigator.userAgent) && mobile;
+      setUseFallbackView(isChromeMobile);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const safeNumber = (v) => {
     if (v === null || v === undefined) return null;
@@ -452,12 +471,19 @@ const BudgetDetail = () => {
         if (blob) {
           const url = URL.createObjectURL(blob);
           setPreviewUrl(url);
+          setPdfBlob(blob);
         }
       } catch (e) { console.error('Error generando preview', e); }
     })();
     return () => {
       mounted = false;
-      if (previewUrl) { URL.revokeObjectURL(previewUrl); setPreviewUrl(null); }
+      if (previewUrl) { 
+        URL.revokeObjectURL(previewUrl); 
+        setPreviewUrl(null);
+      }
+      if (pdfBlob) {
+        setPdfBlob(null);
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sanitizedBudget]);
@@ -595,6 +621,25 @@ const BudgetDetail = () => {
     }
   };
 
+  // Función para forzar la descarga en dispositivos móviles
+  const handleForceDownload = () => {
+    if (previewUrl) {
+      const link = document.createElement('a');
+      link.href = previewUrl;
+      link.download = `cotizacion_${show(sanitizedBudget?.budgetId)}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  // Función para abrir en nueva pestaña
+  const handleOpenInNewTab = () => {
+    if (previewUrl) {
+      window.open(previewUrl, '_blank');
+    }
+  };
+
   return (
     <div className="dashboard-container">
       <Navigation onLogout={handleLogout} />
@@ -634,7 +679,45 @@ const BudgetDetail = () => {
         ) : budget ? (
           <div className="pdf-container">
             {previewUrl ? (
-              <iframe title="preview-pdf" src={previewUrl} style={{ width: '100%', height: '100%', border: 'none' }} />
+              useFallbackView ? (
+                // Vista para Chrome móvil y navegadores problemáticos
+                <div className="pdf-mobile-fallback">
+                  <div className="pdf-mobile-card">
+                    <div className="pdf-mobile-icon">📄</div>
+                    <h3>PDF Generado Correctamente</h3>
+                    <p>Tu cotización está lista para ver o descargar</p>
+                    
+                    <div className="pdf-mobile-buttons">
+                      <button 
+                        className="pdf-mobile-btn primary"
+                        onClick={handleOpenInNewTab}
+                      >
+                        Ver PDF
+                      </button>
+                      <button 
+                        className="pdf-mobile-btn secondary"
+                        onClick={handleForceDownload}
+                      >
+                        Descargar
+                      </button>
+                    </div>
+                    
+                    <div className="pdf-mobile-info">
+                      <small>
+                        <strong>Nota:</strong> Algunos navegadores móviles no muestran PDFs correctamente.
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // Vista normal para desktop y navegadores compatibles
+                <iframe 
+                  title="preview-pdf" 
+                  src={previewUrl} 
+                  style={{ width: '100%', height: '100%', border: 'none' }}
+                  onError={() => setUseFallbackView(true)}
+                />
+              )
             ) : <div>Generando vista previa...</div>}
           </div>
         ) : <div>No se encontró la cotización.</div>}
