@@ -481,14 +481,19 @@ body.light-mode .btn-search {
   align-items: center;
   margin-bottom: 8px;
 }
-
+body.light-mode .modal-header {
+  background: #c5d1e2;
+  color: black;
+}
 .modal-header h3 {
   font-size: 1.5rem;
   color: #858888;
   font-weight: 700;
   margin: 0;
 }
-
+body.light-mode .modal-header h3 {
+  color: #090a0c;
+}
 .modal-close {
   background: none;
   border: none;

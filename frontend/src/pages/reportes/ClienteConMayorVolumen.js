@@ -515,110 +515,109 @@ export default function ClienteConMayorVolumen() {
                         </div>
                     )}
 
-                    {/* TABLA */}
-                    <div style={{ marginBottom: 16 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                            <div style={{ fontWeight: 700 }}>
-                                {userRole === 'quotator' ? 'Mis Clientes' : 'Clientes'}
-                                {data.length > 0 && ` (${data.length} clientes)`}
-                            </div>
-                            {data.length > 0 && totalPages > 1 && (
-                                <div style={{ fontSize: '0.9em', color: '#666' }}>
-                                    Página {currentPage} de {totalPages}
-                                </div>
-                            )}
-                        </div>
+                    <div className="clientes-wrapper">
+    <div className="clientes-header">
+        <div className="clientes-titulo">
+            {userRole === 'quotator' ? 'Mis Clientes' : 'Clientes'}
+            {data.length > 0 && ` (${data.length} clientes)`}
+        </div>
 
-                        <div style={{ border: "1px solid #e0e0e0",borderRadius: 8, overflow: "hidden", maxHeight: "600px", overflowX: "auto",overflowY: "hidden",}}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                <thead style={{ background: '#3b3c3dff', position: 'sticky', top: 0}}>
-                                    <tr>
-                                        <th
-                                            style={{ padding: 12, borderBottom: '1px solid #e0e0e0', cursor: 'pointer' }}
-                                            onClick={() => handleSort('clienteNombre')}
-                                        >
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                                Cliente
-                                                {getSortIcon('clienteNombre')}
-                                            </div>
-                                        </th>
-                                        <th style={{ padding: 12, borderBottom: '1px solid #e0e0e0' }}>Teléfono</th>
-                                        <th style={{ padding: 12, borderBottom: '1px solid #e0e0e0' }}>Contacto</th>
-                                        <th
-                                            style={{ padding: 12, borderBottom: '1px solid #e0e0e0', cursor: 'pointer' }}
-                                            onClick={() => handleSort('totalCotizaciones')}
-                                        >
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                                Total Cotizaciones
-                                                {getSortIcon('totalCotizaciones')}
-                                            </div>
-                                        </th>
-                                        <th
-                                            style={{ padding: 12, borderBottom: '1px solid #e0e0e0', cursor: 'pointer' }}
-                                            onClick={() => handleSort('cotizacionesAceptadas')}
-                                        >
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                                Aceptadas
-                                                {getSortIcon('cotizacionesAceptadas')}
-                                            </div>
-                                        </th>
-                                        <th
-                                            style={{ padding: 12, borderBottom: '1px solid #e0e0e0', cursor: 'pointer' }}
-                                            onClick={() => handleSort('cotizacionesRechazadas')}
-                                        >
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                                Rechazadas
-                                                {getSortIcon('cotizacionesRechazadas')}
-                                            </div>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {loading ? (
-                                        <tr>
-                                            <td colSpan={6} style={{ padding: 24, textAlign: 'center' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                                                    <RefreshCw size={16} className="spinner" />
-                                                    Cargando clientes...
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ) : data.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={6} style={{ padding: 24, textAlign: 'center' }}>
-                                                {error ? error : 'No hay datos para mostrar. Haz clic en "Generar" para cargar los clientes.'}
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        currentData.map((c, index) => (
-                                            <tr key={c.clienteId} style={{ background: index % 2 === 0 ? '#5f5f5fff' : '#707272ff' }}>
-                                                <td style={{ padding: 12, textAlign: 'left', borderBottom: '1px solid #f0f0f0' }}>
-                                                    {c.clienteNombre || 'Cliente no identificado'}
-                                                </td>
-                                                <td style={{ padding: 12, textAlign: 'center', borderBottom: '1px solid #f0f0f0' }}>
-                                                    {c.telefono || 'Sin teléfono'}
-                                                </td>
-                                                <td style={{ padding: 12, textAlign: 'center', borderBottom: '1px solid #f0f0f0' }}>
-                                                    {c.mail || 'Sin email'}
-                                                </td>
-                                                <td style={{ padding: 12, textAlign: 'center', borderBottom: '1px solid #f0f0f0' }}>{c.totalCotizaciones}</td>
-                                                <td style={{ padding: 12, textAlign: 'center', borderBottom: '1px solid #f0f0f0' }}>{c.cotizacionesAceptadas}</td>
-                                                <td style={{ padding: 12, textAlign: 'center', borderBottom: '1px solid #f0f0f0' }}>{c.cotizacionesRechazadas}</td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
+        {data.length > 0 && totalPages > 1 && (
+            <div className="clientes-paginacion">
+                Página {currentPage} de {totalPages}
+            </div>
+        )}
+    </div>
+
+    <div className="clientes-table-container">
+        <table className="clientes-table">
+            <thead className="clientes-thead">
+                <tr>
+                    <th className="clientes-th sortable" onClick={() => handleSort('clienteNombre')}>
+                        <div className="clientes-th-content">
+                            Cliente
+                            {getSortIcon('clienteNombre')}
                         </div>
+                    </th>
+
+                    <th className="clientes-th">Teléfono</th>
+                    <th className="clientes-th">Contacto</th>
+
+                    <th className="clientes-th sortable" onClick={() => handleSort('totalCotizaciones')}>
+                        <div className="clientes-th-content">
+                            Total Cotizaciones
+                            {getSortIcon('totalCotizaciones')}
+                        </div>
+                    </th>
+
+                    <th className="clientes-th sortable" onClick={() => handleSort('cotizacionesAceptadas')}>
+                        <div className="clientes-th-content">
+                            Aceptadas
+                            {getSortIcon('cotizacionesAceptadas')}
+                        </div>
+                    </th>
+
+                    <th className="clientes-th sortable" onClick={() => handleSort('cotizacionesRechazadas')}>
+                        <div className="clientes-th-content">
+                            Rechazadas
+                            {getSortIcon('cotizacionesRechazadas')}
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {loading ? (
+                    <tr>
+                        <td colSpan={6} className="clientes-loading">
+                            <div className="clientes-loading-content">
+                                <RefreshCw size={16} className="spinner" />
+                                Cargando clientes...
+                            </div>
+                        </td>
+                    </tr>
+                ) : data.length === 0 ? (
+                    <tr>
+                        <td colSpan={6} className="clientes-no-data">
+                            {error ? error : 'No hay datos para mostrar. Haz clic en "Generar" para cargar los clientes.'}
+                        </td>
+                    </tr>
+                ) : (
+                    currentData.map((c, index) => (
+                        <tr
+                            key={c.clienteId}
+                            className={`clientes-row ${index % 2 === 0 ? 'row-par' : 'row-impar'}`}
+                        >
+                            <td className="clientes-td left">
+                                {c.clienteNombre || 'Cliente no identificado'}
+                            </td>
+
+                            <td className="clientes-td center">
+                                {c.telefono || 'Sin teléfono'}
+                            </td>
+
+                            <td className="clientes-td center">
+                                {c.mail || 'Sin email'}
+                            </td>
+
+                            <td className="clientes-td center">{c.totalCotizaciones}</td>
+                            <td className="clientes-td center">{c.cotizacionesAceptadas}</td>
+                            <td className="clientes-td center">{c.cotizacionesRechazadas}</td>
+                        </tr>
+                    ))
+                )}
+            </tbody>
+        </table>
+    </div>
+
+
 
                         {/* Paginación */}
                         {data.length > itemsPerPage && (
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 16 }}>
+                            <div class="pagination-nav">
                                 <button
                                     onClick={() => goToPage(currentPage - 1)}
                                     disabled={currentPage === 1}
-                                    className="btn-outline"
-                                    style={{ padding: '8px 12px' }}
                                 >
                                     Anterior
                                 </button>
@@ -626,22 +625,15 @@ export default function ClienteConMayorVolumen() {
                                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                                     <button
                                         key={page}
-                                        onClick={() => goToPage(page)}
-                                        className={currentPage === page ? "btn-primary" : "btn-outline"}
-                                        style={{
-                                            padding: '8px 12px',
-                                            minWidth: '40px'
-                                        }}
+                                        onClick={() => goToPage(page)}                             
                                     >
                                         {page}
                                     </button>
                                 ))}
-
                                 <button
                                     onClick={() => goToPage(currentPage + 1)}
                                     disabled={currentPage === totalPages}
-                                    className="btn-outline"
-                                    style={{ padding: '8px 12px' }}
+
                                 >
                                     Siguiente
                                 </button>

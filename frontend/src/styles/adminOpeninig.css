@@ -147,6 +147,10 @@ body.light-mode .opening-size {
     flex-direction: column;
     gap: 18px;
 }
+body.light-mode .modal-content.modal-opening-form {
+    background: #ffffff;
+    color: #000;
+}
 
 .modal-title {
     text-align: center;

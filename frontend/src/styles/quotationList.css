@@ -127,13 +127,13 @@ body.light-mode .delete-button {
     color: #d32f2f;
 }
 body.light-mode .status-select {
-    background: hsl(55, 100%, 72%);
+    background: hsl(55, 74%, 82%);
     color: #ac7d06;
     border: none;
 }
 body.light-mode .status-select option {
-    background: hsl(55, 60%, 63%);
-    color: #f0d911;
+    background: hsl(55, 100%, 75%);
+    color: #332f0f;
 }
 body.light-mode .dropdown {
     background: #e3f2fd;

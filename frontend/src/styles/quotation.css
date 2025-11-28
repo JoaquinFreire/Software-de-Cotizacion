@@ -411,6 +411,11 @@ input, select {
     color: white;
 }
 
+body.light-mode input, body.light-mode select {
+    background: #f0f8fb;
+    color: #000000;
+}
+
 input::placeholder, select::placeholder {
     color: gray;
 }
@@ -691,7 +696,9 @@ body.light-mode .quotation-summary h3 {
     gap: 8px;
     margin: 8px 0 4px 0;
 }
-
+body.light-mode .summary-qty {
+    color: #000000;
+}
 .summary-qty-btn {
     background: #26b7cd;
     color: #111b1d;
@@ -717,7 +724,7 @@ body.light-mode .quotation-summary h3 {
     text-align: center;
     font-weight: 600;
     font-size: 15px;
-    color: #fff;
+    color: #ffffff;
 }
 
 /* Opening preview */

@@ -483,104 +483,58 @@ const ReporteMaterialesUsados = () => {
                     </div>
 
                     {/* FILTROS POR FECHA */}
-                    <div style={{
-                        background: 'var(--beneficio-bg-lighter)',
-                        padding: '16px',
-                        borderRadius: '8px',
-                        marginBottom: '20px',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
-                    }}>
-                        <div
-                            style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                cursor: 'pointer',
-                                userSelect: 'none'
-                            }}
-                            onClick={() => setFiltersVisible(!filtersVisible)}
-                        >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <Filter size={18} />
-                                <span style={{ fontWeight: '600' }}>Filtros del Reporte</span>
-                            </div>
-                            {filtersVisible ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                        </div>
+                    <div className="filtros-container">
+    <div
+        className="filtros-header"
+        onClick={() => setFiltersVisible(!filtersVisible)}
+    >
+        <div className="filtros-header-left">
+            <Filter size={18} />
+            <span className="filtros-titulo">Filtros del Reporte</span>
+        </div>
+        {filtersVisible ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+    </div>
 
-                        {filtersVisible && (
-                            <div style={{
-                                marginTop: '16px',
-                                paddingTop: '16px',
-                                borderTop: '1px solid #e0e0e0',
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                                gap: '16px',
-                                alignItems: 'end'
-                            }}>
-                                <div>
-                                    <label style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        marginBottom: '8px',
-                                        fontWeight: '500',
-                                        fontSize: '14px'
-                                    }}>
-                                        <Calendar size={16} />
-                                        Desde:
-                                    </label>
-                                    <input
-                                        type="date"
-                                        value={fechaDesde}
-                                        onChange={e => setFechaDesde(e.target.value)}
-                                        style={{
-                                            width: '100%',
-                                            padding: '8px',
-                                            border: '1px solid #d0d0d0',
-                                            borderRadius: '4px',
-                                            fontSize: '14px'
-                                        }}
-                                    />
-                                </div>
-                                <div>
-                                    <label style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        marginBottom: '8px',
-                                        fontWeight: '500',
-                                        fontSize: '14px'
-                                    }}>
-                                        <Calendar size={16} />
-                                        Hasta:
-                                    </label>
-                                    <input
-                                        type="date"
-                                        value={fechaHasta}
-                                        onChange={e => setFechaHasta(e.target.value)}
-                                        style={{
-                                            width: '100%',
-                                            padding: '8px',
-                                            border: '1px solid #d0d0d0',
-                                            borderRadius: '4px',
-                                            fontSize: '14px'
-                                        }}
-                                    />
-                                </div>
-                                <button
-                                    className="btn-primary"
-                                    onClick={applyFilters}
-                                    disabled={loading || !fechaDesde || !fechaHasta}
-                                    style={{
-                                        marginBottom: '10'
-                                    }}
-                                >
-                                    <Filter size={16} />
-                                    Aplicar Filtro
-                                </button>
-                            </div>
-                        )}
-                    </div>
+    {filtersVisible && (
+        <div className="filtros-grid">
+            <div>
+                <label className="filtros-label">
+                    <Calendar size={16} />
+                    Desde:
+                </label>
+                <input
+                    type="date"
+                    value={fechaDesde}
+                    onChange={e => setFechaDesde(e.target.value)}
+                    className="filtros-input"
+                />
+            </div>
+
+            <div>
+                <label className="filtros-label">
+                    <Calendar size={16} />
+                    Hasta:
+                </label>
+                <input
+                    type="date"
+                    value={fechaHasta}
+                    onChange={e => setFechaHasta(e.target.value)}
+                    className="filtros-input"
+                />
+            </div>
+
+            <button
+                className="btn-primary filtros-boton"
+                onClick={applyFilters}
+                disabled={loading || !fechaDesde || !fechaHasta}
+            >
+                <Filter size={16} />
+                Aplicar Filtro
+            </button>
+        </div>
+    )}
+</div>
+
 
                     {/* KPI CARDS */}
                     <div className="kpi-section">

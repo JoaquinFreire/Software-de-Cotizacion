@@ -133,29 +133,6 @@ body.light-mode .header-title p {
     text-decoration: none;
 }
 
-.btn-primary {
-    background: var(--beneficio-bg-lighter);
-    color: white;
-    border: 1px solid var(--beneficio-border-light);
-}
-
-    .btn-primary:hover:not(:disabled) {
-        background: var(--beneficio-bg-light);
-        transform: translateY(-2px);
-        border-color: var(--beneficio-border-lighter);
-    }
-
-.btn-secondary {
-    background: var(--beneficio-bg-medium);
-    color: white;
-    border: 1px solid var(--beneficio-border);
-}
-
-    .btn-secondary:hover:not(:disabled) {
-        background: var(--beneficio-bg-light);
-        transform: translateY(-2px);
-        border-color: var(--beneficio-border-light);
-    }
 
 .btn-calculate {
     background: var(--beneficio-success);
@@ -708,7 +685,11 @@ body.light-mode .breakdown-amount-large {
     border-radius: 8px;
     border: 1px dashed var(--beneficio-border);
 }
-
+body.light-mode .no-result {
+    background: #ffffff;
+    color: #4b5563;
+    border: 1px dashed #d1d5db;
+}
 /* MODAL */
 .modal-overlay {
     position: fixed;

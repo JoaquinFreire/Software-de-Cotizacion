@@ -988,6 +988,191 @@ body.light-mode .quotation-assignee {
     animation: spin 1s linear infinite;
 }
 
+/* Contenedor principal */
+.filtros-container {
+    background: #2d2d2d;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+body.light-mode .filtros-container {
+    background: #fafafa;
+    border: 1px solid #ddd;
+}
+/* Header clickeable */
+.filtros-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Íconos + texto */
+.filtros-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filtros-titulo {
+    font-weight: 600;
+}
+
+/* Contenedor de filtros desplegados */
+.filtros-grid {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e0e0e0;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    align-items: end;
+}
+
+/* Labels */
+.filtros-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 14px;
+}
+body.light-mode .filtros-label {
+    color: #000;
+}
+
+/* Margen contenedor principal */
+.clientes-wrapper {
+    margin-bottom: 16px;
+}
+body.light-mode .clientes-wrapper {
+    color: #000;
+}
+/* Header de título + paginación */
+.clientes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.clientes-titulo {
+    font-weight: 700;
+}
+
+.clientes-paginacion {
+    font-size: 0.9em;
+    color: #666;
+}
+
+/* Contenedor con scroll horizontal */
+.clientes-table-container {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    max-height: 600px;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* Tabla */
+.clientes-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Thead sticky */
+.clientes-thead {
+    background: #3b3c3dff;
+    position: sticky;
+    top: 0;
+}
+body.light-mode .clientes-thead {
+    background: #c5c5c5;
+}
+
+/* Encabezados */
+.clientes-th {
+    padding: 12px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.sortable {
+    cursor: pointer;
+}
+
+.clientes-th-content {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Filas */
+.clientes-row {
+    transition: background 0.2s ease-in-out;
+}
+
+.row-par {
+    background: #5f5f5fff;
+}
+body.light-mode .row-par {
+    background: #eeeded;
+}
+.row-impar {
+    background: #707272ff;
+}
+body.light-mode .row-impar {
+    background: #ffffff;
+}
+
+/* Celdas */
+.clientes-td {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.clientes-td.left {
+    text-align: left;
+}
+
+.clientes-td.center {
+    text-align: center;
+}
+
+/* Loading */
+.clientes-loading,
+.clientes-no-data {
+    padding: 24px;
+    text-align: center;
+}
+
+.clientes-loading-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Inputs */
+.filtros-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Botón Aplicar */
+.filtros-boton {
+    width: 170px;
+    margin-bottom: 10px;
+}
+
+
 @keyframes spin {
     from {
         transform: rotate(0deg);

@@ -859,11 +859,12 @@ const Quotation = () => {
             heightMM <= cfg.max_height_mm &&
             Number(opening.typeId) === Number(cfg.opening_type_id)
         );
-        if (!config) return "Sin configuración";
-
-        // Prefer user-selected panel counts; fall back to config
-        const numPanelsWidth = opening.numPanelsWidth || config.num_panels_width;
-        const numPanelsHeight = opening.numPanelsHeight || config.num_panels_height;
+        
+        // Si no hay config predefinida, usar los paneles ingresados manualmente
+        // Si hay config, usar esos valores como fallback
+        const numPanelsWidth = opening.numPanelsWidth || (config ? config.num_panels_width : 1);
+        const numPanelsHeight = opening.numPanelsHeight || (config ? config.num_panels_height : 1);
+        
         const totalPanels = numPanelsWidth * numPanelsHeight;
 
         // panel sizes: opening.panelWidth/panelHeight stored in cm -> convertir a mm
@@ -952,9 +953,11 @@ const Quotation = () => {
                 heightMM <= cfg.max_height_mm &&
                 Number(opening.typeId) === Number(cfg.opening_type_id)
             );
-            if (!config) return;
-            const numPanelsWidth = opening.numPanelsWidth || config.num_panels_width;
-            const numPanelsHeight = opening.numPanelsHeight || config.num_panels_height;
+            
+            // Si no hay config predefinida, usar los paneles ingresados manualmente
+            const numPanelsWidth = opening.numPanelsWidth || (config ? config.num_panels_width : 1);
+            const numPanelsHeight = opening.numPanelsHeight || (config ? config.num_panels_height : 1);
+            
             const totalPanels = numPanelsWidth * numPanelsHeight;
             const anchoPanelMM = (opening.panelWidth !== undefined && opening.panelWidth !== '')
                 ? Number(opening.panelWidth) * 10

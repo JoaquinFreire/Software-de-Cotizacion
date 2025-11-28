@@ -174,7 +174,7 @@ export default function AdminGlass() {
 					</form>
 
 					<div className="results-table">
-						<div className="results-header"><div className="col name">Nombre</div><div className="col desc">Descripción</div><div className="col percent">Precio</div><div className="col-actions">Acciones</div></div>
+						<div className="results-header"><div className="col name">Nombre</div><div className="col-actions">Acciones</div><div className="col desc">Descripción</div><div className="col percent">Precio</div></div>
 						<div className="results-body">
 							{isLoading ? <div style={{ padding: 28, display: "flex", justifyContent: "center" }}><ReactLoading type="spin" color="#26b7cd" height={36} width={36} /></div>
 								: results.length === 0 ? <div className="no-results">Sin resultados</div>
