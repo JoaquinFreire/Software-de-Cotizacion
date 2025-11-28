@@ -320,6 +320,17 @@ const ReporteMaterialesUsados = () => {
         }
     };
 
+    // Imprimir solo el área del reporte
+    const handlePrint = () => {
+        document.body.classList.add('print-materiales-usados-only');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                document.body.classList.remove('print-materiales-usados-only');
+            }, 100);
+        }, 50);
+    };
+
     // Loading mientras verifica rol
     if (roleLoading) {
         return (
@@ -478,6 +489,16 @@ const ReporteMaterialesUsados = () => {
                             <button className="btn-primary" onClick={handleRefresh} disabled={!dateFiltersApplied}>
                                 <RefreshCw size={18} />
                                 Actualizar
+                            </button>
+                            {/* Botón Imprimir */}
+                            <button
+                                className="btn-secondary"
+                                style={{ marginLeft: 8 }}
+                                onClick={handlePrint}
+                                disabled={loading}
+                                type="button"
+                            >
+                                🖨️ Imprimir
                             </button>
                         </div>
                     </div>

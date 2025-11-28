@@ -323,6 +323,17 @@ const DashboardEficienciaOperativa = () => {
         fetchDashboardData();
     };
 
+    // Imprimir solo el área del reporte
+    const handlePrint = () => {
+        document.body.classList.add('print-eficiencia-operativa-only');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                document.body.classList.remove('print-eficiencia-operativa-only');
+            }, 100);
+        }, 50);
+    };
+
     // Loading mientras verifica rol
     if (roleLoading) {
         return (
@@ -436,6 +447,16 @@ const DashboardEficienciaOperativa = () => {
                             <button className="btn-primary" onClick={handleRefresh}>
                                 <RefreshCw size={18} />
                                 Actualizar
+                            </button>
+                            {/* Botón Imprimir */}
+                            <button
+                                className="btn-secondary"
+                                style={{ marginLeft: 8 }}
+                                onClick={handlePrint}
+                                disabled={loading}
+                                type="button"
+                            >
+                                🖨️ Imprimir
                             </button>
                         </div>
                     </div>

@@ -279,6 +279,17 @@ const ReporteEstadoCotizaciones = () => {
         });
     };
 
+    // Botón imprimir solo el área del reporte
+    const handlePrint = () => {
+        document.body.classList.add('print-agenda-only');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                document.body.classList.remove('print-agenda-only');
+            }, 100);
+        }, 50);
+    };
+
     const cotizacionesPorEstado = {
         pending: cotizaciones.filter(q => q.Status === 'pending'),
         approved: cotizaciones.filter(q => q.Status === 'approved'),
@@ -592,6 +603,16 @@ const ReporteEstadoCotizaciones = () => {
                                     >
                                         <RefreshCw size={18} />
                                         {loading ? 'Generando...' : 'Generar Reporte'}
+                                    </button>
+                                    {/* Botón Imprimir */}
+                                    <button
+                                        className="estado-btn estado-btn-secondary"
+                                        style={{ marginLeft: 8 }}
+                                        onClick={handlePrint}
+                                        disabled={loading}
+                                        type="button"
+                                    >
+                                        🖨️ Imprimir
                                     </button>
                                 </div>
                             </div>

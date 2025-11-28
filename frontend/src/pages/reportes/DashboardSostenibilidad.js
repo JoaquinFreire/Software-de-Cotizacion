@@ -600,6 +600,17 @@ const DashboardSostenibilidad = () => {
     const growthRate = calculateGrowthRate();
     const chartData = generateChartData();
 
+    // Imprimir solo el área del reporte
+    const handlePrint = () => {
+        document.body.classList.add('print-sostenibilidad-only');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                document.body.classList.remove('print-sostenibilidad-only');
+            }, 100);
+        }, 50);
+    };
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
@@ -644,6 +655,16 @@ const DashboardSostenibilidad = () => {
                                 <button className="sustainability-btn sustainability-btn-primary" onClick={handleRefresh} disabled={loading.metrics}>
                                     <RefreshCw size={18} />
                                     {loading.metrics ? 'Cargando...' : 'Actualizar'}
+                                </button>
+                                {/* Botón Imprimir */}
+                                <button
+                                    className="sustainability-btn sustainability-btn-secondary"
+                                    style={{ marginLeft: 8 }}
+                                    onClick={handlePrint}
+                                    disabled={loading.metrics}
+                                    type="button"
+                                >
+                                    🖨️ Imprimir
                                 </button>
                             </div>
                         </div>

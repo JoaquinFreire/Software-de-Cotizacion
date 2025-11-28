@@ -713,6 +713,17 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
         return formErrors[activeTab] || {};
     };
 
+    // Imprimir solo el área del reporte
+    const handlePrint = () => {
+        document.body.classList.add('print-beneficio-only');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                document.body.classList.remove('print-beneficio-only');
+            }, 100);
+        }, 50);
+    };
+
     if (roleLoading) {
         return (
             <div className="dashboard-container">
@@ -831,6 +842,16 @@ const BeneficioEnCotizacionesPorTipoDeLinea = () => {
                                     </button>
                                 </>
                             )}
+                            {/* Botón Imprimir */}
+                            <button
+                                className="btn btn-secondary"
+                                style={{ marginLeft: 8 }}
+                                onClick={handlePrint}
+                                disabled={loading}
+                                type="button"
+                            >
+                                🖨️ Imprimir
+                            </button>
                         </div>
                     </div>
 

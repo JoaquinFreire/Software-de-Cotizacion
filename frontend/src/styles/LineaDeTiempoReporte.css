@@ -4,6 +4,7 @@
     padding: 20px 20px 10px 20px;
     background: rgb(54, 54, 54);
     border-radius: 19px;
+    width: 85%;
 }
 body.light-mode .timeline-report-container {
     background: #d1d0d0;
