@@ -207,8 +207,11 @@ body.light-mode .card-description {
     margin: 0 auto 4rem auto;
     padding: 0 2rem;
     max-width: 1400px;
-}
 
+}
+body.light-mode .treatments-grid  {
+        color: black;
+}
 .treatment-card {
     position: relative;
     background: linear-gradient(145deg, #1e353b, #0f272a);

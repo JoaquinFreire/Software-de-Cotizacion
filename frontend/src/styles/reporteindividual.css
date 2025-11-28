@@ -697,6 +697,9 @@
     color: #ffffff;
     font-size: 14px;
 }
+body.light-mode .chart-title {
+    color: #000000;
+}
 
 .bar-chart {
     display: flex;
@@ -716,6 +719,9 @@
     font-size: 12px;
     color: #c2c1c1;
     max-width: 10px;
+}
+body.light-mode .bar-label {
+    color: #4b5563;
 }
 
 .bar-track {

@@ -242,7 +242,9 @@ body.light-mode .users-table td {
     margin-bottom: 6px;
     font-size: 0.98rem;
 }
-
+body.light-mode .readonly-field {
+    color: #000000;
+}
 .input-error {
     border: 1.5px solid #ff6b6b;
     background: #2a1a1a;

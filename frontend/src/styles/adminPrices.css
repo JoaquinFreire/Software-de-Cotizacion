@@ -384,14 +384,10 @@ body.light-mode .btn.delete:hover:not(:disabled) {
     background: rgba(220, 53, 69, 0.2);
 }
 
-body.light-mode .modal {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-}
+
 
 body.light-mode .modal h3 {
-    color: #1e293b;
+    color: #7e8083;
 }
 
 body.light-mode .modal-form label {
