@@ -493,6 +493,17 @@ const ReporteConsumoComplementos = () => {
         }, 100);
     };
 
+    // Imprimir solo el área del reporte
+    const handlePrint = () => {
+        document.body.classList.add('print-consumo-complementos-only');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                document.body.classList.remove('print-consumo-complementos-only');
+            }, 100);
+        }, 50);
+    };
+
     // Filtrar complementos por tipo
     const filtrarPorTipo = (complementos) => {
         if (tipoComplemento === 'todos') return complementos;
@@ -711,6 +722,16 @@ const ReporteConsumoComplementos = () => {
                         <button className="cc-btn cc-btn-primary" onClick={handleGenerarReporte} disabled={loading || generar || invalidRange}>
                             <RefreshCw size={18} />
                             {loading ? 'Cargando...' : 'Generar Reporte'}
+                        </button>
+                        {/* Botón Imprimir */}
+                        <button
+                            className="cc-btn cc-btn-secondary"
+                            style={{ marginLeft: 8 }}
+                            onClick={handlePrint}
+                            disabled={loading}
+                            type="button"
+                        >
+                            🖨️ Imprimir
                         </button>
                     </div>
                 </div>

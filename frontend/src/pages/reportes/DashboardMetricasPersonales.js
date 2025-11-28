@@ -297,6 +297,17 @@ const DashboardMetricasPersonales = () => {
         }
     };
 
+    // Imprimir solo el área del reporte
+    const handlePrint = () => {
+        document.body.classList.add('print-metricas-personales-only');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                document.body.classList.remove('print-metricas-personales-only');
+            }, 100);
+        }, 50);
+    };
+
     if (roleLoading) {
         return (
             <div className="dashboard-container">
@@ -425,6 +436,16 @@ const DashboardMetricasPersonales = () => {
                                 >
                                     <RefreshCw size={18} />
                                     {loading.overall ? 'Generando...' : 'Generar Reporte'}
+                                </button>
+                                {/* Botón Imprimir */}
+                                <button
+                                    className="metrics-btn metrics-btn-secondary"
+                                    style={{ marginLeft: 8 }}
+                                    onClick={handlePrint}
+                                    disabled={loading.overall}
+                                    type="button"
+                                >
+                                    🖨️ Imprimir
                                 </button>
                             </div>
                         </div>

@@ -116,6 +116,7 @@ const ReporteDeTendenciasDeCotizacionPorMes = () => {
 
     const navigate = useNavigate();
     const pdfRef = useRef();
+    const mainWrapperRef = useRef();
 
     // Verificación de rol
     useEffect(() => {
@@ -574,11 +575,22 @@ const ReporteDeTendenciasDeCotizacionPorMes = () => {
         }
     };
 
+    // Imprimir solo el área del reporte
+    const handlePrint = () => {
+        document.body.classList.add('print-tendencias-only');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                document.body.classList.remove('print-tendencias-only');
+            }, 100);
+        }, 50);
+    };
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
 
-            <div className="tendencias-main-wrapper">
+            <div className="tendencias-main-wrapper" ref={mainWrapperRef}>
                 <div className="tendencias-content-container">
                     <div className="tendencias-main-container">
                         {/* HEADER */}
@@ -594,6 +606,16 @@ const ReporteDeTendenciasDeCotizacionPorMes = () => {
                                 <button className="tendencias-btn tendencias-btn-primary" onClick={handleGenerar} disabled={loading}>
                                     <RefreshCw size={18} />
                                     {loading ? 'Generando...' : 'Generar Reporte'}
+                                </button>
+                                {/* Botón Imprimir */}
+                                <button
+                                    className="tendencias-btn tendencias-btn-secondary"
+                                    style={{ marginLeft: 8 }}
+                                    onClick={handlePrint}
+                                    disabled={loading}
+                                    type="button"
+                                >
+                                    🖨️ Imprimir
                                 </button>
                             </div>
                         </div>

@@ -148,6 +148,7 @@ const AgendaSemanalCotizaciones = () => {
 
     const navigate = useNavigate();
     const initialized = useRef(false);
+    const reporteRef = useRef(null); // 1. Referencia al contenedor del reporte
 
     useEffect(() => {
         const checkUserRole = () => {
@@ -718,19 +719,28 @@ const AgendaSemanalCotizaciones = () => {
         );
     }
 
+    // 3. Función para imprimir solo el reporte
+    const handlePrint = () => {
+        document.body.classList.add('print-agenda-only');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                document.body.classList.remove('print-agenda-only');
+            }, 100);
+        }, 50);
+    };
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
-
             <div className="estado-main-wrapper">
                 <div className="estado-content-container">
-                    <div className="estado-main-container">
-
+                    <div className="estado-main-container" ref={reporteRef}>
                         {/* Header */}
                         <div className="estado-header">
                                 <Calendar size={32} />
                                 <div>
-                                    <h1 className="estado-header-title">Agenda Semanal de Cotizaciones</h1>
+                                    <h1 className="estado-header-title">&nbsp;Agenda Semanal de Cotizaciones</h1>
                                     <p>Seguimiento cronológico de tus actividades</p>
                                 </div>
                             
@@ -819,7 +829,7 @@ const AgendaSemanalCotizaciones = () => {
                                     </div>
                                 </div>
 
-                                {/* Botón actualizar */}
+                                {/* Botón actualizar y imprimir */}
                                 <div className="filtro-actions">
                                     <button
                                         className="estado-btn estado-btn-primary"
@@ -828,6 +838,16 @@ const AgendaSemanalCotizaciones = () => {
                                     >
                                         <RefreshCw size={18} />
                                         {loading ? 'Cargando...' : 'Actualizar'}
+                                    </button>
+                                    {/* 2. Botón Imprimir */}
+                                    <button
+                                        className="estado-btn estado-btn-secondary"
+                                        style={{ marginLeft: 8 }}
+                                        onClick={handlePrint}
+                                        disabled={loading}
+                                        type="button"
+                                    >
+                                        🖨️ Imprimir
                                     </button>
                                 </div>
                             </div>

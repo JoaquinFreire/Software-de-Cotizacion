@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Navigation from '../../components/Navigation';
 import Footer from '../../components/Footer';
 import { TrendingUp, Filter, ChevronDown, ChevronUp, RefreshCw, ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
@@ -339,6 +339,8 @@ export default function ClienteConMayorVolumen() {
     const totalAccepted = data.reduce((s, c) => s + (Number(c.cotizacionesAceptadas) || 0), 0);
     const totalRejected = data.reduce((s, c) => s + (Number(c.cotizacionesRechazadas) || 0), 0);
 
+    const mainWrapperRef = useRef(null);
+
     // Loading mientras verifica rol
     if (roleLoading) {
         return (
@@ -407,10 +409,21 @@ export default function ClienteConMayorVolumen() {
         );
     }
 
+    // Imprimir solo el área del reporte
+    const handlePrint = () => {
+        document.body.classList.add('print-clientes-volumen-only');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                document.body.classList.remove('print-clientes-volumen-only');
+            }, 100);
+        }, 50);
+    };
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
-            <div className="dashboard-main-wrapper">
+            <div className="dashboard-main-wrapper" ref={mainWrapperRef}>
                 <div className="dashboard-content-container">
                     <div className="dashboard-header">
                         <div className="header-title">
@@ -427,6 +440,16 @@ export default function ClienteConMayorVolumen() {
                         <div className="header-actions">
                             <button className="btn-primary" onClick={fetchReport} disabled={loading}>
                                 <RefreshCw size={16} /> {loading ? 'Cargando...' : 'Generar'}
+                            </button>
+                            {/* Botón Imprimir */}
+                            <button
+                                className="btn-secondary"
+                                style={{ marginLeft: 8 }}
+                                onClick={handlePrint}
+                                disabled={loading}
+                                type="button"
+                            >
+                                🖨️ Imprimir
                             </button>
                         </div>
                     </div>

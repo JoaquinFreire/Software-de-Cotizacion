@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import ciudadesBarrios from '../../json/ciudadesBarriosCordoba.json';
 import ReactLoading from 'react-loading';
@@ -37,6 +37,8 @@ const getDefaultDates = () => {
 };
 
 const AnalisisDeProyectoPorUbicacionGeografica = () => {
+    const contentRef = useRef(null);
+
     const defaultDates = getDefaultDates();
     const [fechaDesde, setFechaDesde] = useState(defaultDates.desde);
     const [fechaHasta, setFechaHasta] = useState(defaultDates.hasta);
@@ -294,12 +296,22 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
 
     const getQuotationId = (q) => q?.Id || q?.id || null;
 
+    // Imprimir solo el área del reporte
+    const handlePrint = () => {
+        document.body.classList.add('print-ubicacion-only');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                document.body.classList.remove('print-ubicacion-only');
+            }, 100);
+        }, 50);
+    };
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
 
-            <div className="analisis-ubicacion-content">
-
+            <div className="analisis-ubicacion-content" ref={contentRef}>
                 {/* HEADER */}
                 <div className="analisis-ubicacion-header">
                     <div className="header-title-moderno">
@@ -317,6 +329,16 @@ const AnalisisDeProyectoPorUbicacionGeografica = () => {
                         >
                             <RefreshCw size={18} />
                             {loading ? 'Generando...' : 'Generar Reporte'}
+                        </button>
+                        {/* Botón Imprimir */}
+                        <button
+                            className="btn-moderno btn-secondary-moderno"
+                            style={{ marginLeft: 8 }}
+                            onClick={handlePrint}
+                            disabled={loading}
+                            type="button"
+                        >
+                            🖨️ Imprimir
                         </button>
                     </div>
                 </div>

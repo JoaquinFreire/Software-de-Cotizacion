@@ -269,6 +269,7 @@ const LineaDeTiempoCotizaciones = () => {
 
     const navigate = useNavigate();
     const pdfRef = useRef();
+    const timelineReportRef = useRef();
 
     const filtrosIniciales = {
         search: '',
@@ -691,12 +692,35 @@ const LineaDeTiempoCotizaciones = () => {
         return cliente?.[prop] || '-';
     };
 
+    // Imprimir solo el área del reporte
+    const handlePrint = () => {
+        document.body.classList.add('print-timeline-only');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                document.body.classList.remove('print-timeline-only');
+            }, 100);
+        }, 50);
+    };
+
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
             <ToastContainer position="bottom-right" autoClose={3000} />
 
-            <div className="timeline-report-container">
+            {/* Botón Imprimir arriba del reporte */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '16px 32px 0 0' }}>
+                <button
+                    className="btn-secondary"
+                    onClick={handlePrint}
+                    type="button"
+                    style={{ minWidth: 110 }}
+                >
+                    🖨️ Imprimir
+                </button>
+            </div>
+
+            <div className="timeline-report-container" ref={timelineReportRef}>
                 <div className="timeline-header">
                     <h1 className="estado-header-title">
                         <FileText size={32} />

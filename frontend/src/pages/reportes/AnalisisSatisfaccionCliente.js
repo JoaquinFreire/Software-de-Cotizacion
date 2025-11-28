@@ -238,6 +238,7 @@ const AnalisisSatisfaccionCliente = () => {
     const [metricasGlobales, setMetricasGlobales] = useState({});
     const [mostrarLeyenda, setMostrarLeyenda] = useState(false);
     const pdfRef = useRef();
+    const reportContainerRef = useRef();
 
     const [userRole, setUserRole] = useState(null);
     const [roleLoading, setRoleLoading] = useState(true);
@@ -349,6 +350,17 @@ const AnalisisSatisfaccionCliente = () => {
                 color={index < rating ? "#FFD700" : "#ccc"}
             />
         ));
+    };
+
+    // Imprimir solo el área del reporte
+    const handlePrint = () => {
+        document.body.classList.add('print-satisfaccion-only');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                document.body.classList.remove('print-satisfaccion-only');
+            }, 100);
+        }, 50);
     };
 
     if (roleLoading) {
@@ -508,258 +520,267 @@ const AnalisisSatisfaccionCliente = () => {
     return (
         <div className="dashboard-container">
             <Navigation onLogout={handleLogout} />
-            <div className="satisfaction-report-container">
-            <div className="satisfaction-dashboard-main">
-                <div className="satisfaction-header">
-                    <div className="satisfaction-title">
-                        <TrendingUp size={32} />
-                        <div>
-                            <h1>Análisis de Satisfacción del Cliente</h1>
-                            <p>Reporte detallado de las respuestas del formulario de satisfacción</p>
+            <div className="satisfaction-report-container" ref={reportContainerRef}>
+                <div className="satisfaction-dashboard-main">
+                    <div className="satisfaction-header">
+                        <div className="satisfaction-title">
+                            <TrendingUp size={32} />
+                            <div>
+                                <h1>Análisis de Satisfacción del Cliente</h1>
+                                <p>Reporte detallado de las respuestas del formulario de satisfacción</p>
+                            </div>
                         </div>
-                    </div>
-                </div>
-
-                <div className="satisfaction-filters-inline">
-                    <div className="filters-left">
-                        <div className="filter-group-inline">
-                            <Filter size={18} />
-                            <label>Fecha:</label>
-                            <input
-                                type="date"
-                                value={fechaDesde}
-                                onChange={e => setFechaDesde(e.target.value)}
-                                className="filter-input"
-                            />
-                            <span>a</span>
-                            <input
-                                type="date"
-                                value={fechaHasta}
-                                onChange={e => setFechaHasta(e.target.value)}
-                                className="filter-input"
-                            />
+                        {/* Botón Imprimir */}
+                        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <button
+                                className="satisfaction-btn satisfaction-btn-secondary"
+                                onClick={handlePrint}
+                                type="button"
+                            >
+                                🖨️ Imprimir
+                            </button>
                         </div>
                     </div>
 
-                    <div className="filters-right">
+                    <div className="satisfaction-filters-inline">
+                        <div className="filters-left">
+                            <div className="filter-group-inline">
+                                <Filter size={18} />
+                                <label>Fecha:</label>
+                                <input
+                                    type="date"
+                                    value={fechaDesde}
+                                    onChange={e => setFechaDesde(e.target.value)}
+                                    className="filter-input"
+                                />
+                                <span>a</span>
+                                <input
+                                    type="date"
+                                    value={fechaHasta}
+                                    onChange={e => setFechaHasta(e.target.value)}
+                                    className="filter-input"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="filters-right">
+                            <button
+                                className="satisfaction-btn satisfaction-btn-primary"
+                                onClick={handleGenerarReporte}
+                                disabled={loading || !fechaDesde || !fechaHasta}
+                            >
+                                {loading ? 'Cargando...' : 'Generar Reporte'}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="leyenda-puntuaciones">
                         <button
-                            className="satisfaction-btn satisfaction-btn-primary"
-                            onClick={handleGenerarReporte}
-                            disabled={loading || !fechaDesde || !fechaHasta}
+                            className="leyenda-toggle"
+                            onClick={() => setMostrarLeyenda(!mostrarLeyenda)}
                         >
-                            {loading ? 'Cargando...' : 'Generar Reporte'}
+                            <Info size={16} />
+                            Significado de puntuaciones
                         </button>
-                    </div>
-                </div>
 
-                <div className="leyenda-puntuaciones">
-                    <button
-                        className="leyenda-toggle"
-                        onClick={() => setMostrarLeyenda(!mostrarLeyenda)}
-                    >
-                        <Info size={16} />
-                        Significado de puntuaciones
-                    </button>
-
-                    {mostrarLeyenda && (
-                        <div className="leyenda-contenido">
-                            <div className="leyenda-item">
-                                <span className="leyenda-color" style={{ backgroundColor: '#ef4444' }}></span>
-                                <span className="leyenda-texto">1 - Muy Malo</span>
-                            </div>
-                            <div className="leyenda-item">
-                                <span className="leyenda-color" style={{ backgroundColor: '#f59e0b' }}></span>
-                                <span className="leyenda-texto">2 - Malo</span>
-                            </div>
-                            <div className="leyenda-item">
-                                <span className="leyenda-color" style={{ backgroundColor: '#eab308' }}></span>
-                                <span className="leyenda-texto">3 - Regular</span>
-                            </div>
-                            <div className="leyenda-item">
-                                <span className="leyenda-color" style={{ backgroundColor: '#84cc16' }}></span>
-                                <span className="leyenda-texto">4 - Bueno</span>
-                            </div>
-                            <div className="leyenda-item">
-                                <span className="leyenda-color" style={{ backgroundColor: '#10b981' }}></span>
-                                <span className="leyenda-texto">5 - Excelente</span>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* Cuerpo */}
-                <div className="satisfaction-content">
-                    {loading && generar ? (
-                        <div className="satisfaction-loading">
-                            <ReactLoading type="spin" color="#26b7cd" height={80} width={80} />
-                            <div className="loading-text">Cargando reporte...</div>
-                        </div>
-                    ) : !generar ? (
-                        <div className="satisfaction-empty">
-                            <BarChart3 size={64} />
-                            <h3>Reporte no generado</h3>
-                            <p>Presione "Generar Reporte" para analizar las respuestas</p>
-                        </div>
-                    ) : (
-                        <div className="satisfaction-report" ref={pdfRef}>
-                            <div className="metrics-global">
-                                <div className="metric-card">
-                                    <div className="metric-icon">
-                                        <Users size={24} />
-                                    </div>
-                                    <div className="metric-content">
-                                        <div className="metric-value">{metricasGlobales.totalRespuestas || 0}</div>
-                                        <div className="metric-label">Total Respuestas</div>
-                                    </div>
+                        {mostrarLeyenda && (
+                            <div className="leyenda-contenido">
+                                <div className="leyenda-item">
+                                    <span className="leyenda-color" style={{ backgroundColor: '#ef4444' }}></span>
+                                    <span className="leyenda-texto">1 - Muy Malo</span>
                                 </div>
+                                <div className="leyenda-item">
+                                    <span className="leyenda-color" style={{ backgroundColor: '#f59e0b' }}></span>
+                                    <span className="leyenda-texto">2 - Malo</span>
+                                </div>
+                                <div className="leyenda-item">
+                                    <span className="leyenda-color" style={{ backgroundColor: '#eab308' }}></span>
+                                    <span className="leyenda-texto">3 - Regular</span>
+                                </div>
+                                <div className="leyenda-item">
+                                    <span className="leyenda-color" style={{ backgroundColor: '#84cc16' }}></span>
+                                    <span className="leyenda-texto">4 - Bueno</span>
+                                </div>
+                                <div className="leyenda-item">
+                                    <span className="leyenda-color" style={{ backgroundColor: '#10b981' }}></span>
+                                    <span className="leyenda-texto">5 - Excelente</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
-                                <div className="metric-card">
-                                    <div className="metric-icon">
-                                        <Star size={24} />
+                    {/* Cuerpo */}
+                    <div className="satisfaction-content">
+                        {loading && generar ? (
+                            <div className="satisfaction-loading">
+                                <ReactLoading type="spin" color="#26b7cd" height={80} width={80} />
+                                <div className="loading-text">Cargando reporte...</div>
+                            </div>
+                        ) : !generar ? (
+                            <div className="satisfaction-empty">
+                                <BarChart3 size={64} />
+                                <h3>Reporte no generado</h3>
+                                <p>Presione "Generar Reporte" para analizar las respuestas</p>
+                            </div>
+                        ) : (
+                            <div className="satisfaction-report" ref={pdfRef}>
+                                <div className="metrics-global">
+                                    <div className="metric-card">
+                                        <div className="metric-icon">
+                                            <Users size={24} />
+                                        </div>
+                                        <div className="metric-content">
+                                            <div className="metric-value">{metricasGlobales.totalRespuestas || 0}</div>
+                                            <div className="metric-label">Total Respuestas</div>
+                                        </div>
                                     </div>
-                                    <div className="metric-content">
-                                        <div className="metric-value">{metricasGlobales.satisfaccionGeneral || 0}/5</div>
-                                        <div className="metric-label">Satisfacción General</div>
-                                        <div className="metric-stars">
-                                            {renderStars(Math.round(metricasGlobales.satisfaccionGeneral || 0))}
+
+                                    <div className="metric-card">
+                                        <div className="metric-icon">
+                                            <Star size={24} />
+                                        </div>
+                                        <div className="metric-content">
+                                            <div className="metric-value">{metricasGlobales.satisfaccionGeneral || 0}/5</div>
+                                            <div className="metric-label">Satisfacción General</div>
+                                            <div className="metric-stars">
+                                                {renderStars(Math.round(metricasGlobales.satisfaccionGeneral || 0))}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="metric-card">
+                                        <div className="metric-icon">
+                                            <MessageSquare size={24} />
+                                        </div>
+                                        <div className="metric-content">
+                                            <div className="metric-value">{metricasGlobales.promedioRecomendacion || 0}/10</div>
+                                            <div className="metric-label">Promedio Recomendación</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="metric-card">
-                                    <div className="metric-icon">
-                                        <MessageSquare size={24} />
-                                    </div>
-                                    <div className="metric-content">
-                                        <div className="metric-value">{metricasGlobales.promedioRecomendacion || 0}/10</div>
-                                        <div className="metric-label">Promedio Recomendación</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {preguntasCalificacion.length > 0 && (
-                                <div className="chart-section">
-                                    <h3>Comparativa de Preguntas de Calificación</h3>
-                                    <div className="bar-chart-container">
-                                        <Bar
-                                            data={barData}
-                                            options={{
-                                                responsive: true,
-                                                maintainAspectRatio: false,
-                                                plugins: {
-                                                    legend: {
-                                                        display: false
-                                                    },
-                                                    datalabels: {
-                                                        display: false // Ocultar los 0
-                                                    }
-                                                },
-                                                scales: {
-                                                    y: {
-                                                        beginAtZero: true,
-                                                        max: 5,
-                                                        ticks: {
-                                                            color: '#b0b0b0'
-                                                        },
-                                                        grid: {
-                                                            color: '#333'
-                                                        }
-                                                    },
-                                                    x: {
-                                                        ticks: {
-                                                            color: '#b0b0b0',
-                                                            maxRotation: 45,
-                                                            minRotation: 45
-                                                        },
-                                                        grid: {
-                                                            display: false
-                                                        }
-                                                    }
-                                                }
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className="charts-grid">
-                                {graficos.filter(g => g.total > 0).map((g, idx) => (
-                                    <div key={idx} className="chart-card">
-                                        <h4>{g.tituloCorto}</h4>
-                                        <div className="chart-container">
-                                            <Pie
-                                                data={g.data}
+                                {preguntasCalificacion.length > 0 && (
+                                    <div className="chart-section">
+                                        <h3>Comparativa de Preguntas de Calificación</h3>
+                                        <div className="bar-chart-container">
+                                            <Bar
+                                                data={barData}
                                                 options={{
                                                     responsive: true,
                                                     maintainAspectRatio: false,
                                                     plugins: {
                                                         legend: {
-                                                            position: 'bottom',
-                                                            labels: {
-                                                                color: '#b0b0b0',
-                                                                font: {
-                                                                    size: 11
-                                                                }
-                                                            }
+                                                            display: false
                                                         },
                                                         datalabels: {
-                                                            display: false // Ocultar los 0 en los gráficos de torta
+                                                            display: false // Ocultar los 0
+                                                        }
+                                                    },
+                                                    scales: {
+                                                        y: {
+                                                            beginAtZero: true,
+                                                            max: 5,
+                                                            ticks: {
+                                                                color: '#b0b0b0'
+                                                            },
+                                                            grid: {
+                                                                color: '#333'
+                                                            }
+                                                        },
+                                                        x: {
+                                                            ticks: {
+                                                                color: '#b0b0b0',
+                                                                maxRotation: 45,
+                                                                minRotation: 45
+                                                            },
+                                                            grid: {
+                                                                display: false
+                                                            }
                                                         }
                                                     }
                                                 }}
                                             />
                                         </div>
-                                        <div className="chart-table">
-                                            <table>
-                                                <thead>
-                                                    <tr>
-                                                        <th>Respuesta</th>
-                                                        <th>Cantidad</th>
-                                                        <th>Porcentaje</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {g.opciones.map((op, i) => (
-                                                        <tr key={op}>
-                                                            <td>
-                                                                {op in significadosPuntuacion ?
-                                                                    `${op} - ${significadosPuntuacion[op]}` :
-                                                                    op
-                                                                }
-                                                            </td>
-                                                            <td>{g.data.datasets[0].data[i]}</td>
-                                                            <td>{g.total ? ((g.data.datasets[0].data[i] / g.total) * 100).toFixed(1) + '%' : '0%'}</td>
-                                                        </tr>
-                                                    ))}
-                                                    <tr className="total-row">
-                                                        <td><strong>Total</strong></td>
-                                                        <td><strong>{g.total}</strong></td>
-                                                        <td><strong>100%</strong></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
                                     </div>
-                                ))}
-                            </div>
+                                )}
 
-                            <div className="report-info">
-                                <div className="info-section">
-                                    <strong>Fuente de datos:</strong> Formulario de Google - Respuestas de satisfacción
+                                <div className="charts-grid">
+                                    {graficos.filter(g => g.total > 0).map((g, idx) => (
+                                        <div key={idx} className="chart-card">
+                                            <h4>{g.tituloCorto}</h4>
+                                            <div className="chart-container">
+                                                <Pie
+                                                    data={g.data}
+                                                    options={{
+                                                        responsive: true,
+                                                        maintainAspectRatio: false,
+                                                        plugins: {
+                                                            legend: {
+                                                                position: 'bottom',
+                                                                labels: {
+                                                                    color: '#b0b0b0',
+                                                                    font: {
+                                                                        size: 11
+                                                                    }
+                                                                }
+                                                            },
+                                                            datalabels: {
+                                                                display: false // Ocultar los 0 en los gráficos de torta
+                                                            }
+                                                        }
+                                                    }}
+                                                />
+                                            </div>
+                                            <div className="chart-table">
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Respuesta</th>
+                                                            <th>Cantidad</th>
+                                                            <th>Porcentaje</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {g.opciones.map((op, i) => (
+                                                            <tr key={op}>
+                                                                <td>
+                                                                    {op in significadosPuntuacion ?
+                                                                        `${op} - ${significadosPuntuacion[op]}` :
+                                                                        op
+                                                                    }
+                                                                </td>
+                                                                <td>{g.data.datasets[0].data[i]}</td>
+                                                                <td>{g.total ? ((g.data.datasets[0].data[i] / g.total) * 100).toFixed(1) + '%' : '0%'}</td>
+                                                            </tr>
+                                                        ))}
+                                                        <tr className="total-row">
+                                                            <td><strong>Total</strong></td>
+                                                            <td><strong>{g.total}</strong></td>
+                                                            <td><strong>100%</strong></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                                <div className="info-section">
-                                    <strong>Fecha de generación:</strong> {new Date().toLocaleString()}
-                                </div>
-                                <div className="info-section">
-                                    <strong>Período analizado:</strong> {fechaDesde} a {fechaHasta}
+
+                                <div className="report-info">
+                                    <div className="info-section">
+                                        <strong>Fuente de datos:</strong> Formulario de Google - Respuestas de satisfacción
+                                    </div>
+                                    <div className="info-section">
+                                        <strong>Fecha de generación:</strong> {new Date().toLocaleString()}
+                                    </div>
+                                    <div className="info-section">
+                                        <strong>Período analizado:</strong> {fechaDesde} a {fechaHasta}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
- </div>
-      
             <Footer />
         </div>
     );

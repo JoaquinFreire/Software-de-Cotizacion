@@ -746,3 +746,270 @@ body.light-mode .bar-label {
     font-weight: 600;
     color: #999999;
 }
+
+/* Solo imprimir el área del reporte de agenda semanal */
+@media print {
+    body.print-agenda-only .dashboard-container > *:not(.estado-main-wrapper),
+    body.print-agenda-only .estado-main-wrapper > *:not(.estado-content-container),
+    body.print-agenda-only .estado-content-container > *:not(.estado-main-container),
+    body.print-agenda-only .estado-main-container > *:not(.estado-header):not(.estado-filtros):not(.satisfaction-content) {
+        display: none !important;
+    }
+    body.print-agenda-only .dashboard-container,
+    body.print-agenda-only .estado-main-wrapper,
+    body.print-agenda-only .estado-content-container,
+    body.print-agenda-only .estado-main-container {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+    }
+    body.print-agenda-only .estado-main-container {
+        min-height: auto !important;
+    }
+    body.print-agenda-only .estado-header,
+    body.print-agenda-only .estado-filtros,
+    body.print-agenda-only .satisfaction-content {
+        display: block !important;
+    }
+}
+
+/* Solo imprimir el área del reporte de Clientes con Mayor Volumen */
+@media print {
+    body.print-clientes-volumen-only .dashboard-container > *:not(.dashboard-main-wrapper),
+    body.print-clientes-volumen-only .dashboard-main-wrapper > *:not(.dashboard-content-container),
+    body.print-clientes-volumen-only .dashboard-content-container {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+    }
+    body.print-clientes-volumen-only .dashboard-main-wrapper,
+    body.print-clientes-volumen-only .dashboard-content-container {
+        display: block !important;
+    }
+    body.print-clientes-volumen-only nav,
+    body.print-clientes-volumen-only footer,
+    body.print-clientes-volumen-only .Toastify,
+    body.print-clientes-volumen-only .scroll-to-top-btn {
+        display: none !important;
+    }
+}
+
+/* Solo imprimir el área del reporte de Línea de Tiempo de Cotizaciones */
+@media print {
+    body.print-timeline-only .dashboard-container > *:not(.timeline-report-container),
+    body.print-timeline-only .timeline-report-container > *:not(.timeline-header):not(.timeline-layout) {
+        display: none !important;
+    }
+    body.print-timeline-only .dashboard-container,
+    body.print-timeline-only .timeline-report-container {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+    }
+    body.print-timeline-only nav,
+    body.print-timeline-only footer,
+    body.print-timeline-only .Toastify,
+    body.print-timeline-only .scroll-to-top-btn {
+        display: none !important;
+    }
+    body.print-timeline-only .timeline-header,
+    body.print-timeline-only .timeline-layout {
+        display: block !important;
+    }
+}
+
+/* Solo imprimir el área del reporte de Análisis de Proyecto por Ubicación Geográfica */
+@media print {
+    body.print-ubicacion-only .dashboard-container > *:not(.analisis-ubicacion-content),
+    body.print-ubicacion-only .analisis-ubicacion-content {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        display: block !important;
+    }
+    body.print-ubicacion-only nav,
+    body.print-ubicacion-only footer,
+    body.print-ubicacion-only .Toastify,
+    body.print-ubicacion-only .scroll-to-top-btn {
+        display: none !important;
+    }
+}
+
+/* Solo imprimir el área del reporte de Satisfacción Cliente */
+@media print {
+    body.print-satisfaccion-only .dashboard-container > *:not(.satisfaction-report-container),
+    body.print-satisfaccion-only .satisfaction-report-container {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        display: block !important;
+    }
+    body.print-satisfaccion-only nav,
+    body.print-satisfaccion-only footer,
+    body.print-satisfaccion-only .Toastify,
+    body.print-satisfaccion-only .scroll-to-top-btn {
+        display: none !important;
+    }
+}
+
+/* Solo imprimir el área del reporte de Tendencias de Cotización por Mes */
+@media print {
+    body.print-tendencias-only .dashboard-container > *:not(.tendencias-main-wrapper),
+    body.print-tendencias-only .tendencias-main-wrapper {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        display: block !important;
+    }
+    body.print-tendencias-only nav,
+    body.print-tendencias-only footer,
+    body.print-tendencias-only .Toastify,
+    body.print-tendencias-only .scroll-to-top-btn {
+        display: none !important;
+    }
+}
+
+/* Solo imprimir el área del reporte de Consumo de Complementos */
+@media print {
+    body.print-consumo-complementos-only .dashboard-container > *:not(.consumo-complementos-content),
+    body.print-consumo-complementos-only .consumo-complementos-content {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        display: block !important;
+    }
+    body.print-consumo-complementos-only nav,
+    body.print-consumo-complementos-only footer,
+    body.print-consumo-complementos-only .Toastify,
+    body.print-consumo-complementos-only .scroll-to-top-btn {
+        display: none !important;
+    }
+}
+
+/* Solo imprimir el área del dashboard de métricas personales */
+@media print {
+    body.print-metricas-personales-only .dashboard-container > *:not(.metrics-dashboard-main-wrapper),
+    body.print-metricas-personales-only .metrics-dashboard-main-wrapper {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        display: block !important;
+    }
+    body.print-metricas-personales-only nav,
+    body.print-metricas-personales-only footer,
+    body.print-metricas-personales-only .Toastify,
+    body.print-metricas-personales-only .scroll-to-top-btn {
+        display: none !important;
+    }
+}
+
+/* Solo imprimir el área del dashboard de eficiencia operativa */
+@media print {
+    body.print-eficiencia-operativa-only .dashboard-container > *:not(.dashboard-main-wrapper),
+    body.print-eficiencia-operativa-only .dashboard-main-wrapper {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        display: block !important;
+    }
+    body.print-eficiencia-operativa-only nav,
+    body.print-eficiencia-operativa-only footer,
+    body.print-eficiencia-operativa-only .Toastify,
+    body.print-eficiencia-operativa-only .scroll-to-top-btn {
+        display: none !important;
+    }
+}
+
+/* Solo imprimir el área del reporte de Materiales Usados */
+@media print {
+    body.print-materiales-usados-only .dashboard-container > *:not(.dashboard-main-wrapper),
+    body.print-materiales-usados-only .dashboard-main-wrapper {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        display: block !important;
+    }
+    body.print-materiales-usados-only nav,
+    body.print-materiales-usados-only footer,
+    body.print-materiales-usados-only .Toastify,
+    body.print-materiales-usados-only .scroll-to-top-btn {
+        display: none !important;
+    }
+}
+
+/* Solo imprimir el área del reporte de Oportunidades Perdidas */
+@media print {
+    body.print-oportunidades-perdidas-only .dashboard-container > *:not(.oportunidades-main-wrapper),
+    body.print-oportunidades-perdidas-only .oportunidades-main-wrapper {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        display: block !important;
+    }
+    body.print-oportunidades-perdidas-only nav,
+    body.print-oportunidades-perdidas-only footer,
+    body.print-oportunidades-perdidas-only .Toastify,
+    body.print-oportunidades-perdidas-only .scroll-to-top-btn {
+        display: none !important;
+    }
+}
+
+/* Solo imprimir el área del dashboard de sostenibilidad */
+@media print {
+    body.print-sostenibilidad-only .dashboard-container > *:not(.sustainability-dashboard-main-wrapper),
+    body.print-sostenibilidad-only .sustainability-dashboard-main-wrapper {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        display: block !important;
+    }
+    body.print-sostenibilidad-only nav,
+    body.print-sostenibilidad-only footer,
+    body.print-sostenibilidad-only .Toastify,
+    body.print-sostenibilidad-only .scroll-to-top-btn {
+        display: none !important;
+    }
+}
+
+/* Solo imprimir el área del reporte de Beneficio en Cotizaciones por Tipo de Línea */
+@media print {
+    body.print-beneficio-only .dashboard-container > *:not(.beneficio-main-wrapper),
+    body.print-beneficio-only .beneficio-main-wrapper {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        display: block !important;
+    }
+    body.print-beneficio-only nav,
+    body.print-beneficio-only footer,
+    body.print-beneficio-only .Toastify,
+    body.print-beneficio-only .scroll-to-top-btn {
+        display: none !important;
+    }
+}

@@ -585,6 +585,24 @@ const ReporteOportunidadesPerdidas = () => {
                                     <RefreshCw size={18} />
                                     {loading ? 'Generando...' : 'Generar Reporte'}
                                 </button>
+                                {/* Botón Imprimir */}
+                                <button
+                                    className="oportunidades-btn oportunidades-btn-secondary"
+                                    style={{ marginLeft: 8 }}
+                                    onClick={() => {
+                                        document.body.classList.add('print-oportunidades-perdidas-only');
+                                        setTimeout(() => {
+                                            window.print();
+                                            setTimeout(() => {
+                                                document.body.classList.remove('print-oportunidades-perdidas-only');
+                                            }, 100);
+                                        }, 50);
+                                    }}
+                                    disabled={loading}
+                                    type="button"
+                                >
+                                    🖨️ Imprimir
+                                </button>
                             </div>
                         </div>
 
