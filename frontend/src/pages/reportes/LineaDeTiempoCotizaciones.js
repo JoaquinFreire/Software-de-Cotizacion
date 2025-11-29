@@ -55,6 +55,15 @@ const safeArray = (data) => {
     if (typeof data === 'object') return [data];
     return [];
 };
+// fecha maxima
+    const getTodayDate = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+    const maxDate = getTodayDate();
 
 const OrdenamientoFlecha = ({ campo, ordenActual, onOrdenar, tieneDatos = true }) => {
     if (!tieneDatos) return null;
@@ -124,6 +133,7 @@ const FiltrosAvanzados = ({
                                     value={filtrosBasicos.toDate || ''}
                                     onChange={(e) => filtrosBasicos.onToDateChange(e.target.value)}
                                     className="fecha-input-field"
+                                    max={maxDate}
                                 />
                             </div>
                         </div>

@@ -374,6 +374,16 @@ const ReporteEstadoCotizaciones = () => {
         return <Filter size={14} />;
     };
 
+    // fecha maxima
+    const getTodayDate = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+    const maxDate = getTodayDate();
+
     const renderTablaEstado = (estado, titulo, colorClase, icono, ref) => {
         const count = cotizacionesPorEstado[estado].length;
         return (
@@ -522,11 +532,11 @@ const ReporteEstadoCotizaciones = () => {
 
                         {/* Header con badge que carga inmediatamente */}
                         <div className="estado-header">
-                                <BarChart3 size={32} />
-                                <div>
-                                    <h1 className="estado-header-title">Reporte de Estado de Cotizaciones</h1>
-                                    <p>Análisis detallado por estados y períodos</p>
-                                </div>
+                            <BarChart3 size={32} />
+                            <div>
+                                <h1 className="estado-header-title">Reporte de Estado de Cotizaciones</h1>
+                                <p>Análisis detallado por estados y períodos</p>
+                            </div>
                         </div>
 
                         {/* Filtros unificados */}
@@ -549,6 +559,7 @@ const ReporteEstadoCotizaciones = () => {
                                         value={fechaHasta}
                                         onChange={(e) => setFechaHasta(e.target.value)}
                                         className="filtro-input"
+                                        max={maxDate}
                                     />
                                 </div>
 

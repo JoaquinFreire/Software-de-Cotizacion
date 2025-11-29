@@ -43,6 +43,7 @@ body.light-mode .beneficio-content-container {
     padding: 24px;
     background: var(--beneficio-bg-dark);
     min-height: calc(100vh - 120px);
+    border-radius: 10px;
 }
 
 /* LOADING SCREEN */

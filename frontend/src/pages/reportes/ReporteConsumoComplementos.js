@@ -473,25 +473,7 @@ const ReporteConsumoComplementos = () => {
         fetchData(fechaDesde, fechaHasta);
     };
 
-    const handleImprimir = () => window.print();
-    const handleDescargarPDF = () => {
-        if (!pdfRef.current) return;
-        const scrollBtn = document.querySelector('.scroll-to-top-btn');
-        if (scrollBtn) scrollBtn.style.display = 'none';
-        const opt = {
-            margin: [0.2, 0.2, 0.2, 0.2],
-            filename: `reporte_consumo_complementos.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, logging: false, scrollY: 0 },
-            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-        };
-        setTimeout(() => {
-            html2pdf().set(opt).from(pdfRef.current).save().then(() => {
-                if (scrollBtn) scrollBtn.style.display = '';
-            });
-        }, 100);
-    };
+
 
     // Imprimir solo el área del reporte
     const handlePrint = () => {
@@ -694,6 +676,15 @@ const ReporteConsumoComplementos = () => {
         if (complemento.toLowerCase().includes('baranda')) return '🎯';
         return '📦';
     };
+    // fecha maxima
+    const getTodayDate = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+    const maxDate = getTodayDate();
 
     // Función para obtener icono de tendencia
     const getIconoTendencia = (tendencia) => {
@@ -755,6 +746,7 @@ const ReporteConsumoComplementos = () => {
                                 value={fechaHasta}
                                 onChange={e => setFechaHasta(e.target.value)}
                                 disabled={loading}
+                                max={maxDate}
                             />
                         </div>
                         <div className="cc-filtro">
