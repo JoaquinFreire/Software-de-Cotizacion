@@ -96,7 +96,7 @@ const AdminUsuarios = () => {
             const response = await axios.get(`${API_URL}/api/users/userroles`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setRoles(safeArray(response.data)); // <-- Normaliza aquí
+            setRoles(safeArray(response.data));
         } catch (error) {
             console.error("Error fetching roles:", error);
         }
@@ -336,7 +336,7 @@ const filteredUsers = safeArray(users).filter(user => {
                                         <th>Apellido</th>
                                         <th>Legajo</th>
                                         <th>Email</th>
-                                        <th>Status</th>
+                                        <th>Estado</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
@@ -491,7 +491,7 @@ const filteredUsers = safeArray(users).filter(user => {
                                         <option value="">Seleccione un rol</option>
                                         {safeArray(roles).map((role) => (
                                             <option key={role.id} value={role.id}>
-                                                {role.role_name}
+                                                {role.role_name == "quotator" ? "Cotizador" : role.role_name == "manager" ? "Gerente" : role.role_name == "coordinator" ? "Coordinador" : role.role_name}
                                             </option>
                                         ))}
                                     </select>
